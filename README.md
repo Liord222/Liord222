@@ -2,7 +2,6 @@
 - 👀 I’m interested in Developing 
 - 🌱 I’m currently learning Coding
 - 💞️ I’m looking to collaborate on a project
-- 📫 How to reach me gmail: liordahan80@gmail.com
 - 😄 Pronouns: he (1/2)
 - ⚡ Fun fact: i am a jenius
 

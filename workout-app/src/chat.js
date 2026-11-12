@@ -1,9 +1,10 @@
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
+/* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
-  return PLAN.map((w, i) => 'אימון ' + (i + 1) + ' – ' + w.name + ':\n' + w.ex.map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.name + ': ' + e.sets + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e) + ' | ' + e.int).join('\n')).join('\n\n');
+  return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return 'אימון ' + (i + 1) + ' – ' + w.name + (P.m ? ' (' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' במזוציקל') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.name + ': ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
 }
-const RULES = 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
+const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
   'התוכנית של המשתמש (Upper/Lower, ארבעה אימונים שמתבצעים במחזור לפי הסדר). בסוגריים המרובעים מופיע מזהה התרגיל:\n\n' + planText() + '\n\n' +
   'כללים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה בתשובה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה הסבר קצר (שרירי מטרה ודפוס תנועה), איך להתאים סטים, חזרות, מנוחה וקרבה לכשל, ודגש ביצוע אחד.\n' +
@@ -14,6 +15,7 @@ const RULES = 'אתה אילון, המאמן האישי בתוך gymi, אפלי�
   '  השתמש בתרגיל שבהקשר אם לא צוין תרגיל אחר. אל תוסיף את השורה אם לא ביקשו לרשום, או אם חסר מספר החזרות (במקרה כזה שאל). אל תזכיר את השורה הזאת בטקסט.\n' +
   '- כשאין תחליף מדויק, הצע חלופה אחת או שתיים שנפוצות בחדרי כושר.\n' +
   '- שמור על כוונת התוכנית: אותה קבוצת שרירים, אותו טווח חזרות ואותה קרבה לכשל.\n' +
+  '- האפליקציה מנהלת מזוציקל: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון הוא דילואד. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל) ומאפשרת להחליף תרגיל בכפתור "החלף תרגיל" לתרגיל באותו דפוס תנועה. כששואלים על יעד, משקל או עצימות, התבסס על הנתונים שבהקשר.\n' +
   '- אין לך מידע רפואי על המשתמש. אם מוזכרים כאב או פציעה, המלץ להפסיק את התרגיל ולהתייעץ עם איש מקצוע.\n' +
   '- טקסט פשוט בלבד, בלי טבלאות ובלי כותרות. אפשר שורות קצרות שמתחילות ב-"• ".';
 const ERR = {
@@ -100,8 +102,10 @@ function ctxLine() {
   let t = '[הקשר מהאפליקציה. האימון הפתוח כרגע: אימון ' + (S.tab + 1) + ' · ' + PLAN[S.tab].name + '.';
   if (e) {
     const w = wkOf(id);
-    t += ' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.name + '" (אימון ' + (w + 1) + '): ' + e.sets + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + ', ' + e.int + '.';
-    const hist = sorted().filter((s) => s.w === w && rowsOf(s, id).some(isDone)).slice(0, 3);
+    const cur = live(w), rir = rirOf(e, cur), fu = firstUndone(cur, e), T = fu >= 0 ? targetOf(e, fu, cur) : null, pe = planEx(id);
+    t += ' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.name + '" (אימון ' + (w + 1) + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
+    if (T) t += ' היעד לסט הבא (סט ' + (fu + 1) + '): ' + fmtRow(T) + '.';
+    const hist = sorted().filter((s) => s.w === w && moveOf(pe, s) === e.mv && rowsOf(s, id).some(isDone)).slice(0, 3);
     if (hist.length) t += ' ביצועים אחרונים (ק״ג×חזרות): ' + hist.map((s) => (s.end ? ago(s.ts) : 'באימון הנוכחי') + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
     else t += ' עוד אין רישום קודם לתרגיל הזה.';
   }
@@ -150,7 +154,7 @@ async function sendChat(preset) {
   try {
     const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { reply.text = u.text; paintLast(); } };
     if (img) opts.images = [img];
-    const res = await sample([{ role: 'user', content: RULES }].concat(chat.turns.slice(-16)), opts);
+    const res = await sample([{ role: 'user', content: rules() }].concat(chat.turns.slice(-16)), opts);
     reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'התשובה נקטעה באמצע. בקש המשך או שאל שאלה קצרה יותר.';
     chat.turns.push({ role: 'assistant', content: res.text });
     const lg = res.truncated ? null : applyLog(res.text); if (lg) reply.logged = lg;
@@ -163,8 +167,14 @@ async function sendChat(preset) {
   } finally { chat.ctl = null; setBusy(false); }
 }
 function showImgBtns() { $('#camBtn').hidden = $('#galBtn').hidden = !chat.canImg; }
+/* the exercise picker follows the plan as it stands (swapped movements show under their own name) */
+function fillCtx() {
+  const sel = $('#chatCtx'), v = sel.value;
+  sel.innerHTML = '<option value="">כל התוכנית (שאלה כללית)</option>' + PLAN.map((w, i) => '<optgroup label="אימון ' + (i + 1) + ' · ' + w.name + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + esc(e.name) + '</option>').join('') + '</optgroup>').join('');
+  sel.value = v;
+}
 function initChat() {
-  $('#chatCtx').innerHTML = '<option value="">כל התוכנית (שאלה כללית)</option>' + PLAN.map((w, i) => '<optgroup label="אימון ' + (i + 1) + ' · ' + w.name + '">' + w.ex.map((e) => '<option value="' + e.id + '">' + esc(e.name) + '</option>').join('') + '</optgroup>').join('');
+  fillCtx();
   if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); return; }
   chat.sampleP = window.claude.use('sample');
   chat.sampleP.then(async (sample) => {
@@ -176,6 +186,7 @@ function initChat() {
   renderMsgs();
 }
 function openChat(exId) {
+  fillCtx();
   if (exId) $('#chatCtx').value = exId;
   $('#chat').classList.add('open');
   if (!matchMedia('(min-width:1000px)').matches) document.body.style.overflow = 'hidden'; else $('#chatInput').focus();

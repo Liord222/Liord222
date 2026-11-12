@@ -70,7 +70,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .btn.big{min-height:54px;font-size:17px;width:100%;border-radius:14px}
 .btn:disabled{opacity:.45;cursor:default}
-.btn:active:not(:disabled),.chip-r:active,.step:active,.setp:active{transform:scale(.97)}
+.btn:active:not(:disabled),.chip-r:active,.step:active,.setp:active,.hit:active,.seg button:active{transform:scale(.97)}
 .link{background:none;border:0;padding:8px 4px;color:var(--ink-2);font-size:13px;text-decoration:underline;text-underline-offset:3px}
 .ava{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:700;font-size:15px;line-height:1;flex:none}
 .coach-btn{flex:none;padding:0 14px 0 8px;border-radius:99px}
@@ -86,7 +86,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .flag{position:absolute;top:-8px;inset-inline-end:6px;font-size:10px;font-weight:700;line-height:1.5;padding:0 6px;border-radius:99px;background:var(--accent);color:var(--on-accent);white-space:nowrap}
 .flag.live{background:var(--ok);color:var(--on-ok)}
 
-.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start;padding-bottom:230px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start;padding-bottom:310px}
 .main{min-width:0;display:grid;gap:14px}
 
 /* hero */
@@ -171,7 +171,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .setp.cur .st{border-color:var(--accent)}
 .setp .pr{font-size:11px;font-weight:700;color:var(--rest);background:var(--rest-soft);border-radius:99px;padding:1px 7px;margin-inline-start:6px;font-family:var(--f-body)}
 .same{justify-self:start;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--line));background:transparent;min-height:40px;font-size:13.5px}
-.trend{order:5;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}
+.trend{order:6;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}
 .trend .k{font-size:11px;color:var(--ink-3);font-weight:700;letter-spacing:.03em}
 .trend .val{font-family:var(--f-display);font-size:28px;font-weight:700;line-height:1;direction:ltr;text-align:right}
 .trend .val small{font-family:var(--f-body);font-size:12px;font-weight:600;color:var(--ink-3)}
@@ -180,7 +180,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .trend .d.dn{color:var(--warn)}
 .trend svg{grid-row:1/4;grid-column:2;width:118px;height:44px;overflow:visible;direction:ltr}
 .trend p{grid-column:1/-1;font-size:13px;color:var(--ink-2)}
-.ask{order:6;width:100%;border-style:dashed;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:transparent}
+.ask{width:100%;border-style:dashed;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:transparent}
 
 .history{display:grid;gap:8px;padding-top:14px}
 .history h2{font-family:var(--f-display);font-size:32px;line-height:1}
@@ -231,7 +231,6 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .dk-ic.coach{border:0;background:none}
 .dk-w{display:flex;align-items:center;gap:8px}
 .dk-lbl{font-size:12px;font-weight:700;color:var(--ink-3);letter-spacing:.02em}
-.dk-w .dk-lbl{min-width:42px}
 .step{width:52px;height:46px;flex:none;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);font-size:24px;font-weight:600;line-height:1;display:grid;place-items:center}
 .dk-kg{flex:1;min-width:0;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:flex;align-items:baseline;justify-content:center;gap:5px;padding:0 8px}
 .dk-kg b{font-family:var(--f-display);font-size:36px;font-weight:700;line-height:44px;font-variant-numeric:tabular-nums}
@@ -243,9 +242,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .chips::-webkit-scrollbar{display:none}
 .chip-r{position:relative;flex:none;width:50px;height:52px;border-radius:13px;border:1px solid var(--line);background:var(--surface-2);font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1;color:var(--ink-3);scroll-snap-align:center;transition:transform .08s,background .15s}
 .chip-r.in{background:var(--surface);color:var(--ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-.chip-r.last::after{content:"";position:absolute;left:50%;bottom:5px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--accent)}
 .chip-r.sel{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-.chip-r.hit{background:var(--ok);border-color:var(--ok);color:var(--on-ok);transform:scale(1.1)}
+.chip-r.hit-on{background:var(--ok);border-color:var(--ok);color:var(--on-ok);transform:scale(1.1)}
 .chip-r.more{font-family:var(--f-body);font-size:13px;font-weight:700;width:auto;padding:0 12px;color:var(--ink-2)}
 .reps-in{display:flex;gap:8px}
 .reps-in span{flex:1;height:50px;border-radius:12px;border:1px solid var(--accent);background:var(--surface)}
@@ -322,6 +320,146 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .stats span{font-size:11.5px;color:var(--ink-3);font-weight:600}
 .sheet p{font-size:14px;color:var(--ink-2)}
 
+/* mesocycle chip, recovery check, targets, feedback, notes */
+.meso{grid-column:1/-1;display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);text-align:start;font-size:13px;color:var(--ink-2);box-shadow:var(--lift)}
+.meso span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.meso b{font-size:13px;color:var(--accent);white-space:nowrap}
+.meso.dl b{color:var(--ok)}
+.meso svg{width:16px;height:16px;color:var(--ink-3)}
+.meso em{font-style:normal;font-size:11px;font-weight:700;line-height:1.55;padding:0 7px;border-radius:99px;color:var(--warn);background:var(--warn-soft);white-space:nowrap}
+.meso em::before{content:"▼ ";font-size:8px}
+.fb-warn{font-size:13px;line-height:1.45;color:var(--ink-2);background:var(--warn-soft);border-radius:10px;padding:8px 10px}
+.fb-warn b{color:var(--warn)}
+.fb-warn .link{padding:0;font-size:inherit;font-weight:700;color:var(--ink)}
+.dock.rest .fb-warn{background:color-mix(in srgb,var(--paper) 12%,transparent);color:color-mix(in srgb,var(--paper) 82%,transparent)}
+.dock.rest .fb-warn b{color:var(--rest-inv)}
+.banner.warn{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.banner.warn b{color:var(--warn)}
+.banner .link{padding:0 2px;color:var(--ink);font-weight:600;font-size:inherit}
+#pre[hidden]{display:none}
+.pre{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:grid;gap:10px;box-shadow:var(--lift)}
+.pre-h{display:flex;gap:10px;align-items:flex-start}
+.pre-h div{flex:1;min-width:0;display:grid;gap:2px}
+.pre-h b{font-size:14.5px;line-height:1.3}
+.pre-h span{font-size:12.5px;color:var(--ink-2)}
+.pre-h .link{flex:none;padding:2px 0;color:var(--accent);font-weight:600;white-space:nowrap}
+.pre-row{display:grid;gap:5px}
+.pre-row>span{font-size:13.5px;font-weight:700;display:flex;gap:8px;align-items:baseline}
+.pre-row small{font-size:12px;font-weight:500;color:var(--ink-3)}
+.pre-fx{font-size:13px;color:var(--ink-2);background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.pre.done{grid-template-columns:minmax(0,1fr) auto;align-items:center;padding:8px 12px}
+.pre.done p{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--ink-2)}
+.pre.done svg{color:var(--ok);width:18px;height:18px;margin-top:1px}
+.pre.done b{color:var(--ink)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px}
+.seg button{min-height:40px;padding:4px 6px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font-size:12.5px;font-weight:600;line-height:1.2;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.fbk{display:grid;gap:6px}
+.fb-row{display:grid;grid-template-columns:minmax(0,104px) minmax(0,1fr);gap:8px;align-items:center}
+.fb-row>span{font-size:12.5px;font-weight:600;color:var(--ink-2);line-height:1.25}
+.fb-wrap{order:5;display:grid;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}
+.fb-wrap[hidden]{display:none}
+.fb-dock{display:grid;gap:8px}
+.fb-h{display:flex;align-items:center;gap:8px}
+.fb-h b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock.rest .fb-dock{border-top:1px solid color-mix(in srgb,var(--paper) 22%,transparent);padding-top:9px}
+.dock.rest .fb-row>span{color:color-mix(in srgb,var(--paper) 78%,transparent)}
+.dock.rest .seg button{background:transparent;border-color:color-mix(in srgb,var(--paper) 30%,transparent);color:var(--paper)}
+.dock.rest .seg button[aria-pressed="true"]{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.tags{display:flex;flex-wrap:wrap;gap:4px;padding-top:3px}
+.tagx{font-size:11px;font-weight:700;line-height:1.55;padding:0 7px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.tagx.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.tagx.hint{color:var(--rest);background:var(--rest-soft);border-color:transparent}
+.tagx.ok{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.ex.off .ex-n{color:var(--ink-3)}
+.ex.off .ex-rx{color:var(--ink-3);text-decoration:line-through}
+.prev-line{font-size:12.5px;color:var(--ink-2)}
+.setp .tg{font-weight:700;color:var(--ink-2)}
+.goal{display:inline-block;font-family:var(--f-body);font-size:11px;font-weight:700;line-height:1.55;padding:0 7px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2);margin-inline-start:6px;white-space:nowrap}
+.goal.g-reps{color:var(--accent);background:var(--accent-soft);border-color:transparent}
+.goal.g-wt{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.goal.g-down{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.goal.g-cal{color:var(--rest);background:var(--rest-soft);border-color:transparent}
+.dk-lbl .goal{margin-inline:0 6px}
+.cut-note{font-size:13px;color:var(--warn);font-weight:600}
+.flag-line{order:4;display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:600;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 10px}
+.flag-line svg{width:18px;height:18px;margin-top:1px}
+.ex-acts{order:7;display:grid;gap:8px}
+.ex-acts .btn{min-width:0}
+@media (min-width:420px){.ex-acts{grid-template-columns:auto minmax(0,1fr)}}
+.note{display:grid;gap:5px}
+.note>span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-3);font-weight:700;letter-spacing:.03em}
+.note>span svg{width:14px;height:14px}
+.note-in{display:block;width:100%;min-height:44px;resize:vertical;border-radius:11px;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--surface-2);padding:9px 11px;font-size:16px;line-height:1.4}
+.note-in:not(:placeholder-shown){border-style:solid;background:var(--accent-soft)}
+.dk-note{display:flex;gap:6px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);line-height:1.35}
+.dk-note svg{width:14px;height:14px;margin-top:2px;color:var(--accent)}
+.dk-note span{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dock.mini .dk-note{display:none}
+.dk-kg.ghost{border-style:dashed}
+.dk-kg.ghost b{color:var(--ink-3)}
+.hit{flex:none;display:flex;align-items:center;gap:6px;height:46px;padding:0 10px;border-radius:12px;border:1px solid var(--ok);background:var(--ok);color:var(--on-ok);transition:transform .08s}
+.hit svg{width:20px;height:20px;stroke-width:3}
+.hit b{font-family:var(--f-display);font-size:32px;line-height:1;font-weight:700}
+.hit small{font-size:10.5px;font-weight:700;line-height:1.15;text-align:start}
+.hit.hit-on{transform:scale(1.06)}
+.chip-r.tgt{border-color:var(--ok);border-width:2px;color:var(--ink);padding-bottom:9px}
+.chip-r.tgt::after{content:"יעד";position:absolute;left:0;right:0;bottom:3px;font-family:var(--f-body);font-size:9.5px;font-weight:700;line-height:1;color:var(--ok)}
+.chip-r.tgt.hit-on::after{color:inherit}
+/* sheets: swap, mesocycle, summaries */
+.sheet h2 small{font-family:var(--f-body);font-size:15px;font-weight:600;color:var(--ink-2)}
+.sheet h3{font-size:15px;font-weight:700}
+.sheet h4{font-size:13.5px;font-weight:700;margin:0;display:flex;gap:8px;align-items:baseline}
+.sheet h4 small{font-size:12px;font-weight:600;color:var(--warn)}
+.sheet section{display:grid;gap:8px}
+.sheet .ms-sub{font-size:12.5px}
+.sw h2{font-size:34px;line-height:.95}
+.sw-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.sw-opt{display:grid;grid-template-columns:68px minmax(0,1fr);gap:8px 10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:14px}
+.sw-t{display:grid;gap:1px;min-width:0}
+.sw-t b{direction:ltr;text-align:right;font-size:14.5px;line-height:1.25}
+.sw-t>span{font-size:12.5px;color:var(--ink-2)}
+.sw-b{grid-column:1/-1;display:flex;gap:8px}
+.sw-b .btn{flex:1;min-height:42px}
+.wk-strip{list-style:none;margin:0;padding:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:5px}
+.wk-strip li{display:grid;justify-items:center;gap:1px;padding:7px 2px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);min-width:0}
+.wk-strip small{font-size:10.5px;color:var(--ink-3);font-weight:600;white-space:nowrap}
+.wk-strip b{font-size:12px;white-space:nowrap}
+.wk-strip li.cur{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.wk-strip li.cur small{color:color-mix(in srgb,var(--paper) 70%,transparent)}
+.wk-strip li.dl:not(.cur) b{color:var(--ok)}
+.vol{display:grid;gap:9px}
+.vol-row{display:grid;grid-template-columns:minmax(0,104px) minmax(0,1fr) 46px;gap:2px 10px;align-items:center}
+.vol-n{font-size:13px;font-weight:600;line-height:1.2}
+.vol-bar{position:relative;height:14px}
+.vol-bar .band{position:absolute;top:0;bottom:0;border-radius:4px;background:var(--line)}
+.vol-bar .val{position:absolute;inset-inline-start:0;top:4px;height:6px;min-width:2px;border-start-end-radius:4px;border-end-end-radius:4px;background:var(--accent)}
+.vol-row.under .val,.vol-row.over .val{background:var(--warn)}
+.vol-v{display:grid;justify-items:end;line-height:1}
+.vol-v b{font-family:var(--f-display);font-size:24px;font-weight:700}
+.vol-v small{font-size:10.5px;color:var(--ink-3);font-weight:600}
+.vol-flag{grid-column:1/-1;font-size:12px;font-weight:700;color:var(--warn)}
+.bl-w{display:grid;gap:6px}
+.bl-row{display:flex;align-items:center;gap:10px}
+.bl-n{flex:1;min-width:0;display:grid}
+.bl-n b{font-size:13.5px;font-weight:600;unicode-bidi:plaintext;text-align:start;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bl-n small{font-size:12px;color:var(--ink-2)}
+.stp{display:flex;align-items:center;gap:2px;flex:none;direction:ltr}
+.stp button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font-size:20px;font-weight:600;line-height:1}
+.stp button:disabled{opacity:.35;cursor:default}
+.stp b{min-width:30px;text-align:center;font-family:var(--f-display);font-size:26px;line-height:1}
+.inc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.inc-row{display:grid;gap:3px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.inc-row select{height:44px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);padding:0 8px;font-size:16px}
+.ms-act{position:static;margin:0;padding:10px 0 0}
+.sum-list{list-style:none;margin:0;padding:0;display:grid}
+.sum-list li{display:grid;gap:1px;padding:7px 0;border-top:1px solid var(--line);font-size:13px}
+.sum-list li>span:first-child{font-weight:700}
+.sum-list li>span:last-child{color:var(--ink-2)}
+.sum-list b{color:var(--ink)}
+.sum-list b.up{color:var(--ok)}
+.sum-list b.dn{color:var(--warn)}
+
 @media (max-width:999.98px){
   .chat{position:fixed;inset:0;z-index:60;display:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
   .chat.open{display:flex}
@@ -354,6 +492,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
   <div class="wrap cols">
     <main class="main">
       <section class="hero" id="hero"></section>
+      <section id="pre" aria-label="התאוששות מהאימון הקודם" hidden></section>
       <ol class="ex-list" id="exList"></ol>
       <section class="history" id="history"></section>
       <p class="credit">gymi · by Lior Dahan</p>
@@ -432,34 +571,183 @@ const PLAN = [
   ] },
 ];
 
-/* per movement: Hebrew name, working muscles, three form cues, weight step (kg), tempo hint */
-const LIB = {
-  inclineSmith: { he: 'לחיצת חזה בשיפוע עליון בסמית׳', m: 'חזה עליון · כתף קדמית · טרייספס', step: 2.5, c: ['ספסל בשיפוע 30–45°, שכמות אסופות לאחור ולמטה', 'הורד את המוט לחזה העליון בשליטה', 'דחוף למעלה בלי לנעול מרפקים בכוח'] },
-  assistedPullup: { he: 'מתח בסיוע (גרביטון)', m: 'רחב גבי · ביספס · גב עליון', step: 5, c: ['אחיזה מעט רחבה מהכתפיים', 'התחל מהשכמות ומשוך מרפקים למטה לכיוון הצלעות', 'ירידה איטית עד יישור כמעט מלא'] },
-  chestRow: { he: 'חתירה בתמיכת חזה', m: 'רחב גבי · אמצע הגב · ביספס', step: 2.5, c: ['החזה צמוד לכרית לאורך כל החזרה', 'משוך מרפקים לאחור לכיוון הירכיים', 'עצור שנייה בכיווץ וחזור עד מתיחה מלאה'] },
-  latRaise: { he: 'הרחקות לצדדים בתמיכת חזה', m: 'כתף אמצעית', step: 1, c: ['חזה על ספסל משופע, בלי תנופה מהגוף', 'הרם לצדדים עד גובה הכתפיים, מרפק מעט כפוף', 'הובל עם המרפקים והורד לאט'] },
-  machinePress: { he: 'לחיצת חזה במכונה', m: 'חזה · טרייספס · כתף קדמית', step: 5, c: ['כוונן מושב כך שהידיות בגובה אמצע החזה', 'שכמות צמודות למשענת', 'דחוף קדימה וחזור לאט עד מתיחה בחזה'] },
-  pushdown: { he: 'פשיטת מרפקים בפולי עליון', m: 'טרייספס', step: 2.5, c: ['מרפקים צמודים לגוף ולא זזים', 'יישר עד הסוף וכווץ', 'עלה בשליטה עד שהאמות מעט מעל קו המרפק'] },
-  dbCurl: { he: 'כפיפת מרפקים עם משקולות יד', m: 'ביספס', step: 1, c: ['מרפקים צמודים לצד הגוף', 'כף היד פונה למעלה, עלה בלי תנופה מהגב', 'הורד לאט עד יישור מלא'] },
-  cableCrunch: { he: 'כפיפות בטן בכבל', m: 'בטן ישרה', step: 2.5, c: ['על הברכיים, החבל צמוד לצידי הראש', 'עגל את הגב וקרב צלעות לאגן, הירכיים נשארות במקום', 'חזור לאט עד מתיחה בבטן'] },
-  hackSquat: { he: 'האק סקוואט', m: 'ארבע ראשי · ישבן', step: 5, c: ['גב ואגן צמודים לכרית, כפות רגליים ברוחב כתפיים', 'רד בשליטה עד עומק נוח, ברכיים בכיוון האצבעות', 'דחוף דרך כל כף הרגל'] },
-  rdl: { he: 'דדליפט רומני', m: 'ירך אחורית · ישבן · זוקפי גב', step: 2.5, c: ['ברכיים מעט כפופות, שלח את האגן לאחור', 'המוט צמוד לרגליים והגב ישר', 'רד עד מתיחה בירך האחורית ועלה בדחיפת אגן קדימה'] },
-  legPress: { he: 'לחיצת רגליים', m: 'ארבע ראשי · ישבן', step: 10, c: ['גב תחתון ואגן צמודים למושב', 'רד עמוק בלי שהאגן מתרומם מהכרית', 'דחוף בלי לנעול ברכיים'] },
-  seatedLegCurl: { he: 'כפיפת ברכיים בישיבה', m: 'ירך אחורית', step: 5, c: ['ציר המכונה מול הברך, כרית הירך נעולה', 'כופף עד הסוף וכווץ', 'חזור לאט עד יישור כמעט מלא'] },
-  standingCalf: { he: 'הרמות עקבים בעמידה', m: 'תאומים (שוק)', step: 5, c: ['כריות כף הרגל על קצה המדרגה', 'רד למתיחה מלאה ועצור רגע', 'עלה גבוה על הבהונות, ברכיים כמעט ישרות'] },
-  pallof: { he: 'פאלוף פרס (נגד סיבוב)', m: 'ליבה · אלכסונים', step: 2.5, c: ['עמוד בניצב לכבל, ידיים מול עצם החזה', 'דחוף ישר קדימה והתנגד למשיכה לצד', 'אגן וכתפיים נשארים פונים קדימה, נשימה רגועה'] },
-  cableRow: { he: 'חתירה בכבל בישיבה', m: 'רחב גבי · אמצע הגב · ביספס', step: 5, c: ['גב זקוף וחזה פתוח', 'משוך את הידית לבטן, מרפקים קרוב לגוף', 'שחרר קדימה בשליטה בלי לעגל גב תחתון'] },
-  shoulderPress: { he: 'לחיצת כתפיים במכונה', m: 'כתפיים · טרייספס', step: 5, c: ['גב צמוד למשענת, ידיות בגובה הכתפיים', 'דחוף למעלה בלי לקשת גב תחתון', 'הורד לאט עד גובה האוזניים'] },
-  reversePec: { he: 'פרפר הפוך', m: 'כתף אחורית · אמצע הגב', step: 5, c: ['חזה צמוד לכרית, ידיים בגובה הכתפיים', 'פתח לצדדים בקשת רחבה, מרפק מעט כפוף', 'בלי להרים כתפיים לאוזניים, חזרה איטית'] },
-  hammerCurl: { he: 'כפיפת פטישים', m: 'ברכיאליס · ביספס · אמה', step: 1, c: ['כף היד פונה פנימה לאורך כל הדרך', 'מרפקים צמודים לגוף', 'עלה עד גובה הכתף והורד לאט'] },
-  ohTriceps: { he: 'פשיטת מרפקים מעל הראש', m: 'טרייספס (ראש ארוך)', step: 2.5, c: ['מרפקים פונים קדימה וקרובים לראש', 'הורד מאחורי הראש עד מתיחה מלאה', 'יישר למעלה, הזרוע העליונה לא זזה'] },
-  kneeRaise: { he: 'הרמות ברכיים בתלייה', m: 'בטן תחתונה · כופפי ירך', step: 1, bw: true, c: ['תלייה יציבה, בלי נדנוד', 'הרם ברכיים לחזה וגלגל את האגן למעלה', 'הורד לאט, אל תיתן לרגליים ליפול'] },
-  bulgarian: { he: 'סקוואט בולגרי', m: 'ארבע ראשי · ישבן', step: 2.5, c: ['רגל אחורית על ספסל, רוב המשקל על הרגל הקדמית', 'רד ישר למטה, ברך קדמית בכיוון האצבעות', 'דחוף דרך העקב הקדמי'] },
-  hipThrust: { he: 'היפ ת׳ראסט', m: 'ישבן · ירך אחורית', step: 5, c: ['שכמות על ספסל, כפות רגליים ברוחב אגן', 'דחוף אגן למעלה עד קו ישר מכתף לברך', 'סנטר לחזה ועצירה קצרה למעלה'] },
-  lyingLegCurl: { he: 'כפיפת ברכיים בשכיבה', m: 'ירך אחורית', step: 5, c: ['אגן צמוד לספסל, הכרית מעל העקב', 'כופף לכיוון הישבן בלי להרים אגן', 'חזרה איטית עד יישור'] },
-  legExt: { he: 'פשיטת ברכיים', m: 'ארבע ראשי', step: 5, c: ['ציר המכונה מול הברך, גב צמוד למשענת', 'יישר עד הסוף וכווץ לשנייה', 'הורד לאט'] },
-  seatedCalf: { he: 'הרמות עקבים בישיבה', m: 'סוליאוס (שוק)', step: 5, c: ['כרית מעל הברכיים, כריות כף הרגל על המדרגה', 'רד למתיחה מלאה', 'עלה גבוה ועצור רגע למעלה'] },
+
+/* ================================================================== movement library */
+/* muscle groups with weekly set landmarks (direct sets + half sets for helpers): below mev is too little to grow, above mrv is more than most people recover from */
+const MUSCLE = {
+  chest: { he: 'חזה', mev: 8, mrv: 22 },
+  back: { he: 'גב', mev: 10, mrv: 25 },
+  delts: { he: 'כתף אמצעית ואחורית', mev: 8, mrv: 26 },
+  fdelt: { he: 'כתף קדמית', mev: 0, mrv: 12 },
+  biceps: { he: 'ביספס', mev: 8, mrv: 26 },
+  triceps: { he: 'טרייספס', mev: 6, mrv: 18 },
+  quads: { he: 'ארבע ראשי', mev: 8, mrv: 20 },
+  hams: { he: 'ירך אחורית', mev: 6, mrv: 20 },
+  glutes: { he: 'ישבן', mev: 0, mrv: 16 },
+  calves: { he: 'שוקיים', mev: 8, mrv: 20 },
+  abs: { he: 'בטן וליבה', mev: 0, mrv: 25 },
 };
+/* a swap is only offered inside the same movement pattern, so the week keeps its shape */
+const PATTERN = {
+  hpress: 'לחיצה אופקית או בשיפוע', vpress: 'לחיצה אנכית', vpull: 'משיכה אנכית', hpull: 'משיכה אופקית',
+  raise: 'הרחקת כתף לצד', rearfly: 'הרחקה אופקית לאחור', ext: 'פשיטת מרפק', curl: 'כפיפת מרפק',
+  flex: 'כפיפת גו', antirot: 'ייצוב נגד סיבוב', squat: 'סקוואט', lunge: 'סקוואט ברגל אחת',
+  hinge: 'כפיפת ירך (הינג׳)', thrust: 'פשיטת ירך (גשר)', kcurl: 'כפיפת ברך', kext: 'פשיטת ברך', calf: 'הרמת עקבים',
+};
+/* equipment decides the smallest realistic weight jump (kg); each one can be changed in the settings */
+const EQUIP = {
+  bar: { he: 'מוט חופשי', inc: 2.5 }, smith: { he: 'סמית׳', inc: 2.5 }, plates: { he: 'מכונת פלטות', inc: 5 }, machine: { he: 'מכונת משקולות', inc: 5 },
+  cable: { he: 'כבל', inc: 2.5 }, db: { he: 'משקולות יד', inc: 1 }, bw: { he: 'משקל גוף', inc: 1 },
+};
+const INC_CHOICES = [0.5, 1, 1.25, 2, 2.5, 5, 10];
+
+/* per movement: Hebrew name, muscle line, p = primary muscle (a full set), s = helpers (half a set each), pat = movement pattern,
+   eq = equipment, c = three form cues. inv: more weight means more help. bw: bodyweight. jf: easy on the joints.
+   en + an: a swap option, shown with the demo of the closest movement in the plan. */
+const LIB = {
+  inclineSmith: { he: 'לחיצת חזה בשיפוע עליון בסמית׳', m: 'חזה עליון · כתף קדמית · טרייספס', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'smith', c: ['ספסל בשיפוע 30–45°, שכמות אסופות לאחור ולמטה', 'הורד את המוט לחזה העליון בשליטה', 'דחוף למעלה בלי לנעול מרפקים בכוח'] },
+  assistedPullup: { he: 'מתח בסיוע (גרביטון)', m: 'רחב גבי · ביספס · גב עליון', p: 'back', s: ['biceps'], pat: 'vpull', eq: 'machine', inv: true, c: ['אחיזה מעט רחבה מהכתפיים', 'התחל מהשכמות ומשוך מרפקים למטה לכיוון הצלעות', 'ירידה איטית עד יישור כמעט מלא'] },
+  chestRow: { he: 'חתירה בתמיכת חזה', m: 'רחב גבי · אמצע הגב · ביספס', p: 'back', s: ['biceps', 'delts'], pat: 'hpull', eq: 'plates', jf: true, c: ['החזה צמוד לכרית לאורך כל החזרה', 'משוך מרפקים לאחור לכיוון הירכיים', 'עצור שנייה בכיווץ וחזור עד מתיחה מלאה'] },
+  latRaise: { he: 'הרחקות לצדדים בתמיכת חזה', m: 'כתף אמצעית', p: 'delts', s: [], pat: 'raise', eq: 'db', c: ['חזה על ספסל משופע, בלי תנופה מהגוף', 'הרם לצדדים עד גובה הכתפיים, מרפק מעט כפוף', 'הובל עם המרפקים והורד לאט'] },
+  machinePress: { he: 'לחיצת חזה במכונה', m: 'חזה · טרייספס · כתף קדמית', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'machine', jf: true, c: ['כוונן מושב כך שהידיות בגובה אמצע החזה', 'שכמות צמודות למשענת', 'דחוף קדימה וחזור לאט עד מתיחה בחזה'] },
+  pushdown: { he: 'פשיטת מרפקים בפולי עליון', m: 'טרייספס', p: 'triceps', s: [], pat: 'ext', eq: 'cable', jf: true, c: ['מרפקים צמודים לגוף ולא זזים', 'יישר עד הסוף וכווץ', 'עלה בשליטה עד שהאמות מעט מעל קו המרפק'] },
+  dbCurl: { he: 'כפיפת מרפקים עם משקולות יד', m: 'ביספס', p: 'biceps', s: [], pat: 'curl', eq: 'db', c: ['מרפקים צמודים לצד הגוף', 'כף היד פונה למעלה, עלה בלי תנופה מהגב', 'הורד לאט עד יישור מלא'] },
+  cableCrunch: { he: 'כפיפות בטן בכבל', m: 'בטן ישרה', p: 'abs', s: [], pat: 'flex', eq: 'cable', c: ['על הברכיים, החבל צמוד לצידי הראש', 'עגל את הגב וקרב צלעות לאגן, הירכיים נשארות במקום', 'חזור לאט עד מתיחה בבטן'] },
+  hackSquat: { he: 'האק סקוואט', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'squat', eq: 'plates', c: ['גב ואגן צמודים לכרית, כפות רגליים ברוחב כתפיים', 'רד בשליטה עד עומק נוח, ברכיים בכיוון האצבעות', 'דחוף דרך כל כף הרגל'] },
+  rdl: { he: 'דדליפט רומני', m: 'ירך אחורית · ישבן · זוקפי גב', p: 'hams', s: ['glutes'], pat: 'hinge', eq: 'bar', c: ['ברכיים מעט כפופות, שלח את האגן לאחור', 'המוט צמוד לרגליים והגב ישר', 'רד עד מתיחה בירך האחורית ועלה בדחיפת אגן קדימה'] },
+  legPress: { he: 'לחיצת רגליים', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'squat', eq: 'plates', jf: true, c: ['גב תחתון ואגן צמודים למושב', 'רד עמוק בלי שהאגן מתרומם מהכרית', 'דחוף בלי לנעול ברכיים'] },
+  seatedLegCurl: { he: 'כפיפת ברכיים בישיבה', m: 'ירך אחורית', p: 'hams', s: [], pat: 'kcurl', eq: 'machine', jf: true, c: ['ציר המכונה מול הברך, כרית הירך נעולה', 'כופף עד הסוף וכווץ', 'חזור לאט עד יישור כמעט מלא'] },
+  standingCalf: { he: 'הרמות עקבים בעמידה', m: 'תאומים (שוק)', p: 'calves', s: [], pat: 'calf', eq: 'machine', c: ['כריות כף הרגל על קצה המדרגה', 'רד למתיחה מלאה ועצור רגע', 'עלה גבוה על הבהונות, ברכיים כמעט ישרות'] },
+  pallof: { he: 'פאלוף פרס (נגד סיבוב)', m: 'ליבה · אלכסונים', p: 'abs', s: [], pat: 'antirot', eq: 'cable', c: ['עמוד בניצב לכבל, ידיים מול עצם החזה', 'דחוף ישר קדימה והתנגד למשיכה לצד', 'אגן וכתפיים נשארים פונים קדימה, נשימה רגועה'] },
+  cableRow: { he: 'חתירה בכבל בישיבה', m: 'רחב גבי · אמצע הגב · ביספס', p: 'back', s: ['biceps', 'delts'], pat: 'hpull', eq: 'cable', jf: true, c: ['גב זקוף וחזה פתוח', 'משוך את הידית לבטן, מרפקים קרוב לגוף', 'שחרר קדימה בשליטה בלי לעגל גב תחתון'] },
+  shoulderPress: { he: 'לחיצת כתפיים במכונה', m: 'כתפיים · טרייספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'machine', jf: true, c: ['גב צמוד למשענת, ידיות בגובה הכתפיים', 'דחוף למעלה בלי לקשת גב תחתון', 'הורד לאט עד גובה האוזניים'] },
+  reversePec: { he: 'פרפר הפוך', m: 'כתף אחורית · אמצע הגב', p: 'delts', s: ['back'], pat: 'rearfly', eq: 'machine', jf: true, c: ['חזה צמוד לכרית, ידיים בגובה הכתפיים', 'פתח לצדדים בקשת רחבה, מרפק מעט כפוף', 'בלי להרים כתפיים לאוזניים, חזרה איטית'] },
+  hammerCurl: { he: 'כפיפת פטישים', m: 'ברכיאליס · ביספס · אמה', p: 'biceps', s: [], pat: 'curl', eq: 'db', jf: true, c: ['כף היד פונה פנימה לאורך כל הדרך', 'מרפקים צמודים לגוף', 'עלה עד גובה הכתף והורד לאט'] },
+  ohTriceps: { he: 'פשיטת מרפקים מעל הראש', m: 'טרייספס (ראש ארוך)', p: 'triceps', s: [], pat: 'ext', eq: 'cable', c: ['מרפקים פונים קדימה וקרובים לראש', 'הורד מאחורי הראש עד מתיחה מלאה', 'יישר למעלה, הזרוע העליונה לא זזה'] },
+  kneeRaise: { he: 'הרמות ברכיים בתלייה', m: 'בטן תחתונה · כופפי ירך', p: 'abs', s: [], pat: 'flex', eq: 'bw', bw: true, c: ['תלייה יציבה, בלי נדנוד', 'הרם ברכיים לחזה וגלגל את האגן למעלה', 'הורד לאט, אל תיתן לרגליים ליפול'] },
+  bulgarian: { he: 'סקוואט בולגרי', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'lunge', eq: 'db', c: ['רגל אחורית על ספסל, רוב המשקל על הרגל הקדמית', 'רד ישר למטה, ברך קדמית בכיוון האצבעות', 'דחוף דרך העקב הקדמי'] },
+  hipThrust: { he: 'היפ ת׳ראסט', m: 'ישבן · ירך אחורית', p: 'glutes', s: ['hams'], pat: 'thrust', eq: 'bar', c: ['שכמות על ספסל, כפות רגליים ברוחב אגן', 'דחוף אגן למעלה עד קו ישר מכתף לברך', 'סנטר לחזה ועצירה קצרה למעלה'] },
+  lyingLegCurl: { he: 'כפיפת ברכיים בשכיבה', m: 'ירך אחורית', p: 'hams', s: [], pat: 'kcurl', eq: 'machine', c: ['אגן צמוד לספסל, הכרית מעל העקב', 'כופף לכיוון הישבן בלי להרים אגן', 'חזרה איטית עד יישור'] },
+  legExt: { he: 'פשיטת ברכיים', m: 'ארבע ראשי', p: 'quads', s: [], pat: 'kext', eq: 'machine', c: ['ציר המכונה מול הברך, גב צמוד למשענת', 'יישר עד הסוף וכווץ לשנייה', 'הורד לאט'] },
+  seatedCalf: { he: 'הרמות עקבים בישיבה', m: 'סוליאוס (שוק)', p: 'calves', s: [], pat: 'calf', eq: 'plates', jf: true, c: ['כרית מעל הברכיים, כריות כף הרגל על המדרגה', 'רד למתיחה מלאה', 'עלה גבוה ועצור רגע למעלה'] },
+
+  /* swap options */
+  inclineDb: { en: 'Incline Dumbbell Press', an: 'inclineSmith', he: 'לחיצת חזה בשיפוע עם משקולות יד', m: 'חזה עליון · כתף קדמית · טרייספס', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'db', jf: true, c: ['ספסל בשיפוע 30–45°, משקולות מעל החזה העליון', 'הורד לאט עד מתיחה בחזה, מרפקים בזווית של כ-45° מהגוף', 'דחוף למעלה ומעט פנימה, בלי להקיש את המשקולות'] },
+  dbShoulderPress: { en: 'Dumbbell Shoulder Press', an: 'shoulderPress', he: 'לחיצת כתפיים עם משקולות יד', m: 'כתפיים · טרייספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'db', jf: true, c: ['ישיבה עם גב נתמך, משקולות בגובה האוזניים', 'דחוף למעלה בלי לקשת גב תחתון', 'הורד לאט עד שהמרפקים מעט מתחת לקו הכתפיים'] },
+  smithShoulder: { en: 'Smith Machine Shoulder Press', an: 'shoulderPress', he: 'לחיצת כתפיים בסמית׳', m: 'כתפיים · טרייספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'smith', c: ['ספסל כמעט זקוף, המוט יורד מול הפנים', 'אחיזה מעט רחבה מהכתפיים', 'הורד עד גובה הסנטר ודחוף בלי לנעול בכוח'] },
+  latPulldown: { en: 'Lat Pulldown', an: 'assistedPullup', he: 'משיכת פולי עליון', m: 'רחב גבי · ביספס · גב עליון', p: 'back', s: ['biceps'], pat: 'vpull', eq: 'cable', jf: true, c: ['ירכיים נעולות מתחת לכרית, חזה מורם', 'משוך את המוט לחזה העליון, מרפקים למטה ולאחור', 'שחרר לאט עד יישור כמעט מלא'] },
+  neutralPulldown: { en: 'Neutral-Grip Pulldown', an: 'assistedPullup', he: 'משיכת פולי עליון באחיזה ניטרלית', m: 'רחב גבי · ביספס · גב עליון', p: 'back', s: ['biceps'], pat: 'vpull', eq: 'cable', jf: true, c: ['ידיות מקבילות, כפות הידיים זו מול זו', 'משוך לחזה ושמור מרפקים קרוב לגוף', 'חזרה איטית עד מתיחה ברחב הגבי'] },
+  machineRow: { en: 'Machine Row', an: 'chestRow', he: 'חתירה במכונה', m: 'רחב גבי · אמצע הגב · ביספס', p: 'back', s: ['biceps', 'delts'], pat: 'hpull', eq: 'machine', jf: true, c: ['חזה צמוד לכרית, הידיות מול הצלעות התחתונות', 'משוך מרפקים לאחור וכווץ שכמות', 'שחרר לאט עד מתיחה מלאה'] },
+  cableLatRaise: { en: 'Cable Lateral Raise', an: 'latRaise', he: 'הרחקה לצד בכבל', m: 'כתף אמצעית', p: 'delts', s: [], pat: 'raise', eq: 'cable', jf: true, c: ['פולי תחתון, הכבל עובר מאחורי הגוף', 'הרם לצד עד גובה הכתף, מרפק מעט כפוף', 'הורד לאט ושמור על מתח רציף בכבל'] },
+  machineLatRaise: { en: 'Machine Lateral Raise', an: 'latRaise', he: 'הרחקות לצדדים במכונה', m: 'כתף אמצעית', p: 'delts', s: [], pat: 'raise', eq: 'machine', jf: true, c: ['מרפקים צמודים לכריות, גב זקוף', 'הרם עם המרפקים עד גובה הכתפיים', 'הורד בשליטה בלי להניח את המשקל'] },
+  cableRearFly: { en: 'Cable Rear Delt Fly', an: 'reversePec', he: 'פרפר הפוך בכבלים', m: 'כתף אחורית · אמצע הגב', p: 'delts', s: ['back'], pat: 'rearfly', eq: 'cable', jf: true, c: ['כבלים מוצלבים בגובה הכתפיים', 'פתח לצדדים בקשת רחבה, מרפק מעט כפוף', 'חזור לאט בלי להרים כתפיים'] },
+  dbRearFly: { en: 'Chest-Supported Rear Delt Raise', an: 'reversePec', he: 'הרחקה אחורית בתמיכת חזה', m: 'כתף אחורית · אמצע הגב', p: 'delts', s: ['back'], pat: 'rearfly', eq: 'db', c: ['חזה על ספסל משופע, משקולות תלויות מתחת לכתפיים', 'הרם לצדדים עם מרפק מעט כפוף', 'עצור רגע למעלה והורד לאט'] },
+  crossPushdown: { en: 'Single-Arm Cable Pushdown', an: 'pushdown', he: 'פשיטת מרפק ביד אחת בכבל', m: 'טרייספס', p: 'triceps', s: [], pat: 'ext', eq: 'cable', jf: true, c: ['מרפק צמוד לגוף, יד אחת על הידית', 'יישר עד הסוף וכווץ', 'עלה לאט עד שהאמה מעט מעל קו המרפק'] },
+  cableCurl: { en: 'Cable Curl', an: 'dbCurl', he: 'כפיפת מרפקים בכבל', m: 'ביספס', p: 'biceps', s: [], pat: 'curl', eq: 'cable', jf: true, c: ['פולי תחתון, מרפקים צמודים לגוף', 'כופף עד הסוף בלי להזיז את הזרוע העליונה', 'הורד לאט ושמור על מתח רציף בכבל'] },
+  preacher: { en: 'Preacher Curl Machine', an: 'dbCurl', he: 'כפיפת מרפקים במכונת פריצ׳ר', m: 'ביספס', p: 'biceps', s: [], pat: 'curl', eq: 'machine', c: ['בית השחי צמוד לקצה הכרית', 'כופף עד הסוף וכווץ', 'הורד לאט עד יישור כמעט מלא'] },
+  machineCrunch: { en: 'Ab Crunch Machine', an: 'cableCrunch', he: 'כפיפות בטן במכונה', m: 'בטן ישרה', p: 'abs', s: [], pat: 'flex', eq: 'machine', jf: true, c: ['כוונן את המושב כך שהציר מול אמצע הבטן', 'עגל את הגב וקרב צלעות לאגן', 'חזור לאט עד מתיחה בבטן'] },
+  kneelPallof: { en: 'Half-Kneeling Pallof Press', an: 'pallof', he: 'פאלוף פרס בכריעה', m: 'ליבה · אלכסונים', p: 'abs', s: [], pat: 'antirot', eq: 'cable', jf: true, c: ['ברך אחת על הרצפה, בניצב לכבל', 'דחוף ישר קדימה והתנגד למשיכה לצד', 'אגן יציב, ישבן מכווץ בצד של הברך שעל הרצפה'] },
+  smithSquat: { en: 'Smith Machine Squat', an: 'hackSquat', he: 'סקוואט בסמית׳', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'squat', eq: 'smith', c: ['כפות רגליים מעט קדימה מהמוט, ברוחב כתפיים', 'רד בשליטה עד עומק נוח, ברכיים בכיוון האצבעות', 'דחוף דרך כל כף הרגל'] },
+  gobletSquat: { en: 'Goblet Squat', an: 'hackSquat', he: 'גובלט סקוואט', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'squat', eq: 'db', jf: true, c: ['משקולת אחת צמודה לחזה, מרפקים פונים למטה', 'רד בין הברכיים עם גב זקוף', 'דחוף דרך כל כף הרגל'] },
+  revLunge: { en: 'Reverse Lunge', an: 'bulgarian', he: 'מכרע לאחור', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'lunge', eq: 'db', jf: true, c: ['צעד ארוך לאחור, רוב המשקל על הרגל הקדמית', 'רד עד שהברך האחורית כמעט נוגעת ברצפה', 'דחוף דרך העקב הקדמי וחזור לעמידה'] },
+  smithSplit: { en: 'Smith Split Squat', an: 'bulgarian', he: 'ספליט סקוואט בסמית׳', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'lunge', eq: 'smith', c: ['עמידת פסיעה קבועה מתחת למוט', 'רד ישר למטה, ברך קדמית בכיוון האצבעות', 'דחוף דרך העקב הקדמי'] },
+  dbRdl: { en: 'Dumbbell Romanian Deadlift', an: 'rdl', he: 'דדליפט רומני עם משקולות יד', m: 'ירך אחורית · ישבן · זוקפי גב', p: 'hams', s: ['glutes'], pat: 'hinge', eq: 'db', jf: true, c: ['משקולות צמודות לירכיים, ברכיים מעט כפופות', 'שלח את האגן לאחור עם גב ישר', 'רד עד מתיחה בירך האחורית ועלה בדחיפת אגן'] },
+  backExt: { en: '45° Back Extension', an: 'rdl', he: 'פשיטת גו בספסל 45°', m: 'ירך אחורית · ישבן · זוקפי גב', p: 'hams', s: ['glutes'], pat: 'hinge', eq: 'bw', bw: true, jf: true, c: ['הכרית מתחת לקפל הירך, רגליים נעולות', 'רד עם גב ישר עד מתיחה בירך האחורית', 'עלה עד קו ישר, בלי קשת יתר בגב'] },
+  thrustMachine: { en: 'Hip Thrust Machine', an: 'hipThrust', he: 'היפ ת׳ראסט במכונה', m: 'ישבן · ירך אחורית', p: 'glutes', s: ['hams'], pat: 'thrust', eq: 'machine', jf: true, c: ['חגורה על קפל הירך, שכמות על המשענת', 'דחוף אגן למעלה עד פשיטה מלאה', 'עצירה קצרה למעלה וירידה איטית'] },
+  singleLegExt: { en: 'Single-Leg Extension', an: 'legExt', he: 'פשיטת ברך ברגל אחת', m: 'ארבע ראשי', p: 'quads', s: [], pat: 'kext', eq: 'machine', jf: true, c: ['ציר המכונה מול הברך', 'יישר רגל אחת עד הסוף וכווץ לשנייה', 'הורד לאט, אותו מספר חזרות לכל רגל'] },
+  pressCalf: { en: 'Leg Press Calf Raise', an: 'standingCalf', he: 'הרמות עקבים במכונת לחיצת רגליים', m: 'תאומים (שוק)', p: 'calves', s: [], pat: 'calf', eq: 'plates', jf: true, c: ['כריות כף הרגל על קצה המשטח, ברכיים כמעט ישרות', 'שחרר למתיחה מלאה', 'דחוף עם הבהונות עד הסוף ועצור רגע'] },
+};
+/* English name of every movement: swap options carry their own, plan movements take the name of their first slot */
+const EN = {};
+for (const w of PLAN) for (const e of w.ex) if (!EN[e.a]) EN[e.a] = e.name;
+for (const k of Object.keys(LIB)) if (LIB[k].en) EN[k] = LIB[k].en;
+const animOf = (mv) => LIB[mv].an || mv;
+
+/* ================================================================== progression engine (pure functions, no page state) */
+const e1rm = (kg, reps) => kg * (1 + reps / 30);
+function repRange(e) { const p = String(e.reps).split('–').map((x) => parseInt(x, 10)); return [p[0], p[p.length - 1]]; }
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+/* round a weight to what the equipment can really be loaded with; dir -1 rounds down, 1 up, 0 to the nearest step */
+function roundTo(kg, inc, dir) {
+  const q = kg / inc, n = dir < 0 ? Math.floor(q + 1e-9) : dir > 0 ? Math.ceil(q - 1e-9) : Math.round(q);
+  return Math.max(0, Math.round(n * inc * 100) / 100);
+}
+/* reps in reserve asked for in a given week: the last hard week goes to failure, each week before it leaves one more rep (three at most); the final week is a deload */
+function rirFor(wk, weeks) { return wk >= weeks ? 4 : Math.min(3, Math.max(0, weeks - 1 - wk)); }
+/* one number for how strong a set was. Loaded lifts: estimated one-rep max. Assisted lifts: less help is better, a rep is worth about 2.5 kg. Bodyweight: reps */
+function score(L, kg, reps) {
+  if (L && L.inv) return 200 + (reps || 0) * 2.5 - (kg || 0);
+  return kg != null && kg > 0 ? e1rm(kg, reps || 0) : reps || 0;
+}
+
+/* The target for one set, from the same set the last time this movement was trained.
+   ref: { kg, reps, rir } where rir is the reps in reserve that workout asked for (null when unknown).
+   o: { lo, hi, inc, rir, sore, dl, inv }. Returns { kg, reps, mode } with mode:
+   reps = same weight, more reps · weight = top of the range was reached, the load goes up · hold = repeat it
+   base = start of a mesocycle, further from failure · deload */
+function nextTarget(ref, o) {
+  if (!ref || ref.reps == null) return null;
+  const lo = o.lo, hi = o.hi, inc = o.inc || 2.5, load = ref.kg != null && ref.kg > 0;
+  if (o.dl) {
+    if (!load) return { kg: ref.kg == null ? null : ref.kg, reps: Math.max(1, Math.round(ref.reps * 0.6)), mode: 'deload' };
+    return { kg: o.inv ? roundTo(ref.kg * 1.15, inc, 1) : roundTo(ref.kg * 0.85, inc, -1), reps: clamp(ref.reps, Math.min(lo, ref.reps), hi), mode: 'deload' };
+  }
+  /* one step closer to failure than last time is worth one rep; the same distance still asks for one more; a new mesocycle starts further away and asks for fewer */
+  const step = ref.rir == null ? 1 : ref.rir - o.rir;
+  const raw = ref.reps + (step >= 0 ? Math.max(1, step) : step) - (o.sore ? 1 : 0);
+  const modeOf = (r) => (r > ref.reps ? 'reps' : r === ref.reps ? 'hold' : 'base');
+  if (!load) return { kg: ref.kg == null ? null : ref.kg, reps: Math.max(1, raw), mode: modeOf(raw) };
+  if (raw > hi) {
+    const up = o.inv ? roundTo(Math.max(0, ref.kg - inc), inc, 0) : roundTo(ref.kg + inc, inc, 0);
+    const pred = o.inv ? Math.floor(raw - inc / 2.5) : Math.floor((e1rm(ref.kg, raw) / up - 1) * 30 + 1e-6);
+    if (up !== ref.kg && pred >= lo) return { kg: up, reps: Math.min(pred, hi), mode: 'weight' };
+    return { kg: ref.kg, reps: raw, mode: 'reps' };   /* the next jump is too big for this lift: keep adding reps first */
+  }
+  if (raw < lo) {
+    /* too few reps to stay in the range at this load: bring the load down so the set lands inside it */
+    if (o.inv) return { kg: roundTo(ref.kg + (lo - raw) * 2.5, inc, 1), reps: lo, mode: 'base' };
+    const e = e1rm(ref.kg, Math.max(1, raw)), down = roundTo(e / (1 + lo / 30), inc, -1);
+    if (down <= 0 || down >= ref.kg) return { kg: ref.kg, reps: lo, mode: 'base' };
+    return { kg: down, reps: clamp(Math.floor((e / down - 1) * 30 + 1e-6), lo, hi), mode: 'base' };
+  }
+  return { kg: ref.kg, reps: raw, mode: modeOf(raw) };
+}
+
+/* Re-aim a later set after seeing the previous set done today.
+   T: the planned target for this set (or null). last: { kg, reps, tk, tr } with the target that set had.
+   down = the previous set fell under the rep range, so the load drops 10% · cal = far more reps than predicted, so the load is recalculated */
+function adjustTarget(T, last, o) {
+  if (!last || last.reps == null) return T;
+  const lo = o.lo, hi = o.hi, inc = o.inc || 2.5, rir = o.rir || 0, load = last.kg != null && last.kg > 0;
+  const want = clamp(T ? T.reps : last.tr != null ? last.tr : last.reps, lo, hi);
+  if (load && !o.dl && last.reps < lo) {
+    const kg = o.inv ? Math.max(roundTo(last.kg * 1.1, inc, 1), roundTo(last.kg + inc, inc, 0)) : Math.min(roundTo(last.kg * 0.9, inc, -1), roundTo(Math.max(0, last.kg - inc), inc, 0));
+    return { kg, reps: want, mode: 'down' };
+  }
+  const beat = last.tk != null && last.tr != null && (o.inv ? last.kg <= last.tk : last.kg >= last.tk) && last.reps >= last.tr + Math.max(3, Math.round(last.tr * 0.25));
+  if (load && !o.dl && beat) {
+    let kg;
+    if (o.inv) { kg = roundTo(Math.max(0, last.kg - (last.reps - want) * 2.5), inc, 1); if (kg >= last.kg) kg = roundTo(Math.max(0, last.kg - inc), inc, 0); }
+    else { kg = roundTo((last.kg * (1 + (last.reps + rir) / 30)) / (1 + (want + rir) / 30), inc, 0); if (kg <= last.kg) kg = roundTo(last.kg + inc, inc, 0); }
+    return { kg, reps: want, mode: 'cal' };
+  }
+  if (!T) return { kg: last.kg == null ? null : last.kg, reps: clamp(last.reps, lo, Math.max(hi, lo)), mode: 'hold' };
+  if (last.kg != null && T.kg != null && last.kg !== T.kg) return { kg: last.kg, reps: clamp(last.reps, lo, hi), mode: T.mode === 'deload' ? 'deload' : 'hold' };
+  return T;
+}
+
+/* weekly sets per muscle from a list of { mv, sets }: a full set for the primary muscle, half a set for each helper */
+function muscleVolume(items) {
+  const out = {};
+  for (const k of Object.keys(MUSCLE)) out[k] = { d: 0, i: 0 };
+  for (const it of items) {
+    const L = LIB[it.mv]; if (!L || !(it.sets > 0)) continue;
+    out[L.p].d += it.sets;
+    for (const m of L.s || []) out[m].i += it.sets * 0.5;
+  }
+  return out;
+}
+const landmark = (k, total) => (total > MUSCLE[k].mrv ? 'over' : total < MUSCLE[k].mev ? 'under' : 'ok');
 
 /* ================================================================== figure rig
    A 2D articulated person built on real body proportions (stature = 180 units):
@@ -1080,7 +1368,7 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const Ltr = (s) => '<bdi dir="ltr">' + s + '</bdi>';
 const reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR;
+const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR, MAX_SETS = 8;
 const ICON = {
   play: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>',
   pause: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>',
@@ -1094,25 +1382,108 @@ const ICON = {
   down: '<svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
   up: '<svg class="i" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
   go: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
+  swap: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg>',
+  pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
+  fwd: '<svg class="i" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
 };
-/* S.sessions: id -> { id, v, w (workout 0-3), ts (start), end, upd, sets: { exerciseId: [ { kg, reps, done, t, pr } ] } } */
-const S = { tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '' };
-
+/* S.sessions: id -> one workout:
+   { id, v, w (workout 0-3), ts (start), end, mt, upd, sets: { slotId: [ { kg, reps, done, t, pr, tk, tr } ] },
+     m (mesocycle id), wk (week in it), dl (deload), rir (reps in reserve asked for), n: { slotId: planned sets },
+     mv: { slotId: movement, when swapped }, sore: { muscle: 0 never | 1 healed in time | 2 still sore },
+     fb: { slotId: { pain, pump, load } }, cut: { slotId: slot whose pain report cancelled it }, ft (time of the last change to these) }
+   S.cfg: settings and the running mesocycle, one document shared by the viewer's devices */
+const cfgDef = () => ({ upd: 0, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [] });
+const S = { tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
+const clone = (x) => JSON.parse(JSON.stringify(x));
+function normCfg(v) {
+  const d = cfgDef(), obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? clone(x) : {});
+  v = v || {};
+  return {
+    upd: +v.upd || 0, weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base),
+    meso: v.meso && v.meso.id ? { id: String(v.meso.id), n: +v.meso.n || 1, start: +v.meso.start || 0, early: +v.meso.early || 0, asked: String(v.meso.asked || '') } : d.meso,
+    past: Array.isArray(v.past) ? clone(v.past).slice(-4) : [],
+  };
+}
 function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch (e) { return {}; } }
 function saveLocal() {
   try {
     const keep = Object.values(S.sessions).sort((a, b) => b.ts - a.ts).slice(0, 80);
-    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, dirty: Array.from(S.dirty), gone: Array.from(S.gone) }));
+    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, pre: S.pre }));
   } catch (e) { /* storage unavailable: keep working in memory */ }
 }
+function saveCfg() { S.cfg.upd = Date.now(); S.dirty.add('cfg'); saveLocal(); schedule('cfg'); }
 const rowsOf = (s, exId) => (s && s.sets && s.sets[exId]) || [];
 const isDone = (r) => !!(r && r.done);
 const hasDone = (s) => Object.values(s.sets || {}).some((a) => (a || []).some(isDone));
 const sorted = () => Object.values(S.sessions).sort((a, b) => b.ts - a.ts);
 const live = (w) => sorted().find((x) => x.w === w && !x.end) || null;
+const planEx = (id) => { for (const w of PLAN) for (const e of w.ex) if (e.id === id) return e; return null; };
+const wkOf = (id) => PLAN.findIndex((w) => w.ex.some((e) => e.id === id));
+/* the movement done in a plan slot: a workout remembers its own, the next one follows the saved swaps */
+const moveOf = (pe, s) => { const k = s ? s.mv && s.mv[pe.id] : S.cfg.swap[pe.id]; return k && LIB[k] ? k : pe.a; };
+const incOf = (mv) => { const q = LIB[mv].eq, v = +S.cfg.inc[q]; return v > 0 ? v : EQUIP[q].inc; };
+
+/* ---- mesocycle: a week is one pass through the four workouts; the last week is a deload ---- */
+const mesoSessions = (id) => Object.values(S.sessions).filter((x) => x.m === id && hasDone(x));
+/* a mesocycle is over once every one of the four workouts has had its deload */
+function mesoDone(M) { const l = mesoSessions(M.id); return [0, 1, 2, 3].every((w) => l.some((x) => x.w === w && x.dl && x.end)); }
+/* where the next workout of this type falls: mesocycle, week, deload or not, reps in reserve */
+function phaseNext(w) {
+  let M = S.cfg.meso, fresh = false;
+  if (mesoDone(M)) { M = { id: 'm' + (M.n + 1), n: M.n + 1, early: 0 }; fresh = true; }
+  const wk = 1 + mesoSessions(M.id).filter((x) => x.w === w).length, dl = !!M.early || wk >= S.cfg.weeks;
+  return { m: M.id, n: M.n, wk, dl, rir: dl ? 4 : rirFor(wk, S.cfg.weeks), fresh };
+}
+function phase(w, s) {
+  if (s && s.m) return { m: s.m, n: +String(s.m).slice(1) || 1, wk: s.wk || 1, dl: !!s.dl, rir: s.rir == null ? null : s.rir };
+  if (s) return { m: null, n: 0, wk: 0, dl: false, rir: null };
+  return phaseNext(w);
+}
+function newMeso() {
+  const M = S.cfg.meso;
+  S.cfg.past = (S.cfg.past || []).concat({ id: M.id, n: M.n, end: Date.now() }).slice(-4);
+  S.cfg.meso = { id: 'm' + (M.n + 1), n: M.n + 1, start: Date.now(), early: 0, asked: '' };
+  saveCfg();
+}
+/* recovery answers given before the workout exists are kept for half a day */
+const preOf = (w) => { const p = S.pre[w]; return p && Date.now() - p.t < 12 * HOUR ? p.v : {}; };
+const soreOf = (w, s) => (s ? s.sore || {} : preOf(w));
+/* how the work felt for a muscle the last time it was rated: 0 easy, 1 right, 2 too much, null unknown */
+function lastFelt(mu) {
+  for (const x of sorted()) {
+    if (!x.fb || !hasDone(x)) continue;
+    const v = PLAN[x.w].ex.filter((pe) => LIB[moveOf(pe, x)].p === mu && x.fb[pe.id] && x.fb[pe.id].load != null).map((pe) => x.fb[pe.id].load);
+    if (v.length) return Math.max.apply(null, v);
+  }
+  return null;
+}
+/* the most recent finished workout that trained a muscle directly */
+const lastTrained = (mu) => sorted().find((x) => x.end && PLAN[x.w].ex.some((pe) => LIB[moveOf(pe, x)].p === mu && rowsOf(x, pe.id).some(isDone))) || null;
+/* set count per slot for the next workout of this type: last week's count in this mesocycle (or the plan), then recovery feedback, or the deload cut */
+function planned(w, sore) {
+  const P = phaseNext(w), out = {};
+  const prev = sorted().find((x) => x.w === w && x.m === P.m && !x.dl && x.n && hasDone(x));
+  for (const pe of PLAN[w].ex) { const b = S.cfg.base[pe.id]; out[pe.id] = prev && prev.n[pe.id] != null && !(b && b.t > prev.ts) ? prev.n[pe.id] : b && b.n ? b.n : pe.sets; }
+  if (P.dl) { for (const id of Object.keys(out)) out[id] = Math.max(1, Math.ceil(out[id] / 2)); return out; }
+  for (const mu of Object.keys(sore || {})) {
+    const ids = PLAN[w].ex.filter((pe) => LIB[pe.a].p === mu).map((pe) => pe.id);
+    if (sore[mu] === 2) { const id = ids.slice().reverse().find((k) => out[k] > 1); if (id) out[id]--; }
+    else if (sore[mu] === 0 && lastFelt(mu) === 0) { const id = ids.find((k) => out[k] < MAX_SETS); if (id) out[id]++; }
+  }
+  return out;
+}
+/* fix a new workout's place in the mesocycle, its set counts and its swaps */
+function stamp(s) {
+  const P = phaseNext(s.w);
+  if (P.fresh) newMeso();
+  s.m = P.m; s.wk = P.wk; s.dl = P.dl ? 1 : 0; s.rir = P.rir; s.sore = Object.assign({}, preOf(s.w)); s.mv = {}; s.fb = {}; s.cut = {};
+  for (const pe of PLAN[s.w].ex) { const k = S.cfg.swap[pe.id]; if (k && LIB[k] && k !== pe.a) s.mv[pe.id] = k; }
+  s.n = planned(s.w, s.sore); s.ft = Date.now(); s.v = 3;
+  delete S.pre[s.w];
+}
 function ensure(w) {
   let s = live(w);
-  if (!s) { s = { id: 's' + Date.now().toString(36) + 'w' + w, v: 2, w, ts: Date.now(), end: 0, upd: Date.now(), sets: {} }; S.sessions[s.id] = s; }
+  if (!s) { s = { id: 's' + Date.now().toString(36) + 'w' + w, v: 3, w, ts: Date.now(), end: 0, upd: Date.now(), sets: {} }; stamp(s); S.sessions[s.id] = s; }
   return s;
 }
 function lastT(s) { let t = s.ts; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (r && r.t > t) t = r.t; return t; }
@@ -1134,37 +1505,154 @@ function nextUp() {
   if (!l.length) return { next: 0, live: -1 };
   return l[0].end ? { next: (l[0].w + 1) % 4, live: -1 } : { next: l[0].w, live: l[0].w };
 }
+
+/* ---- an exercise as it is done in one workout: the plan slot with that day's movement and set count ---- */
+function view(pe, s, plan) {
+  const mv = moveOf(pe, s), cut = !!(s && s.cut && s.cut[pe.id]);
+  const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id];
+  let n = n0;
+  if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
+  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: pe.int, lvl: pe.lvl, suf: pe.suf, cut, swapped: mv !== pe.a };
+}
+function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return PLAN[w].ex.map((pe) => view(pe, s, plan)); }
+function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
 const doneCount = (s, e) => rowsOf(s, e.id).slice(0, e.sets).filter(isDone).length;
 const firstUndone = (s, e) => { const r = rowsOf(s, e.id); for (let i = 0; i < e.sets; i++) if (!isDone(r[i])) return i; return -1; };
-const findEx = (id) => { for (const w of PLAN) for (const e of w.ex) if (e.id === id) return e; return null; };
-const wkOf = (id) => PLAN.findIndex((w) => w.ex.some((e) => e.id === id));
-const prevFor = (w, exId, notId) => sorted().find((x) => x.w === w && x.id !== notId && rowsOf(x, exId).some(isDone)) || null;
-const e1rm = (kg, reps) => kg * (1 + reps / 30);
-function repRange(e) { const p = String(e.reps).split('–').map((x) => parseInt(x, 10)); return [p[0], p[p.length - 1]]; }
-/* best estimated strength logged for a movement (any workout slot); can leave out or isolate one session */
-function bestFor(a, o) {
-  let best = null; o = o || {};
-  for (const s of Object.values(S.sessions)) for (const w of PLAN) for (const e of w.ex) {
-    if (e.a !== a || (o.notS && s.id === o.notS) || (o.onlyS && s.id !== o.onlyS)) continue;
-    rowsOf(s, e.id).forEach((r, i) => {
-      if (!isDone(r) || r.kg == null || !(r.kg > 0) || r.reps == null || (o.skipEx === e.id && o.skipI === i)) return;
-      const v = e1rm(r.kg, r.reps); if (!best || v > best.v) best = { v, kg: r.kg, reps: r.reps };
+/* reps in reserve for one exercise today: the week's number, one more when its muscle is still sore */
+function rirOf(e, s) { const w = wkOf(e.id), P = phase(w, s); if (P.rir == null) return null; return Math.min(4, P.rir + (!P.dl && soreOf(w, s)[LIB[e.mv].p] === 2 ? 1 : 0)); }
+
+/* best set logged for a movement, in any slot; can leave out or isolate one workout */
+function bestFor(mv, o) {
+  let best = null; o = o || {}; const L = LIB[mv];
+  for (const s of Object.values(S.sessions)) for (const pe of PLAN[s.w].ex) {
+    if ((o.notS && s.id === o.notS) || (o.onlyS && s.id !== o.onlyS) || moveOf(pe, s) !== mv) continue;
+    rowsOf(s, pe.id).forEach((r, i) => {
+      if (!isDone(r) || r.kg == null || !(r.kg > 0) || r.reps == null || (o.skipEx === pe.id && o.skipI === i)) return;
+      const v = score(L, r.kg, r.reps); if (!best || v > best.v) best = { v, kg: r.kg, reps: r.reps };
     });
   }
   return best;
 }
-/* weight to offer for a set: earlier set today, then the same set last time, then the same movement elsewhere */
-function defaultKg(e, i, s) {
-  const cur = rowsOf(s, e.id);
-  for (let k = i - 1; k >= 0; k--) if (isDone(cur[k]) && cur[k].kg != null) return cur[k].kg;
-  const p = prevFor(wkOf(e.id), e.id, s && s.id);
-  if (p) { const r = rowsOf(p, e.id); if (isDone(r[i]) && r[i].kg != null) return r[i].kg; const any = r.filter((x) => isDone(x) && x.kg != null); if (any.length) return any[any.length - 1].kg; }
-  for (const x of sorted()) for (const w of PLAN) for (const o of w.ex) { if (o.a !== e.a || o.id === e.id) continue; const any = rowsOf(x, o.id).filter((q) => isDone(q) && q.kg != null); if (any.length) return any[any.length - 1].kg; }
+/* the same set the last time this movement was trained in this slot (a deload is not a yardstick); failing that, the movement in another slot */
+function refRow(e, i, s) {
+  const w = wkOf(e.id), pe = planEx(e.id), not = s && s.id, all = sorted(), mu = LIB[e.mv].p;
+  const pick = (x, id) => {
+    const r = rowsOf(x, id), d = r.filter((q) => isDone(q) && q.reps != null); if (!d.length) return null;
+    const row = isDone(r[i]) && r[i].reps != null ? r[i] : d[d.length - 1];
+    return { kg: row.kg == null ? null : row.kg, reps: row.reps, rir: x.rir == null ? null : Math.min(4, x.rir + (x.sore && x.sore[mu] === 2 ? 1 : 0)), ts: x.ts, sid: x.id };
+  };
+  for (const x of all) { if (x.w !== w || x.id === not || x.dl || moveOf(pe, x) !== e.mv) continue; const r = pick(x, e.id); if (r) return r; }
+  for (const x of all) {
+    if (x.id === not || x.dl) continue;
+    for (const o of PLAN[x.w].ex) { if (o.id === e.id || moveOf(o, x) !== e.mv) continue; const r = pick(x, o.id); if (r) { r.other = true; return r; } }
+  }
   return null;
 }
-function defaultReps(e, i, s) { const p = prevFor(wkOf(e.id), e.id, s && s.id), r = p && rowsOf(p, e.id)[i]; return isDone(r) && r.reps != null ? r.reps : null; }
+/* what to aim for on set i: progress on last time, then re-aimed by the sets already done today. null when there is nothing to go on yet */
+function targetOf(e, i, s) {
+  const w = wkOf(e.id), L = LIB[e.mv], P = phase(w, s), rr = repRange(e), ref = refRow(e, i, s);
+  const o = { lo: rr[0], hi: rr[1], inc: incOf(e.mv), rir: P.rir == null ? (ref && ref.rir != null ? ref.rir : 1) : P.rir, sore: !P.dl && soreOf(w, s)[L.p] === 2 ? 1 : 0, dl: P.dl, inv: !!L.inv };
+  let T = !ref ? null : ref.other && !P.dl ? { kg: ref.kg, reps: clamp(ref.reps, o.lo, o.hi), mode: 'hold' } : nextTarget(ref, o);
+  const cur = rowsOf(s, e.id);
+  for (let k = i - 1; k >= 0; k--) if (isDone(cur[k]) && cur[k].reps != null) { T = adjustTarget(T, cur[k], o); break; }
+  return T ? { kg: T.kg, reps: T.reps, mode: T.mode, ref } : null;
+}
+
+/* ---- feedback during the workout ---- */
+/* severe joint pain stops the rest of today's work for that muscle; taking the answer back restores it */
+function painCut(s, exId, on) {
+  const cut = s.cut || (s.cut = {});
+  if (!on) { for (const k of Object.keys(cut)) if (cut[k] === exId) delete cut[k]; return; }
+  const mu = LIB[moveOf(planEx(exId), s)].p;
+  for (const e of exList(s.w, s)) if (LIB[e.mv].p === mu && !e.cut && firstUndone(s, e) >= 0) cut[e.id] = exId;
+}
+function setFb(exId, key, v) {
+  const s = live(wkOf(exId)); if (!s) return null;
+  const fb = s.fb || (s.fb = {}), f = fb[exId] || (fb[exId] = { pain: null, pump: null, load: null }), was = f.pain;
+  f[key] = v;
+  if (key === 'pain' && (v === 2) !== (was === 2)) painCut(s, exId, v === 2);
+  s.ft = Date.now(); touch(s);
+  return f;
+}
+function setSore(w, mu, v) {
+  const s = live(w);
+  if (s) { if (hasDone(s)) return; s.sore = Object.assign({}, s.sore, { [mu]: v }); s.n = planned(w, s.sore); s.ft = Date.now(); touch(s); }
+  else { S.pre[w] = { t: Date.now(), v: Object.assign({}, preOf(w), { [mu]: v }) }; saveLocal(); }
+}
+/* a movement that gave a weak pump the last two times it was rated is worth replacing */
+function lowPump(mv) {
+  let n = 0;
+  for (const x of sorted()) for (const pe of PLAN[x.w].ex) {
+    const f = x.fb && x.fb[pe.id]; if (!f || f.pump == null || moveOf(pe, x) !== mv) continue;
+    if (f.pump !== 0) return false; if (++n >= 2) return true;
+  }
+  return false;
+}
+/* muscles whose first set fell short of its target in a workout */
+function missedMuscles(s) {
+  const out = new Set();
+  for (const pe of PLAN[s.w].ex) { const r = rowsOf(s, pe.id)[0], L = LIB[moveOf(pe, s)]; if (isDone(r) && r.tr != null && score(L, r.kg, r.reps) < score(L, r.tk, r.tr) - 0.01) out.add(L.p); }
+  return out;
+}
+/* fatigue is building up when the last two workouts each fell short for two muscle groups or more */
+function fatigued() {
+  const l = sorted().filter((x) => x.m === S.cfg.meso.id && x.end && !x.dl && hasDone(x)).slice(0, 2);
+  return l.length === 2 && l.every((x) => missedMuscles(x).size >= 2);
+}
+/* swap options for a slot: the same movement pattern only, joint-friendly ones first */
+function swapOptions(e) {
+  const L = LIB[e.mv];
+  return Object.keys(LIB).filter((k) => k !== e.mv && LIB[k].pat === L.pat && LIB[k].p === L.p).sort((a, b) => (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0));
+}
+/* after a pain report: a movement of the same pattern that is not already in this workout, a joint-friendly one if there is one */
+function gentleAlt(e) { const used = exList(wkOf(e.id)).map((x) => x.mv), o = swapOptions(e); return o.find((k) => LIB[k].jf && !used.includes(k)) || o.find((k) => !used.includes(k)) || o[0] || null; }
+/* returns true when today's workout switched, false when the change waits for the next one */
+function swapTo(exId, mv, always) {
+  const pe = planEx(exId), w = wkOf(exId);
+  if (!pe || !LIB[mv]) return false;
+  if (always) { if (mv === pe.a) delete S.cfg.swap[exId]; else S.cfg.swap[exId] = mv; saveCfg(); }
+  let s = live(w);
+  if (!s && !always) s = ensure(w);
+  if (!s || rowsOf(s, exId).some(isDone)) return !s;
+  s.mv = Object.assign({}, s.mv); if (mv === pe.a) delete s.mv[exId]; else s.mv[exId] = mv;
+  s.ft = Date.now(); touch(s);
+  return true;
+}
+function setBase(exId, n) {
+  n = clamp(n, 1, MAX_SETS);
+  S.cfg.base[exId] = { n, t: Date.now() }; saveCfg();
+  const s = live(wkOf(exId));
+  if (s && !s.dl && s.n && rowsOf(s, exId).filter(isDone).length <= n) { s.n = Object.assign({}, s.n, { [exId]: n }); s.ft = Date.now(); touch(s); }
+}
+/* the week as it stands now: every slot with its movement and planned sets */
+function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
+/* how many muscles sit under their minimum or over their maximum weekly volume as the week is planned now */
+function volWarn() { const v = muscleVolume(weekItems()); return Object.keys(MUSCLE).filter((k) => landmark(k, v[k].d + v[k].i) !== 'ok').length; }
+/* what one mesocycle did: sets per week (start and peak), strength change per movement, and the movements that answered best */
+function mesoSummary(id) {
+  const l = mesoSessions(id).sort((a, b) => a.ts - b.ts), wkSets = {}, mus = {}, lifts = {};
+  for (const x of l) for (const pe of PLAN[x.w].ex) {
+    const mv = moveOf(pe, x), L = LIB[mv], rows = rowsOf(x, pe.id).filter((r) => isDone(r) && r.reps != null), f = x.fb && x.fb[pe.id];
+    if (!rows.length) continue;
+    const o = lifts[mv] || (lifts[mv] = { mv, first: null, best: null, pump: [], pain: [] });
+    if (f) { if (f.pump != null) o.pump.push(f.pump); if (f.pain != null) o.pain.push(f.pain); }
+    if (x.dl) continue;
+    wkSets[x.wk] = (wkSets[x.wk] || 0) + rows.length;
+    const add = (k, v) => { const m = mus[k] || (mus[k] = {}); m[x.wk] = (m[x.wk] || 0) + v; };
+    add(L.p, rows.length); for (const k of L.s) add(k, rows.length * 0.5);
+    const top = rows.reduce((a, b) => (score(L, b.kg, b.reps) > score(L, a.kg, a.reps) ? b : a)), v = score(L, top.kg, top.reps);
+    if (!o.first) o.first = { v, row: top, wk: x.wk }; else if (!o.best || v > o.best.v) o.best = { v, row: top, wk: x.wk };
+  }
+  const span = (m) => { const ks = Object.keys(m).map(Number).sort((a, b) => a - b); if (!ks.length) return null; const peak = ks.reduce((a, b) => (m[b] > m[a] ? b : a)); return { start: m[ks[0]], peak: m[peak], peakWk: peak, weeks: ks.length }; };
+  const avg = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  const gains = Object.values(lifts).filter((o) => o.first && o.best).map((o) => ({ mv: o.mv, first: o.first.row, best: o.best.row, pct: ((o.best.v - o.first.v) / o.first.v) * 100 })).sort((a, b) => b.pct - a.pct);
+  const top = Object.values(lifts).filter((o) => o.pump.length).map((o) => ({ mv: o.mv, pump: avg(o.pump), pain: o.pain.length ? avg(o.pain) : 0 })).filter((o) => o.pump >= 1 && o.pain < 1).sort((a, b) => b.pump - 1.5 * b.pain - (a.pump - 1.5 * a.pain)).slice(0, 3);
+  return { n: l.length, sets: span(wkSets), mus: Object.keys(MUSCLE).filter((k) => mus[k]).map((k) => Object.assign({ k }, span(mus[k]))), gains, top };
+}
+
 function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + ' דק׳'; return Ltr(a === b ? a : a + '–' + b) + ' שנ׳'; }
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
+const rirText = (r) => (r == null ? '' : r >= 4 ? 'דילואד, קל ורחוק מכשל' : r === 0 ? 'עד כשל טכני' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
 function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
@@ -1183,7 +1671,9 @@ function setSync(state) {
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
 function schedule(id, ms) { const w = W(id); clearTimeout(w.timer); w.timer = setTimeout(() => flush(id), ms == null ? 800 : ms); }
-const docOf = (s) => JSON.parse(JSON.stringify({ v: 2, w: s.w, ts: s.ts, end: s.end || 0, mt: s.mt || 0, upd: s.upd || s.ts, sets: s.sets || {} }));
+const XK = ['m', 'wk', 'dl', 'rir', 'n', 'mv', 'sore', 'cut', 'fb'];
+function docOf(s) { const d = { v: s.v || 2, w: s.w, ts: s.ts, end: s.end || 0, mt: s.mt || 0, upd: s.upd || s.ts, ft: s.ft || 0, sets: s.sets || {} }; for (const k of XK) if (s[k] != null) d[k] = s[k]; return clone(d); }
+const cfgDoc = () => clone(Object.assign({ kind: 'cfg' }, S.cfg));
 async function flush(id) {
   const w = W(id);
   if (!S.col || !S.dirty.has(id)) return;
@@ -1191,7 +1681,7 @@ async function flush(id) {
   w.busy = true;
   const s = S.sessions[id];
   try {
-    if (s) await S.col.doc(id).set(docOf(s)); else await S.col.doc(id).delete();
+    if (id === 'cfg') await S.col.doc(id).set(cfgDoc()); else if (s) await S.col.doc(id).set(docOf(s)); else await S.col.doc(id).delete();
     if (!w.again) { S.dirty.delete(id); if (!s) S.gone.delete(id); }
     w.fail = 0; saveLocal(); setSync('cloud');
   } catch (e) {
@@ -1199,14 +1689,18 @@ async function flush(id) {
     if (w.fail < 4) schedule(id, 2500 * w.fail + Math.random() * 900);
   } finally { w.busy = false; if (w.again) { w.again = false; schedule(id, 300); } }
 }
-const sig = (s) => !s ? '' : s.ts + '|' + (s.end || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
+const sig = (s) => !s ? '' : s.ts + '|' + (s.end || 0) + '|' + (s.ft || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
 /* merge set by set: the row with the later timestamp wins, so two devices never wipe each other */
 function mergeSession(a, b) {
   if (!a) return [b, false];
   /* start and end follow whoever changed them last on purpose (finish, reopen, date edit); otherwise earliest start, latest end */
   const am = a.mt || 0, bm = b.mt || 0, meta = am > bm ? a : bm > am ? b : null;
   let newer = am > bm || (am === bm && (a.end || 0) > (b.end || 0));
-  const out = { id: a.id, v: 2, w: a.w, ts: meta ? meta.ts : Math.min(a.ts, b.ts || a.ts), end: meta ? meta.end || 0 : Math.max(a.end || 0, b.end || 0), mt: Math.max(am, bm), upd: Math.max(a.upd || 0, b.upd || 0), sets: {} };
+  const out = { id: a.id, v: Math.max(a.v || 1, b.v || 1), w: a.w, ts: meta ? meta.ts : Math.min(a.ts, b.ts || a.ts), end: meta ? meta.end || 0 : Math.max(a.end || 0, b.end || 0), mt: Math.max(am, bm), upd: Math.max(a.upd || 0, b.upd || 0), sets: {} };
+  /* the workout's plan (week, set counts, swaps, recovery and feedback answers) travels as one piece: the side that changed it last wins */
+  const af = a.ft || 0, bf = b.ft || 0, F = af >= bf ? a : b, G = F === a ? b : a;
+  for (const k of XK) { const v = F[k] != null ? F[k] : G[k]; if (v != null) out[k] = v; }
+  out.ft = Math.max(af, bf); if (af > bf) newer = true;
   for (const k of new Set(Object.keys(a.sets || {}).concat(Object.keys(b.sets || {})))) {
     const x = (a.sets || {})[k] || [], y = (b.sets || {})[k] || [], arr = [];
     for (let i = 0; i < Math.max(x.length, y.length); i++) {
@@ -1235,8 +1729,9 @@ async function initCloud(onChange) {
         const v = ch.doc.data();
         if (!v || typeof v.w !== 'number' || S.gone.has(id)) continue;
         seen.add(id);
-        const before = sig(S.sessions[id]);
-        const [m, newer] = mergeSession(S.sessions[id], { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, sets: JSON.parse(JSON.stringify(v.sets || {})) });
+        const before = sig(S.sessions[id]), r = { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, ft: v.ft || 0, sets: clone(v.sets || {}) };
+        for (const k of XK) if (v[k] != null) r[k] = clone(v[k]);
+        const [m, newer] = mergeSession(S.sessions[id], r);
         S.sessions[id] = m;
         if (sig(m) !== before) changed = true;
         if (newer) { S.dirty.add(id); schedule(id, 400); }
@@ -1249,6 +1744,12 @@ async function initCloud(onChange) {
       saveLocal(); setSync('cloud');
       if (changed) onChange();
     }, () => { clearTimeout(slow); setSync('local'); });
+    /* settings and the mesocycle live in one document: the copy that was changed last wins */
+    col.doc('cfg').onSnapshot((d) => {
+      const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0;
+      if (up > S.cfg.upd) { S.cfg = normCfg(v); S.dirty.delete('cfg'); saveLocal(); onChange(); }
+      else if (up < S.cfg.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }
+    }, () => {});
   } catch (e) { clearTimeout(slow); setSync('local'); }
 }
 window.addEventListener('online', () => { for (const id of S.dirty) schedule(id, 200); });
@@ -1313,13 +1814,21 @@ function drawThumbs() {
 }
 function onTheme() { readColors(); drawThumbs(); if (player.cv && !player.playing) paintStage(player.lastT); }
 
+
 /* ================================================================== workout UI */
 const valHTML = (r) => Ltr(r.kg != null ? Ltr(fmtKg(r.kg)) + '<small><bdi> ק״ג</bdi></small>' + Ltr(' × ' + (r.reps != null ? r.reps : '–')) : Ltr(r.reps != null ? r.reps : '–') + '<small><bdi> חז׳</bdi></small>');
+/* what today's set is trying to beat */
+const MODE = { reps: ['יעד: יותר חזרות', 'g-reps'], weight: ['יעד: יותר משקל', 'g-wt'], hold: ['לשמור על הביצוע', ''], base: ['בסיס חדש למזוציקל', ''], deload: ['דילואד', ''], down: ['המשקל ירד ב-10%', 'g-down'], cal: ['כויל מחדש', 'g-cal'] };
+function badge(T, e) {
+  if (!T || !MODE[T.mode]) return '';
+  const inv = LIB[e.mv].inv, t = inv && T.mode === 'weight' ? 'יעד: פחות סיוע' : inv && T.mode === 'down' ? 'נוסף סיוע' : MODE[T.mode][0];
+  return '<span class="goal ' + MODE[T.mode][1] + '">' + t + '</span>';
+}
 function cursor() {
-  const wk = PLAN[S.tab], s = live(S.tab);
-  let e = S.open && wk.ex.find((x) => x.id === S.open);
+  const s = live(S.tab), list = exList(S.tab, s);
+  let e = S.open && list.find((x) => x.id === S.open);
   if (e && firstUndone(s, e) >= 0) return { e, i: firstUndone(s, e) };
-  e = wk.ex.find((x) => firstUndone(s, x) >= 0);
+  e = list.find((x) => firstUndone(s, x) >= 0);
   return e ? { e, i: firstUndone(s, e) } : null;
 }
 function renderTabs() {
@@ -1327,10 +1836,10 @@ function renderTabs() {
   $('#tabs').innerHTML = PLAN.map((w, i) => '<button class="tab" role="tab" type="button" data-tab="' + i + '" aria-selected="' + (i === S.tab) + '"><small>אימון ' + (i + 1) + '</small><b>' + w.name + '</b>' +
     (nu.live === i ? '<span class="flag live">באמצע</span>' : nu.next === i ? '<span class="flag">הבא בתור</span>' : '') + '</button>').join('');
 }
-const totals = () => { const wk = PLAN[S.tab], s = live(S.tab); return { total: wk.ex.reduce((n, e) => n + e.sets, 0), dn: wk.ex.reduce((n, e) => n + doneCount(s, e), 0) }; };
+const totals = () => { const s = live(S.tab), l = exList(S.tab, s); return { total: l.reduce((n, e) => n + e.sets, 0), dn: l.reduce((n, e) => n + doneCount(s, e), 0) }; };
 function updateProgress() {
   const { dn, total } = totals(), arc = $('#ringArc'), txt = $('#ringTxt');
-  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - dn / total));
+  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - (total ? dn / total : 0)));
   if (txt) txt.textContent = dn + '/' + total;
   const f = $('#finishBtn'); if (f) f.disabled = dn === 0;
 }
@@ -1339,47 +1848,50 @@ function tickElapsed() {
   if (el && s) el.innerHTML = 'באימון כבר <b>' + Ltr(mmss(Math.max(0, (Date.now() - s.ts) / 1000))) + '</b>';
 }
 function renderHero() {
-  const wk = PLAN[S.tab], s = live(S.tab), { total } = totals();
-  const mins = Math.round(wk.ex.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
+  const wk = PLAN[S.tab], s = live(S.tab), list = exList(S.tab, s), total = list.reduce((n, e) => n + e.sets, 0), P = phase(S.tab, s);
+  const mins = Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
   const prev = sorted().find((x) => x.w === S.tab && x.end && hasDone(x));
   const line2 = s ? '<span id="elapsed"></span>' : prev ? 'פעם קודמת ' + ago(prev.ts) + ': ' + setsDone(prev) + ' סטים' + (volume(prev) ? ', ' + volume(prev).toLocaleString('he-IL') + ' ק״ג' : '') : wk.ex.length + ' תרגילים · כ־' + mins + ' דקות';
-  $('#hero').innerHTML = (S.banner ? '<div class="banner"><p>' + S.banner + '</p><button type="button" id="bannerX" aria-label="סגור">' + ICON.x + '</button></div>' : '') +
+  const meso = P.m ? '<button class="meso' + (P.dl ? ' dl' : '') + '" id="mesoBtn" type="button" aria-label="מזוציקל ותוכנית: פרטים והגדרות"><span>מזוציקל ' + P.n + ' · ' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks) + '</span><b>' + rirText(P.rir) + '</b>' + (!P.dl && volWarn() ? '<em>נפח</em>' : '') + ICON.fwd + '</button>' : '';
+  $('#hero').innerHTML = (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" id="bannerX" aria-label="סגור">' + ICON.x + '</button></div>' : '') +
     '<div><p class="kicker">אימון ' + (S.tab + 1) + ' מתוך 4 · ' + wk.he + '</p><h1>' + wk.name + '</h1><p class="meta">' + (s || prev ? wk.ex.length + ' תרגילים · כ־' + mins + ' דקות<br>' : '') + line2 + '</p></div>' +
-    '<div class="ring" role="img" aria-label="התקדמות באימון"><svg viewBox="0 0 86 86" aria-hidden="true"><circle class="tr" cx="43" cy="43" r="36"/><circle class="pr" id="ringArc" cx="43" cy="43" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><div><b id="ringTxt">0/' + total + '</b><span>סטים</span></div></div>';
+    '<div class="ring" role="img" aria-label="התקדמות באימון"><svg viewBox="0 0 86 86" aria-hidden="true"><circle class="tr" cx="43" cy="43" r="36"/><circle class="pr" id="ringArc" cx="43" cy="43" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><div><b id="ringTxt">0/' + total + '</b><span>סטים</span></div></div>' + meso;
   tickElapsed();
 }
+const pipsHTML = (e, dn) => { let p = ''; for (let k = 0; k < e.sets; k++) p += '<i' + (k < dn ? ' class="on"' : '') + '></i>'; return p; };
 function rowHTML(e, i, s) {
-  const dn = doneCount(s, e), full = dn >= e.sets;
-  let pips = ''; for (let k = 0; k < e.sets; k++) pips += '<i' + (k < dn ? ' class="on"' : '') + '></i>';
-  return '<li class="ex' + (full ? ' done' : '') + '" data-id="' + e.id + '">' +
+  const dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets;
+  const tags = (e.cut ? '<span class="tagx warn">' + (off ? 'בוטל היום' : 'קוצר היום') + '</span>' : '') + (lowPump(e.mv) ? '<span class="tagx hint">שווה להחליף</span>' : '') + (e.swapped ? '<span class="tagx">חלופה</span>' : '');
+  return '<li class="ex' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
     '<button class="ex-head" type="button" aria-expanded="false" aria-controls="body-' + e.id + '">' +
-    '<span class="ex-n">' + (full ? ICON.check : i + 1) + '</span><canvas class="ex-thumb" data-anim="' + e.a + '" aria-hidden="true"></canvas>' +
-    '<span class="ex-title"><span class="ex-name">' + esc(e.name) + '</span><span class="ex-sub">' + LIB[e.a].he + '</span></span>' +
-    '<span class="ex-side"><span class="ex-rx">' + Ltr(e.sets + ' × ' + e.reps) + '</span><span class="pips" aria-hidden="true">' + pips + '</span></span>' +
+    '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span><canvas class="ex-thumb" data-anim="' + e.a + '" aria-hidden="true"></canvas>' +
+    '<span class="ex-title"><span class="ex-name">' + esc(e.name) + '</span><span class="ex-sub">' + LIB[e.mv].he + '</span>' + (tags ? '<span class="tags">' + tags + '</span>' : '') + '</span>' +
+    '<span class="ex-side"><span class="ex-rx">' + Ltr((off ? e.n0 : e.sets) + ' × ' + e.reps) + '</span><span class="pips" aria-hidden="true">' + pipsHTML(e, dn) + '</span></span>' +
     '</button><div class="ex-body" id="body-' + e.id + '" hidden></div></li>';
 }
 function setsHTML(e) {
-  const s = live(S.tab), r = rowsOf(s, e.id), prev = prevFor(S.tab, e.id, s && s.id), cur = s ? cursor() : null;
+  const s = live(S.tab), r = rowsOf(s, e.id), cur = s ? cursor() : null, rir = rirOf(e, s), fu = firstUndone(s, e), T0 = fu >= 0 ? targetOf(e, fu, s) : null, ref = refRow(e, 0, s);
   let h = '<div class="sets-h"><span>סטים</span><span>' + (s ? 'נגיעה בסט שבוצע פותחת עריכה' : 'הרישום נעשה בסרגל שלמטה') + '</span></div>';
+  if (ref && !ref.other) h += '<p class="prev-line">פעם קודמת, ' + ago(ref.ts) + ': ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>';
   for (let i = 0; i < e.sets; i++) {
-    const row = r[i], on = isDone(row), isCur = !!cur && cur.e.id === e.id && cur.i === i, pv = prev ? rowsOf(prev, e.id)[i] : null;
-    const fail = e.lvl === 3 && i === e.sets - 1 ? '<em>עד כשל טכני</em>' : '';
+    const row = r[i], on = isDone(row), isCur = !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s);
+    const fail = rir === 0 && i === e.sets - 1 ? '<em>עד כשל טכני</em>' : '';
     const mid = on ? '<span class="v">' + valHTML(row) + (row.pr ? '<span class="pr">שיא אישי</span>' : '') + '</span>'
-      : '<span class="hint">' + (isCur ? 'הסט הבא' : isDone(pv) ? 'פעם קודמת ' + Ltr(fmtRow(pv)) : 'עוד לא בוצע') + (fail ? ' · ' + fail : '') + '</span>';
+      : '<span class="hint">' + (T ? '<span class="tg">' + Ltr(fmtRow(T)) + '</span>' + badge(T, e) : isCur ? 'הסט הבא' : 'עוד לא בוצע') + (fail ? ' · ' + fail : '') + '</span>';
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + '" type="button" data-i="' + i + '"><span class="n">סט ' + (i + 1) + '</span>' + mid + '<span class="st">' + ICON.check + '</span></button>';
   }
-  if (prev && firstUndone(s, e) >= 0 && rowsOf(prev, e.id).some(isDone)) h += '<button class="btn same" type="button">רשום את שאר הסטים כמו בפעם הקודמת</button>';
+  if (e.cut) h += '<p class="cut-note">' + (e.sets ? 'שאר הסטים' : 'התרגיל') + ' בוטל היום בגלל כאב חזק במפרק.</p>';
+  if (T0 && e.sets - fu > 1) h += '<button class="btn same" type="button">רשום את שאר הסטים לפי היעד</button>';
   return h;
 }
-/* strength trend for one exercise slot: the best set of each past workout as estimated one-rep strength */
+/* strength trend for one movement in its slot: the best set of each past workout */
 function trendHTML(e) {
-  const w = wkOf(e.id), pts = [];
+  const w = wkOf(e.id), pe = planEx(e.id), L = LIB[e.mv], pts = [];
   for (const s of sorted().reverse()) {
-    if (s.w !== w) continue;
-    const rows = rowsOf(s, e.id).filter(isDone); if (!rows.length) continue;
-    const weighted = rows.filter((r) => r.kg != null && r.kg > 0 && r.reps != null);
-    const top = weighted.length ? weighted.reduce((a, b) => (e1rm(b.kg, b.reps) > e1rm(a.kg, a.reps) ? b : a)) : rows.reduce((a, b) => ((b.reps || 0) > (a.reps || 0) ? b : a));
-    pts.push({ v: weighted.length ? e1rm(top.kg, top.reps) : top.reps || 0, row: top, ts: s.ts });
+    if (s.w !== w || moveOf(pe, s) !== e.mv) continue;
+    const rows = rowsOf(s, e.id).filter((x) => isDone(x) && x.reps != null); if (!rows.length) continue;
+    const top = rows.reduce((a, b) => (score(L, b.kg, b.reps) > score(L, a.kg, a.reps) ? b : a));
+    pts.push({ v: score(L, top.kg, top.reps), row: top, ts: s.ts });
   }
   const P = pts.slice(-12);
   if (P.length < 2) return '<div class="trend"><span class="k">מגמת כוח</span><p>' + (P.length ? 'אימון אחד נרשם (' + Ltr(fmtRow(P[0].row)) + '). אחרי האימון הבא תופיע כאן מגמה.' : 'אחרי שני אימונים תופיע כאן המגמה של התרגיל.') + '</p></div>';
@@ -1390,19 +1902,42 @@ function trendHTML(e) {
     '<span class="d ' + cls + '">' + (cls === 'up' ? '▲ עלייה של ' : cls === 'dn' ? '▼ ירידה של ' : 'בלי שינוי מהאימון הקודם') + (cls ? Ltr(Math.abs(d).toFixed(1) + '%') + ' מהאימון הקודם' : '') + '</span>' +
     '<svg viewBox="0 0 118 44" role="img" aria-label="מגמת הכוח ב-' + P.length + ' האימונים האחרונים"><path d="' + line + ' L112 44 L6 44 Z" fill="var(--ink-3)" opacity=".12"/><path d="' + line + '" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + X(P.length - 1).toFixed(1) + '" cy="' + Y(last.v).toFixed(1) + '" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/></svg></div>';
 }
+/* three one-tap answers about the exercise that was just finished */
+const FB = [
+  { k: 'pain', q: 'כאב במפרקים', o: ['בלי כאב', 'קל', 'חזק'] },
+  { k: 'pump', q: 'פאמפ וחיבור לשריר', o: ['חלש', 'בינוני', 'חזק'] },
+  { k: 'load', q: 'עומס העבודה', o: ['קל מדי', 'מתאים', 'יותר מדי'] },
+];
+function fbHTML(e, s) {
+  const f = (s && s.fb && s.fb[e.id]) || {};
+  return '<div class="fbk" data-ex="' + e.id + '">' + FB.map((q) => '<div class="fb-row"><span>' + q.q + '</span><div class="seg" role="group" aria-label="' + q.q + '">' +
+    q.o.map((t, v) => '<button type="button" data-fb="' + q.k + '" data-v="' + v + '" aria-pressed="' + (f[q.k] === v) + '">' + t + '</button>').join('') + '</div></div>').join('') + '</div>';
+}
+/* after a severe pain report: what was cancelled, and a movement of the same pattern to move to */
+function painNote(e, s) {
+  const f = s && s.fb && s.fb[e.id]; if (!f || f.pain !== 2) return '';
+  const alt = gentleAlt(e), set = alt && S.cfg.swap[e.id] === alt;
+  return '<p class="fb-warn"><b>שאר הסטים ל' + MUSCLE[LIB[e.mv].p].he + ' בוטלו להיום.</b> ' +
+    (!alt ? '' : set ? 'מהאימון הבא: ' + Ltr(esc(EN[alt])) + ' במקום התרגיל הזה. ' : (LIB[alt].jf ? 'חלופה נוחה יותר למפרקים באותו דפוס תנועה: ' : 'חלופה באותו דפוס תנועה: ') + Ltr(esc(EN[alt])) + '. <button class="link" type="button" data-swapto="' + e.id + ':' + alt + '">להחליף מהאימון הבא</button> ') + 'אם הכאב נמשך, כדאי להתייעץ עם איש מקצוע.</p>';
+}
+/* the feedback card inside the exercise; hidden while the dock is asking the same questions */
+const fbWrap = (e, s) => (s && S.fbFor !== e.id && rowsOf(s, e.id).some(isDone) ? '<span class="rx-k">משוב על התרגיל</span>' + fbHTML(e, s) + painNote(e, s) : '');
 function bodyHTML(e) {
-  const info = LIB[e.a], view = { side: 'מבט מהצד', back: 'מבט מאחור', top: 'מבט מלמעלה' }[ANIM[e.a].view];
+  const s = live(S.tab), info = LIB[e.mv], view = { side: 'מבט מהצד', back: 'מבט מאחור', top: 'מבט מלמעלה' }[ANIM[e.a].view], rir = rirOf(e, s), fw = fbWrap(e, s);
+  const lvl = rir == null ? e.lvl : rir >= 4 ? 0 : rir >= 2 ? 1 : rir === 1 ? 2 : 3;
   return '<div class="ex-a"><div class="stage-wrap"><canvas class="stage" role="img" aria-label="הדמיה של ' + esc(e.name) + '"></canvas>' +
-    '<span class="stage-tag">' + view + '</span><span class="stage-phase"></span>' +
+    '<span class="stage-tag">' + view + (e.a !== e.mv ? ' · הדמיה של תנועה דומה' : '') + '</span><span class="stage-phase"></span>' +
     '<div class="stage-ctl"><button class="stage-speed" type="button" aria-pressed="' + (player.speed < 1) + '" aria-label="הילוך איטי">' + Ltr('½×') + '</button><button class="stage-play" type="button"></button></div>' +
     '<div class="tempo" aria-hidden="true"><i></i></div></div>' +
-    '<div class="how"><p class="muscles"><i></i><span>' + info.m + '</span></p><ul class="cues">' + info.c.map((c) => '<li>' + c + '</li>').join('') + '</ul></div></div>' +
+    '<div class="how"><p class="muscles"><i></i><span>' + info.m + '</span></p><ul class="cues">' + info.c.map((c) => '<li>' + c + '</li>').join('') + '</ul>' +
+    '<label class="note"><span>' + ICON.pin + 'ההערה שלי לתרגיל</span><textarea class="note-in" rows="2" maxlength="200" placeholder="למשל: מושב בגובה 4, עצירה של שנייה למטה, ירידה של 3 שניות">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label></div></div>' +
     '<div class="ex-b"><div class="rx-row">' +
-    '<div><span class="rx-k">סטים × חזרות</span><span class="rx-v">' + Ltr(e.sets + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span></div>' +
+    '<div><span class="rx-k">סטים × חזרות</span><span class="rx-v">' + Ltr(e.n0 + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span></div>' +
     '<div><span class="rx-k">מנוחה</span><span class="rx-v">' + restText(e).replace(/ (דק׳|שנ׳)/, ' <small>$1</small>') + '</span></div>' +
-    '<div><span class="rx-k">עצימות</span><span class="chip l' + e.lvl + '">' + e.int + '</span></div></div>' +
-    '<div class="sets">' + setsHTML(e) + '</div>' + trendHTML(e) +
-    '<button class="btn ask" type="button">' + ICON.cam + 'המכשיר תפוס? שאל את אילון על חלופה</button></div>';
+    '<div><span class="rx-k">' + (rir == null ? 'עצימות' : 'עצימות השבוע') + '</span><span class="chip l' + lvl + '">' + (rir == null ? e.int : rirText(rir)) + '</span></div></div>' +
+    (lowPump(e.mv) ? '<p class="flag-line">' + ICON.swap + '<span>פאמפ חלש פעמיים ברצף בתרגיל הזה. שווה לשקול להחליף אותו.</span></p>' : '') +
+    '<div class="sets">' + setsHTML(e) + '</div><div class="fb-wrap"' + (fw ? '' : ' hidden') + '>' + fw + '</div>' + trendHTML(e) +
+    '<div class="ex-acts"><button class="btn swap" type="button">' + ICON.swap + 'החלף תרגיל</button><button class="btn ask" type="button">' + ICON.cam + 'המכשיר תפוס? שאל את אילון</button></div></div>';
 }
 function renderHistory() {
   const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }), s = live(S.tab);
@@ -1410,7 +1945,7 @@ function renderHistory() {
   if (s) act += '<button class="btn primary" id="finishBtn" type="button">סיים אימון</button>' + (S.resetAsk ? '<span class="confirm"><span>למחוק את מה שנרשם באימון הזה?</span><button class="btn" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></span>' : '<button class="link" id="resetBtn" type="button">נקה את הרישום של האימון הזה</button>');
   if (S.dl && list.length) act += '<button class="link" id="exportBtn" type="button">ייצוא כל הרישום לקובץ CSV</button>';
   act += '</div>';
-  $('#history').innerHTML = act + '<h2>אימונים אחרונים</h2>' + (list.length ? '<ul>' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span class="h-t">' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span class="h-act">' + (S.delAsk === x.id ? '<button class="link" type="button" data-delyes="' + x.id + '">כן, למחוק</button><button class="link" type="button" data-delno="1">ביטול</button>' : '<button class="link" type="button" data-edit="' + x.id + '" aria-label="ערוך את האימון הזה">עריכה</button><button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</span><span class="h-s">' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + '</span></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">הצג עוד אימונים</button>' : '')
+  $('#history').innerHTML = act + '<h2>אימונים אחרונים</h2>' + (list.length ? '<ul>' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span class="h-t">' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span class="h-act">' + (S.delAsk === x.id ? '<button class="link" type="button" data-delyes="' + x.id + '">כן, למחוק</button><button class="link" type="button" data-delno="1">ביטול</button>' : '<button class="link" type="button" data-edit="' + x.id + '" aria-label="ערוך את האימון הזה">עריכה</button><button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</span><span class="h-s">' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + (x.dl ? ' · דילואד' : x.wk ? ' · שבוע ' + x.wk : '') + '</span></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">הצג עוד אימונים</button>' : '')
     : '<p>כאן יופיעו האימונים שסיימת. כל אימון אפשר יהיה לערוך או למחוק.</p>');
   updateProgress();
 }
@@ -1420,13 +1955,13 @@ function markCur() {
 }
 function renderList() {
   stopPlayer();
-  const wk = PLAN[S.tab], s = live(S.tab);
-  $('#exList').innerHTML = wk.ex.map((e, i) => rowHTML(e, i, s)).join('');
+  const s = live(S.tab), list = exList(S.tab, s);
+  $('#exList').innerHTML = list.map((e, i) => rowHTML(e, i, s)).join('');
   drawThumbs();
-  const keep = S.open && wk.ex.some((e) => e.id === S.open) ? S.open : null;
+  const keep = S.open && list.some((e) => e.id === S.open) ? S.open : null;
   S.open = null; if (keep) openEx(keep, false); else markCur();
 }
-function renderAll() { renderTabs(); renderHero(); renderList(); renderHistory(); renderDock(); }
+function renderAll() { renderTabs(); renderHero(); renderPre(); renderList(); renderHistory(); renderDock(); }
 function closeEx() {
   const li = $('.ex.open');
   if (li) { li.classList.remove('open'); const b = $('.ex-body', li); b.hidden = true; b.innerHTML = ''; $('.ex-head', li).setAttribute('aria-expanded', 'false'); }
@@ -1444,11 +1979,12 @@ function openEx(id, scroll) {
 }
 /* refresh one exercise after its sets changed, without rebuilding the stage */
 function refreshEx(e) {
-  const li = $('.ex[data-id="' + e.id + '"]'); if (!li) return;
-  const s = live(S.tab), dn = doneCount(s, e), full = dn >= e.sets;
-  li.classList.toggle('done', full); $('.ex-n', li).innerHTML = full ? ICON.check : String(PLAN[S.tab].ex.indexOf(e) + 1);
-  $$('.pips i', li).forEach((d, k) => d.classList.toggle('on', k < dn));
+  const li = $('.ex[data-id="' + e.id + '"]'); e = findEx(e.id); if (!li || !e) return;
+  const s = live(S.tab), dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets;
+  li.classList.toggle('done', full); $('.ex-n', li).innerHTML = off ? '–' : full ? ICON.check : String(PLAN[S.tab].ex.findIndex((x) => x.id === e.id) + 1);
+  $('.pips', li).innerHTML = pipsHTML(e, dn);
   const sets = $('.sets', li); if (sets) sets.innerHTML = setsHTML(e);
+  const fw = $('.fb-wrap', li); if (fw) { const h = fbWrap(e, s); fw.innerHTML = h; fw.hidden = !h; }
   const tr = $('.trend', li); if (tr) tr.outerHTML = trendHTML(e);
   markCur(); updateProgress();
 }
@@ -1476,48 +2012,68 @@ function dockTarget() {
   if (S.edit) { const e = findEx(S.edit.ex); return e ? { e, i: S.edit.i, edit: true } : null; }
   const c = cursor(); return c ? { e: c.e, i: c.i, edit: false } : null;
 }
-function curKg(e, i, s) { const d = S.draft; return d && d.ex === e.id && d.i === i ? d.kg : defaultKg(e, i, s); }
-const kgHTML = (kg) => (kg == null ? '<b>—</b><small>בלי משקל</small>' : '<b>' + fmtKg(kg) + '</b><small>ק״ג</small>');
-function controlsHTML(e, kg, selReps, lastReps) {
-  const rr2 = repRange(e), lo = rr2[0], hi = rr2[1];
-  let chips = '';
-  for (let r = Math.max(1, lo - 3); r <= hi + 3; r++) chips += '<button class="chip-r' + (r >= lo && r <= hi ? ' in' : '') + (r === lastReps ? ' last' : '') + (r === selReps ? ' sel' : '') + '" type="button" data-r="' + r + '" aria-label="' + r + ' חזרות">' + r + '</button>';
-  return '<div class="dk-w"><span class="dk-lbl">משקל</span><button class="step" type="button" data-d="-1" aria-label="הפחת משקל">−</button>' +
-    '<div class="dk-kg" id="dkKg" role="button" tabindex="0" aria-label="משקל, לחיצה להקלדה">' + kgHTML(kg) + '</div>' +
-    '<button class="step" type="button" data-d="1" aria-label="הוסף משקל">+</button></div>' +
-    '<div class="dk-r"><span class="dk-lbl">' + (selReps != null ? 'כמה חזרות היו בסט?' : 'כמה חזרות עשית? <b>נגיעה אחת רושמת את הסט</b>') + '</span><div class="chips" id="chips">' + chips + '<button class="chip-r more" type="button" id="repsMore">מספר אחר</button></div></div>';
+/* the weight shown for the next set: what the lifter dialled in, else the target */
+function curKg(e, i, s, T) {
+  const d = S.draft; if (d && d.ex === e.id && d.i === i) return d.kg;
+  if (T === undefined) T = targetOf(e, i, s);
+  return T ? T.kg : null;
 }
+const kgHTML = (kg) => (kg == null ? '<b>—</b><small>בלי משקל</small>' : '<b>' + fmtKg(kg) + '</b><small>ק״ג</small>');
+/* weight stepper, the one-tap "hit the target" button and the rep chips. T is the target (shown greyed until it is confirmed or changed) */
+function controlsHTML(e, kg, selReps, T, ghost) {
+  const rr2 = repRange(e), lo = rr2[0], hi = rr2[1], tr = T && selReps == null ? T.reps : null;
+  let chips = '';
+  for (let r = Math.max(1, Math.min(lo - 3, tr != null ? tr - 2 : lo)); r <= Math.max(hi + 3, tr != null ? tr + 2 : hi); r++) chips += '<button class="chip-r' + (r >= lo && r <= hi ? ' in' : '') + (r === tr ? ' tgt' : '') + (r === selReps ? ' sel' : '') + '" type="button" data-r="' + r + '" aria-label="' + r + ' חזרות' + (r === tr ? ', היעד' : '') + '">' + r + '</button>';
+  return '<div class="dk-w"><button class="step" type="button" data-d="-1" aria-label="הפחת משקל">−</button>' +
+    '<div class="dk-kg' + (ghost ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="משקל, לחיצה להקלדה">' + kgHTML(kg) + '</div>' +
+    '<button class="step" type="button" data-d="1" aria-label="הוסף משקל">+</button>' +
+    (tr != null ? '<button class="hit" id="dkHit" type="button" aria-label="עמדתי ביעד: ' + tr + ' חזרות. נגיעה אחת רושמת את הסט">' + ICON.check + '<b>' + tr + '</b><small>חזרות<br>כמו היעד</small></button>' : '') + '</div>' +
+    '<div class="dk-r"><span class="dk-lbl">' + (selReps != null ? 'כמה חזרות היו בסט?' : tr != null ? badge(T, e) + 'יצא מספר אחר? <b>נגיעה במספר רושמת את הסט</b>' : 'כמה חזרות עשית? <b>נגיעה אחת רושמת את הסט</b>') + '</span><div class="chips" id="chips">' + chips + '<button class="chip-r more" type="button" id="repsMore">מספר אחר</button></div></div>';
+}
+function fbPanel(s) {
+  const e = S.fbFor && s ? exList(S.tab, s).find((x) => x.id === S.fbFor) : null;
+  if (!e) { S.fbFor = null; return ''; }
+  return '<div class="fb-dock"><div class="fb-h"><b>איך היה ' + Ltr(esc(e.name)) + '?</b><button class="link" id="fbSkip" type="button">' + (s.fb && s.fb[e.id] && s.fb[e.id].pain === 2 ? 'סגור' : 'דלג') + '</button></div>' + fbHTML(e, s) + painNote(e, s) + '</div>';
+}
+function closeFb() { const id = S.fbFor; S.fbFor = null; renderDock(); if (id && S.open === id) refreshEx({ id }); }
+/* "swap from the next workout", offered next to a pain report */
+function swapNext(exId, mv) { swapTo(exId, mv, true); renderDock(); if (S.open) refreshEx({ id: S.open }); }
 function renderDock() {
-  const d = $('#dock'), wk = PLAN[S.tab], s = live(S.tab);
+  const d = $('#dock'), wk = PLAN[S.tab], s = live(S.tab), fbp = fbPanel(s);
   let cls = 'dock', h;
   if (rest.on) {
     const L = rest.last; cls += ' rest';
     h = '<div class="rt"><div class="rt-time" id="rtTime">0:00</div><div class="rt-mid"><div class="rt-state" id="rtState"></div><div class="rt-track"><i id="rtFill"></i></div>' +
       (L ? '<div class="rt-log"><span>נרשם ' + Ltr(fmtRow(L)) + '</span>' + (L.pr ? '<span class="pr">שיא אישי</span>' : '') + '<button class="link" id="rtUndo" type="button">בטל</button></div>' : '') + '</div>' +
       '<div class="rt-btns"><button type="button" id="rtMinus" class="opt" aria-label="הפחת 15 שניות">' + Ltr('−15') + '</button><button type="button" id="rtPlus" aria-label="הוסף 15 שניות">' + Ltr('+15') + '</button>' +
-      '<button type="button" id="rtSound" class="opt" aria-label="' + (S.sound ? 'השתק צליל' : 'הפעל צליל') + '">' + (S.sound ? ICON.snd : ICON.mute) + '</button><button type="button" id="rtSkip" class="go">המשך</button></div></div>';
+      '<button type="button" id="rtSound" class="opt" aria-label="' + (S.sound ? 'השתק צליל' : 'הפעל צליל') + '">' + (S.sound ? ICON.snd : ICON.mute) + '</button><button type="button" id="rtSkip" class="go">המשך</button></div></div>' + fbp;
+  } else if (fbp) {
+    S.edit = null;
+    h = fbp + (cursor() ? '' : '<div class="dk-row"><div class="dk-msg">כל הסטים בוצעו</div><button class="btn primary" id="dkFinish" type="button">סיים אימון</button></div>');
   } else if (S.edit && findEx(S.edit.ex) && isDone(rowsOf(s, S.edit.ex)[S.edit.i])) {
     const e = findEx(S.edit.ex), row = rowsOf(s, e.id)[S.edit.i];
     h = '<div class="dk-top"><div class="dk-go"><span class="dk-name">' + esc(e.name) + '</span><span class="dk-set">עריכת סט <b>' + (S.edit.i + 1) + '</b> · ' + Ltr(fmtRow(row)) + '</span></div>' +
-      '<button class="btn" id="edDel" type="button">מחק סט</button><button class="btn primary" id="edClose" type="button">סיום</button></div>' + controlsHTML(e, row.kg, row.reps, null);
+      '<button class="btn" id="edDel" type="button">מחק סט</button><button class="btn primary" id="edClose" type="button">סיום</button></div>' + controlsHTML(e, row.kg, row.reps, null, false);
   } else if (!s) {
     S.edit = null;
-    h = '<div class="dk-row"><div class="dk-msg">אימון ' + (S.tab + 1) + ' · ' + Ltr(wk.name) + '<small>בוחרים כמה חזרות עשית, והסט נרשם</small></div><button class="btn primary" id="dkStart" type="button">' + ICON.go + 'התחל אימון</button></div>';
+    const P = phase(S.tab, null);
+    h = '<div class="dk-row"><div class="dk-msg">אימון ' + (S.tab + 1) + ' · ' + Ltr(wk.name) + '<small>' + (P.dl ? 'שבוע דילואד: חצי מהסטים ומשקל קל' : 'שבוע ' + P.wk + ' · ' + rirText(P.rir)) + '</small></div><button class="btn primary" id="dkStart" type="button">' + ICON.go + 'התחל אימון</button></div>';
   } else {
     S.edit = null;
     const cur = cursor();
     if (!cur) h = '<div class="dk-row"><div class="dk-msg">כל הסטים בוצעו<small>אפשר לסיים, או לגעת בסט כדי לתקן אותו</small></div><button class="btn primary" id="dkFinish" type="button">סיים אימון</button></div>';
     else {
-      const e = cur.e, i = cur.i, pv = prevFor(S.tab, e.id, s.id), pr = pv ? rowsOf(pv, e.id)[i] : null;
+      const e = cur.e, i = cur.i, T = targetOf(e, i, s), drafted = !!(S.draft && S.draft.ex === e.id && S.draft.i === i), note = S.cfg.notes[e.mv];
       if (S.mini) cls += ' mini';
-      h = '<div class="dk-top"><button class="dk-go" type="button" id="dkGo"><span class="dk-name">' + esc(e.name) + '</span><span class="dk-set">סט <b>' + (i + 1) + '</b> מתוך ' + e.sets + (isDone(pr) ? ' · פעם קודמת ' + Ltr(fmtRow(pr)) : e.suf ? ' · ' + e.reps + ' ' + e.suf : '') + '</span></button>' +
+      h = '<div class="dk-top"><button class="dk-go" type="button" id="dkGo"><span class="dk-name">' + esc(e.name) + '</span><span class="dk-set">סט <b>' + (i + 1) + '</b> מתוך ' + e.sets + (T ? ' · יעד ' + Ltr(fmtRow(T)) : e.suf ? ' · ' + e.reps + ' ' + e.suf : '') + (T && T.ref && !T.ref.other ? ' · פעם קודמת ' + Ltr(fmtRow(T.ref)) : '') + '</span></button>' +
         '<button class="dk-ic coach" id="dkCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true">א</span></button>' +
         '<button class="dk-ic" id="dkMini" type="button" aria-label="' + (S.mini ? 'הרחב את הסרגל' : 'מזער את הסרגל') + '">' + (S.mini ? ICON.up : ICON.down) + '</button></div>' +
-        controlsHTML(e, curKg(e, i, s), null, defaultReps(e, i, s));
+        (note ? '<p class="dk-note">' + ICON.pin + '<span>' + esc(note) + '</span></p>' : '') +
+        controlsHTML(e, curKg(e, i, s, T), null, T, !!T && !drafted);
     }
   }
   d.className = cls; d.innerHTML = '<div class="dock-in">' + h + '</div>';
-  const row = $('#chips'), ins = row ? $$('.chip-r.in', row) : [], mark = row && ($('.chip-r.sel', row) || $('.chip-r.last', row) || ins[Math.floor((ins.length - 1) / 2)]);
+  const row = $('#chips'), ins = row ? $$('.chip-r.in', row) : [], mark = row && ($('.chip-r.sel', row) || $('.chip-r.tgt', row) || ins[Math.floor((ins.length - 1) / 2)]);
   if (mark) row.scrollLeft = mark.offsetLeft - row.clientWidth / 2 + mark.offsetWidth / 2;
   if (rest.on) tickRest();
 }
@@ -1526,12 +2082,12 @@ function setKg(kg) {
   kg = kg == null || !(kg > 0) ? null : Math.round(kg * 100) / 100;
   if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); }
   else S.draft = { ex: t.e.id, i: t.i, kg };
-  const box = $('#dkKg'); if (box && !$('input', box)) box.innerHTML = kgHTML(kg);
+  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); if (!$('input', box)) box.innerHTML = kgHTML(kg); }
 }
 function stepKg(d) {
   const t = dockTarget(); if (!t) return;
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).kg : curKg(t.e, t.i, s);
-  setKg((cur == null ? 0 : cur) + d * (LIB[t.e.a].step || 2.5));
+  setKg((cur == null ? 0 : cur) + d * incOf(t.e.mv));
 }
 function typeKg() {
   const box = $('#dkKg'), t = dockTarget(); if (!box || !t || $('input', box)) return;
@@ -1551,35 +2107,49 @@ function chooseReps(r, el) {
   const t = dockTarget(); if (!t || logBusy || r == null || r < 1 || r > 200) return;
   if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; row.reps = r; row.t = Date.now(); delete row.pr; touch(s); S.edit = null; refreshEx(t.e); renderDock(); return; }
   const s = ensure(S.tab), kg = curKg(t.e, t.i, s);
-  logBusy = true; if (el) el.classList.add('hit'); buzz(14); primeAudio(); keepAwake();
+  logBusy = true; if (el) el.classList.add('hit-on'); buzz(14); primeAudio(); keepAwake();
   setTimeout(() => { logBusy = false; commitSet(t.e, t.i, kg, r); }, el && !reduced ? 180 : 0);
 }
 function writeRow(e, i, kg, reps) {
-  const s = ensure(wkOf(e.id)), before = bestFor(e.a, { notS: s.id }), today = bestFor(e.a, { onlyS: s.id, skipEx: e.id, skipI: i }), arr = s.sets[e.id] || (s.sets[e.id] = []);
-  const v = kg != null && kg > 0 ? e1rm(kg, reps) : 0, pr = !!(before && v > before.v + 0.01 && (!today || v > today.v + 0.01));
+  const s = ensure(wkOf(e.id)), L = LIB[e.mv], T = targetOf(e, i, s), before = bestFor(e.mv, { notS: s.id }), today = bestFor(e.mv, { onlyS: s.id, skipEx: e.id, skipI: i }), arr = s.sets[e.id] || (s.sets[e.id] = []);
+  const v = kg != null && kg > 0 ? score(L, kg, reps) : 0, pr = !s.dl && !!(before && v > before.v + 0.01 && (!today || v > today.v + 0.01));
   arr[i] = { kg: kg == null ? null : kg, reps, done: true, t: Date.now() }; if (pr) arr[i].pr = true;
+  if (T) { arr[i].tk = T.kg == null ? null : T.kg; arr[i].tr = T.reps; }
   touch(s); return pr;
 }
+/* the exercise is finished: ask how it went. "No pain" is preselected, pump and workload take one tap each */
+function askFb(e, s) {
+  const fb = s.fb || (s.fb = {});
+  if (fb[e.id] && fb[e.id].pump != null && fb[e.id].load != null) return;
+  if (!fb[e.id]) { fb[e.id] = { pain: 0, pump: null, load: null }; s.ft = Date.now(); touch(s); }
+  S.fbFor = e.id;
+}
 function commitSet(e, i, kg, reps) {
-  const pr = writeRow(e, i, kg, reps), s = live(S.tab), wk = PLAN[S.tab], left = (x) => firstUndone(s, x) >= 0;
-  S.draft = null; refreshEx(e); renderTabs(); renderHistory();
+  const pr = writeRow(e, i, kg, reps), s = live(S.tab), list = exList(S.tab, s), left = (x) => firstUndone(s, x) >= 0;
+  e = list.find((x) => x.id === e.id);
+  S.draft = null; refreshEx(e); renderTabs(); renderHistory(); renderPre();
   if (!$('#elapsed')) renderHero(), updateProgress();
-  if (!wk.ex.some(left)) { stopRest(); return; }
+  if (!left(e)) askFb(e, s);
+  if (!list.some(left)) { stopRest(); return; }
   let nxt = e, label;
-  if (left(e)) label = 'הבא: סט ' + (firstUndone(s, e) + 1) + ' מתוך ' + e.sets;
-  else { nxt = wk.ex.slice(wk.ex.indexOf(e) + 1).find(left) || wk.ex.find(left); label = 'הבא: ' + nxt.name; }
+  if (left(e)) {
+    const ni = firstUndone(s, e), T = targetOf(e, ni, s), inv = LIB[e.mv].inv;
+    label = 'הבא: סט ' + (ni + 1) + ' מתוך ' + e.sets + (T && T.mode === 'down' ? ' · ' + (inv ? 'מוסיפים סיוע: ' : 'מורידים ל-') + fmtKg(T.kg) + ' ק״ג' : T && T.mode === 'cal' ? ' · ' + (inv ? 'פחות סיוע: ' : 'מעלים ל-') + fmtKg(T.kg) + ' ק״ג' : '');
+  } else { nxt = list.slice(list.indexOf(e) + 1).find(left) || list.find(left); label = 'הבא: ' + nxt.name; }
   startRest(e.rest[0], e.rest[1], label, { ex: e.id, i, kg, reps, pr });
   if (nxt !== e) setTimeout(() => { if (S.tab === wkOf(nxt.id) && S.open === e.id) openEx(nxt.id, true); }, 750);
 }
 function clearRow(e, i) { const s = live(wkOf(e.id)); if (!s) return; const arr = s.sets[e.id] || (s.sets[e.id] = []); arr[i] = { kg: null, reps: null, done: false, t: Date.now() }; touch(s); }
 function afterEdit(e) { refreshEx(e); renderTabs(); renderHistory(); renderDock(); }
-function sameAsLast(e) {
-  const s = ensure(S.tab), prev = prevFor(S.tab, e.id, s.id); if (!prev) return;
-  const p = rowsOf(prev, e.id), done = p.filter(isDone), fallback = done[done.length - 1];
-  for (let i = 0; i < e.sets; i++) { const src = isDone(p[i]) ? p[i] : fallback; if (!isDone(rowsOf(s, e.id)[i]) && src) writeRow(e, i, src.kg, src.reps); }
-  S.draft = null; keepAwake(); afterEdit(e);
+/* log every remaining set of an exercise exactly at its target */
+function fillTargets(e) {
+  const s = ensure(S.tab);
+  for (let i = firstUndone(s, e), n = 0; i >= 0 && n < MAX_SETS; i = firstUndone(s, e), n++) { const T = targetOf(e, i, s); if (!T) break; writeRow(e, i, T.kg, T.reps); }
+  S.draft = null; keepAwake(); e = findEx(e.id);
+  if (firstUndone(s, e) < 0) askFb(e, s);
+  afterEdit(e); renderPre();
   if (!$('#elapsed')) renderHero(), updateProgress();
-  const wk = PLAN[S.tab], nxt = wk.ex.slice(wk.ex.indexOf(e) + 1).find((x) => firstUndone(s, x) >= 0);
+  const list = exList(S.tab, s), nxt = list.slice(list.findIndex((x) => x.id === e.id) + 1).find((x) => firstUndone(s, x) >= 0);
   if (firstUndone(s, e) < 0 && nxt) setTimeout(() => { if (S.open === e.id) openEx(nxt.id, true), renderDock(); }, 500);
 }
 function startRest(min, max, label, last) {
@@ -1608,16 +2178,34 @@ function nudgeRest(d) {
 function undoLast() {
   const L = rest.last, e = L && findEx(L.ex); if (!e) return;
   clearRow(e, L.i); clearInterval(rest.iv); rest.on = false; rest.last = null;
+  if (S.fbFor === e.id) S.fbFor = null;
   if (S.tab === wkOf(e.id) && S.open !== e.id) openEx(e.id, false);
   afterEdit(e);
 }
+/* one answer about a finished exercise. Severe joint pain cancels what is left for that muscle today and points to a gentler movement */
+function onFb(exId, key, v) {
+  const f = setFb(exId, key, v), s = live(wkOf(exId)); if (!f || !s) return;
+  const e = findEx(exId);
+  if (key === 'pain') {
+    /* set counts may have changed: redraw the queue, and stop a rest that no longer leads anywhere */
+    if (rest.on && !cursor()) { clearInterval(rest.iv); rest.on = false; rest.last = null; }
+    renderList(); renderHistory(); renderTabs(); renderDock();
+  } else for (const el of $$('.fbk[data-ex="' + exId + '"]')) el.outerHTML = fbHTML(e, s);
+  if (S.fbFor === exId && f.pump != null && f.load != null && f.pain !== 2) setTimeout(() => { if (S.fbFor === exId) closeFb(); }, 320);
+  if (key === 'pump' && lowPump(e.mv) && !$('.ex[data-id="' + exId + '"] .tagx.hint')) renderList();
+}
+function skipFb() {
+  const s = live(S.tab), f = s && s.fb && s.fb[S.fbFor];
+  if (f && f.pump == null && f.load == null && f.pain !== 2) { delete s.fb[S.fbFor]; s.ft = Date.now(); touch(s); }
+  closeFb();
+}
 function showSummary(s) {
-  const wk = PLAN[s.w], total = wk.ex.reduce((n, e) => n + e.sets, 0), v = volume(s), mn = Math.max(1, Math.round((s.end - s.ts) / 60000)), prs = prCount(s);
+  const wk = PLAN[s.w], total = exList(s.w, s).reduce((n, e) => n + e.sets, 0), v = volume(s), mn = Math.max(1, Math.round((s.end - s.ts) / 60000)), prs = prCount(s);
   const prev = sorted().find((x) => x.w === s.w && x.id !== s.id && x.end && hasDone(x)), pv = prev ? volume(prev) : 0, nu = nextUp();
   let cmp = '';
-  if (pv && v) { const d = ((v - pv) / pv) * 100; cmp = Math.abs(d) < 0.5 ? 'אותו נפח כמו באימון הקודם של ' + Ltr(wk.name) + '.' : (d > 0 ? 'נפח גבוה ב-' : 'נפח נמוך ב-') + Ltr(Math.abs(d).toFixed(0) + '%') + ' מהאימון הקודם של ' + Ltr(wk.name) + '.'; }
-  const sh = $('#sheet');
-  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="סיכום אימון"><p class="kicker">אימון ' + (s.w + 1) + ' הושלם</p><h2>' + Ltr(wk.name) + '</h2>' +
+  if (pv && v && !s.dl) { const d = ((v - pv) / pv) * 100; cmp = Math.abs(d) < 0.5 ? 'אותו נפח כמו באימון הקודם של ' + Ltr(wk.name) + '.' : (d > 0 ? 'נפח גבוה ב-' : 'נפח נמוך ב-') + Ltr(Math.abs(d).toFixed(0) + '%') + ' מהאימון הקודם של ' + Ltr(wk.name) + '.'; }
+  const sh = $('#sheet'); S.sheet = 'sum';
+  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="סיכום אימון"><p class="kicker">אימון ' + (s.w + 1) + ' הושלם' + (s.dl ? ' · דילואד' : s.wk ? ' · שבוע ' + s.wk : '') + '</p><h2>' + Ltr(wk.name) + '</h2>' +
     '<div class="stats"><div><b>' + setsDone(s) + '/' + total + '</b><span>סטים</span></div><div><b>' + (v ? v.toLocaleString('en-US') : '–') + '</b><span>ק״ג נפח כולל</span></div><div><b>' + mn + '</b><span>' + (mn === 1 ? 'דקה' : 'דקות') + '</span></div></div>' +
     '<p>' + (prs ? '<b>' + prs + (prs === 1 ? ' שיא אישי' : ' שיאים אישיים') + ' באימון הזה.</b> ' : '') + cmp + ' הבא בתור: אימון ' + (nu.next + 1) + ' · ' + Ltr(PLAN[nu.next].name) + '.</p>' +
     '<button class="btn primary big" id="sheetClose" type="button">סגור</button></div>';
@@ -1627,8 +2215,13 @@ function finishWorkout() {
   const s = live(S.tab); if (!s || !hasDone(s)) return;
   clearInterval(rest.iv); rest.on = false; rest.last = null;
   s.end = Date.now(); s.mt = s.end; touch(s); letSleep();
-  S.edit = null; S.draft = null; S.resetAsk = false; S.open = null; S.tab = nextUp().next;
-  renderAll(); showSummary(s); window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+  S.edit = null; S.draft = null; S.resetAsk = false; S.open = null; S.fbFor = null; S.banner = ''; S.bannerKind = ''; S.tab = nextUp().next;
+  renderAll();
+  const M = S.cfg.meso;
+  if (s.m === M.id && mesoDone(M)) showMesoSummary(M.id, s);
+  else if (s.m === M.id && !s.dl && !M.early && M.asked !== s.id && fatigued()) { M.asked = s.id; saveCfg(); showDeloadOffer(s); }
+  else showSummary(s);
+  window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
 }
 /* ---- fix the record afterwards: edit any set of a finished workout, move it to another day, reopen or delete it ---- */
 function deleteSession(id) {
@@ -1644,8 +2237,8 @@ function openEditor(id) {
   const s = S.sessions[id]; if (!s) return;
   const wk = PLAN[s.w];
   let list = '';
-  for (const e of wk.ex) {
-    const r = rowsOf(s, e.id), n = Math.max(e.sets, r.length);
+  for (const e of exList(s.w, s)) {
+    const r = rowsOf(s, e.id), n = Math.max(e.n0, r.length);
     list += '<section class="ed-ex"><h3>' + esc(e.name) + '</h3>';
     for (let i = 0; i < n; i++) {
       const row = r[i] || {}, on = isDone(row);
@@ -1656,17 +2249,18 @@ function openEditor(id) {
     }
     list += '</section>';
   }
-  S.edSid = id; S.edDel = false;
+  S.edSid = id; S.edDel = false; S.sheet = 'ed';
   const sh = $('#sheet');
-  sh.innerHTML = '<div class="sheet-in ed" role="dialog" aria-modal="true" aria-label="עריכת אימון"><div class="ed-h"><div><p class="kicker">עריכת אימון ' + (s.w + 1) + '</p><h2>' + Ltr(wk.name) + '</h2></div><button class="icon-btn" id="sheetClose" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+  sh.innerHTML = '<div class="sheet-in ed" role="dialog" aria-modal="true" aria-label="עריכת אימון"><div class="ed-h"><div><p class="kicker">עריכת אימון ' + (s.w + 1) + (s.dl ? ' · דילואד' : s.wk ? ' · שבוע ' + s.wk : '') + '</p><h2>' + Ltr(wk.name) + '</h2></div><button class="icon-btn" id="sheetClose" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
     '<label class="ed-date" for="edDate"><span>תאריך האימון</span><input type="date" id="edDate" value="' + isoDay(new Date(s.ts)) + '" max="' + isoDay(new Date()) + '"></label>' +
     '<p class="ed-note">כל שינוי נשמר מיד. סט בלי מספר חזרות נחשב כלא בוצע.</p><div class="ed-list">' + list + '</div><div class="ed-act" id="edAct">' + editorActions(s) + '</div></div>';
   sh.hidden = false;
 }
 function closeSheet() {
   const sh = $('#sheet'); if (sh.hidden) return;
-  sh.hidden = true; sh.innerHTML = '';
-  if (S.edSid) { S.edSid = null; S.edDel = false; renderAll(); }
+  const kind = S.sheet;
+  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null;
+  if (kind && kind !== 'sum') renderAll();
 }
 function editorInput(rowEl) {
   const s = S.sessions[S.edSid]; if (!s || !rowEl) return;
@@ -1686,50 +2280,62 @@ function editorDate(val) {
 function editorReopen() {
   const s = S.sessions[S.edSid]; if (!s || live(s.w)) return;
   s.end = 0; s.mt = Date.now(); touch(s);
-  S.tab = s.w; S.touched = true; S.open = null; S.edSid = null; S.edDel = false;
+  S.tab = s.w; S.touched = true; S.open = null; S.edSid = null; S.edDel = false; S.sheet = null;
   const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = '';
   renderAll();
-  const first = PLAN[S.tab].ex.find((e) => firstUndone(s, e) >= 0); if (first) { openEx(first.id, false); renderDock(); }
+  const first = exList(S.tab, s).find((e) => firstUndone(s, e) >= 0); if (first) { openEx(first.id, false); renderDock(); }
   window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
 }
 async function exportCsv() {
   if (!S.dl) return;
-  const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', lines = ['date,workout,exercise,set,kg,reps'];
-  for (const s of sorted().reverse()) for (const e of PLAN[s.w].ex) rowsOf(s, e.id).forEach((r, i) => { if (isDone(r)) lines.push([new Date(s.ts).toISOString().slice(0, 10), q(PLAN[s.w].name), q(e.name), i + 1, r.kg == null ? '' : r.kg, r.reps == null ? '' : r.reps].join(',')); });
+  const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', lines = ['date,workout,exercise,set,kg,reps,week,deload,rir,target_kg,target_reps'];
+  for (const s of sorted().reverse()) for (const e of exList(s.w, s)) rowsOf(s, e.id).forEach((r, i) => { if (isDone(r)) lines.push([new Date(s.ts).toISOString().slice(0, 10), q(PLAN[s.w].name), q(e.name), i + 1, r.kg == null ? '' : r.kg, r.reps == null ? '' : r.reps, s.wk || '', s.dl ? 1 : '', s.rir == null ? '' : s.rir, r.tk == null ? '' : r.tk, r.tr == null ? '' : r.tr].join(',')); });
   try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') { S.dl = null; renderHistory(); } }
 }
 function onRemoteChange() {
   const a = document.activeElement;
-  if (a && a.closest && a.closest('#dock') && a.tagName === 'INPUT') return;
+  if (a && a.closest && (a.closest('#dock') || a.closest('#sheet') || a.closest('.note')) && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT')) return;
   sweep(); if (!S.touched) S.tab = nextUp().next;
-  renderAll();
+  if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap') renderAll();
+}
+function startTab() {
+  const first = exList(S.tab).find((e) => firstUndone(live(S.tab), e) >= 0); if (first) { openEx(first.id, false); renderDock(); }
 }
 
 /* ================================================================== wiring */
 function wireApp() {
   $('#tabs').addEventListener('click', (ev) => {
     const b = ev.target.closest('.tab'); if (!b) return;
-    S.tab = +b.dataset.tab; S.touched = true; S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.banner = '';
+    S.tab = +b.dataset.tab; S.touched = true; S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.banner = ''; S.bannerKind = ''; S.fbFor = null; S.preOpen = false;
     if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; }
-    renderAll();
-    const first = PLAN[S.tab].ex.find((e) => firstUndone(live(S.tab), e) >= 0); if (first) { openEx(first.id, false); renderDock(); }
+    renderAll(); startTab();
   });
   const list = $('#exList');
   list.addEventListener('click', (ev) => {
     const li = ev.target.closest('.ex'); if (!li) return;
-    const e = findEx(li.dataset.id);
+    const e = findEx(li.dataset.id), fbBtn = ev.target.closest('[data-fb]');
+    if (fbBtn) { S.touched = true; onFb(e.id, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
+    const sn = ev.target.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
     if (ev.target.closest('.ex-head')) { S.touched = true; S.draft = null; if (S.open === e.id) closeEx(), markCur(); else openEx(e.id, false); if (!rest.on && !S.edit) renderDock(); return; }
     if (ev.target.closest('.stage-play')) { setPlaying(!player.playing); return; }
     const sp = ev.target.closest('.stage-speed'); if (sp) { player.speed = player.speed < 1 ? 1 : 0.5; sp.setAttribute('aria-pressed', String(player.speed < 1)); return; }
     if (ev.target.closest('.ask')) { openChat(e.id); return; }
-    if (ev.target.closest('.same')) { S.touched = true; sameAsLast(e); return; }
+    if (ev.target.closest('.swap')) { openSwap(e.id); return; }
+    if (ev.target.closest('.same')) { S.touched = true; fillTargets(e); return; }
     const p = ev.target.closest('.setp');
     if (p) {
       S.touched = true; const i = +p.dataset.i, s = ensure(S.tab);
       if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; }
-      S.edit = isDone(rowsOf(s, e.id)[i]) ? { ex: e.id, i } : null; S.mini = false; S.draft = null;
-      renderHero(); updateProgress(); renderHistory(); refreshOpenSets(); renderDock(); keepAwake();
+      S.edit = isDone(rowsOf(s, e.id)[i]) ? { ex: e.id, i } : null; S.mini = false; S.draft = null; S.fbFor = null;
+      renderHero(); renderHistory(); refreshEx(e); renderDock(); keepAwake();
     }
+  });
+  list.addEventListener('change', (ev) => {
+    const ta = ev.target.closest('.note-in'), li = ta && ta.closest('.ex'); if (!li) return;
+    const e = findEx(li.dataset.id), v = ta.value.trim().slice(0, 200);
+    if ((S.cfg.notes[e.mv] || '') === v) return;
+    if (v) S.cfg.notes[e.mv] = v; else delete S.cfg.notes[e.mv];
+    saveCfg(); if (!rest.on) renderDock();
   });
   const dock = $('#dock');
   let hold = 0, rep = 0;
@@ -1744,10 +2350,14 @@ function wireApp() {
     const t = ev.target, id = (t.closest('button,[role="button"]') || {}).id;
     const st = t.closest('.step'); if (st) { if (ev.detail === 0) stepKg(+st.dataset.d); return; }
     const ch = t.closest('.chip-r[data-r]'); if (ch) { S.touched = true; chooseReps(+ch.dataset.r, ch); return; }
+    const fbBtn = t.closest('[data-fb]'); if (fbBtn) { onFb(fbBtn.closest('.fbk').dataset.ex, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
+    const sn = t.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
     if (id === 'repsMore') typeReps();
     else if (id === 'repsOk') chooseReps(num($('#repsIn').value, true), null);
+    else if (id === 'dkHit') { const c = cursor(), T = c && targetOf(c.e, c.i, live(S.tab)); if (T) { S.touched = true; chooseReps(T.reps, t.closest('#dkHit')); } }
+    else if (id === 'fbSkip') skipFb();
     else if (id === 'dkKg') typeKg();
-    else if (id === 'dkStart') { S.touched = true; ensure(S.tab); primeAudio(); keepAwake(); S.mini = false; saveLocal(); renderHero(); updateProgress(); renderHistory(); renderTabs(); const c = cursor(); if (c && S.open !== c.e.id) openEx(c.e.id, true); else refreshOpenSets(); renderDock(); }
+    else if (id === 'dkStart') { S.touched = true; ensure(S.tab); primeAudio(); keepAwake(); S.mini = false; saveLocal(); renderHero(); renderPre(); renderList(); renderHistory(); renderTabs(); const c = cursor(); if (c && S.open !== c.e.id) openEx(c.e.id, true); else refreshOpenSets(); renderDock(); }
     else if (id === 'dkFinish') finishWorkout();
     else if (id === 'dkMini') { S.mini = !S.mini; renderDock(); }
     else if (id === 'dkCoach') { const c = cursor(); openChat(c ? c.e.id : S.open); }
@@ -1769,7 +2379,7 @@ function wireApp() {
     if (id === 'finishBtn') finishWorkout();
     else if (id === 'resetBtn') { S.resetAsk = true; renderHistory(); }
     else if (id === 'resetNo') { S.resetAsk = false; renderHistory(); }
-    else if (id === 'resetYes') { const s = live(S.tab); if (s) { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); saveLocal(); schedule(s.id, 100); } clearInterval(rest.iv); rest.on = false; S.resetAsk = false; S.edit = null; S.draft = null; letSleep(); renderAll(); }
+    else if (id === 'resetYes') { const s = live(S.tab); if (s) { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); saveLocal(); schedule(s.id, 100); } clearInterval(rest.iv); rest.on = false; S.resetAsk = false; S.edit = null; S.draft = null; S.fbFor = null; S.banner = ''; S.bannerKind = ''; letSleep(); renderAll(); }
     else if (id === 'exportBtn') exportCsv();
     const b = ev.target.closest('button'), ds = b ? b.dataset : {};
     if (ds.del) { S.delAsk = ds.del; renderHistory(); }
@@ -1778,11 +2388,15 @@ function wireApp() {
     else if (ds.edit) { S.delAsk = null; openEditor(ds.edit); }
     else if (id === 'histMore') { S.histN = (S.histN || 6) + 10; renderHistory(); }
   });
-  $('#hero').addEventListener('click', (ev) => { if (ev.target.closest('#bannerX')) { S.banner = ''; renderHero(); updateProgress(); } });
+  $('#hero').addEventListener('click', (ev) => {
+    if (ev.target.closest('#bannerX')) { S.banner = ''; S.bannerKind = ''; renderHero(); updateProgress(); }
+    else if (ev.target.closest('#mesoBtn')) openMeso();
+  });
   const sheet = $('#sheet');
   sheet.addEventListener('click', (ev) => {
     const id = (ev.target.closest('button') || {}).id;
-    if (ev.target === sheet || id === 'sheetClose' || id === 'edDone') { closeSheet(); return; }
+    if (ev.target === sheet || id === 'sheetClose' || id === 'edDone' || ev.target.closest('[data-close]')) { closeSheet(); return; }
+    if (coachSheetClick(ev, id)) return;
     if (id === 'edDelAsk' || id === 'edDelNo') { S.edDel = id === 'edDelAsk'; $('#edAct').innerHTML = editorActions(S.sessions[S.edSid]); }
     else if (id === 'edDelYes') { deleteSession(S.edSid); if (!S.touched) S.tab = nextUp().next; closeSheet(); }
     else if (id === 'edReopen') editorReopen();
@@ -1790,7 +2404,7 @@ function wireApp() {
     if (clr) { const rowEl = clr.closest('.ed-row'); $$('input', rowEl).forEach((x) => { x.value = ''; }); editorInput(rowEl); }
   });
   sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); });
-  sheet.addEventListener('change', (ev) => { if (ev.target.id === 'edDate') editorDate(ev.target.value); });
+  sheet.addEventListener('change', (ev) => { if (ev.target.id === 'edDate') editorDate(ev.target.value); else coachSheetChange(ev); });
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { if (!sheet.hidden) closeSheet(); else closeChat(); } });
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -1799,12 +2413,170 @@ function wireApp() {
   setInterval(() => { if (sweep()) renderAll(); }, 60000);
 }
 
+/* ================================================================== recovery check, exercise swap, mesocycle sheet */
+const SORE = ['לא היה תפוס', 'החלים בדיוק בזמן', 'עדיין תפוס'];
+const fmtN = (v) => String(Math.round(v * 10) / 10);
+/* muscles today's workout trains directly that have been trained before */
+function preMuscles(w) { const out = []; for (const pe of PLAN[w].ex) { const mu = LIB[pe.a].p; if (!out.includes(mu) && lastTrained(mu)) out.push(mu); } return out; }
+/* what the recovery answers change in today's workout, in words */
+function soreEffects(w, sore) {
+  const P = phaseNext(w), out = [];
+  if (P.dl) return out;
+  const a = planned(w, {}), b = planned(w, sore), s = live(w);
+  for (const pe of PLAN[w].ex) { const d = b[pe.id] - a[pe.id]; if (d) out.push((d > 0 ? 'סט נוסף ב-' : 'סט אחד פחות ב-') + Ltr(esc(findEx(pe.id, s).name))); }
+  for (const mu of Object.keys(sore)) if (sore[mu] === 2) out.push('חזרה נוספת ברזרבה ל' + MUSCLE[mu].he);
+  return out;
+}
+/* before the first set: how sore did each muscle get from its last workout? Still sore takes a set off and backs away from failure; never sore after easy work adds a set */
+function renderPre() {
+  const box = $('#pre'), w = S.tab, s = live(w), mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
+  if (!mus.length) { box.hidden = true; box.innerHTML = ''; return; }
+  const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore);
+  box.hidden = false;
+  if (!left && !S.preOpen) {
+    box.innerHTML = '<div class="pre done"><p>' + ICON.check + '<span><b>ההתאוששות נרשמה.</b> ' + (fx.length ? 'השפעה על היום: ' + fx.join(' · ') + '.' : 'האימון נשאר כמתוכנן.') + '</span></p><button class="link" id="preEdit" type="button">שנה</button></div>';
+    return;
+  }
+  box.innerHTML = '<div class="pre"><div class="pre-h"><div><b>לפני שמתחילים: כמה השריר היה תפוס מהאימון הקודם?</b><span>האימון של היום מתעדכן לפי התשובות.</span></div><button class="link" id="preAll" type="button">הכול החלים בזמן</button></div>' +
+    mus.map((m) => { const lt = lastTrained(m); return '<div class="pre-row"><span>' + MUSCLE[m].he + (lt ? '<small>אומן ' + ago(lt.ts) + '</small>' : '') + '</span><div class="seg" role="group" aria-label="' + MUSCLE[m].he + '">' + SORE.map((t, v) => '<button type="button" data-mu="' + m + '" data-v="' + v + '" aria-pressed="' + (sore[m] === v) + '">' + t + '</button>').join('') + '</div></div>'; }).join('') +
+    (fx.length ? '<p class="pre-fx">השפעה על היום: ' + fx.join(' · ') + '.</p>' : '') + (left ? '' : '<button class="btn" id="preDone" type="button">סיום</button>') + '</div>';
+}
+function afterPre() { renderPre(); renderHero(); renderList(); updateProgress(); renderDock(); }
+
+/* ---- swap: only movements of the same pattern and muscle, so the week keeps its shape ---- */
+function openSwap(exId) {
+  const e = findEx(exId); if (!e) return;
+  const pe = planEx(exId), s = live(wkOf(exId)), started = !!s && rowsOf(s, exId).some(isDone), L = LIB[e.mv], used = exList(wkOf(exId), s).map((x) => x.mv);
+  const opt = (k) => {
+    const o = LIB[k], b = bestFor(k);
+    return '<li class="sw-opt"><canvas class="ex-thumb" data-anim="' + animOf(k) + '" aria-hidden="true"></canvas><div class="sw-t"><b>' + esc(EN[k]) + '</b><span>' + o.he + ' · ' + EQUIP[o.eq].he + '</span>' +
+      '<span class="tags">' + (k === pe.a ? '<span class="tagx">התרגיל המקורי בתוכנית</span>' : '') + (o.jf ? '<span class="tagx ok">נוח למפרקים</span>' : '') + (used.includes(k) ? '<span class="tagx">כבר באימון הזה</span>' : '') + (b ? '<span class="tagx">הכי טוב שלך ' + Ltr(fmtRow(b)) + '</span>' : '') + '</span></div>' +
+      '<div class="sw-b">' + (started ? '' : '<button class="btn" type="button" data-sw="' + k + '" data-mode="today">רק היום</button>') + '<button class="btn primary" type="button" data-sw="' + k + '" data-mode="always">' + (started ? 'מהאימון הבא' : 'קבוע') + '</button></div></li>';
+  };
+  S.sheet = 'swap'; S.swEx = exId;
+  const sh = $('#sheet');
+  sh.innerHTML = '<div class="sheet-in sw" role="dialog" aria-modal="true" aria-label="החלפת תרגיל"><div class="ed-h"><div><p class="kicker">החלפת תרגיל · ' + PATTERN[L.pat] + '</p><h2>' + Ltr(esc(e.name)) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+    '<p>מוצגים רק תרגילים באותו דפוס תנועה ולאותו שריר, כדי שמבנה השבוע יישמר. מספר הסטים, טווח החזרות והעצימות נשארים, וההיסטוריה של שני התרגילים נשמרת.' + (started ? ' כבר רשמת סטים בתרגיל הזה היום, לכן ההחלפה תחול מהאימון הבא.' : '') + '</p>' +
+    '<ul class="sw-list">' + swapOptions(e).map(opt).join('') + '</ul>' +
+    '<button class="btn ask" id="swAsk" type="button">' + ICON.cam + 'מכשיר אחר? צלם ושאל את אילון</button></div>';
+  sh.hidden = false; drawThumbs();
+}
+
+/* ---- mesocycle sheet: the weekly ramp, volume per muscle against its landmarks, set counts, increments ---- */
+function volHTML(dl) {
+  const vol = muscleVolume(weekItems()), pct = (v) => Math.min(100, (v / 30) * 100).toFixed(1);
+  return Object.keys(MUSCLE).map((k) => {
+    const v = vol[k], tot = v.d + v.i, M = MUSCLE[k], st = dl ? 'ok' : landmark(k, tot);
+    return '<div class="vol-row ' + st + '"><span class="vol-n">' + M.he + '</span>' +
+      '<div class="vol-bar" role="img" aria-label="' + M.he + ': ' + fmtN(tot) + ' סטים בשבוע. הטווח המומלץ: ' + M.mev + ' עד ' + M.mrv + '"><i class="band" style="inset-inline-start:' + pct(M.mev) + '%;width:' + pct(M.mrv - M.mev) + '%"></i><i class="val" style="width:' + pct(tot) + '%"></i></div>' +
+      '<span class="vol-v"><b>' + fmtN(tot) + '</b><small>' + Ltr(fmtN(v.d) + ' + ' + fmtN(v.i)) + '</small></span>' +
+      (st === 'ok' ? '' : '<span class="vol-flag">' + (st === 'under' ? '▼ מתחת למינימום היעיל (' + M.mev + ' סטים)' : '▲ מעל מה שאפשר להתאושש ממנו (' + M.mrv + ' סטים)') + '</span>') + '</div>';
+  }).join('');
+}
+function builderHTML() {
+  return PLAN.map((wk, w) => {
+    const s = live(w), dl = phase(w, s).dl;
+    return '<div class="bl-w"><h4>אימון ' + (w + 1) + ' · ' + Ltr(wk.name) + (dl ? '<small>דילואד: חצי מהסטים</small>' : '') + '</h4>' + exList(w, s).map((e) => '<div class="bl-row"><span class="bl-n"><b>' + esc(e.name) + '</b><small>' + MUSCLE[LIB[e.mv].p].he + ' · ' + Ltr(e.reps) + ' חזרות</small></span>' +
+      '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="סט אחד פחות"' + (dl || e.n0 <= 1 ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="סט נוסף"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>').join('') + '</div>';
+  }).join('');
+}
+function renderMeso() {
+  const sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, M = S.cfg.meso, s = live(S.tab), P = phase(S.tab, s), W = S.cfg.weeks, past = (S.cfg.past || []).filter((p) => mesoSessions(p.id).length).slice(-1)[0];
+  if (!P.m) P.n = M.n;
+  let strip = '';
+  for (let k = 1; k <= W; k++) { const d = k === W, cur = P.dl ? d : k === P.wk; strip += '<li class="' + (cur ? 'cur' : '') + (d ? ' dl' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><small>שבוע ' + k + '</small><b>' + (d ? 'דילואד' : Ltr('RIR ' + rirFor(k, W))) + '</b></li>'; }
+  /* the last mesocycle is complete and the next workout opens a new one: nothing to steer until then */
+  const over = mesoDone(M);
+  let act;
+  if (over) act = '<span class="ms-sub">מזוציקל ' + M.n + ' הושלם. האימון הבא פותח את מזוציקל ' + (M.n + 1) + '.</span><button class="btn" type="button" data-sum="' + M.id + '">סיכום מזוציקל ' + M.n + '</button>';
+  else if (S.msAsk === 'dl') act = '<span class="confirm"><span>להפוך את האימונים הבאים לשבוע דילואד (חצי מהסטים, 15% פחות משקל)? אחריו יתחיל מזוציקל חדש.</span><button class="btn primary" id="msDlYes" type="button">כן, דילואד</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
+  else if (S.msAsk === 'new') act = '<span class="confirm"><span>לסגור את המזוציקל הזה ולהתחיל חדש משבוע 1? הרישום נשמר.</span><button class="btn primary" id="msNewYes" type="button">כן, מזוציקל חדש</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
+  else act = (M.early ? '<button class="btn" id="msDlOff" type="button">בטל את הדילואד המוקדם</button>' : P.dl ? '' : '<button class="btn" id="msDl" type="button">דילואד עכשיו</button>') + '<button class="btn" id="msNew" type="button">מזוציקל חדש</button>' +
+    (mesoSessions(M.id).length ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום עד עכשיו</button>' : '') + (past ? '<button class="btn" type="button" data-sum="' + past.id + '">סיכום מזוציקל ' + past.n + '</button>' : '');
+  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="מזוציקל ותוכנית"><div class="ed-h"><div><p class="kicker">מזוציקל ' + P.n + (M.early && !over ? ' · דילואד מוקדם' : '') + '</p><h2>' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' <small>מתוך ' + W + '</small>') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+    '<ol class="wk-strip">' + strip + '</ol>' +
+    '<p>' + Ltr('RIR') + ' הוא מספר החזרות שנשארות לפני כשל. כל שבוע מתקרבים בחזרה אחת, והיעד לכל סט עולה בהתאם: עוד חזרה באותו משקל, או יותר משקל כשמגיעים לראש הטווח. השבוע האחרון הוא דילואד.</p>' +
+    '<section><h3>נפח שבועי לפי שריר</h3><p class="ms-sub">סט מלא לשריר הראשי וחצי סט לשריר מסייע (המספרים הקטנים: ישירים + עקיפים). הרצועה הבהירה היא הטווח המומלץ: מהמינימום היעיל ועד המקסימום שאפשר להתאושש ממנו.' + (P.dl ? ' בשבוע דילואד הנפח נמוך בכוונה.' : '') + '</p><div class="vol">' + volHTML(P.dl) + '</div></section>' +
+    '<section><h3>סטים בתוכנית</h3><p class="ms-sub">שינוי כאן חל מהאימון הבא של אותו תרגיל. במהלך המזוציקל האפליקציה מוסיפה או מורידה סט לפי משוב ההתאוששות.</p>' + builderHTML() + '</section>' +
+    '<section><h3>קפיצת משקל לפי ציוד</h3><p class="ms-sub">היעדים מעוגלים לקפיצה הקטנה ביותר שאפשר להעמיס בפועל.</p><div class="inc">' + Object.keys(EQUIP).map((k) => '<label class="inc-row"><span>' + EQUIP[k].he + '</span><select data-inc="' + k + '">' + INC_CHOICES.map((v) => '<option value="' + v + '"' + (v === (+S.cfg.inc[k] || EQUIP[k].inc) ? ' selected' : '') + '>' + v + ' ק״ג</option>').join('') + '</select></label>').join('') + '</div></section>' +
+    '<section><h3>אורך המזוציקל</h3><div class="bl-row"><span class="bl-n"><b>' + W + ' שבועות</b><small>' + (W - 1) + ' שבועות עבודה ושבוע דילואד</small></span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="שבוע פחות"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="שבוע נוסף"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></div></section>' +
+    '<div class="ed-act ms-act">' + act + '</div></div>';
+  $('.sheet-in', sh).scrollTop = top;
+}
+function openMeso() { S.sheet = 'meso'; S.msAsk = null; renderMeso(); $('#sheet').hidden = false; }
+/* the end-of-mesocycle card: volume from start to peak, strength per movement, and the movements that answered best */
+function showMesoSummary(id, justDone) {
+  const R = mesoSummary(id), n = +String(id).slice(1) || 1, sh = $('#sheet'), avg = R.gains.length ? R.gains.reduce((a, g) => a + g.pct, 0) / R.gains.length : null;
+  const sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
+  let body = '<p>עוד אין אימונים רשומים במזוציקל הזה.</p>';
+  if (R.n) {
+    body = '<div class="stats"><div><b>' + (R.sets ? fmtN(R.sets.peak) : '–') + '</b><span>סטים בשבוע השיא' + (R.sets && R.sets.start !== R.sets.peak ? ' (בהתחלה ' + fmtN(R.sets.start) + ')' : '') + '</span></div><div><b>' + (avg == null ? '–' : sign(avg)) + '</b><span>שינוי כוח ממוצע</span></div><div><b>' + R.n + '</b><span>אימונים</span></div></div>' +
+      (R.mus.length ? '<section><h3>נפח לפי שריר</h3><ul class="sum-list">' + R.mus.map((m) => '<li><span>' + MUSCLE[m.k].he + '</span><span>' + (m.weeks > 1 && m.peak !== m.start ? fmtN(m.start) + ' סטים בשבוע הראשון, <b>' + fmtN(m.peak) + '</b> בשיא (שבוע ' + m.peakWk + ')' : '<b>' + fmtN(m.peak) + '</b> סטים בשבוע') + '</span></li>').join('') + '</ul></section>' : '') +
+      '<section><h3>שינוי כוח לפי תרגיל</h3>' + (R.gains.length ? '<ul class="sum-list">' + R.gains.slice(0, 14).map((g) => '<li><span>' + Ltr(esc(EN[g.mv])) + '</span><span>' + Ltr(fmtRow(g.first)) + ' בהתחלה, ' + Ltr(fmtRow(g.best)) + ' בשיא · <b class="' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</b></span></li>').join('') + '</ul>' : '<p class="ms-sub">צריך לפחות שני אימונים של אותו תרגיל כדי להשוות.</p>') + '</section>' +
+      '<section><h3>התרגילים שהגיבו הכי טוב</h3>' + (R.top.length ? '<ul class="sum-list">' + R.top.map((t) => '<li><span>' + Ltr(esc(EN[t.mv])) + '</span><span>פאמפ ' + (t.pump >= 1.5 ? 'חזק' : 'בינוני') + ' · ' + (t.pain === 0 ? 'בלי כאב במפרקים' : 'כאב קל לפעמים') + '</span></li>').join('') + '</ul>' : '<p class="ms-sub">אין עדיין מספיק משוב. התשובות על פאמפ וכאב בסוף כל תרגיל הן מה שמזין את הדירוג הזה.</p>') + '</section>';
+  }
+  S.sheet = 'msum';
+  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="סיכום מזוציקל"><div class="ed-h"><div><p class="kicker">' + (justDone ? 'המזוציקל הושלם' : 'סיכום') + '</p><h2>מזוציקל ' + n + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' + body +
+    (justDone ? '<p>האימון הבא פותח מזוציקל חדש: מספר הסטים חוזר לבסיס והעצימות חוזרת ל-3 חזרות לפני כשל.</p>' : '') + '<button class="btn primary big" id="sheetClose" type="button">סגור</button></div>';
+  sh.hidden = false;
+}
+/* two workouts in a row fell short for two muscle groups or more: offer the deload now */
+function showDeloadOffer(s) {
+  const mus = Array.from(missedMuscles(s)).map((k) => MUSCLE[k].he), sh = $('#sheet');
+  S.sheet = 'dlo';
+  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="הצעה לשבוע דילואד"><p class="kicker">אימון ' + (s.w + 1) + ' הושלם</p><h2>סימני עייפות</h2>' +
+    '<p>בשני האימונים האחרונים לא הגעת ליעד בשתי קבוצות שריר או יותר (היום: ' + mus.join(', ') + '). כשזה קורה ברצף, בדרך כלל זו עייפות מצטברת ולא יום חלש.</p>' +
+    '<p><b>שבוע דילואד:</b> חצי מהסטים, 15% פחות משקל ורחוק מכשל, בכל ארבעת האימונים. אחריו מתחיל מזוציקל חדש.</p>' +
+    '<button class="btn primary big" id="dlYes" type="button">להתחיל שבוע דילואד עכשיו</button><button class="btn big" data-close="1" type="button">לא עכשיו, להמשיך כרגיל</button></div>';
+  sh.hidden = false;
+}
+function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>שבוע דילואד התחיל.</b> בארבעת האימונים הבאים: חצי מהסטים, 15% פחות משקל ורחוק מכשל. אחריהם מתחיל מזוציקל חדש.'; }
+/* clicks inside the sheet that belong to this file; returns true when the click was handled */
+function coachSheetClick(ev, id) {
+  const b = ev.target.closest('button'), ds = b ? b.dataset : {};
+  if (ds.sw) {
+    const exId = S.swEx, now = swapTo(exId, ds.sw, ds.mode === 'always'), w = wkOf(exId);
+    S.bannerKind = ''; S.banner = (now ? 'הוחלף ל-' : 'מהאימון הבא: ') + Ltr(esc(EN[ds.sw])) + (ds.mode === 'always' ? '' : ' (רק היום)') + '. הסטים, טווח החזרות וההיסטוריה נשמרים.';
+    if (S.tab === w) S.open = exId;
+    S.draft = null; closeSheet(); return true;
+  }
+  if (id === 'swAsk') { const exId = S.swEx; closeSheet(); openChat(exId); return true; }
+  if (ds.base) { setBase(ds.base, +ds.n); renderMeso(); return true; }
+  if (ds.weeks) { S.cfg.weeks = clamp(+ds.weeks, 4, 7); saveCfg(); renderMeso(); return true; }
+  if (ds.sum) { showMesoSummary(ds.sum, false); return true; }
+  if (id === 'msDl' || id === 'msNew' || id === 'msNo') { S.msAsk = id === 'msDl' ? 'dl' : id === 'msNew' ? 'new' : null; renderMeso(); return true; }
+  if (id === 'msDlYes') { startDeload(); S.msAsk = null; closeSheet(); return true; }
+  if (id === 'msDlOff') { S.cfg.meso.early = 0; saveCfg(); renderMeso(); return true; }
+  if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>מזוציקל ' + S.cfg.meso.n + ' התחיל.</b> האימון הבא הוא שבוע 1.'; closeSheet(); return true; }
+  if (id === 'dlYes') { startDeload(); closeSheet(); return true; }
+  return false;
+}
+function coachSheetChange(ev) {
+  const sel = ev.target.closest('select[data-inc]'); if (!sel) return;
+  const k = sel.dataset.inc, v = +sel.value;
+  if (!EQUIP[k] || !(v > 0)) return;
+  if (v === EQUIP[k].inc) delete S.cfg.inc[k]; else S.cfg.inc[k] = v;
+  saveCfg();
+}
+function wireCoach() {
+  $('#pre').addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    S.touched = true;
+    if (b.dataset.mu) setSore(S.tab, b.dataset.mu, +b.dataset.v);
+    else if (b.id === 'preAll') { const s = live(S.tab), sore = soreOf(S.tab, s); for (const m of preMuscles(S.tab)) if (sore[m] == null) setSore(S.tab, m, 1); S.preOpen = false; }
+    else if (b.id === 'preEdit') S.preOpen = true;
+    else if (b.id === 'preDone') S.preOpen = false;
+    afterPre();
+  });
+}
+
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
+/* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
-  return PLAN.map((w, i) => 'אימון ' + (i + 1) + ' – ' + w.name + ':\n' + w.ex.map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.name + ': ' + e.sets + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e) + ' | ' + e.int).join('\n')).join('\n\n');
+  return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return 'אימון ' + (i + 1) + ' – ' + w.name + (P.m ? ' (' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' במזוציקל') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.name + ': ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
 }
-const RULES = 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
+const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
   'התוכנית של המשתמש (Upper/Lower, ארבעה אימונים שמתבצעים במחזור לפי הסדר). בסוגריים המרובעים מופיע מזהה התרגיל:\n\n' + planText() + '\n\n' +
   'כללים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה בתשובה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה הסבר קצר (שרירי מטרה ודפוס תנועה), איך להתאים סטים, חזרות, מנוחה וקרבה לכשל, ודגש ביצוע אחד.\n' +
@@ -1815,6 +2587,7 @@ const RULES = 'אתה אילון, המאמן האישי בתוך gymi, אפלי�
   '  השתמש בתרגיל שבהקשר אם לא צוין תרגיל אחר. אל תוסיף את השורה אם לא ביקשו לרשום, או אם חסר מספר החזרות (במקרה כזה שאל). אל תזכיר את השורה הזאת בטקסט.\n' +
   '- כשאין תחליף מדויק, הצע חלופה אחת או שתיים שנפוצות בחדרי כושר.\n' +
   '- שמור על כוונת התוכנית: אותה קבוצת שרירים, אותו טווח חזרות ואותה קרבה לכשל.\n' +
+  '- האפליקציה מנהלת מזוציקל: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון הוא דילואד. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל) ומאפשרת להחליף תרגיל בכפתור "החלף תרגיל" לתרגיל באותו דפוס תנועה. כששואלים על יעד, משקל או עצימות, התבסס על הנתונים שבהקשר.\n' +
   '- אין לך מידע רפואי על המשתמש. אם מוזכרים כאב או פציעה, המלץ להפסיק את התרגיל ולהתייעץ עם איש מקצוע.\n' +
   '- טקסט פשוט בלבד, בלי טבלאות ובלי כותרות. אפשר שורות קצרות שמתחילות ב-"• ".';
 const ERR = {
@@ -1901,8 +2674,10 @@ function ctxLine() {
   let t = '[הקשר מהאפליקציה. האימון הפתוח כרגע: אימון ' + (S.tab + 1) + ' · ' + PLAN[S.tab].name + '.';
   if (e) {
     const w = wkOf(id);
-    t += ' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.name + '" (אימון ' + (w + 1) + '): ' + e.sets + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + ', ' + e.int + '.';
-    const hist = sorted().filter((s) => s.w === w && rowsOf(s, id).some(isDone)).slice(0, 3);
+    const cur = live(w), rir = rirOf(e, cur), fu = firstUndone(cur, e), T = fu >= 0 ? targetOf(e, fu, cur) : null, pe = planEx(id);
+    t += ' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.name + '" (אימון ' + (w + 1) + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
+    if (T) t += ' היעד לסט הבא (סט ' + (fu + 1) + '): ' + fmtRow(T) + '.';
+    const hist = sorted().filter((s) => s.w === w && moveOf(pe, s) === e.mv && rowsOf(s, id).some(isDone)).slice(0, 3);
     if (hist.length) t += ' ביצועים אחרונים (ק״ג×חזרות): ' + hist.map((s) => (s.end ? ago(s.ts) : 'באימון הנוכחי') + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
     else t += ' עוד אין רישום קודם לתרגיל הזה.';
   }
@@ -1951,7 +2726,7 @@ async function sendChat(preset) {
   try {
     const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { reply.text = u.text; paintLast(); } };
     if (img) opts.images = [img];
-    const res = await sample([{ role: 'user', content: RULES }].concat(chat.turns.slice(-16)), opts);
+    const res = await sample([{ role: 'user', content: rules() }].concat(chat.turns.slice(-16)), opts);
     reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'התשובה נקטעה באמצע. בקש המשך או שאל שאלה קצרה יותר.';
     chat.turns.push({ role: 'assistant', content: res.text });
     const lg = res.truncated ? null : applyLog(res.text); if (lg) reply.logged = lg;
@@ -1964,8 +2739,14 @@ async function sendChat(preset) {
   } finally { chat.ctl = null; setBusy(false); }
 }
 function showImgBtns() { $('#camBtn').hidden = $('#galBtn').hidden = !chat.canImg; }
+/* the exercise picker follows the plan as it stands (swapped movements show under their own name) */
+function fillCtx() {
+  const sel = $('#chatCtx'), v = sel.value;
+  sel.innerHTML = '<option value="">כל התוכנית (שאלה כללית)</option>' + PLAN.map((w, i) => '<optgroup label="אימון ' + (i + 1) + ' · ' + w.name + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + esc(e.name) + '</option>').join('') + '</optgroup>').join('');
+  sel.value = v;
+}
 function initChat() {
-  $('#chatCtx').innerHTML = '<option value="">כל התוכנית (שאלה כללית)</option>' + PLAN.map((w, i) => '<optgroup label="אימון ' + (i + 1) + ' · ' + w.name + '">' + w.ex.map((e) => '<option value="' + e.id + '">' + esc(e.name) + '</option>').join('') + '</optgroup>').join('');
+  fillCtx();
   if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); return; }
   chat.sampleP = window.claude.use('sample');
   chat.sampleP.then(async (sample) => {
@@ -1977,6 +2758,7 @@ function initChat() {
   renderMsgs();
 }
 function openChat(exId) {
+  fillCtx();
   if (exId) $('#chatCtx').value = exId;
   $('#chat').classList.add('open');
   if (!matchMedia('(min-width:1000px)').matches) document.body.style.overflow = 'hidden'; else $('#chatInput').focus();
@@ -2011,12 +2793,16 @@ function boot(data) {
   if (typeof d.sound === 'boolean') S.sound = d.sound;
   if (Array.isArray(d.dirty)) S.dirty = new Set(d.dirty);
   if (Array.isArray(d.gone)) S.gone = new Set(d.gone);
+  if (d.cfg) S.cfg = normCfg(d.cfg);
+  if (d.pre && typeof d.pre === 'object') S.pre = d.pre;
   sweep();
+  /* a workout that was already running before mesocycles existed joins the current one where it stands */
+  for (const s of Object.values(S.sessions)) if (!s.end && !s.m) { stamp(s); touch(s, true); }
   S.tab = typeof data.tab === 'number' && data.tab >= 0 && data.tab < 4 ? data.tab : nextUp().next;
   if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
   if (Array.isArray(data.turns)) chat.turns = data.turns;
-  readColors(); wireApp(); wireChat(); renderAll(); initChat();
-  const s = live(S.tab), first = (data.open && wkOf(data.open) === S.tab && findEx(data.open)) || PLAN[S.tab].ex.find((e) => firstUndone(s, e) >= 0) || PLAN[S.tab].ex[0];
+  readColors(); wireApp(); wireCoach(); wireChat(); renderAll(); initChat();
+  const s = live(S.tab), list = exList(S.tab, s), first = (data.open && list.find((e) => e.id === data.open)) || list.find((e) => firstUndone(s, e) >= 0) || list[0];
   if (first) { openEx(first.id, false); renderDock(); }
   initCloud(onRemoteChange);
   if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then((dl) => { if (dl) { S.dl = dl; renderHistory(); } }).catch(() => {});

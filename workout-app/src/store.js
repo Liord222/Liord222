@@ -4,7 +4,7 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const Ltr = (s) => '<bdi dir="ltr">' + s + '</bdi>';
 const reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR;
+const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR, MAX_SETS = 8;
 const ICON = {
   play: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>',
   pause: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>',
@@ -18,25 +18,108 @@ const ICON = {
   down: '<svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
   up: '<svg class="i" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
   go: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
+  swap: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg>',
+  pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
+  fwd: '<svg class="i" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
 };
-/* S.sessions: id -> { id, v, w (workout 0-3), ts (start), end, upd, sets: { exerciseId: [ { kg, reps, done, t, pr } ] } } */
-const S = { tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '' };
-
+/* S.sessions: id -> one workout:
+   { id, v, w (workout 0-3), ts (start), end, mt, upd, sets: { slotId: [ { kg, reps, done, t, pr, tk, tr } ] },
+     m (mesocycle id), wk (week in it), dl (deload), rir (reps in reserve asked for), n: { slotId: planned sets },
+     mv: { slotId: movement, when swapped }, sore: { muscle: 0 never | 1 healed in time | 2 still sore },
+     fb: { slotId: { pain, pump, load } }, cut: { slotId: slot whose pain report cancelled it }, ft (time of the last change to these) }
+   S.cfg: settings and the running mesocycle, one document shared by the viewer's devices */
+const cfgDef = () => ({ upd: 0, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [] });
+const S = { tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
+const clone = (x) => JSON.parse(JSON.stringify(x));
+function normCfg(v) {
+  const d = cfgDef(), obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? clone(x) : {});
+  v = v || {};
+  return {
+    upd: +v.upd || 0, weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base),
+    meso: v.meso && v.meso.id ? { id: String(v.meso.id), n: +v.meso.n || 1, start: +v.meso.start || 0, early: +v.meso.early || 0, asked: String(v.meso.asked || '') } : d.meso,
+    past: Array.isArray(v.past) ? clone(v.past).slice(-4) : [],
+  };
+}
 function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch (e) { return {}; } }
 function saveLocal() {
   try {
     const keep = Object.values(S.sessions).sort((a, b) => b.ts - a.ts).slice(0, 80);
-    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, dirty: Array.from(S.dirty), gone: Array.from(S.gone) }));
+    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, pre: S.pre }));
   } catch (e) { /* storage unavailable: keep working in memory */ }
 }
+function saveCfg() { S.cfg.upd = Date.now(); S.dirty.add('cfg'); saveLocal(); schedule('cfg'); }
 const rowsOf = (s, exId) => (s && s.sets && s.sets[exId]) || [];
 const isDone = (r) => !!(r && r.done);
 const hasDone = (s) => Object.values(s.sets || {}).some((a) => (a || []).some(isDone));
 const sorted = () => Object.values(S.sessions).sort((a, b) => b.ts - a.ts);
 const live = (w) => sorted().find((x) => x.w === w && !x.end) || null;
+const planEx = (id) => { for (const w of PLAN) for (const e of w.ex) if (e.id === id) return e; return null; };
+const wkOf = (id) => PLAN.findIndex((w) => w.ex.some((e) => e.id === id));
+/* the movement done in a plan slot: a workout remembers its own, the next one follows the saved swaps */
+const moveOf = (pe, s) => { const k = s ? s.mv && s.mv[pe.id] : S.cfg.swap[pe.id]; return k && LIB[k] ? k : pe.a; };
+const incOf = (mv) => { const q = LIB[mv].eq, v = +S.cfg.inc[q]; return v > 0 ? v : EQUIP[q].inc; };
+
+/* ---- mesocycle: a week is one pass through the four workouts; the last week is a deload ---- */
+const mesoSessions = (id) => Object.values(S.sessions).filter((x) => x.m === id && hasDone(x));
+/* a mesocycle is over once every one of the four workouts has had its deload */
+function mesoDone(M) { const l = mesoSessions(M.id); return [0, 1, 2, 3].every((w) => l.some((x) => x.w === w && x.dl && x.end)); }
+/* where the next workout of this type falls: mesocycle, week, deload or not, reps in reserve */
+function phaseNext(w) {
+  let M = S.cfg.meso, fresh = false;
+  if (mesoDone(M)) { M = { id: 'm' + (M.n + 1), n: M.n + 1, early: 0 }; fresh = true; }
+  const wk = 1 + mesoSessions(M.id).filter((x) => x.w === w).length, dl = !!M.early || wk >= S.cfg.weeks;
+  return { m: M.id, n: M.n, wk, dl, rir: dl ? 4 : rirFor(wk, S.cfg.weeks), fresh };
+}
+function phase(w, s) {
+  if (s && s.m) return { m: s.m, n: +String(s.m).slice(1) || 1, wk: s.wk || 1, dl: !!s.dl, rir: s.rir == null ? null : s.rir };
+  if (s) return { m: null, n: 0, wk: 0, dl: false, rir: null };
+  return phaseNext(w);
+}
+function newMeso() {
+  const M = S.cfg.meso;
+  S.cfg.past = (S.cfg.past || []).concat({ id: M.id, n: M.n, end: Date.now() }).slice(-4);
+  S.cfg.meso = { id: 'm' + (M.n + 1), n: M.n + 1, start: Date.now(), early: 0, asked: '' };
+  saveCfg();
+}
+/* recovery answers given before the workout exists are kept for half a day */
+const preOf = (w) => { const p = S.pre[w]; return p && Date.now() - p.t < 12 * HOUR ? p.v : {}; };
+const soreOf = (w, s) => (s ? s.sore || {} : preOf(w));
+/* how the work felt for a muscle the last time it was rated: 0 easy, 1 right, 2 too much, null unknown */
+function lastFelt(mu) {
+  for (const x of sorted()) {
+    if (!x.fb || !hasDone(x)) continue;
+    const v = PLAN[x.w].ex.filter((pe) => LIB[moveOf(pe, x)].p === mu && x.fb[pe.id] && x.fb[pe.id].load != null).map((pe) => x.fb[pe.id].load);
+    if (v.length) return Math.max.apply(null, v);
+  }
+  return null;
+}
+/* the most recent finished workout that trained a muscle directly */
+const lastTrained = (mu) => sorted().find((x) => x.end && PLAN[x.w].ex.some((pe) => LIB[moveOf(pe, x)].p === mu && rowsOf(x, pe.id).some(isDone))) || null;
+/* set count per slot for the next workout of this type: last week's count in this mesocycle (or the plan), then recovery feedback, or the deload cut */
+function planned(w, sore) {
+  const P = phaseNext(w), out = {};
+  const prev = sorted().find((x) => x.w === w && x.m === P.m && !x.dl && x.n && hasDone(x));
+  for (const pe of PLAN[w].ex) { const b = S.cfg.base[pe.id]; out[pe.id] = prev && prev.n[pe.id] != null && !(b && b.t > prev.ts) ? prev.n[pe.id] : b && b.n ? b.n : pe.sets; }
+  if (P.dl) { for (const id of Object.keys(out)) out[id] = Math.max(1, Math.ceil(out[id] / 2)); return out; }
+  for (const mu of Object.keys(sore || {})) {
+    const ids = PLAN[w].ex.filter((pe) => LIB[pe.a].p === mu).map((pe) => pe.id);
+    if (sore[mu] === 2) { const id = ids.slice().reverse().find((k) => out[k] > 1); if (id) out[id]--; }
+    else if (sore[mu] === 0 && lastFelt(mu) === 0) { const id = ids.find((k) => out[k] < MAX_SETS); if (id) out[id]++; }
+  }
+  return out;
+}
+/* fix a new workout's place in the mesocycle, its set counts and its swaps */
+function stamp(s) {
+  const P = phaseNext(s.w);
+  if (P.fresh) newMeso();
+  s.m = P.m; s.wk = P.wk; s.dl = P.dl ? 1 : 0; s.rir = P.rir; s.sore = Object.assign({}, preOf(s.w)); s.mv = {}; s.fb = {}; s.cut = {};
+  for (const pe of PLAN[s.w].ex) { const k = S.cfg.swap[pe.id]; if (k && LIB[k] && k !== pe.a) s.mv[pe.id] = k; }
+  s.n = planned(s.w, s.sore); s.ft = Date.now(); s.v = 3;
+  delete S.pre[s.w];
+}
 function ensure(w) {
   let s = live(w);
-  if (!s) { s = { id: 's' + Date.now().toString(36) + 'w' + w, v: 2, w, ts: Date.now(), end: 0, upd: Date.now(), sets: {} }; S.sessions[s.id] = s; }
+  if (!s) { s = { id: 's' + Date.now().toString(36) + 'w' + w, v: 3, w, ts: Date.now(), end: 0, upd: Date.now(), sets: {} }; stamp(s); S.sessions[s.id] = s; }
   return s;
 }
 function lastT(s) { let t = s.ts; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (r && r.t > t) t = r.t; return t; }
@@ -58,37 +141,154 @@ function nextUp() {
   if (!l.length) return { next: 0, live: -1 };
   return l[0].end ? { next: (l[0].w + 1) % 4, live: -1 } : { next: l[0].w, live: l[0].w };
 }
+
+/* ---- an exercise as it is done in one workout: the plan slot with that day's movement and set count ---- */
+function view(pe, s, plan) {
+  const mv = moveOf(pe, s), cut = !!(s && s.cut && s.cut[pe.id]);
+  const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id];
+  let n = n0;
+  if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
+  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: pe.int, lvl: pe.lvl, suf: pe.suf, cut, swapped: mv !== pe.a };
+}
+function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return PLAN[w].ex.map((pe) => view(pe, s, plan)); }
+function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
 const doneCount = (s, e) => rowsOf(s, e.id).slice(0, e.sets).filter(isDone).length;
 const firstUndone = (s, e) => { const r = rowsOf(s, e.id); for (let i = 0; i < e.sets; i++) if (!isDone(r[i])) return i; return -1; };
-const findEx = (id) => { for (const w of PLAN) for (const e of w.ex) if (e.id === id) return e; return null; };
-const wkOf = (id) => PLAN.findIndex((w) => w.ex.some((e) => e.id === id));
-const prevFor = (w, exId, notId) => sorted().find((x) => x.w === w && x.id !== notId && rowsOf(x, exId).some(isDone)) || null;
-const e1rm = (kg, reps) => kg * (1 + reps / 30);
-function repRange(e) { const p = String(e.reps).split('–').map((x) => parseInt(x, 10)); return [p[0], p[p.length - 1]]; }
-/* best estimated strength logged for a movement (any workout slot); can leave out or isolate one session */
-function bestFor(a, o) {
-  let best = null; o = o || {};
-  for (const s of Object.values(S.sessions)) for (const w of PLAN) for (const e of w.ex) {
-    if (e.a !== a || (o.notS && s.id === o.notS) || (o.onlyS && s.id !== o.onlyS)) continue;
-    rowsOf(s, e.id).forEach((r, i) => {
-      if (!isDone(r) || r.kg == null || !(r.kg > 0) || r.reps == null || (o.skipEx === e.id && o.skipI === i)) return;
-      const v = e1rm(r.kg, r.reps); if (!best || v > best.v) best = { v, kg: r.kg, reps: r.reps };
+/* reps in reserve for one exercise today: the week's number, one more when its muscle is still sore */
+function rirOf(e, s) { const w = wkOf(e.id), P = phase(w, s); if (P.rir == null) return null; return Math.min(4, P.rir + (!P.dl && soreOf(w, s)[LIB[e.mv].p] === 2 ? 1 : 0)); }
+
+/* best set logged for a movement, in any slot; can leave out or isolate one workout */
+function bestFor(mv, o) {
+  let best = null; o = o || {}; const L = LIB[mv];
+  for (const s of Object.values(S.sessions)) for (const pe of PLAN[s.w].ex) {
+    if ((o.notS && s.id === o.notS) || (o.onlyS && s.id !== o.onlyS) || moveOf(pe, s) !== mv) continue;
+    rowsOf(s, pe.id).forEach((r, i) => {
+      if (!isDone(r) || r.kg == null || !(r.kg > 0) || r.reps == null || (o.skipEx === pe.id && o.skipI === i)) return;
+      const v = score(L, r.kg, r.reps); if (!best || v > best.v) best = { v, kg: r.kg, reps: r.reps };
     });
   }
   return best;
 }
-/* weight to offer for a set: earlier set today, then the same set last time, then the same movement elsewhere */
-function defaultKg(e, i, s) {
-  const cur = rowsOf(s, e.id);
-  for (let k = i - 1; k >= 0; k--) if (isDone(cur[k]) && cur[k].kg != null) return cur[k].kg;
-  const p = prevFor(wkOf(e.id), e.id, s && s.id);
-  if (p) { const r = rowsOf(p, e.id); if (isDone(r[i]) && r[i].kg != null) return r[i].kg; const any = r.filter((x) => isDone(x) && x.kg != null); if (any.length) return any[any.length - 1].kg; }
-  for (const x of sorted()) for (const w of PLAN) for (const o of w.ex) { if (o.a !== e.a || o.id === e.id) continue; const any = rowsOf(x, o.id).filter((q) => isDone(q) && q.kg != null); if (any.length) return any[any.length - 1].kg; }
+/* the same set the last time this movement was trained in this slot (a deload is not a yardstick); failing that, the movement in another slot */
+function refRow(e, i, s) {
+  const w = wkOf(e.id), pe = planEx(e.id), not = s && s.id, all = sorted(), mu = LIB[e.mv].p;
+  const pick = (x, id) => {
+    const r = rowsOf(x, id), d = r.filter((q) => isDone(q) && q.reps != null); if (!d.length) return null;
+    const row = isDone(r[i]) && r[i].reps != null ? r[i] : d[d.length - 1];
+    return { kg: row.kg == null ? null : row.kg, reps: row.reps, rir: x.rir == null ? null : Math.min(4, x.rir + (x.sore && x.sore[mu] === 2 ? 1 : 0)), ts: x.ts, sid: x.id };
+  };
+  for (const x of all) { if (x.w !== w || x.id === not || x.dl || moveOf(pe, x) !== e.mv) continue; const r = pick(x, e.id); if (r) return r; }
+  for (const x of all) {
+    if (x.id === not || x.dl) continue;
+    for (const o of PLAN[x.w].ex) { if (o.id === e.id || moveOf(o, x) !== e.mv) continue; const r = pick(x, o.id); if (r) { r.other = true; return r; } }
+  }
   return null;
 }
-function defaultReps(e, i, s) { const p = prevFor(wkOf(e.id), e.id, s && s.id), r = p && rowsOf(p, e.id)[i]; return isDone(r) && r.reps != null ? r.reps : null; }
+/* what to aim for on set i: progress on last time, then re-aimed by the sets already done today. null when there is nothing to go on yet */
+function targetOf(e, i, s) {
+  const w = wkOf(e.id), L = LIB[e.mv], P = phase(w, s), rr = repRange(e), ref = refRow(e, i, s);
+  const o = { lo: rr[0], hi: rr[1], inc: incOf(e.mv), rir: P.rir == null ? (ref && ref.rir != null ? ref.rir : 1) : P.rir, sore: !P.dl && soreOf(w, s)[L.p] === 2 ? 1 : 0, dl: P.dl, inv: !!L.inv };
+  let T = !ref ? null : ref.other && !P.dl ? { kg: ref.kg, reps: clamp(ref.reps, o.lo, o.hi), mode: 'hold' } : nextTarget(ref, o);
+  const cur = rowsOf(s, e.id);
+  for (let k = i - 1; k >= 0; k--) if (isDone(cur[k]) && cur[k].reps != null) { T = adjustTarget(T, cur[k], o); break; }
+  return T ? { kg: T.kg, reps: T.reps, mode: T.mode, ref } : null;
+}
+
+/* ---- feedback during the workout ---- */
+/* severe joint pain stops the rest of today's work for that muscle; taking the answer back restores it */
+function painCut(s, exId, on) {
+  const cut = s.cut || (s.cut = {});
+  if (!on) { for (const k of Object.keys(cut)) if (cut[k] === exId) delete cut[k]; return; }
+  const mu = LIB[moveOf(planEx(exId), s)].p;
+  for (const e of exList(s.w, s)) if (LIB[e.mv].p === mu && !e.cut && firstUndone(s, e) >= 0) cut[e.id] = exId;
+}
+function setFb(exId, key, v) {
+  const s = live(wkOf(exId)); if (!s) return null;
+  const fb = s.fb || (s.fb = {}), f = fb[exId] || (fb[exId] = { pain: null, pump: null, load: null }), was = f.pain;
+  f[key] = v;
+  if (key === 'pain' && (v === 2) !== (was === 2)) painCut(s, exId, v === 2);
+  s.ft = Date.now(); touch(s);
+  return f;
+}
+function setSore(w, mu, v) {
+  const s = live(w);
+  if (s) { if (hasDone(s)) return; s.sore = Object.assign({}, s.sore, { [mu]: v }); s.n = planned(w, s.sore); s.ft = Date.now(); touch(s); }
+  else { S.pre[w] = { t: Date.now(), v: Object.assign({}, preOf(w), { [mu]: v }) }; saveLocal(); }
+}
+/* a movement that gave a weak pump the last two times it was rated is worth replacing */
+function lowPump(mv) {
+  let n = 0;
+  for (const x of sorted()) for (const pe of PLAN[x.w].ex) {
+    const f = x.fb && x.fb[pe.id]; if (!f || f.pump == null || moveOf(pe, x) !== mv) continue;
+    if (f.pump !== 0) return false; if (++n >= 2) return true;
+  }
+  return false;
+}
+/* muscles whose first set fell short of its target in a workout */
+function missedMuscles(s) {
+  const out = new Set();
+  for (const pe of PLAN[s.w].ex) { const r = rowsOf(s, pe.id)[0], L = LIB[moveOf(pe, s)]; if (isDone(r) && r.tr != null && score(L, r.kg, r.reps) < score(L, r.tk, r.tr) - 0.01) out.add(L.p); }
+  return out;
+}
+/* fatigue is building up when the last two workouts each fell short for two muscle groups or more */
+function fatigued() {
+  const l = sorted().filter((x) => x.m === S.cfg.meso.id && x.end && !x.dl && hasDone(x)).slice(0, 2);
+  return l.length === 2 && l.every((x) => missedMuscles(x).size >= 2);
+}
+/* swap options for a slot: the same movement pattern only, joint-friendly ones first */
+function swapOptions(e) {
+  const L = LIB[e.mv];
+  return Object.keys(LIB).filter((k) => k !== e.mv && LIB[k].pat === L.pat && LIB[k].p === L.p).sort((a, b) => (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0));
+}
+/* after a pain report: a movement of the same pattern that is not already in this workout, a joint-friendly one if there is one */
+function gentleAlt(e) { const used = exList(wkOf(e.id)).map((x) => x.mv), o = swapOptions(e); return o.find((k) => LIB[k].jf && !used.includes(k)) || o.find((k) => !used.includes(k)) || o[0] || null; }
+/* returns true when today's workout switched, false when the change waits for the next one */
+function swapTo(exId, mv, always) {
+  const pe = planEx(exId), w = wkOf(exId);
+  if (!pe || !LIB[mv]) return false;
+  if (always) { if (mv === pe.a) delete S.cfg.swap[exId]; else S.cfg.swap[exId] = mv; saveCfg(); }
+  let s = live(w);
+  if (!s && !always) s = ensure(w);
+  if (!s || rowsOf(s, exId).some(isDone)) return !s;
+  s.mv = Object.assign({}, s.mv); if (mv === pe.a) delete s.mv[exId]; else s.mv[exId] = mv;
+  s.ft = Date.now(); touch(s);
+  return true;
+}
+function setBase(exId, n) {
+  n = clamp(n, 1, MAX_SETS);
+  S.cfg.base[exId] = { n, t: Date.now() }; saveCfg();
+  const s = live(wkOf(exId));
+  if (s && !s.dl && s.n && rowsOf(s, exId).filter(isDone).length <= n) { s.n = Object.assign({}, s.n, { [exId]: n }); s.ft = Date.now(); touch(s); }
+}
+/* the week as it stands now: every slot with its movement and planned sets */
+function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
+/* how many muscles sit under their minimum or over their maximum weekly volume as the week is planned now */
+function volWarn() { const v = muscleVolume(weekItems()); return Object.keys(MUSCLE).filter((k) => landmark(k, v[k].d + v[k].i) !== 'ok').length; }
+/* what one mesocycle did: sets per week (start and peak), strength change per movement, and the movements that answered best */
+function mesoSummary(id) {
+  const l = mesoSessions(id).sort((a, b) => a.ts - b.ts), wkSets = {}, mus = {}, lifts = {};
+  for (const x of l) for (const pe of PLAN[x.w].ex) {
+    const mv = moveOf(pe, x), L = LIB[mv], rows = rowsOf(x, pe.id).filter((r) => isDone(r) && r.reps != null), f = x.fb && x.fb[pe.id];
+    if (!rows.length) continue;
+    const o = lifts[mv] || (lifts[mv] = { mv, first: null, best: null, pump: [], pain: [] });
+    if (f) { if (f.pump != null) o.pump.push(f.pump); if (f.pain != null) o.pain.push(f.pain); }
+    if (x.dl) continue;
+    wkSets[x.wk] = (wkSets[x.wk] || 0) + rows.length;
+    const add = (k, v) => { const m = mus[k] || (mus[k] = {}); m[x.wk] = (m[x.wk] || 0) + v; };
+    add(L.p, rows.length); for (const k of L.s) add(k, rows.length * 0.5);
+    const top = rows.reduce((a, b) => (score(L, b.kg, b.reps) > score(L, a.kg, a.reps) ? b : a)), v = score(L, top.kg, top.reps);
+    if (!o.first) o.first = { v, row: top, wk: x.wk }; else if (!o.best || v > o.best.v) o.best = { v, row: top, wk: x.wk };
+  }
+  const span = (m) => { const ks = Object.keys(m).map(Number).sort((a, b) => a - b); if (!ks.length) return null; const peak = ks.reduce((a, b) => (m[b] > m[a] ? b : a)); return { start: m[ks[0]], peak: m[peak], peakWk: peak, weeks: ks.length }; };
+  const avg = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  const gains = Object.values(lifts).filter((o) => o.first && o.best).map((o) => ({ mv: o.mv, first: o.first.row, best: o.best.row, pct: ((o.best.v - o.first.v) / o.first.v) * 100 })).sort((a, b) => b.pct - a.pct);
+  const top = Object.values(lifts).filter((o) => o.pump.length).map((o) => ({ mv: o.mv, pump: avg(o.pump), pain: o.pain.length ? avg(o.pain) : 0 })).filter((o) => o.pump >= 1 && o.pain < 1).sort((a, b) => b.pump - 1.5 * b.pain - (a.pump - 1.5 * a.pain)).slice(0, 3);
+  return { n: l.length, sets: span(wkSets), mus: Object.keys(MUSCLE).filter((k) => mus[k]).map((k) => Object.assign({ k }, span(mus[k]))), gains, top };
+}
+
 function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + ' דק׳'; return Ltr(a === b ? a : a + '–' + b) + ' שנ׳'; }
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
+const rirText = (r) => (r == null ? '' : r >= 4 ? 'דילואד, קל ורחוק מכשל' : r === 0 ? 'עד כשל טכני' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
 function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
@@ -107,7 +307,9 @@ function setSync(state) {
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
 function schedule(id, ms) { const w = W(id); clearTimeout(w.timer); w.timer = setTimeout(() => flush(id), ms == null ? 800 : ms); }
-const docOf = (s) => JSON.parse(JSON.stringify({ v: 2, w: s.w, ts: s.ts, end: s.end || 0, mt: s.mt || 0, upd: s.upd || s.ts, sets: s.sets || {} }));
+const XK = ['m', 'wk', 'dl', 'rir', 'n', 'mv', 'sore', 'cut', 'fb'];
+function docOf(s) { const d = { v: s.v || 2, w: s.w, ts: s.ts, end: s.end || 0, mt: s.mt || 0, upd: s.upd || s.ts, ft: s.ft || 0, sets: s.sets || {} }; for (const k of XK) if (s[k] != null) d[k] = s[k]; return clone(d); }
+const cfgDoc = () => clone(Object.assign({ kind: 'cfg' }, S.cfg));
 async function flush(id) {
   const w = W(id);
   if (!S.col || !S.dirty.has(id)) return;
@@ -115,7 +317,7 @@ async function flush(id) {
   w.busy = true;
   const s = S.sessions[id];
   try {
-    if (s) await S.col.doc(id).set(docOf(s)); else await S.col.doc(id).delete();
+    if (id === 'cfg') await S.col.doc(id).set(cfgDoc()); else if (s) await S.col.doc(id).set(docOf(s)); else await S.col.doc(id).delete();
     if (!w.again) { S.dirty.delete(id); if (!s) S.gone.delete(id); }
     w.fail = 0; saveLocal(); setSync('cloud');
   } catch (e) {
@@ -123,14 +325,18 @@ async function flush(id) {
     if (w.fail < 4) schedule(id, 2500 * w.fail + Math.random() * 900);
   } finally { w.busy = false; if (w.again) { w.again = false; schedule(id, 300); } }
 }
-const sig = (s) => !s ? '' : s.ts + '|' + (s.end || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
+const sig = (s) => !s ? '' : s.ts + '|' + (s.end || 0) + '|' + (s.ft || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
 /* merge set by set: the row with the later timestamp wins, so two devices never wipe each other */
 function mergeSession(a, b) {
   if (!a) return [b, false];
   /* start and end follow whoever changed them last on purpose (finish, reopen, date edit); otherwise earliest start, latest end */
   const am = a.mt || 0, bm = b.mt || 0, meta = am > bm ? a : bm > am ? b : null;
   let newer = am > bm || (am === bm && (a.end || 0) > (b.end || 0));
-  const out = { id: a.id, v: 2, w: a.w, ts: meta ? meta.ts : Math.min(a.ts, b.ts || a.ts), end: meta ? meta.end || 0 : Math.max(a.end || 0, b.end || 0), mt: Math.max(am, bm), upd: Math.max(a.upd || 0, b.upd || 0), sets: {} };
+  const out = { id: a.id, v: Math.max(a.v || 1, b.v || 1), w: a.w, ts: meta ? meta.ts : Math.min(a.ts, b.ts || a.ts), end: meta ? meta.end || 0 : Math.max(a.end || 0, b.end || 0), mt: Math.max(am, bm), upd: Math.max(a.upd || 0, b.upd || 0), sets: {} };
+  /* the workout's plan (week, set counts, swaps, recovery and feedback answers) travels as one piece: the side that changed it last wins */
+  const af = a.ft || 0, bf = b.ft || 0, F = af >= bf ? a : b, G = F === a ? b : a;
+  for (const k of XK) { const v = F[k] != null ? F[k] : G[k]; if (v != null) out[k] = v; }
+  out.ft = Math.max(af, bf); if (af > bf) newer = true;
   for (const k of new Set(Object.keys(a.sets || {}).concat(Object.keys(b.sets || {})))) {
     const x = (a.sets || {})[k] || [], y = (b.sets || {})[k] || [], arr = [];
     for (let i = 0; i < Math.max(x.length, y.length); i++) {
@@ -159,8 +365,9 @@ async function initCloud(onChange) {
         const v = ch.doc.data();
         if (!v || typeof v.w !== 'number' || S.gone.has(id)) continue;
         seen.add(id);
-        const before = sig(S.sessions[id]);
-        const [m, newer] = mergeSession(S.sessions[id], { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, sets: JSON.parse(JSON.stringify(v.sets || {})) });
+        const before = sig(S.sessions[id]), r = { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, ft: v.ft || 0, sets: clone(v.sets || {}) };
+        for (const k of XK) if (v[k] != null) r[k] = clone(v[k]);
+        const [m, newer] = mergeSession(S.sessions[id], r);
         S.sessions[id] = m;
         if (sig(m) !== before) changed = true;
         if (newer) { S.dirty.add(id); schedule(id, 400); }
@@ -173,6 +380,12 @@ async function initCloud(onChange) {
       saveLocal(); setSync('cloud');
       if (changed) onChange();
     }, () => { clearTimeout(slow); setSync('local'); });
+    /* settings and the mesocycle live in one document: the copy that was changed last wins */
+    col.doc('cfg').onSnapshot((d) => {
+      const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0;
+      if (up > S.cfg.upd) { S.cfg = normCfg(v); S.dirty.delete('cfg'); saveLocal(); onChange(); }
+      else if (up < S.cfg.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }
+    }, () => {});
   } catch (e) { clearTimeout(slow); setSync('local'); }
 }
 window.addEventListener('online', () => { for (const id of S.dirty) schedule(id, 200); });

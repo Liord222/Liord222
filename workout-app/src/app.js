@@ -149,11 +149,34 @@ function bodyHTML(e) {
 function renderHistory() {
   const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }), s = live(S.tab);
   $('#wkAct').innerHTML = !s ? '' : '<button class="btn big" id="finishBtn" type="button">סיים אימון</button>' + (S.resetAsk ? '<span class="confirm"><span>למחוק את מה שנרשם באימון הזה?</span><button class="btn danger" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></span>' : '<button class="link" id="resetBtn" type="button">נקה את הרישום של האימון הזה</button>');
-  renderGains();
+  renderGains(); renderBackup();
   $('#history').innerHTML = '<h2 class="sec">אימונים אחרונים</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span class="h-t">' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span class="h-act">' + (S.delAsk === x.id ? '<button class="link" type="button" data-delyes="' + x.id + '">כן, למחוק</button><button class="link" type="button" data-delno="1">ביטול</button>' : '<button class="link" type="button" data-edit="' + x.id + '" aria-label="ערוך את האימון הזה">עריכה</button><button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</span><span class="h-s">' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + (x.dl ? ' · דילואד' : x.wk ? ' · שבוע ' + x.wk : '') + '</span></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">הצג עוד אימונים</button>' : '')
     : '<p class="empty-note">כאן יופיעו האימונים שסיימת. כל אימון אפשר יהיה לערוך או למחוק.</p>') +
     (S.dl && list.length ? '<button class="link" id="exportBtn" type="button">ייצוא כל הרישום לקובץ CSV</button>' : '');
   updateProgress();
+}
+/* one file with every workout and the settings: saved from here, or read back in */
+function renderBackup() {
+  $('#backup').innerHTML = '<h2 class="sec">גיבוי והעברה</h2><p class="empty-note">קובץ אחד עם כל האימונים וההגדרות. כך מעבירים את הרישום בין gymi שבתוך Claude לבין האפליקציה בטלפון, לשני הכיוונים.</p><div class="backup-act">' +
+    (S.dl ? '<button class="btn" id="backupBtn" type="button">שמירת גיבוי לקובץ</button>' : '') + '<button class="btn" id="restoreBtn" type="button">שחזור מקובץ גיבוי</button></div>' + (S.backupNote ? '<p class="backup-note" role="status">' + S.backupNote + '</p>' : '');
+}
+async function exportBackup() {
+  if (!S.dl) return;
+  try { await S.dl.save({ filename: 'gymi-backup-' + isoDay(new Date()) + '.json', data: backupData() }); S.backupNote = 'הגיבוי נשמר. כדי להעביר אותו, פותחים את gymi במקום השני ובוחרים "שחזור מקובץ גיבוי".'; }
+  catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') S.backupNote = 'לא הצלחתי לשמור את הקובץ.'; }
+  renderBackup();
+}
+function importBackup(file) {
+  if (!file) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    const r = restoreData(String(rd.result || ''));
+    S.backupNote = !r ? 'זה לא קובץ גיבוי של gymi.' : r.n || r.cfg ? (r.n ? (r.n === 1 ? 'אימון אחד נוסף או עודכן' : r.n + ' אימונים נוספו או עודכנו') : 'ההגדרות עודכנו') + ' מהגיבוי.' : 'הקובץ נקרא. לא היה בו שום דבר שעוד לא נמצא כאן.';
+    if (r) { sweep(); if (!S.touched) S.tab = nextUp().next; S.open = null; }
+    renderAll();
+  };
+  rd.onerror = () => { S.backupNote = 'לא הצלחתי לקרוא את הקובץ.'; renderBackup(); };
+  rd.readAsText(file);
 }
 /* progress: how the best set of each movement moved since the mesocycle began */
 function renderGains() {
@@ -632,8 +655,11 @@ function wireApp() {
     else if (ds.edit) { S.delAsk = null; openEditor(ds.edit); }
     else if (id === 'histMore') { S.histN = (S.histN || 6) + 10; renderHistory(); }
     else if (ds.sum) showMesoSummary(ds.sum, false);
+    else if (id === 'backupBtn') exportBackup();
+    else if (id === 'restoreBtn') $('#restoreFile').click();
   };
-  for (const box of ['#wkAct', '#history', '#gains']) $(box).addEventListener('click', logClick);
+  $('#restoreFile').addEventListener('change', (ev) => { const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; importBackup(f); });
+  for (const box of ['#wkAct', '#history', '#gains', '#backup']) $(box).addEventListener('click', logClick);
   $('#hero').addEventListener('click', (ev) => {
     if (ev.target.closest('.banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); updateProgress(); }
     else if (ev.target.closest('#mesoBtn')) openMeso();

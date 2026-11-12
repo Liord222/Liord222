@@ -29,9 +29,11 @@ const ERR = {
   empty_completion: 'לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.',
   prompt_too_large: 'השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.',
   upstream_error: 'התקשורת נקטעה. נסה לשלוח שוב.',
+  bad_key: 'המפתח לא התקבל אצל Anthropic. בדוק אותו בחיבור של אילון (סמל המפתח למעלה).',
+  offline: 'אין חיבור לאינטרנט כרגע.',
 };
 /* inside the phone app there is no Claude to answer yet */
-const NATIVE_OFF = 'אילון עוד לא מחובר באפליקציה. בינתיים הוא זמין בגרסה של gymi שבתוך Claude.';
+const NATIVE_OFF = 'כדי שאילון יענה באפליקציה צריך מפתח API של Anthropic. המפתח נשמר רק בטלפון הזה.';
 const HIDE = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'];
 const stripCmd = (t) => t.replace(/^[ \t]*@@.*$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
 function splitVerdict(text, final) {
@@ -64,7 +66,7 @@ function loggedHTML(m, idx) {
 const SUGS = ['המכשיר תפוס. מה אפשר לעשות במקום?', 'צילמתי מכשיר אחר. הוא מתאים כתחליף?', 'תן לי דגשי ביצוע לתרגיל הזה', 'כמה משקל כדאי לי לשים היום?'];
 function renderMsgs() {
   const box = $('#msgs');
-  if (chat.off) { box.innerHTML = '<div class="empty"><strong>הצ׳אט לא זמין כרגע</strong><span>' + esc(chat.off) + '</span></div>'; return; }
+  if (chat.off) { box.innerHTML = '<div class="empty"><strong>' + (chat.needKey ? 'חיבור אילון' : 'הצ׳אט לא זמין כרגע') + '</strong><span>' + esc(chat.off) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">חיבור עם מפתח API</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
     box.innerHTML = '<div class="empty"><strong>היי, אני אילון. מה צריך?</strong><span>צלם מכשיר או כתוב שם של תרגיל, ואגיד לך אם הוא מחליף טוב את מה שבתוכנית. אפשר גם לכתוב לי מה עשית, למשל "60 קילו, 8 8 7", ואני ארשום את הסטים.</span><div class="sugs">' +
       SUGS.map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>').join('') + '</div></div>';
@@ -151,7 +153,7 @@ async function sendChat(preset) {
   const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); inp.value = typed; if (img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
   let sample = null;
   try { sample = await chat.sampleP; } catch (e) { sample = null; }
-  if (!sample) { undo(); chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); setBusy(false); return; }
+  if (!sample) { undo(); chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); setBusy(false); return; }
   chat.ctl = new AbortController();
   try {
     const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { reply.text = u.text; paintLast(); } };
@@ -163,7 +165,9 @@ async function sendChat(preset) {
     renderMsgs();
   } catch (e) {
     const code = (e && e.code) || 'upstream_error', part = e && e.text && stripCmd(e.text);
-    if (HIDE.includes(code)) { undo(); chat.off = ERR[code] || 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); }
+    if (code === 'no_key') { undo(); window.gymiCoach(false); }
+    else if (code === 'api_error' && e.message) { undo(); compNote('Anthropic: ' + String(e.message).slice(0, 200)); }
+    else if (HIDE.includes(code)) { undo(); chat.off = ERR[code] || 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); }
     else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = code === 'cancelled' ? 'עצרת את התשובה.' : ERR[code] || ERR.upstream_error; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
     else { undo(); if (code !== 'cancelled') compNote(ERR[code] || ERR.upstream_error); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); } }
   } finally { chat.ctl = null; setBusy(false); }
@@ -177,10 +181,15 @@ function fillCtx() {
 }
 function initChat() {
   fillCtx();
+  $('#chatKey').hidden = !window.GYMI_NATIVE;
+  chat.needKey = !!window.GYMI_NATIVE && !window.GYMI_COACH;
+  /* in the phone app the coach answers only once the owner has saved an API key */
+  if (chat.needKey) { chat.sampleP = Promise.resolve(null); chat.off = NATIVE_OFF; renderMsgs(); return; }
+  chat.off = '';
   if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); return; }
   chat.sampleP = window.claude.use('sample');
   chat.sampleP.then(async (sample) => {
-    if (!sample) { chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); return; }
+    if (!sample) { chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); return; }
     try { const lim = await sample.limits(); chat.canImg = !!(lim && lim.images); } catch (e) { chat.canImg = false; }
     showImgBtns();
     if (!chat.canImg) $('#chatInput').placeholder = 'כתוב שם של מכשיר או תרגיל חלופי';
@@ -197,6 +206,9 @@ function closeChat() { $('#chat').classList.remove('open'); $('#app').classList.
 function wireChat() {
   $('#chatOpen').addEventListener('click', () => openChat(S.view === 'workout' ? S.open : null));
   $('#chatClose').addEventListener('click', closeChat);
+  $('#chatKey').addEventListener('click', () => { if (window.gymiNative) window.gymiNative.key(); });
+  /* the phone app calls this after a key was saved or removed */
+  window.gymiCoach = (on) => { window.GYMI_COACH = !!on; initChat(); };
   $('#chatNew').addEventListener('click', () => { if (chat.ctl) chat.ctl.abort(); chat.msgs = []; chat.turns = []; setAttach(null); compNote(''); renderMsgs(); });
   $('#sendBtn').addEventListener('click', () => sendChat());
   const inp = $('#chatInput');
@@ -205,6 +217,7 @@ function wireChat() {
   $('#msgs').addEventListener('click', (ev) => {
     const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS[+b.dataset.sug]); return; }
     const u = ev.target.closest('[data-unlog]'); if (u) undoLog(+u.dataset.unlog);
+    if (ev.target.closest('#coachKey') && window.gymiNative) window.gymiNative.key();
   });
   $('#camBtn').addEventListener('click', () => $('#camFile').click());
   $('#galBtn').addEventListener('click', () => $('#galFile').click());

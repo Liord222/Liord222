@@ -290,6 +290,11 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .g-d.dn{background:var(--warn-soft);color:var(--warn)}
 .empty-note{font-size:14px;color:var(--ink-2);padding:0 4px}
 .history>.link{justify-self:start}
+.backup{display:grid;gap:8px}
+.backup-act{display:flex;flex-wrap:wrap;gap:8px}
+.backup-act .btn{background:var(--surface);flex:1;min-width:150px}
+.backup-note{font-size:14px;font-weight:600;color:var(--accent-ink);background:var(--accent-soft);border-radius:14px;padding:10px 14px}
+.empty .btn{justify-self:start}
 .credit{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);text-align:center;padding-top:14px;direction:ltr}
 
 /* dock: log a set, then rest */

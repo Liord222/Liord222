@@ -11,7 +11,9 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.liord222.gymi",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "כדי לצלם מכשיר בחדר הכושר ולשאול את אילון עליו.",
+        "NSPhotoLibraryUsageDescription": "כדי לבחור תמונה של מכשיר ולשאול את אילון עליה."
       }
     },
     "android": {
@@ -21,13 +23,17 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-system-ui"
+      "expo-system-ui",
+      "expo-secure-store"
     ]
   }
 }

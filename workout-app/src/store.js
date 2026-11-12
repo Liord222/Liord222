@@ -347,6 +347,61 @@ function mergeSession(a, b) {
   }
   return [out, newer];
 }
+/* ---- backup: the whole log and the settings as one file, to carry between gymi inside Claude and the phone app ---- */
+function backupData() { return JSON.stringify({ app: 'gymi', v: 1, at: Date.now(), sessions: S.sessions, cfg: S.cfg }); }
+const numOr = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
+/* a workout read from a file is rebuilt field by field, so nothing but numbers and known keys gets in */
+function cleanSession(v, id) {
+  if (!v || typeof v !== 'object' || !PLAN[v.w] || !(numOr(v.ts, 0) > 0)) return null;
+  const slots = PLAN[v.w].ex.map((pe) => pe.id), s = { id, v: numOr(v.v, 1), w: v.w, ts: v.ts, end: numOr(v.end, 0), mt: numOr(v.mt, 0), upd: numOr(v.upd, v.ts), ft: numOr(v.ft, 0), sets: {} };
+  const each = (o, fn) => { const out = {}; if (o && typeof o === 'object') for (const k of Object.keys(o)) { const r = fn(k, o[k]); if (r !== undefined) out[k] = r; } return out; };
+  for (const k of slots) {
+    const rows = v.sets && v.sets[k]; if (!Array.isArray(rows)) continue;
+    s.sets[k] = rows.slice(0, MAX_SETS).map((r) => {
+      r = r || {};
+      const o = { kg: numOr(r.kg, 0) > 0 ? r.kg : null, reps: numOr(r.reps, 0) > 0 ? Math.round(r.reps) : null, done: false, t: numOr(r.t, v.ts) };
+      o.done = !!r.done && o.reps != null; if (r.pr && o.done) o.pr = true;
+      if (typeof r.tk === 'number') o.tk = r.tk; if (typeof r.tr === 'number') o.tr = r.tr;
+      return o;
+    });
+  }
+  if (typeof v.m === 'string' && /^m\d{1,4}$/.test(v.m)) {
+    s.m = v.m; s.wk = clamp(Math.round(numOr(v.wk, 1)), 1, 12); s.dl = v.dl ? 1 : 0; s.rir = typeof v.rir === 'number' ? clamp(Math.round(v.rir), 0, 4) : null;
+    s.n = each(v.n, (k, x) => (slots.includes(k) && numOr(x, 0) >= 1 ? clamp(Math.round(x), 1, MAX_SETS) : undefined));
+    s.mv = each(v.mv, (k, x) => (slots.includes(k) && typeof x === 'string' && LIB[x] ? x : undefined));
+    s.sore = each(v.sore, (k, x) => (MUSCLE[k] && [0, 1, 2].includes(x) ? x : undefined));
+    s.cut = each(v.cut, (k, x) => (slots.includes(k) && slots.includes(x) ? x : undefined));
+    const lvl = (x) => ([0, 1, 2].includes(x) ? x : null);
+    s.fb = each(v.fb, (k, x) => (slots.includes(k) && x && typeof x === 'object' ? { pain: lvl(x.pain), pump: lvl(x.pump), load: lvl(x.load) } : undefined));
+  }
+  return s;
+}
+function cleanCfg(v) {
+  const mid = (x) => typeof x === 'string' && /^m\d{1,4}$/.test(x), o = normCfg(v), slot = (k) => !!planEx(k), pick = (src, fn) => { const out = {}; for (const k of Object.keys(src)) { const r = fn(k, src[k]); if (r !== undefined) out[k] = r; } return out; };
+  o.inc = pick(o.inc, (k, x) => (EQUIP[k] && numOr(+x, 0) > 0 ? +x : undefined));
+  o.swap = pick(o.swap, (k, x) => (slot(k) && typeof x === 'string' && LIB[x] ? x : undefined));
+  o.notes = pick(o.notes, (k, x) => (LIB[k] && typeof x === 'string' && x.trim() ? x.slice(0, 200) : undefined));
+  o.base = pick(o.base, (k, x) => (slot(k) && x && numOr(x.n, 0) >= 1 ? { n: clamp(Math.round(x.n), 1, MAX_SETS), t: numOr(x.t, 0) } : undefined));
+  if (!mid(o.meso.id)) o.meso = cfgDef().meso;
+  o.past = o.past.filter((p) => p && mid(p.id)).map((p) => ({ id: p.id, n: numOr(p.n, 1), end: numOr(p.end, 0) }));
+  return o;
+}
+/* take a backup in: each workout is merged with the copy already here (the newer one wins), the settings follow the newer file */
+function restoreData(text) {
+  let d; try { d = JSON.parse(text); } catch (e) { return null; }
+  if (!d || d.app !== 'gymi' || !d.sessions || typeof d.sessions !== 'object') return null;
+  let n = 0, cfg = false;
+  for (const id of Object.keys(d.sessions).slice(0, 2000)) {
+    if (!/^[\w-]{1,40}$/.test(id)) continue;
+    const r = cleanSession(d.sessions[id], id); if (!r) continue;
+    const before = sig(S.sessions[id]), m = mergeSession(S.sessions[id], r)[0];
+    S.gone.delete(id); S.sessions[id] = m;
+    if (sig(m) !== before) { n++; S.dirty.add(id); schedule(id, 400); }
+  }
+  if (d.cfg && typeof d.cfg === 'object' && (+d.cfg.upd || 0) > S.cfg.upd) { S.cfg = cleanCfg(d.cfg); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
+  saveLocal();
+  return { n, cfg };
+}
 async function initCloud(onChange) {
   if (!window.claude || typeof window.claude.use !== 'function') { setSync('local'); return; }
   let slow = 0, first = true;

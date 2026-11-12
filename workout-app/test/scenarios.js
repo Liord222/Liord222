@@ -60,6 +60,27 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   const m2 = await p.evaluate(() => { const s = live(S.tab); return { cfg: S.cfg.meso.id, past: S.cfg.past.map((x) => x.id), m: s.m, wk: s.wk, rir: s.rir, dl: s.dl }; });
   check('starting it rolls the mesocycle over', m2.cfg === 'm2' && m2.past.join() === 'm1' && m2.m === 'm2' && m2.wk === 1 && m2.rir === 3 && m2.dl === 0, m2);
   await p.context().close();
+
+  // ---- 4. backup and restore: the whole log moves to an empty copy of the app through one file ----
+  p = await open(b, { sound: true, dirty: [], gone: [], sessions: ses, cfg: { upd: 9, weeks: 6, inc: { db: 2 }, swap: { ua5: 'inclineDb' }, notes: { hackSquat: 'מושב 4' }, base: { la5: { n: 4, t: 5 } }, meso: { id: 'm1', n: 1, start: 0, early: 0 }, past: [] } });
+  const file = JSON.parse(await p.evaluate(() => backupData()));
+  check('backup holds every workout and the settings', file.app === 'gymi' && Object.keys(file.sessions).length === Object.keys(ses).length && file.cfg.weeks === 6, Object.keys(file.sessions).length);
+  await p.context().close();
+  /* a file that was tampered with: text where numbers belong must not reach the page */
+  file.sessions.evil = { id: 'evil', v: 3, w: 1, ts: now - 9 * day, end: now - 9 * day + 1e6, m: 'm1', wk: 1, n: { la1: '<img src=x onerror=alert(1)>' }, mv: { la1: '<b>x</b>' }, sets: { la1: [{ kg: '<img src=x>', reps: '<img src=x onerror=alert(1)>', done: true }, { kg: 50, reps: 8, done: true, t: now - 9 * day }] } };
+  file.cfg.base.la1 = { n: '<img src=x onerror=alert(1)>', t: 1 };
+  p = await open(b, { sound: true, dirty: [], gone: [], sessions: {} }); txt = T(p);
+  check('a fresh copy starts empty', (await p.evaluate(() => Object.keys(S.sessions).length)) === 0 && (await txt('#backup')).includes('שחזור מקובץ גיבוי'), await txt('#backup'));
+  await p.click('#tabbar [data-view="progress"]'); await p.waitForTimeout(200);
+  await p.setInputFiles('#restoreFile', { name: 'gymi-backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) }); await p.waitForTimeout(500);
+  const got = await p.evaluate(() => ({ n: Object.keys(S.sessions).length, weeks: S.cfg.weeks, note: S.cfg.notes.hackSquat, swap: S.cfg.swap.ua5, base: S.cfg.base, evil: S.sessions.evil && S.sessions.evil.sets.la1.map((r) => [r.kg, r.reps, r.done]), evilN: S.sessions.evil && S.sessions.evil.n, evilMv: S.sessions.evil && S.sessions.evil.mv, img: document.querySelectorAll('img[src="x"]').length, fb: S.sessions.s01.fb.ua1 }));
+  check('restore brings back the workouts and the settings', got.n === Object.keys(ses).length + 1 && got.weeks === 6 && got.note === 'מושב 4' && got.swap === 'inclineDb' && got.fb.pump === 2 && (await txt('#backup')).includes('נוספו או עודכנו') && (await txt('#history')).includes('Lower B'), [got.n, got.weeks, await txt('#backup')]);
+  check('restore keeps only numbers and known names from the file', got.img === 0 && JSON.stringify(got.evil) === '[[null,null,false],[50,8,true]]' && JSON.stringify(got.evilN) === '{}' && JSON.stringify(got.evilMv) === '{}' && got.base.la1 === undefined && got.base.la5.n === 4, got);
+  await p.setInputFiles('#restoreFile', { name: 'gymi-backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) }); await p.waitForTimeout(400);
+  check('restoring the same file again changes nothing', (await txt('#backup')).includes('לא היה בו שום דבר') && (await p.evaluate(() => Object.keys(S.sessions).length)) === got.n, await txt('#backup'));
+  await p.setInputFiles('#restoreFile', { name: 'other.json', mimeType: 'application/json', buffer: Buffer.from('{"hello":1}') }); await p.waitForTimeout(300);
+  check('a file that is not a gymi backup is refused', (await txt('#backup')).includes('זה לא קובץ גיבוי'), await txt('#backup'));
+  await p.context().close();
   console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (errs.join(' | ') || 'none'));
   await b.close();
 })().catch((e) => { console.log('PASS ' + ok.length, 'FAIL', bad); console.log('CRASH', e.message.split('\n').slice(0, 5).join('\n')); process.exit(1); });

@@ -15,7 +15,7 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   const url = 'http://127.0.0.1:' + srv.address().port + '/';
   const b = await chromium.launch(), ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', acceptDownloads: true }), p = await ctx.newPage();
   p.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
-  p.on('console', (m) => { if (m.type() === 'error') errs.push('CONSOLE ' + m.text()); });
+  p.on('console', (m) => { if (m.type() === 'error' && !/status of 401/.test(m.text())) errs.push('CONSOLE ' + m.text()); });  // the 401 is this script's own test
   const inner = async () => { await p.waitForSelector('iframe[title="gymi"]'); const f = p.frames().find((x) => x !== p.mainFrame()); await f.waitForSelector('#homeGo', { state: 'attached' }); return f; };
   await p.goto(url); let f = await inner(); await p.waitForTimeout(500);
   const txt = (sel) => f.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
@@ -29,7 +29,31 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   check('a logged set is mirrored to the phone\'s storage', !!copy && copy.includes('"kg":60'), copy && copy.slice(0, 120));
   check('the back button returns from the workout to today', (await f.evaluate(() => [window.gymiBack(), S.view, window.gymiBack()].join())) === 'true,home,false', 'back');
   await f.click('#chatOpen'); await f.waitForTimeout(300);
-  check('the coach tab explains that it is not connected in the app', (await txt('#msgs')).includes('אילון עוד לא מחובר'), await txt('#msgs'));
+  // ---- the coach: a key saved in the shell, then a question answered by Claude (the API is answered by this script) ----
+  const sse = ['message_start', 'content_block_start', 'content_block_delta', 'content_block_delta', 'content_block_stop', 'message_delta', 'message_stop'];
+  const data = [{ type: 'message_start', message: { id: 'msg_1', type: 'message', role: 'assistant', model: 'claude-opus-5-5', content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 10, output_tokens: 1 } } }, { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } }, { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'פסיקה: מתאים\n' } }, { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'סקוואט בסמית׳ מחליף טוב את ההאק.' } }, { type: 'content_block_stop', index: 0 }, { type: 'message_delta', delta: { stop_reason: 'end_turn', stop_sequence: null }, usage: { output_tokens: 12 } }, { type: 'message_stop' }];
+  const calls = []; let status = 200;
+  const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, OPTIONS' };
+  await ctx.route('https://api.anthropic.com/**', (route) => {
+    const q = route.request();
+    if (q.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+    calls.push({ url: q.url(), headers: q.headers(), body: JSON.parse(q.postData() || '{}') });
+    if (status !== 200) return route.fulfill({ status, headers: Object.assign({ 'content-type': 'application/json' }, cors), body: JSON.stringify({ type: 'error', error: { type: 'authentication_error', message: 'invalid x-api-key' } }) });
+    return route.fulfill({ status: 200, headers: Object.assign({ 'content-type': 'text/event-stream' }, cors), body: sse.map((e, i) => 'event: ' + e + '\ndata: ' + JSON.stringify(data[i]) + '\n\n').join('') });
+  });
+  check('without a key the coach tab offers to connect', (await txt('#msgs')).includes('חיבור עם מפתח API') && !(await f.evaluate(() => window.GYMI_COACH)), await txt('#msgs'));
+  await f.click('#coachKey'); await p.waitForSelector('[data-testid="keyInput"]');
+  await p.fill('[data-testid="keyInput"]', 'sk-ant-test-000000000000000000000000'); await p.click('[data-testid="keySave"]'); await p.waitForTimeout(500);
+  check('saving a key connects the coach', (await f.evaluate(() => window.GYMI_COACH)) === true && (await txt('#msgs')).includes('היי, אני אילון') && (await p.evaluate(() => localStorage.getItem('gymi.anthropic.key'))) === 'sk-ant-test-000000000000000000000000', await txt('#msgs'));
+  await f.fill('#chatInput', 'ההאק תפוס, מה במקום?'); await f.click('#sendBtn'); await p.waitForTimeout(1500);
+  const c0 = calls[0] || { headers: {}, body: {} };
+  check('the question goes to Claude through the SDK with the saved key', calls.length === 1 && c0.url.includes('/v1/messages') && String(c0.headers.authorization || c0.headers['x-api-key']).includes('sk-ant-test-000000000000000000000000') && c0.body.model === 'claude-opus-5-5' && c0.body.stream === true && c0.body.fallbacks === 'default' && String(c0.headers['anthropic-beta']).includes('server-side-fallback') && String(c0.body.system).includes('אתה אילון') && c0.body.messages[0].role === 'user' && String(c0.body.messages[0].content).includes('ההאק תפוס'), [calls.length, c0.url, c0.body.model, c0.body.fallbacks, c0.headers['anthropic-beta'], c0.body.stream, String(c0.body.system).slice(0, 40), JSON.stringify(c0.body.messages).slice(0, 300)]);
+  check('the streamed answer is shown, with its verdict', (await txt('.verdict')) === 'מתאים' && (await txt('#msgs')).includes('סקוואט בסמית׳ מחליף טוב'), await txt('#msgs'));
+  status = 401; await f.fill('#chatInput', 'עוד שאלה'); await f.click('#sendBtn'); await p.waitForTimeout(1500);
+  check('a key that Anthropic rejects is explained', (await txt('#compNote')).includes('המפתח לא התקבל'), await txt('#compNote'));
+  status = 200;
+  await f.click('#chatKey'); await p.waitForSelector('[data-testid="keyRemove"]'); await p.click('[data-testid="keyRemove"]'); await p.waitForTimeout(500);
+  check('removing the key disconnects the coach', (await f.evaluate(() => window.GYMI_COACH)) === false && (await txt('#msgs')).includes('חיבור עם מפתח API') && (await p.evaluate(() => localStorage.getItem('gymi.anthropic.key'))) === null, await txt('#msgs'));
   // the web view's own storage is wiped: the phone's copy brings the log back
   await p.evaluate(() => localStorage.removeItem('ul4:v1')); await p.reload(); f = await inner(); await p.waitForTimeout(600);
   const back = await f.evaluate(() => { const s = Object.values(S.sessions)[0]; return s ? [Object.keys(S.sessions).length, s.sets.ua1[0].kg, s.sets.ua1[0].done, S.view].join() : 'none'; });

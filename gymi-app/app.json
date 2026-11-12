@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "gymi",
+    "slug": "gymi",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#F2F3F5",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.liord222.gymi",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.liord222.gymi",
+      "adaptiveIcon": {
+        "backgroundColor": "#2152E0",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-system-ui"
+    ]
+  }
+}

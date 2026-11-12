@@ -30,6 +30,8 @@ const ERR = {
   prompt_too_large: 'השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.',
   upstream_error: 'התקשורת נקטעה. נסה לשלוח שוב.',
 };
+/* inside the phone app there is no Claude to answer yet */
+const NATIVE_OFF = 'אילון עוד לא מחובר באפליקציה. בינתיים הוא זמין בגרסה של gymi שבתוך Claude.';
 const HIDE = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'];
 const stripCmd = (t) => t.replace(/^[ \t]*@@.*$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
 function splitVerdict(text, final) {
@@ -149,7 +151,7 @@ async function sendChat(preset) {
   const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); inp.value = typed; if (img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
   let sample = null;
   try { sample = await chat.sampleP; } catch (e) { sample = null; }
-  if (!sample) { undo(); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); setBusy(false); return; }
+  if (!sample) { undo(); chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); setBusy(false); return; }
   chat.ctl = new AbortController();
   try {
     const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { reply.text = u.text; paintLast(); } };
@@ -178,7 +180,7 @@ function initChat() {
   if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); return; }
   chat.sampleP = window.claude.use('sample');
   chat.sampleP.then(async (sample) => {
-    if (!sample) { chat.off = 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); return; }
+    if (!sample) { chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); return; }
     try { const lim = await sample.limits(); chat.canImg = !!(lim && lim.images); } catch (e) { chat.canImg = false; }
     showImgBtns();
     if (!chat.canImg) $('#chatInput').placeholder = 'כתוב שם של מכשיר או תרגיל חלופי';

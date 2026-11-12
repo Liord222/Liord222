@@ -655,6 +655,13 @@ function wireApp() {
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (rest.on) tickRest(); if (live(S.tab)) keepAwake(); });
+  /* the phone's back button, when gymi runs inside its native shell: close what is open, else go back to today */
+  window.gymiBack = () => {
+    if (!sheet.hidden) { closeSheet(); return true; }
+    if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }
+    if (S.view !== 'home') { renderHome(); setView('home'); return true; }
+    return false;
+  };
   setInterval(tickElapsed, 1000);
   setInterval(() => { if (sweep()) renderAll(); }, 60000);
 }

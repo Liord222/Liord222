@@ -1,0 +1,1375 @@
+<title>יומן Upper Lower</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Karantina:wght@400;700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a one-column training notebook. Four tabs pick the workout; every exercise row opens into a
+   blueprint stage (animated figure, working muscles in anatomical red) above its set log. The coach chat
+   docks beside the list on wide screens and becomes a full sheet on phones. */
+:root{
+  --paper:#EDF1F7; --surface:#FFFFFF; --surface-2:#F4F6FB; --ink:#13203A; --ink-2:#53627E; --ink-3:#8290AA; --line:#D5DDEA;
+  --accent:#1C4FD6; --on-accent:#FFFFFF; --accent-soft:#E2EAFF;
+  --muscle:#D92B45; --muscle-soft:#FCE4E8; --warn:#B5541A; --warn-soft:#FBE9DC;
+  --ok:#0F7F57; --ok-soft:#DAF2E8; --on-ok:#FFFFFF; --rest:#9A5B00; --rest-soft:#FFEFCF;
+  --rest-inv:#FFB648; --ok-inv:#4FD8A6;
+  --stage:#F8FAFE; --grid:#E3E9F4; --floor:#EAEFF7; --ground:#9AA8C0;
+  --fig:#2F3F5E; --fig-far:#A6B2C9; --equip:#C6CEDD; --equip-2:#8794AD; --pad:#56657F; --cable:#6F7D97;
+  --f-display:"Karantina","Arial Narrow","Arial Hebrew",sans-serif;
+  --f-body:"IBM Plex Sans Hebrew","Segoe UI","Arial Hebrew",Arial,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B1220; --surface:#131C2F; --surface-2:#18233A; --ink:#E8EEF9; --ink-2:#A6B4CE; --ink-3:#7686A3; --line:#26334E;
+    --accent:#8DAEFF; --on-accent:#0A1430; --accent-soft:#1B2A50;
+    --muscle:#FF5C70; --muscle-soft:#3A1620; --warn:#FF9A5C; --warn-soft:#38200F;
+    --ok:#46D19E; --ok-soft:#12362A; --on-ok:#06231A; --rest:#FFB648; --rest-soft:#38290B;
+    --rest-inv:#9A5B00; --ok-inv:#0F7F57;
+    --stage:#0F192C; --grid:#18243C; --floor:#131F36; --ground:#4A5B7C;
+    --fig:#CBD6EC; --fig-far:#56668A; --equip:#33425F; --equip-2:#5A6A8C; --pad:#8494B4; --cable:#8090AE;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B1220; --surface:#131C2F; --surface-2:#18233A; --ink:#E8EEF9; --ink-2:#A6B4CE; --ink-3:#7686A3; --line:#26334E;
+  --accent:#8DAEFF; --on-accent:#0A1430; --accent-soft:#1B2A50;
+  --muscle:#FF5C70; --muscle-soft:#3A1620; --warn:#FF9A5C; --warn-soft:#38200F;
+  --ok:#46D19E; --ok-soft:#12362A; --on-ok:#06231A; --rest:#FFB648; --rest-soft:#38290B;
+  --rest-inv:#9A5B00; --ok-inv:#0F7F57;
+  --stage:#0F192C; --grid:#18243C; --floor:#131F36; --ground:#4A5B7C;
+  --fig:#CBD6EC; --fig-far:#56668A; --equip:#33425F; --equip-2:#5A6A8C; --pad:#8494B4; --cable:#8090AE;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+bdi{unicode-bidi:isolate;white-space:nowrap}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.app{direction:rtl}
+.wrap{max-width:1180px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* brand row */
+.brand-row{display:flex;align-items:center;gap:12px;padding-block:14px 6px}
+.mark{width:40px;height:40px;border-radius:10px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;letter-spacing:.02em;flex:none}
+.brand-t{flex:1;min-width:0;display:grid}
+.brand-t strong{font-size:16px;font-weight:700;line-height:1.2}
+.brand-t span{font-size:12px;color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:14.5px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.big{min-height:54px;font-size:17px;width:100%}
+.btn:disabled{opacity:.45;cursor:default}
+.link{background:none;border:0;padding:6px 2px;color:var(--ink-2);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.chat-open{flex:none;color:var(--accent)}
+
+/* tabs */
+.tabs-band{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1px solid var(--line)}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding-block:10px 8px}
+.tab{position:relative;display:flex;flex-direction:column;align-items:flex-start;padding:7px 9px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:start;min-width:0}
+.tab small{font-size:11px;color:var(--ink-3);font-weight:600;line-height:1.3}
+.tab b{font-family:var(--f-display);font-weight:700;font-size:25px;line-height:.95;direction:ltr;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.tab[aria-selected="true"] small{color:color-mix(in srgb,var(--paper) 68%,transparent)}
+.flag{position:absolute;top:-8px;inset-inline-end:6px;font-size:10px;font-weight:700;line-height:1.5;padding:0 6px;border-radius:99px;background:var(--accent);color:var(--on-accent);white-space:nowrap}
+.flag.live{background:var(--ok);color:var(--on-ok)}
+
+/* columns */
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start;padding-bottom:132px}
+.main{min-width:0;display:grid;gap:14px}
+
+.banner{background:var(--ok-soft);color:var(--ink);border:1px solid color-mix(in srgb,var(--ok) 35%,transparent);border-radius:var(--r);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;margin-top:14px}
+.banner b{color:var(--ok)}
+.banner p{flex:1;min-width:0}
+.banner button{background:none;border:0;color:var(--ink-2);padding:2px}
+
+.wk-head{padding-top:18px;display:grid;gap:8px}
+.wk-kicker{font-size:12.5px;font-weight:700;color:var(--accent);letter-spacing:.03em}
+.wk-head h1{font-family:var(--f-display);font-weight:700;font-size:clamp(56px,15vw,84px);line-height:.8;direction:ltr;text-align:right;text-wrap:balance;padding-top:4px}
+.wk-meta{color:var(--ink-2);font-size:14px}
+.wk-prog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wk-prog .bar{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.wk-prog .bar i{display:block;height:100%;width:0;background:var(--ok);border-radius:99px;transition:width .3s}
+
+/* exercise list */
+.ex-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 84px)}
+.ex.open{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.ex-head{display:grid;grid-template-columns:20px 64px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;padding:10px 12px;background:none;border:0;text-align:start}
+.ex-n{font-family:var(--f-display);font-size:28px;font-weight:700;color:var(--ink-3);line-height:1;text-align:center}
+.ex.done .ex-n{color:var(--ok)}
+.ex-thumb{width:64px;height:46px;border-radius:8px;background:var(--stage);border:1px solid var(--line);display:block}
+.ex-title{min-width:0;display:grid}
+.ex-name{font-weight:600;font-size:15.5px;line-height:1.25;direction:ltr;text-align:right;unicode-bidi:isolate}
+.ex-sub{font-size:12.5px;color:var(--ink-2);line-height:1.35}
+.ex-side{display:grid;justify-items:end;gap:6px}
+.ex-rx{font-family:var(--f-display);font-size:26px;font-weight:700;line-height:.9;white-space:nowrap}
+.dots{display:flex;gap:4px;direction:ltr}
+.dots i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink-3)}
+.dots i.on{background:var(--ok);border-color:var(--ok)}
+
+.ex-body{border-top:1px solid var(--line);padding:12px;display:grid;gap:14px}
+.ex-a,.ex-b{display:contents}
+.stage-wrap{order:1;position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--stage)}
+.stage{display:block;width:100%;max-width:100%;aspect-ratio:360/260}
+.stage-tag,.stage-phase{position:absolute;inset-inline-start:8px;font-size:11.5px;font-weight:600;line-height:1.6;padding:0 8px;border-radius:99px;border:1px solid var(--line);background:color-mix(in srgb,var(--surface) 86%,transparent);color:var(--ink-2)}
+.stage-tag{top:8px}
+.stage-phase{bottom:8px}
+.stage-phase.hot{color:var(--muscle);border-color:color-mix(in srgb,var(--muscle) 40%,transparent)}
+.stage-play{position:absolute;top:6px;inset-inline-end:6px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--surface) 90%,transparent);display:grid;place-items:center;color:var(--ink-2)}
+.rx-row{order:2;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:flex-end}
+.rx-k{display:block;font-size:11px;color:var(--ink-3);font-weight:700;letter-spacing:.03em}
+.rx-v{font-family:var(--f-display);font-size:34px;font-weight:700;line-height:.9;display:block;padding-top:3px}
+.rx-v small{font-family:var(--f-body);font-size:13px;font-weight:600;color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;line-height:1.3;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2);margin-top:4px}
+.chip.l1{color:var(--rest);background:var(--rest-soft);border-color:transparent}
+.chip.l2{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.chip.l3{color:var(--muscle);background:var(--muscle-soft);border-color:transparent}
+.how{order:3;display:grid;gap:8px}
+.muscles{font-size:13.5px;font-weight:600;display:flex;gap:8px;align-items:baseline}
+.muscles i{width:10px;height:10px;border-radius:50%;background:var(--muscle);flex:none;transform:translateY(1px)}
+.cues{list-style:none;margin:0;padding:0;display:grid;gap:5px;color:var(--ink-2);font-size:14px}
+.cues li{padding-inline-start:16px;position:relative}
+.cues li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:7px;height:2px;background:var(--ink-3);border-radius:2px}
+.sets{order:4;display:grid;gap:6px}
+.set{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1fr) 50px;gap:8px;align-items:center}
+.set-n{font-size:12.5px;font-weight:700;color:var(--ink-2);line-height:1.2}
+.set-n em{display:block;font-style:normal;font-size:10.5px;color:var(--muscle)}
+.field{position:relative;min-width:0}
+.field input{width:100%;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);padding:0 30px 0 6px;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;direction:ltr;text-align:center}
+.field input::placeholder{color:var(--ink-3);font-weight:500;font-size:16px}
+.field span{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ink-3);pointer-events:none}
+.set-done{width:50px;height:46px;border-radius:10px;border:1.5px solid var(--ink-3);background:var(--surface);display:grid;place-items:center;color:var(--ink-3)}
+.set.done .set-done{background:var(--ok);border-color:var(--ok);color:var(--on-ok)}
+.set.done .field input{background:var(--ok-soft);border-color:transparent}
+.last{order:5;font-size:13px;color:var(--ink-2);display:grid;gap:4px}
+.last .up{color:var(--ok);font-weight:600}
+.ask{order:6;width:100%;border-style:dashed;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:transparent}
+
+.wk-foot{display:grid;gap:8px;justify-items:center;padding-top:6px}
+.foot-note{font-size:13px;color:var(--ink-2);text-align:center}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;font-size:13px}
+.history{display:grid;gap:8px;padding-top:10px}
+.history h2{font-family:var(--f-display);font-size:30px;line-height:1}
+.history ul{list-style:none;margin:0;padding:0;display:grid}
+.history li{display:flex;gap:10px;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px;font-variant-numeric:tabular-nums}
+.history li span:last-child{color:var(--ink-2);text-align:end}
+.history p{font-size:13.5px;color:var(--ink-2)}
+
+/* chat */
+.chat{flex-direction:column;background:var(--surface);min-height:0}
+.chat-h{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--line)}
+.chat-h div{flex:1;min-width:0}
+.chat-h h2{font-family:var(--f-display);font-size:30px;line-height:.95}
+.chat-h p{font-size:12.5px;color:var(--ink-2)}
+.icon-btn{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--ink-2)}
+.icon-btn.send{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.chat-ctx{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.chat-ctx select{flex:1;min-width:0;height:38px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);padding:0 8px;font-size:14px}
+.msgs{flex:1;min-height:0;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain}
+.empty{margin:auto 0;display:grid;gap:12px;color:var(--ink-2);font-size:14px}
+.empty strong{color:var(--ink);font-size:15px}
+.sugs{display:flex;flex-wrap:wrap;gap:6px}
+.sug{border:1px solid var(--line);background:var(--surface-2);border-radius:99px;padding:7px 12px;font-size:13.5px;text-align:start;line-height:1.3}
+.msg{max-width:90%;padding:9px 12px;border-radius:14px;font-size:14.5px;line-height:1.55;overflow-wrap:anywhere}
+.msg.u{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-end-end-radius:4px}
+.msg.a{align-self:flex-start;background:var(--surface-2);border:1px solid var(--line);border-end-start-radius:4px}
+.msg.sys{align-self:center;max-width:100%;font-size:13px;color:var(--ink-2);background:none;text-align:center;padding:2px 8px}
+.msg img{display:block;max-width:170px;max-height:170px;border-radius:8px;margin-bottom:6px}
+.msg p{margin:0 0 6px}.msg p:last-child{margin-bottom:0}
+.msg ul{margin:0 0 6px;padding-inline-start:18px}
+.msg .note{display:block;font-size:12px;color:var(--ink-3);margin-top:6px}
+.msg .think{color:var(--ink-3)}
+.verdict{display:inline-block;font-weight:700;font-size:13px;padding:1px 10px;border-radius:99px;margin-bottom:6px}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)}
+.verdict.mid{background:var(--rest-soft);color:var(--rest)}
+.verdict.no{background:var(--muscle-soft);color:var(--muscle)}
+.composer{border-top:1px solid var(--line);padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.attach{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2)}
+.attach img{width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.attach span{flex:1}
+.attach button{background:none;border:0;color:var(--ink-2);padding:6px}
+.comp-note{font-size:12.5px;color:var(--warn)}
+.comp-row{display:flex;gap:6px;align-items:flex-end;min-width:0}
+.comp-row textarea{flex:1;min-width:0;width:0;height:44px;max-height:120px;resize:none;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);padding:10px 12px;font-size:16px;line-height:1.4}
+.fab{position:fixed;z-index:35;bottom:calc(16px + env(safe-area-inset-bottom,0px));right:max(16px,env(safe-area-inset-right,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;box-shadow:0 6px 20px rgb(0 0 0 / .24)}
+.fab svg.i{width:24px;height:24px}
+.has-rest .fab{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+
+@media (max-width:999.98px){
+  .chat{position:fixed;inset:0;z-index:60;display:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+  .chat.open{display:flex}
+}
+@media (min-width:1000px){
+  .cols{grid-template-columns:minmax(0,1fr) 384px;padding-bottom:110px}
+  .chat{display:flex;position:sticky;top:calc(env(safe-area-inset-top,0px) + 92px);height:calc(100vh - 172px);min-height:420px;margin-top:18px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .fab,.chat-close,.chat-open{display:none}
+}
+@media (min-width:700px){
+  .ex-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+  .ex-a,.ex-b{display:grid;gap:14px;min-width:0}
+}
+
+/* rest timer */
+.rest{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--ink);color:var(--paper);padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.rest-in{max-width:720px;margin-inline:auto;display:flex;align-items:center;gap:12px}
+.rest-time{font-family:var(--f-display);font-size:52px;font-weight:700;line-height:.85;font-variant-numeric:tabular-nums;direction:ltr;min-width:84px;text-align:center}
+.rest-mid{flex:1;min-width:0;display:grid;gap:6px}
+.rest-label{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rest-label b{color:var(--rest-inv)}
+.rest.ready .rest-label b,.rest.go .rest-label b{color:var(--ok-inv)}
+.rest-track{height:5px;border-radius:99px;background:color-mix(in srgb,var(--paper) 22%,transparent);position:relative;overflow:hidden;direction:ltr}
+.rest-track i{position:absolute;inset:0 auto 0 0;width:0;background:var(--rest-inv);border-radius:99px}
+.rest.ready .rest-track i,.rest.go .rest-track i{background:var(--ok-inv)}
+.rest-btns{display:flex;gap:6px}
+.rest-btns button{min-width:44px;height:44px;border-radius:11px;border:1px solid color-mix(in srgb,var(--paper) 30%,transparent);background:transparent;color:var(--paper);font-weight:700;font-size:13.5px;padding:0 9px;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+@media (max-width:420px){.rest-btns .opt{display:none}.rest-time{font-size:46px;min-width:74px}}
+@media (min-width:1000px){.rest{left:auto;right:max(16px,calc((100vw - 1180px)/2 + 16px));bottom:16px;width:min(560px,calc(100vw - 448px));border-radius:16px;padding:12px 16px}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="app" id="app" dir="rtl" lang="he">
+  <div class="wrap brand-row">
+    <span class="mark" aria-hidden="true">UL</span>
+    <div class="brand-t"><strong>יומן Upper / Lower</strong><span id="syncNote">4 אימונים במחזור, לפי הסדר</span></div>
+    <button class="btn chat-open" id="chatOpen" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M5 6h14v10h-8l-4 3v-3H5z"/></svg>שאל את Claude</button>
+  </div>
+  <div class="tabs-band"><nav class="wrap tabs" id="tabs" role="tablist" aria-label="בחירת אימון"></nav></div>
+
+  <div class="wrap cols">
+    <main class="main">
+      <div class="banner" id="banner" hidden></div>
+      <section class="wk-head" id="wkHead"></section>
+      <ol class="ex-list" id="exList"></ol>
+      <section class="wk-foot" id="wkFoot"></section>
+      <section class="history" id="history"></section>
+    </main>
+
+    <aside class="chat" id="chat" aria-label="צ׳אט עם Claude">
+      <div class="chat-h">
+        <div><h2>שאל את Claude</h2><p>חלופות לתרגילים, גם לפי צילום של המכשיר</p></div>
+        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה"><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
+        <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <label class="chat-ctx" for="chatCtx"><span>לגבי</span><select id="chatCtx"></select></label>
+      <div class="msgs" id="msgs"></div>
+      <div class="composer">
+        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>התמונה תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <p class="comp-note" id="compNote" hidden></p>
+        <div class="comp-row">
+          <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg></button>
+          <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M5 17l5-5 4 4 2-2 3 3"/></svg></button>
+          <textarea id="chatInput" rows="1" placeholder="למשל: המכשיר תפוס, מה אפשר במקום?" enterkeyhint="send" aria-label="הודעה ל-Claude"></textarea>
+          <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+        </div>
+        <input type="file" id="camFile" accept="image/*" capture="environment" hidden>
+        <input type="file" id="galFile" accept="image/*" hidden>
+      </div>
+    </aside>
+  </div>
+
+  <button class="fab" id="fab" type="button" aria-label="שאל את Claude" title="שאל את Claude"><svg class="i" viewBox="0 0 24 24"><path d="M5 6h14v10h-8l-4 3v-3H5z"/></svg></button>
+
+  <div class="rest" id="rest" hidden>
+    <div class="rest-in">
+      <div class="rest-time" id="restTime" aria-live="off">0:00</div>
+      <div class="rest-mid"><div class="rest-label" id="restLabel"></div><div class="rest-track"><i id="restFill"></i></div></div>
+      <div class="rest-btns">
+        <button type="button" id="restMinus" class="opt" aria-label="הפחת 15 שניות">−15</button>
+        <button type="button" id="restPlus" aria-label="הוסף 15 שניות">+15</button>
+        <button type="button" id="restSound" class="opt" aria-label="צליל"></button>
+        <button type="button" id="restSkip">דלג</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ================================================================== plan */
+const E = (id, a, name, sets, reps, rest, int, lvl, suf) => ({ id, a, name, sets, reps, rest, int, lvl, suf: suf || '' });
+const PLAN = [
+  { name: 'Upper A', he: 'פלג גוף עליון', ex: [
+    E('ua1', 'inclineSmith', 'Incline Smith Machine Press', 3, '6–10', [120, 180], '1 חזרה לפני כשל', 2),
+    E('ua2', 'assistedPullup', 'Assisted Pull-ups', 3, '6–10', [120, 120], '1 חזרה לפני כשל', 2),
+    E('ua3', 'chestRow', 'Chest Supported Row', 3, '8–12', [120, 120], '1 חזרה לפני כשל', 2),
+    E('ua4', 'latRaise', 'Chest Supported Lateral Raises', 3, '12–15', [75, 75], 'סט אחרון לכשל טכני', 3),
+    E('ua5', 'machinePress', 'Machine Chest Press', 2, '8–12', [90, 90], 'סט אחרון לכשל טכני', 3),
+    E('ua6', 'pushdown', 'Triceps Pushdown', 2, '10–15', [60, 60], 'סט אחרון לכשל טכני', 3),
+    E('ua7', 'dbCurl', 'Dumbbell Curl', 2, '10–15', [60, 60], 'סט אחרון לכשל טכני', 3),
+    E('ua8', 'cableCrunch', 'Cable Crunch', 3, '10–15', [60, 60], 'חזרות קשות ומבוקרות', 0),
+  ] },
+  { name: 'Lower A', he: 'פלג גוף תחתון', ex: [
+    E('la1', 'hackSquat', 'Hack Squat', 3, '6–10', [120, 180], '1–2 חזרות לפני כשל', 1),
+    E('la2', 'rdl', 'Romanian Deadlift', 3, '8–10', [120, 180], '1–2 חזרות לפני כשל', 1),
+    E('la3', 'legPress', 'Leg Press', 3, '10–15', [120, 120], '1 חזרה לפני כשל', 2),
+    E('la4', 'seatedLegCurl', 'Seated Leg Curl', 3, '10–15', [75, 75], 'סט אחרון לכשל טכני', 3),
+    E('la5', 'standingCalf', 'Standing Calf Raises', 3, '12–18', [60, 60], 'סט אחרון לכשל טכני', 3),
+    E('la6', 'pallof', 'Pallof Press', 2, '12', [60, 60], 'שליטה מלאה', 0, 'לצד'),
+  ] },
+  { name: 'Upper B', he: 'פלג גוף עליון', ex: [
+    E('ub1', 'assistedPullup', 'Assisted Pull-ups', 3, '6–10', [120, 120], '1 חזרה לפני כשל', 2),
+    E('ub2', 'inclineSmith', 'Incline Smith Machine Press', 3, '8–12', [120, 120], '1 חזרה לפני כשל', 2),
+    E('ub3', 'cableRow', 'Seated Cable Row', 3, '8–12', [90, 90], '1 חזרה לפני כשל', 2),
+    E('ub4', 'latRaise', 'Chest Supported Lateral Raises', 3, '12–20', [75, 75], 'סט אחרון לכשל טכני', 3),
+    E('ub5', 'shoulderPress', 'Machine Shoulder Press', 2, '8–12', [90, 90], '1 חזרה לפני כשל', 2),
+    E('ub6', 'reversePec', 'Reverse Pec Deck', 2, '12–20', [60, 60], 'סט אחרון לכשל טכני', 3),
+    E('ub7', 'hammerCurl', 'Hammer Curl', 2, '10–15', [60, 60], 'סט אחרון לכשל טכני', 3),
+    E('ub8', 'ohTriceps', 'Overhead Triceps Extension', 2, '10–15', [60, 60], 'סט אחרון לכשל טכני', 3),
+    E('ub9', 'kneeRaise', 'Hanging Knee Raises', 3, '8–15', [60, 60], 'חזרות נקיות', 0),
+  ] },
+  { name: 'Lower B', he: 'פלג גוף תחתון', ex: [
+    E('lb1', 'hackSquat', 'Hack Squat / Smith Squat', 3, '8–12', [120, 180], '1–2 חזרות לפני כשל', 1),
+    E('lb2', 'bulgarian', 'Bulgarian Split Squat', 2, '8–10', [120, 120], '1–2 חזרות לפני כשל', 1, 'לרגל'),
+    E('lb3', 'hipThrust', 'Hip Thrust', 3, '8–12', [120, 120], '1 חזרה לפני כשל', 2),
+    E('lb4', 'lyingLegCurl', 'Lying Leg Curl', 3, '10–15', [75, 75], 'סט אחרון לכשל טכני', 3),
+    E('lb5', 'legExt', 'Leg Extension', 2, '12–15', [75, 75], 'סט אחרון לכשל טכני', 3),
+    E('lb6', 'seatedCalf', 'Seated Calf Raises', 3, '12–20', [60, 60], 'סט אחרון לכשל טכני', 3),
+    E('lb7', 'cableCrunch', 'Cable Crunch', 3, '10–15', [60, 60], 'חזרות קשות ומבוקרות', 0),
+  ] },
+];
+
+/* Hebrew name, working muscles and three form cues per movement */
+const LIB = {
+  inclineSmith: { he: 'לחיצת חזה בשיפוע עליון בסמית׳', m: 'חזה עליון · כתף קדמית · טרייספס', c: ['ספסל בשיפוע 30–45°, שכמות אסופות לאחור ולמטה', 'הורד את המוט לחזה העליון בשליטה', 'דחוף למעלה בלי לנעול מרפקים בכוח'] },
+  assistedPullup: { he: 'מתח בסיוע (גרביטון)', m: 'רחב גבי · ביספס · גב עליון', c: ['אחיזה מעט רחבה מהכתפיים', 'התחל מהשכמות ומשוך מרפקים למטה לכיוון הצלעות', 'ירידה איטית עד יישור כמעט מלא'] },
+  chestRow: { he: 'חתירה בתמיכת חזה', m: 'רחב גבי · אמצע הגב · ביספס', c: ['החזה צמוד לכרית לאורך כל החזרה', 'משוך מרפקים לאחור לכיוון הירכיים', 'עצור שנייה בכיווץ וחזור עד מתיחה מלאה'] },
+  latRaise: { he: 'הרחקות לצדדים בתמיכת חזה', m: 'כתף אמצעית', c: ['חזה על ספסל משופע, בלי תנופה מהגוף', 'הרם לצדדים עד גובה הכתפיים, מרפק מעט כפוף', 'הובל עם המרפקים והורד לאט'] },
+  machinePress: { he: 'לחיצת חזה במכונה', m: 'חזה · טרייספס · כתף קדמית', c: ['כוונן מושב כך שהידיות בגובה אמצע החזה', 'שכמות צמודות למשענת', 'דחוף קדימה וחזור לאט עד מתיחה בחזה'] },
+  pushdown: { he: 'פשיטת מרפקים בפולי עליון', m: 'טרייספס', c: ['מרפקים צמודים לגוף ולא זזים', 'יישר עד הסוף וכווץ', 'עלה בשליטה עד שהאמות מעט מעל קו המרפק'] },
+  dbCurl: { he: 'כפיפת מרפקים עם משקולות יד', m: 'ביספס', c: ['מרפקים צמודים לצד הגוף', 'כף היד פונה למעלה, עלה בלי תנופה מהגב', 'הורד לאט עד יישור מלא'] },
+  cableCrunch: { he: 'כפיפות בטן בכבל', m: 'בטן ישרה', c: ['על הברכיים, החבל צמוד לצידי הראש', 'עגל את הגב וקרב צלעות לאגן, הירכיים נשארות במקום', 'חזור לאט עד מתיחה בבטן'] },
+  hackSquat: { he: 'האק סקוואט', m: 'ארבע ראשי · ישבן', c: ['גב ואגן צמודים לכרית, כפות רגליים ברוחב כתפיים', 'רד בשליטה עד עומק נוח, ברכיים בכיוון האצבעות', 'דחוף דרך כל כף הרגל'] },
+  rdl: { he: 'דדליפט רומני', m: 'ירך אחורית · ישבן · זוקפי גב', c: ['ברכיים מעט כפופות, שלח את האגן לאחור', 'המוט צמוד לרגליים והגב ישר', 'רד עד מתיחה בירך האחורית ועלה בדחיפת אגן קדימה'] },
+  legPress: { he: 'לחיצת רגליים', m: 'ארבע ראשי · ישבן', c: ['גב תחתון ואגן צמודים למושב', 'רד עמוק בלי שהאגן מתרומם מהכרית', 'דחוף בלי לנעול ברכיים'] },
+  seatedLegCurl: { he: 'כפיפת ברכיים בישיבה', m: 'ירך אחורית', c: ['ציר המכונה מול הברך, כרית הירך נעולה', 'כופף עד הסוף וכווץ', 'חזור לאט עד יישור כמעט מלא'] },
+  standingCalf: { he: 'הרמות עקבים בעמידה', m: 'תאומים (שוק)', c: ['כריות כף הרגל על קצה המדרגה', 'רד למתיחה מלאה ועצור רגע', 'עלה גבוה על הבהונות, ברכיים כמעט ישרות'] },
+  pallof: { he: 'פאלוף פרס (נגד סיבוב)', m: 'ליבה · אלכסונים', c: ['עמוד בניצב לכבל, ידיים מול עצם החזה', 'דחוף ישר קדימה והתנגד למשיכה לצד', 'אגן וכתפיים נשארים פונים קדימה, נשימה רגועה'] },
+  cableRow: { he: 'חתירה בכבל בישיבה', m: 'רחב גבי · אמצע הגב · ביספס', c: ['גב זקוף וחזה פתוח', 'משוך את הידית לבטן, מרפקים קרוב לגוף', 'שחרר קדימה בשליטה בלי לעגל גב תחתון'] },
+  shoulderPress: { he: 'לחיצת כתפיים במכונה', m: 'כתפיים · טרייספס', c: ['גב צמוד למשענת, ידיות בגובה הכתפיים', 'דחוף למעלה בלי לקשת גב תחתון', 'הורד לאט עד גובה האוזניים'] },
+  reversePec: { he: 'פרפר הפוך', m: 'כתף אחורית · אמצע הגב', c: ['חזה צמוד לכרית, ידיים בגובה הכתפיים', 'פתח לצדדים בקשת רחבה, מרפק מעט כפוף', 'בלי להרים כתפיים לאוזניים, חזרה איטית'] },
+  hammerCurl: { he: 'כפיפת פטישים', m: 'ברכיאליס · ביספס · אמה', c: ['כף היד פונה פנימה לאורך כל הדרך', 'מרפקים צמודים לגוף', 'עלה עד גובה הכתף והורד לאט'] },
+  ohTriceps: { he: 'פשיטת מרפקים מעל הראש', m: 'טרייספס (ראש ארוך)', c: ['מרפקים פונים קדימה וקרובים לראש', 'הורד מאחורי הראש עד מתיחה מלאה', 'יישר למעלה, הזרוע העליונה לא זזה'] },
+  kneeRaise: { he: 'הרמות ברכיים בתלייה', m: 'בטן תחתונה · כופפי ירך', c: ['תלייה יציבה, בלי נדנוד', 'הרם ברכיים לחזה וגלגל את האגן למעלה', 'הורד לאט, אל תיתן לרגליים ליפול'] },
+  bulgarian: { he: 'סקוואט בולגרי', m: 'ארבע ראשי · ישבן', c: ['רגל אחורית על ספסל, רוב המשקל על הרגל הקדמית', 'רד ישר למטה, ברך קדמית בכיוון האצבעות', 'דחוף דרך העקב הקדמי'] },
+  hipThrust: { he: 'היפ ת׳ראסט', m: 'ישבן · ירך אחורית', c: ['שכמות על ספסל, כפות רגליים ברוחב אגן', 'דחוף אגן למעלה עד קו ישר מכתף לברך', 'סנטר לחזה ועצירה קצרה למעלה'] },
+  lyingLegCurl: { he: 'כפיפת ברכיים בשכיבה', m: 'ירך אחורית', c: ['אגן צמוד לספסל, הכרית מעל העקב', 'כופף לכיוון הישבן בלי להרים אגן', 'חזרה איטית עד יישור'] },
+  legExt: { he: 'פשיטת ברכיים', m: 'ארבע ראשי', c: ['ציר המכונה מול הברך, גב צמוד למשענת', 'יישר עד הסוף וכווץ לשנייה', 'הורד לאט'] },
+  seatedCalf: { he: 'הרמות עקבים בישיבה', m: 'סוליאוס (שוק)', c: ['כרית מעל הברכיים, כריות כף הרגל על המדרגה', 'רד למתיחה מלאה', 'עלה גבוה ועצור רגע למעלה'] },
+};
+
+/* ================================================================== animation rig */
+const SW = 360, SH = 260, G = 236;
+const LEN = { t1: 26, t2: 31, neck: 7, head: 10.5, ua: 30, fa: 28, th: 46, sh: 44, foot: 16 };
+const RAD = Math.PI / 180, TAU = Math.PI * 2;
+const dir = (a) => [Math.cos(a * RAD), -Math.sin(a * RAD)];
+const add = (p, v, k) => { const m = k === undefined ? 1 : k; return [p[0] + v[0] * m, p[1] + v[1] * m]; };
+const angOf = (p, q) => Math.atan2(-(q[1] - p[1]), q[0] - p[0]) / RAD;
+const lerp = (a, b, t) => a + (b - a) * t;
+const lerp2 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t)];
+const unit = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1; return [dx / d, dy / d]; };
+const nrm = (a, b) => { const u = unit(a, b); return [-u[1], u[0]]; };
+
+/* two-bone limb: {a:[deg,deg]} forward kinematics, or {to:[x,y],bend:±1} inverse kinematics */
+function limb(root, spec, l1, l2) {
+  const s = spec.s || [1, 1];
+  l1 *= s[0]; l2 *= s[1];
+  if (spec.to) {
+    const dx = spec.to[0] - root[0], dy = spec.to[1] - root[1];
+    const d = Math.max(Math.abs(l1 - l2) + 0.5, Math.min(l1 + l2 - 0.4, Math.hypot(dx, dy)));
+    const base = Math.atan2(-dy, dx);
+    const A = Math.acos(Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d))));
+    const a1 = (base + (spec.bend || 1) * A) / RAD;
+    const b = add(root, dir(a1), l1);
+    const c = [root[0] + Math.cos(base) * d, root[1] - Math.sin(base) * d];
+    return { a: root, b, c, a1, a2: angOf(b, c) };
+  }
+  const b = add(root, dir(spec.a[0]), l1);
+  return { a: root, b, c: add(b, dir(spec.a[1]), l2), a1: spec.a[0], a2: spec.a[1] };
+}
+function mirrorSpec(s, cx) {
+  const o = s.to ? { to: [2 * cx - s.to[0], s.to[1]], bend: -(s.bend || 1) } : { a: [180 - s.a[0], 180 - s.a[1]] };
+  if (s.s) o.s = s.s;
+  return o;
+}
+function normPose(p) {
+  const o = Object.assign({}, p);
+  if (o.chest === undefined) o.chest = o.torso;
+  if (o.head === undefined) o.head = o.chest;
+  if (!o.armF) o.armF = o.mirror ? mirrorSpec(o.armN, o.hip[0]) : o.armN;
+  if (!o.legF) o.legF = o.mirror ? mirrorSpec(o.legN, o.hip[0]) : o.legN;
+  if (o.footN === undefined) o.footN = 0;
+  if (o.footF === undefined) o.footF = o.mirror && typeof o.footN === 'number' ? 180 - o.footN : o.footN;
+  return o;
+}
+function mixSpec(a, b, t) {
+  const o = {};
+  if (a.to) { o.to = lerp2(a.to, b.to, t); o.bend = a.bend; } else o.a = lerp2(a.a, b.a, t);
+  if (a.s || b.s) o.s = lerp2(a.s || [1, 1], b.s || [1, 1], t);
+  return o;
+}
+function mixPose(A, B, t) {
+  const f = (k) => (typeof A[k] === 'number' && typeof B[k] === 'number' ? lerp(A[k], B[k], t) : A[k]);
+  return {
+    hip: lerp2(A.hip, B.hip, t), torso: lerp(A.torso, B.torso, t), chest: lerp(A.chest, B.chest, t), head: lerp(A.head, B.head, t),
+    sw: A.sw, hw: A.hw, footS: A.footS, nofeet: A.nofeet,
+    armN: mixSpec(A.armN, B.armN, t), armF: mixSpec(A.armF, B.armF, t), legN: mixSpec(A.legN, B.legN, t), legF: mixSpec(A.legF, B.legF, t),
+    footN: f('footN'), footF: f('footF'),
+  };
+}
+function solve(p) {
+  const hip = p.hip, mid = add(hip, dir(p.torso), LEN.t1), sh = add(mid, dir(p.chest), LEN.t2);
+  const head = add(sh, dir(p.head), LEN.neck + LEN.head);
+  const sw = p.sw || 0, hw = p.hw || 0;
+  const shN = [sh[0] + sw, sh[1]], shF = [sh[0] - sw, sh[1]], hpN = [hip[0] + hw, hip[1]], hpF = [hip[0] - hw, hip[1]];
+  const armN = limb(shN, p.armN, LEN.ua, LEN.fa), armF = limb(shF, p.armF, LEN.ua, LEN.fa);
+  const legN = limb(hpN, p.legN, LEN.th, LEN.sh), legF = limb(hpF, p.legF, LEN.th, LEN.sh);
+  const fs = p.footS === undefined ? 1 : p.footS;
+  const foot = (lg, f) => [lg.c, add(lg.c, dir(f === 'p' ? lg.a2 + 90 : f), LEN.foot * fs)];
+  return { p, hip, mid, sh, head, shN, shF, hpN, hpF, armN, armF, legN, legF, footN: foot(legN, p.footN), footF: foot(legF, p.footF) };
+}
+
+/* ---- drawing primitives ---- */
+function capsule(g, a, b, w, col) { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }
+const bar = capsule;
+function ring(g, c, r, fill, stroke, lw) { g.beginPath(); g.arc(c[0], c[1], r, 0, TAU); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw || 1.5; g.stroke(); } }
+function rr(g, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function box(g, cx, cy, w, h, rot, col, r) { g.save(); g.translate(cx, cy); g.rotate(-(rot || 0) * RAD); g.fillStyle = col; rr(g, -w / 2, -h / 2, w, h, r === undefined ? 3 : r); g.fill(); g.restore(); }
+function padAlong(g, a, b, off, len, th, C, shift) { const n = nrm(a, b), u = unit(a, b), k = shift || 0; box(g, (a[0] + b[0]) / 2 + n[0] * off + u[0] * k, (a[1] + b[1]) / 2 + n[1] * off + u[1] * k, len, th, angOf(a, b), C.pad, th / 2); }
+function plate(g, c, r, C) { ring(g, c, r, C.eq2); ring(g, c, r - 4, null, C.eq, 1.6); ring(g, c, r * 0.36, C.eq); }
+function hub(g, c, C) { ring(g, c, 3.2, C.eq, C.eq2, 1.6); }
+function cable(g, a, b, C) { g.strokeStyle = C.cable; g.lineWidth = 1.7; g.lineCap = 'round'; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }
+function grip(g, c, rot, C) { const d = dir(rot); capsule(g, add(c, d, -7), add(c, d, 7), 4, C.eq2); }
+function dumbbell(g, c, rot, C) { const d = dir(rot); capsule(g, add(c, d, -8), add(c, d, 8), 3, C.eq2); box(g, c[0] + d[0] * 9.5, c[1] + d[1] * 9.5, 7, 15, rot, C.eq2, 2.5); box(g, c[0] - d[0] * 9.5, c[1] - d[1] * 9.5, 7, 15, rot, C.eq2, 2.5); }
+function floorBase(g, x1, x2, C) { capsule(g, [x1, G - 3], [x2, G - 3], 5, C.eq2); }
+function column(g, x, top, C, stackY) { bar(g, [x, top], [x, G - 4], 12, C.eq); if (stackY) box(g, x, stackY, 20, 56, 0, C.eq2, 3); }
+
+function drawArm(g, lm, col, halo) {
+  if (halo) { capsule(g, lm.a, lm.b, 14, halo); capsule(g, lm.b, lm.c, 12, halo); }
+  capsule(g, lm.a, lm.b, 10.5, col); capsule(g, lm.b, lm.c, 8.5, col); ring(g, lm.c, 4.9, col);
+}
+function drawLeg(g, lm, ft, col, halo, nofeet) {
+  if (halo) { capsule(g, lm.a, lm.b, 19, halo); capsule(g, lm.b, lm.c, 15, halo); }
+  capsule(g, lm.a, lm.b, 15.5, col); capsule(g, lm.b, lm.c, 11.5, col);
+  if (!nofeet) capsule(g, ft[0], ft[1], 8, col);
+}
+function patch(g, a, b, t0, t1, off, w, col) { const n = nrm(a, b), p0 = lerp2(a, b, t0), p1 = lerp2(a, b, t1); capsule(g, add(p0, n, off), add(p1, n, off), w, col); }
+
+const TORSO_M = {
+  chest: (g, J, c) => patch(g, J.mid, J.sh, 0.32, 0.9, 5.5, 9, c),
+  abs: (g, J, c) => { patch(g, J.hip, J.mid, 0.25, 1, 5.5, 8, c); patch(g, J.mid, J.sh, 0, 0.32, 5.5, 8, c); },
+  lats: (g, J, c) => patch(g, J.mid, J.sh, 0.02, 0.78, -5.5, 9, c),
+  upback: (g, J, c) => patch(g, J.mid, J.sh, 0.6, 0.98, -6, 8, c),
+  lowback: (g, J, c) => patch(g, J.hip, J.mid, 0.2, 1, -5.5, 8, c),
+};
+const LEG_M = {
+  glutes: (g, J, c) => { const n = nrm(J.hip, J.mid), u = unit(J.hip, J.mid); ring(g, [J.hip[0] - n[0] * 5 + u[0] * 2, J.hip[1] - n[1] * 5 + u[1] * 2], 8.5, c); },
+  quads: (g, J, c) => patch(g, J.legN.a, J.legN.b, 0.2, 0.9, -3.2, 8.5, c),
+  hams: (g, J, c) => patch(g, J.legN.a, J.legN.b, 0.2, 0.9, 3.2, 8.5, c),
+  calves: (g, J, c) => patch(g, J.legN.b, J.legN.c, 0.08, 0.62, 2.4, 7, c),
+};
+const ARM_M = {
+  delts: (g, J, c) => ring(g, J.shN, 7, c),
+  biceps: (g, J, c) => patch(g, J.armN.a, J.armN.b, 0.24, 0.86, -2.2, 6, c),
+  triceps: (g, J, c) => patch(g, J.armN.a, J.armN.b, 0.24, 0.86, 2.2, 6, c),
+  forearm: (g, J, c) => patch(g, J.armN.b, J.armN.c, 0.1, 0.62, 0, 6, c),
+};
+function muscles(g, J, C, ex, table, glow) {
+  g.globalAlpha = 0.42 + 0.58 * glow;
+  for (const m of ex.mus) if (table[m]) table[m](g, J, C.muscle);
+  g.globalAlpha = 1;
+}
+function drawFigure(g, J, C, ex, glow) {
+  const back = ex.view === 'back', far = back ? C.fig : C.far, halo = C.halo, nf = J.p.nofeet;
+  drawLeg(g, J.legF, J.footF, far, null, nf);
+  if (!back) drawArm(g, J.armF, far, null);
+  if (back) {
+    drawLeg(g, J.legN, J.footN, C.fig, null, nf);
+    g.fillStyle = C.fig; g.strokeStyle = C.fig; g.lineWidth = 17; g.lineJoin = 'round';
+    g.beginPath(); g.moveTo(J.shF[0], J.shF[1]); g.lineTo(J.shN[0], J.shN[1]); g.lineTo(J.hpN[0], J.hpN[1]); g.lineTo(J.hpF[0], J.hpF[1]); g.closePath(); g.fill(); g.stroke();
+  } else {
+    capsule(g, J.hip, J.mid, 23.5, halo); capsule(g, J.mid, J.sh, 24.5, halo);
+    capsule(g, J.hip, J.mid, 20, C.fig); capsule(g, J.mid, J.sh, 21, C.fig);
+  }
+  capsule(g, J.sh, lerp2(J.sh, J.head, 0.5), 8, C.fig);
+  ring(g, J.head, LEN.head + 1.75, halo); ring(g, J.head, LEN.head, C.fig);
+  if (back) {
+    g.globalAlpha = 0.42 + 0.58 * glow;
+    if (ex.mus.includes('lats')) for (const [h, s, k] of [[J.hpN, J.shN, -1], [J.hpF, J.shF, 1]]) { const a = lerp2(h, s, 0.38), b = lerp2(h, s, 0.9); capsule(g, [a[0] + k * 2, a[1]], [b[0] + k * 5, b[1]], 9, C.muscle); }
+    g.globalAlpha = 1;
+    drawArm(g, J.armF, C.fig, halo); drawArm(g, J.armN, C.fig, halo);
+    g.globalAlpha = 0.42 + 0.58 * glow;
+    if (ex.mus.includes('delts')) { ring(g, J.shN, 7.5, C.muscle); ring(g, J.shF, 7.5, C.muscle); }
+    if (ex.mus.includes('biceps')) { patch(g, J.armN.a, J.armN.b, 0.24, 0.86, 0, 6.5, C.muscle); patch(g, J.armF.a, J.armF.b, 0.24, 0.86, 0, 6.5, C.muscle); }
+    g.globalAlpha = 1;
+    return;
+  }
+  muscles(g, J, C, ex, TORSO_M, glow);
+  drawLeg(g, J.legN, J.footN, C.fig, halo, nf);
+  muscles(g, J, C, ex, LEG_M, glow);
+  drawArm(g, J.armN, C.fig, halo);
+  muscles(g, J, C, ex, ARM_M, glow);
+}
+function drawTrack(g, pts, C) {
+  if (!pts || pts.length < 2) return;
+  let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  if (len < 8) return;
+  g.save(); g.strokeStyle = C.accent; g.fillStyle = C.accent; g.globalAlpha = 0.9; g.lineWidth = 1.5; g.lineCap = 'butt'; g.setLineDash([3, 4]);
+  g.beginPath(); pts.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]))); g.stroke(); g.setLineDash([]);
+  for (const p of [pts[0], pts[pts.length - 1]]) { g.beginPath(); g.arc(p[0], p[1], 2.3, 0, TAU); g.fill(); }
+  g.restore();
+}
+function topPerson(g, C, c, arms, o) {
+  if (o.feet) for (const s of [-1, 1]) capsule(g, [c[0] + s * 12, c[1] - 6], [c[0] + s * 14, c[1] - 23], 9, C.far);
+  if (o.thighs) for (const s of [-1, 1]) capsule(g, [c[0] + s * 12, c[1] - 2], [c[0] + s * 19, c[1] - 44], 14.5, C.far);
+  if (o.mid) o.mid();
+  g.fillStyle = C.fig; g.beginPath(); g.ellipse(c[0], c[1], 33, o.ry || 13.5, 0, 0, TAU); g.fill();
+  if (o.mus) { g.globalAlpha = 0.42 + 0.58 * o.glow; o.mus(); g.globalAlpha = 1; }
+  for (const arm of arms) drawArm(g, arm, C.fig, C.halo);
+  const hy = c[1] + (o.headDy === undefined ? -1 : o.headDy);
+  ring(g, [c[0], hy], LEN.head + 1.75, C.halo); ring(g, [c[0], hy], LEN.head, C.fig);
+}
+
+/* ---- movement definitions: base pose, a = lengthened position, b = contracted position ---- */
+const ANIM = {};
+function def(key, o) {
+  if (o.base) { o.A = normPose(Object.assign({}, o.base, o.a)); o.B = normPose(Object.assign({}, o.base, o.b)); }
+  ANIM[key] = o;
+}
+const TRACK = { hand: (J) => [J.armN.c], hands: (J) => [J.armN.c, J.armF.c], ankle: (J) => [J.legN.c], knee: (J) => [J.legN.b], hip: (J) => [J.hip], head: (J) => [J.head], sh: (J) => [J.sh] };
+function tracksOf(ex) {
+  if (ex._tr || !ex.track || !ex.A) return ex._tr;
+  const out = [];
+  for (let i = 0; i <= 16; i++) TRACK[ex.track](solve(mixPose(ex.A, ex.B, i / 16))).forEach((p, k) => (out[k] || (out[k] = [])).push(p));
+  return (ex._tr = out);
+}
+
+def('inclineSmith', {
+  view: 'side', mus: ['chest', 'delts', 'triceps'], track: 'hand',
+  base: { hip: [208, 186], torso: 140, legN: { to: [262, 231], bend: 1 } },
+  a: { armN: { to: [181, 138], bend: -1 } }, b: { armN: { to: [181, 96], bend: -1 } },
+  back(g, J, C) {
+    bar(g, [181, 28], [181, G - 4], 4, C.eq); bar(g, [163, 28], [199, 28], 6, C.eq2);
+    padAlong(g, J.hip, J.sh, -13, 86, 9, C, 8); box(g, 216, 199, 36, 8, 8, C.pad, 4);
+    bar(g, [214, 204], [214, G - 4], 5, C.eq2); bar(g, [172, 190], [168, G - 4], 5, C.eq2); floorBase(g, 150, 238, C);
+    plate(g, J.armN.c, 19, C);
+  },
+  front(g, J, C) { hub(g, J.armN.c, C); },
+});
+def('assistedPullup', {
+  view: 'back', mus: ['lats', 'biceps'], track: 'head', tempo: [1.2, 0.3, 1.9, 0.4],
+  base: { torso: 90, sw: 21, hw: 10, mirror: true, nofeet: true, legN: { a: [276, 270], s: [1, 0.32] } },
+  a: { hip: [180, 166], armN: { to: [221, 54], bend: -1 } }, b: { hip: [180, 122], armN: { to: [221, 54], bend: -1 } },
+  back(g, J, C) {
+    bar(g, [108, 34], [108, G - 4], 7, C.eq); bar(g, [252, 34], [252, G - 4], 7, C.eq); bar(g, [108, 34], [252, 34], 7, C.eq);
+    bar(g, [124, 54], [236, 54], 4.5, C.eq2); bar(g, [124, 54], [124, 34], 4, C.eq2); bar(g, [236, 54], [236, 34], 4, C.eq2);
+    bar(g, [252, 208], [200, J.legN.b[1] + 15], 4.5, C.eq2); floorBase(g, 94, 266, C);
+  },
+  front(g, J, C) { box(g, 180, J.legN.b[1] + 13, 72, 11, 0, C.pad, 5); },
+});
+def('chestRow', {
+  view: 'side', mus: ['lats', 'upback', 'biceps'], track: 'hand',
+  base: { hip: [146, 178], torso: 40, head: 30, legN: { to: [82, 223], bend: 1 }, footN: 300 },
+  a: { armN: { to: [190, 197], bend: -1 } }, b: { armN: { to: [176, 160], bend: -1 } },
+  back(g, J, C) { padAlong(g, J.hip, J.sh, 13, 68, 9, C, 4); bar(g, [180, 176], [180, G - 4], 6, C.eq2); bar(g, [152, 198], [146, G - 4], 5, C.eq2); floorBase(g, 126, 218, C); },
+  front(g, J, C) { dumbbell(g, J.armN.c, 14, C); },
+});
+def('latRaise', {
+  view: 'back', mus: ['delts'], track: 'hands', tempo: [1.1, 0.35, 1.8, 0.3],
+  base: { hip: [180, 172], torso: 90, sw: 21, hw: 11, mirror: true, legN: { a: [-70, -88], s: [0.45, 0.9] }, footN: -75, footS: 0.55 },
+  a: { armN: { a: [-82, -86] } }, b: { armN: { a: [-6, -13] } },
+  back(g, J, C) { box(g, 180, 188, 52, 9, 0, C.pad, 4); bar(g, [180, 193], [180, G - 4], 7, C.eq2); floorBase(g, 150, 210, C); },
+  front(g, J, C) { ring(g, J.armN.c, 7, C.eq2, C.eq, 2); ring(g, J.armF.c, 7, C.eq2, C.eq, 2); },
+});
+def('machinePress', {
+  view: 'side', mus: ['chest', 'triceps', 'delts'], track: 'hand',
+  base: { hip: [150, 186], torso: 100, legN: { to: [204, 231], bend: 1 } },
+  a: { armN: { to: [160, 140], bend: -1, s: [0.55, 1] } }, b: { armN: { to: [196, 138], bend: -1, s: [1, 1] } },
+  back(g, J, C) {
+    bar(g, [110, 56], [110, G - 4], 10, C.eq); bar(g, [110, 58], [152, 58], 6, C.eq);
+    padAlong(g, J.hip, J.sh, -13, 64, 9, C, 2); box(g, 158, 199, 42, 8, 0, C.pad, 4); bar(g, [156, 204], [156, G - 4], 6, C.eq2);
+    floorBase(g, 98, 216, C); bar(g, [152, 58], J.armN.c, 4.5, C.eq2);
+  },
+  front(g, J, C) { grip(g, J.armN.c, 90, C); },
+});
+def('pushdown', {
+  view: 'side', mus: ['triceps'], track: 'hand',
+  base: { hip: [156, 143], torso: 80, head: 78, legN: { to: [162, 231], bend: 1 } },
+  a: { armN: { a: [280, 55] } }, b: { armN: { a: [280, -78] } },
+  back(g, J, C) { column(g, 236, 30, C, 190); bar(g, [236, 34], [214, 40], 5, C.eq); ring(g, [212, 42], 5, C.eq2, C.eq, 2); cable(g, [212, 47], J.armN.c, C); floorBase(g, 214, 262, C); },
+  front(g, J, C) { grip(g, J.armN.c, J.armN.a2 + 90, C); },
+});
+def('dbCurl', {
+  view: 'side', mus: ['biceps'], track: 'hand',
+  base: { hip: [176, 141], torso: 90, legN: { a: [270, 270] } },
+  a: { armN: { a: [268, 274] } }, b: { armN: { a: [277, 432] } },
+  front(g, J, C) { ring(g, J.armN.c, 7.5, C.eq2, C.eq, 2.2); },
+});
+def('hammerCurl', {
+  view: 'side', mus: ['biceps', 'forearm'], track: 'hand',
+  base: { hip: [176, 141], torso: 90, legN: { a: [270, 270] } },
+  a: { armN: { a: [268, 274] } }, b: { armN: { a: [277, 432] } },
+  front(g, J, C) { dumbbell(g, J.armN.c, J.armN.a2 + 90, C); },
+});
+def('cableCrunch', {
+  view: 'side', mus: ['abs'], track: 'sh', tempo: [1.2, 0.4, 1.8, 0.3],
+  base: { hip: [180, 181], legN: { a: [280, 185] }, footN: 200 },
+  a: { torso: 78, chest: 72, head: 60, armN: { to: [207, 118], bend: -1 } }, b: { torso: 70, chest: 5, head: -25, armN: { to: [232, 162], bend: -1 } },
+  back(g, J, C) { column(g, 274, 28, C, 192); bar(g, [274, 32], [254, 38], 5, C.eq); ring(g, [252, 40], 5, C.eq2, C.eq, 2); cable(g, [251, 45], J.armN.c, C); floorBase(g, 250, 298, C); },
+  front(g, J, C) { grip(g, J.armN.c, J.armN.a2 + 90, C); },
+});
+def('hackSquat', {
+  view: 'side', mus: ['quads', 'glutes'], track: 'hip', tempo: [1.2, 0.2, 2.0, 0.3],
+  base: { torso: 122, legN: { to: [236, 206], bend: 1 }, footN: 35 },
+  a: { hip: [209.6, 168.4], armN: { to: [194, 128], bend: -1 } }, b: { hip: [186.6, 135.6], armN: { to: [171, 95], bend: -1 } },
+  back(g, J, C) {
+    bar(g, [110, 55], [222, 233], 7, C.eq); bar(g, [110, 55], [110, G - 4], 6, C.eq2); floorBase(g, 100, 278, C);
+    padAlong(g, J.hip, J.sh, -13, 66, 9, C, 0);
+    const u = dir(122); box(g, J.sh[0] + u[0] * 10 + 4, J.sh[1] + u[1] * 10 - 1, 20, 10, 32, C.pad, 5);
+    box(g, 247, 207, 46, 6, 35, C.eq2, 3); bar(g, [252, 212], [258, G - 4], 5, C.eq2);
+  },
+});
+def('rdl', {
+  view: 'side', mus: ['hams', 'glutes', 'lowback'], track: 'hand', tempo: [1.2, 0.25, 2.0, 0.3],
+  base: { legN: { to: [176, 231], bend: 1 } },
+  a: { hip: [152, 150], torso: 20, head: 14, armN: { to: [190, 185], bend: -1 } }, b: { hip: [172, 141], torso: 88, head: 88, armN: { to: [180, 141], bend: -1 } },
+  back(g, J, C) { plate(g, J.armN.c, 20, C); },
+  front(g, J, C) { hub(g, J.armN.c, C); },
+});
+def('legPress', {
+  view: 'side', mus: ['quads', 'glutes'], track: 'ankle', tempo: [1.2, 0.2, 2.0, 0.3],
+  base: { hip: [148, 196], torso: 152, head: 140, footN: 138, armN: { to: [143, 201], bend: 1 } },
+  a: { legN: { to: [181.5, 158.9], bend: 1 } }, b: { legN: { to: [205.5, 132.1], bend: 1 } },
+  back(g, J, C) {
+    const d = dir(48);
+    bar(g, [150, 224], [264, 97], 6, C.eq); bar(g, [264, 97], [264, G - 4], 6, C.eq2); floorBase(g, 72, 276, C);
+    padAlong(g, J.hip, J.sh, -13, 72, 9, C, 4); box(g, 154, 211, 32, 8, -18, C.pad, 4); bar(g, [120, 208], [120, G - 4], 5, C.eq2);
+    const a = J.footN[0], t = J.footN[1], fc = [(a[0] + t[0]) / 2 + d[0] * 7, (a[1] + t[1]) / 2 + d[1] * 7];
+    box(g, fc[0], fc[1], 48, 6, 138, C.eq2, 3);
+    const sc = add(fc, d, 15); box(g, sc[0], sc[1], 24, 22, 48, C.eq, 4); plate(g, add(fc, d, 32), 15, C);
+  },
+});
+def('seatedLegCurl', {
+  view: 'side', mus: ['hams'], track: 'ankle',
+  base: { hip: [138, 172], torso: 108, head: 100, footN: 'p', armN: { to: [158, 160], bend: -1 } },
+  a: { legN: { a: [-2, -8] } }, b: { legN: { a: [-2, -112] } },
+  back(g, J, C) { padAlong(g, J.hip, J.sh, -13, 64, 9, C, 2); box(g, 158, 185, 60, 9, 0, C.pad, 4); box(g, 150, 212, 44, 42, 0, C.eq, 4); floorBase(g, 116, 204, C); ring(g, J.legN.b, 6.5, C.eq2, C.eq, 2); },
+  front(g, J, C) {
+    const k = J.legN.b, an = J.legN.c, s = unit(k, an), n = [-s[1], s[0]], r = [an[0] - s[0] * 6 + n[0] * 10, an[1] - s[1] * 6 + n[1] * 10];
+    bar(g, [k[0] + n[0] * 9, k[1] + n[1] * 9], r, 3.5, C.eq2); ring(g, r, 6.5, C.pad); box(g, 171, 160.5, 26, 9, 0, C.pad, 4.5);
+  },
+});
+def('standingCalf', {
+  view: 'side', mus: ['calves'], track: 'hip', tempo: [0.9, 0.5, 1.5, 0.6],
+  base: { torso: 90, legN: { a: [270, 270] } },
+  a: { hip: [177.2, 130], footN: 22, armN: { to: [190, 80], bend: -1 } }, b: { hip: [179.4, 114.2], footN: -38, armN: { to: [192, 64], bend: -1 } },
+  back(g, J, C) {
+    box(g, 186, 226, 36, 16, 0, C.eq, 3); bar(g, [104, 40], [104, G - 4], 10, C.eq); floorBase(g, 90, 216, C);
+    bar(g, [104, 56], [J.sh[0] - 4, J.sh[1] - 10], 5, C.eq2); box(g, J.sh[0] - 3, J.sh[1] - 10, 24, 9, 0, C.pad, 4.5);
+  },
+});
+def('pallof', {
+  view: 'top', mus: ['core'], tempo: [1.3, 1.1, 1.3, 0.5], phases: ['דחיפה קדימה', 'החזק, בלי להסתובב', 'חזרה לחזה', 'ידיים על החזה'],
+  draw(g, t, C, glow) {
+    const c = [206, 160], hand = [c[0], lerp(c[1] - 18, c[1] - 52, t)], s0 = lerp(0.25, 1, t);
+    box(g, 60, 132, 22, 70, 0, C.eq, 4); box(g, 60, 132, 12, 46, 0, C.eq2, 3); ring(g, [76, 132], 5, C.eq2, C.eq, 2);
+    cable(g, [80, 132], [hand[0] - 6, hand[1]], C);
+    const mx = lerp(80, hand[0] - 6, 0.5), my = lerp(132, hand[1], 0.5), u = unit([hand[0], hand[1]], [80, 132]);
+    g.fillStyle = C.cable; g.beginPath(); g.moveTo(mx + u[0] * 7, my + u[1] * 7); g.lineTo(mx - u[1] * 4, my + u[0] * 4); g.lineTo(mx + u[1] * 4, my - u[0] * 4); g.closePath(); g.fill();
+    drawTrack(g, [[c[0], c[1] - 18], [c[0], c[1] - 52]], C);
+    const armR = limb([c[0] + 24, c[1]], { to: [hand[0] + 3, hand[1]], bend: -1, s: [s0, 1] }, LEN.ua, LEN.fa);
+    const armL = limb([c[0] - 24, c[1]], { to: [hand[0] - 3, hand[1]], bend: 1, s: [s0, 1] }, LEN.ua, LEN.fa);
+    topPerson(g, C, c, [armL, armR], { feet: true, glow, ry: 15.5, headDy: 4, mus() { g.fillStyle = C.muscle; g.beginPath(); g.ellipse(c[0], c[1] - 7, 21, 6, 0, 0, TAU); g.fill(); } });
+    grip(g, hand, 90, C);
+  },
+});
+def('reversePec', {
+  view: 'top', mus: ['reardelt', 'upback'], tempo: [1.1, 0.35, 1.8, 0.3],
+  draw(g, t, C, glow) {
+    const c = [180, 166], aR = [lerp(102, -8, t), lerp(97, -15, t)];
+    const armR = limb([c[0] + 24, c[1]], { a: aR }, LEN.ua, LEN.fa), armL = limb([c[0] - 24, c[1]], { a: [180 - aR[0], 180 - aR[1]] }, LEN.ua, LEN.fa);
+    box(g, c[0], c[1] - 70, 34, 50, 0, C.eq, 5); box(g, c[0], c[1] - 70, 20, 34, 0, C.eq2, 3); box(g, c[0], c[1] + 8, 42, 36, 0, C.eq2, 7);
+    for (const s of [-1, 1]) { const pts = []; for (let i = 0; i <= 16; i++) { const a = [lerp(102, -8, i / 16), lerp(97, -15, i / 16)]; const sp = s > 0 ? a : [180 - a[0], 180 - a[1]]; pts.push(limb([c[0] + s * 24, c[1]], { a: sp }, LEN.ua, LEN.fa).c); } drawTrack(g, pts, C); }
+    topPerson(g, C, c, [armL, armR], {
+      thighs: true, glow,
+      mid() { bar(g, [c[0], c[1] - 46], [c[0], c[1] - 22], 7, C.eq2); box(g, c[0], c[1] - 19, 38, 10, 0, C.pad, 5); },
+      mus() { g.fillStyle = C.muscle; for (const s of [-1, 1]) { g.beginPath(); g.ellipse(c[0] + s * 25, c[1] + 5, 7, 5.5, 0, 0, TAU); g.fill(); } g.beginPath(); g.ellipse(c[0], c[1] + 8.5, 15, 4, 0, 0, TAU); g.fill(); },
+    });
+    ring(g, armR.c, 4, C.eq2, C.eq, 1.6); ring(g, armL.c, 4, C.eq2, C.eq, 1.6);
+  },
+});
+def('cableRow', {
+  view: 'side', mus: ['lats', 'upback', 'biceps'], track: 'hand',
+  base: { hip: [128, 188], legN: { to: [214, 204], bend: 1 }, footN: 75 },
+  a: { torso: 74, armN: { to: [199, 150], bend: -1 } }, b: { torso: 97, armN: { to: [142, 160], bend: -1 } },
+  back(g, J, C) {
+    box(g, 126, 201, 56, 8, 0, C.pad, 4); bar(g, [110, 206], [110, G - 4], 5, C.eq2); bar(g, [142, 206], [142, G - 4], 5, C.eq2);
+    bar(g, [150, 220], [268, 220], 5, C.eq2); box(g, 227, 198, 6, 46, -12, C.eq2, 3);
+    column(g, 276, 70, C, 176); ring(g, [262, 156], 5, C.eq2, C.eq, 2); cable(g, [257, 156], J.armN.c, C); floorBase(g, 100, 298, C);
+  },
+  front(g, J, C) { grip(g, J.armN.c, 90, C); },
+});
+def('shoulderPress', {
+  view: 'side', mus: ['delts', 'triceps'], track: 'hand',
+  base: { hip: [158, 188], torso: 98, head: 95, legN: { to: [210, 231], bend: 1 } },
+  a: { armN: { to: [164, 122], bend: -1 } }, b: { armN: { to: [162, 76], bend: -1 } },
+  back(g, J, C) {
+    bar(g, [112, 70], [112, G - 4], 10, C.eq); padAlong(g, J.hip, J.sh, -13, 68, 9, C, 4); box(g, 166, 201, 42, 8, 0, C.pad, 4);
+    bar(g, [164, 206], [164, G - 4], 6, C.eq2); floorBase(g, 100, 224, C); bar(g, [112, 98], J.armN.c, 4.5, C.eq2);
+  },
+  front(g, J, C) { grip(g, J.armN.c, 0, C); },
+});
+def('ohTriceps', {
+  view: 'side', mus: ['triceps'], track: 'hand',
+  base: { hip: [176, 141], torso: 84, legN: { a: [270, 270] } },
+  a: { armN: { a: [80, 205] } }, b: { armN: { a: [80, 82] } },
+  back(g, J, C) { column(g, 100, 70, C, 176); ring(g, [116, 208], 5, C.eq2, C.eq, 2); cable(g, [119, 205], J.armN.c, C); floorBase(g, 84, 134, C); },
+  front(g, J, C) { grip(g, J.armN.c, J.armN.a2 + 90, C); },
+});
+def('kneeRaise', {
+  view: 'side', mus: ['abs'], track: 'knee', tempo: [1.1, 0.35, 1.8, 0.4],
+  base: { armN: { to: [180, 15], bend: -1 } },
+  a: { hip: [180, 129], torso: 90, chest: 90, legN: { a: [268, 262] }, footN: 300 }, b: { hip: [189.1, 127.7], torso: 108, chest: 92, legN: { a: [378, 258] }, footN: 322 },
+  back(g, J, C) { bar(g, [104, 14], [104, G - 4], 9, C.eq); bar(g, [104, 15], [180, 15], 6, C.eq); floorBase(g, 88, 150, C); },
+  front(g, J, C) { ring(g, [180, 15], 4.5, C.eq2, C.eq, 2); },
+});
+def('bulgarian', {
+  view: 'side', mus: ['quads', 'glutes'], track: 'hip', tempo: [1.2, 0.2, 2.0, 0.3],
+  base: { legN: { to: [214, 231], bend: 1 }, legF: { to: [138, 184], bend: 1 }, footN: 0, footF: 200, armN: { a: [270, 273] } },
+  a: { hip: [178, 186], torso: 76 }, b: { hip: [181, 150], torso: 82 },
+  back(g, J, C) { box(g, 120, 197, 56, 11, 0, C.pad, 5); bar(g, [102, 203], [102, G - 4], 5, C.eq2); bar(g, [138, 203], [138, G - 4], 5, C.eq2); },
+  front(g, J, C) { dumbbell(g, J.armN.c, 0, C); },
+});
+function thrustBar(J) { const n = nrm(J.hip, J.mid); return [J.hip[0] + n[0] * 12 + 5, J.hip[1] + n[1] * 12]; }
+def('hipThrust', {
+  view: 'side', mus: ['glutes', 'hams'], track: 'hip', tempo: [1.1, 0.5, 1.8, 0.3],
+  base: { legN: { to: [215, 229], bend: 1 } },
+  a: { hip: [156.9, 217.1], torso: 142, head: 118, armN: { to: [161, 205], bend: 1 } }, b: { hip: [169, 184], torso: 178, head: 150, armN: { to: [166, 172], bend: 1 } },
+  back(g, J, C) { box(g, 86, 201, 46, 13, 0, C.pad, 5); bar(g, [72, 208], [72, G - 4], 5, C.eq2); bar(g, [100, 208], [100, G - 4], 5, C.eq2); plate(g, thrustBar(J), 18, C); },
+  front(g, J, C) { hub(g, thrustBar(J), C); },
+});
+def('lyingLegCurl', {
+  view: 'side', mus: ['hams'], track: 'ankle',
+  base: { hip: [176, 166], torso: 4, head: 22, footN: 'p', armN: { to: [236, 190], bend: 1 } },
+  a: { legN: { a: [183, 186] } }, b: { legN: { a: [183, 72] } },
+  back(g, J, C) { box(g, 190, 182, 138, 11, 0, C.pad, 5); box(g, 190, 208, 64, 42, 0, C.eq, 4); floorBase(g, 130, 252, C); ring(g, [J.legN.b[0], J.legN.b[1] + 10], 6.5, C.eq2, C.eq, 2); },
+  front(g, J, C) {
+    const k = J.legN.b, an = J.legN.c, s = unit(k, an), n = [-s[1], s[0]], r = [an[0] - s[0] * 6 + n[0] * 10, an[1] - s[1] * 6 + n[1] * 10];
+    bar(g, [k[0], k[1] + 10], r, 3.5, C.eq2); ring(g, r, 6.5, C.pad);
+  },
+});
+def('legExt', {
+  view: 'side', mus: ['quads'], track: 'ankle',
+  base: { hip: [140, 176], torso: 106, head: 98, footN: 'p', armN: { to: [146, 172], bend: -1 } },
+  a: { legN: { a: [-2, 258] } }, b: { legN: { a: [-2, 352] } },
+  back(g, J, C) { padAlong(g, J.hip, J.sh, -13, 64, 9, C, 2); box(g, 160, 189, 60, 9, 0, C.pad, 4); box(g, 150, 214, 44, 38, 0, C.eq, 4); floorBase(g, 116, 204, C); ring(g, J.legN.b, 6.5, C.eq2, C.eq, 2); },
+  front(g, J, C) {
+    const k = J.legN.b, an = J.legN.c, s = unit(k, an), n = [-s[1], s[0]], r = [an[0] - s[0] * 5 - n[0] * 10, an[1] - s[1] * 5 - n[1] * 10];
+    bar(g, [k[0] - n[0] * 9, k[1] - n[1] * 9], r, 3.5, C.eq2); ring(g, r, 6.5, C.pad);
+  },
+});
+def('seatedCalf', {
+  view: 'side', mus: ['calves'], track: 'knee', tempo: [0.9, 0.5, 1.5, 0.6],
+  base: { hip: [146, 182], torso: 92 },
+  a: { legN: { to: [193, 221.5], bend: 1 }, footN: 20, armN: { to: [186, 160], bend: -1 } }, b: { legN: { to: [194.9, 206.8], bend: 1 }, footN: -35, armN: { to: [183, 147], bend: -1 } },
+  back(g, J, C) { box(g, 210, 228, 30, 14, 0, C.eq, 3); box(g, 144, 195, 46, 8, 0, C.pad, 4); bar(g, [144, 200], [144, G - 4], 6, C.eq2); bar(g, [258, 150], [258, G - 4], 8, C.eq); floorBase(g, 122, 272, C); },
+  front(g, J, C) { const k = J.legN.b, pc = [k[0] - 6, k[1] - 13]; bar(g, pc, [258, 172], 4.5, C.eq2); plate(g, lerp2(pc, [258, 172], 0.62), 11, C); box(g, pc[0], pc[1], 30, 9, 0, C.pad, 4.5); },
+});
+
+function drawBackdrop(g, C, top) {
+  g.fillStyle = C.stage; g.fillRect(0, 0, SW, SH);
+  g.strokeStyle = C.grid; g.lineWidth = 1; g.beginPath();
+  for (let x = 20; x < SW; x += 20) { g.moveTo(x, 0); g.lineTo(x, SH); }
+  for (let y = 16; y < SH; y += 20) { g.moveTo(0, y); g.lineTo(SW, y); }
+  g.stroke();
+  if (!top) { g.fillStyle = C.floor; g.fillRect(0, G, SW, SH - G); g.strokeStyle = C.ground; g.lineWidth = 2; g.beginPath(); g.moveTo(0, G); g.lineTo(SW, G); g.stroke(); }
+}
+/* render one frame; t: 0 = lengthened, 1 = contracted */
+function renderAnim(g, key, t, C, thumb) {
+  const ex = ANIM[key];
+  if (thumb) { g.fillStyle = C.stage; g.fillRect(0, 0, SW, SH); } else drawBackdrop(g, C, ex.view === 'top');
+  if (ex.draw) { ex.draw(g, t, C, t); return; }
+  const J = solve(mixPose(ex.A, ex.B, t));
+  if (ex.back) ex.back(g, J, C, t);
+  drawFigure(g, J, C, ex, t);
+  if (ex.front) ex.front(g, J, C, t);
+  if (!thumb) (tracksOf(ex) || []).forEach((p) => drawTrack(g, p, C));
+}
+
+/* ================================================================== helpers + state */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const Ltr = (s) => '<bdi dir="ltr">' + s + '</bdi>';
+const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const HOUR = 3600e3, LS_KEY = 'ul4:v1';
+const ICON = {
+  play: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>',
+  pause: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>',
+  check: '<svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  cam: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>',
+  x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  send: '<svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+  stop: '<svg class="i" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>',
+  snd: '<svg class="i" viewBox="0 0 24 24"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>',
+  mute: '<svg class="i" viewBox="0 0 24 24"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>',
+};
+const S = { tab: 0, open: null, sessions: {}, sound: true, col: null, resetAsk: false };
+let C = {};
+
+function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch (e) { return {}; } }
+function saveLocal() {
+  try {
+    const keep = Object.values(S.sessions).sort((a, b) => b.ts - a.ts).slice(0, 40);
+    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound }));
+  } catch (e) { /* storage unavailable: keep working in memory */ }
+}
+const rowsOf = (s, exId) => (s && s.sets && s.sets[exId]) || [];
+const hasDone = (s) => Object.values(s.sets || {}).some((a) => (a || []).some((r) => r && r.done));
+const isOpen = (s) => !s.end && Date.now() - s.ts < 18 * HOUR;
+const sorted = () => Object.values(S.sessions).sort((a, b) => b.ts - a.ts);
+function sessFor(w, create) {
+  let s = sorted().find((x) => x.w === w && isOpen(x));
+  if (!s && create) { s = { id: 's' + Date.now().toString(36) + 'w' + w, w, ts: Date.now(), end: 0, upd: Date.now(), sets: {} }; S.sessions[s.id] = s; }
+  return s || null;
+}
+const prevFor = (w, exId, notId) => sorted().find((x) => x.w === w && x.id !== notId && rowsOf(x, exId).some((r) => r && r.done)) || null;
+function nextUp() {
+  const l = sorted().filter(hasDone);
+  if (!l.length) return { next: 0, live: -1 };
+  return isOpen(l[0]) ? { next: l[0].w, live: l[0].w } : { next: (l[0].w + 1) % 4, live: -1 };
+}
+const doneCount = (s, e) => rowsOf(s, e.id).slice(0, e.sets).filter((r) => r && r.done).length;
+const findEx = (id) => { for (const w of PLAN) for (const e of w.ex) if (e.id === id) return e; return null; };
+const wkOf = (id) => PLAN.findIndex((w) => w.ex.some((e) => e.id === id));
+function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + ' דק׳'; return Ltr(a === b ? a : a + '–' + b) + ' שנ׳'; }
+const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
+function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
+function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (r && r.done && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
+function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (r && r.done) n++; return n; }
+function ago(ts) { const d = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? 'היום' : d === 1 ? 'אתמול' : 'לפני ' + d + ' ימים'; }
+const fmtRow = (r) => (r.kg != null ? r.kg + '×' : '') + (r.reps != null ? r.reps : '–');
+
+/* ---- cloud persistence (private per viewer), local copy as the instant cache ---- */
+const writers = new Map();
+function setSync(state) {
+  const t = { cloud: 'הרישום נשמר בחשבון Claude שלך', local: 'הרישום נשמר במכשיר הזה בלבד', slow: 'אין חיבור לשמירה בענן כרגע, נשמר במכשיר', error: 'השמירה בענן נכשלה, נשמר במכשיר' }[state];
+  if (t) $('#syncNote').textContent = t;
+}
+function persist(s) {
+  s.upd = Date.now(); saveLocal();
+  if (!S.col) return;
+  let w = writers.get(s.id);
+  if (!w) { w = { timer: 0, busy: false, dirty: false }; writers.set(s.id, w); }
+  clearTimeout(w.timer); w.timer = setTimeout(() => flush(s.id), 900);
+}
+async function flush(id) {
+  const w = writers.get(id) || { busy: false, dirty: false }, s = S.sessions[id];
+  writers.set(id, w);
+  if (!S.col) return;
+  if (w.busy) { w.dirty = true; return; }
+  w.busy = true;
+  try {
+    if (s) await S.col.doc(id).set(JSON.parse(JSON.stringify({ v: 1, w: s.w, ts: s.ts, end: s.end || 0, upd: s.upd || s.ts, sets: s.sets || {} })));
+    else await S.col.doc(id).delete();
+    setSync('cloud');
+  } catch (e) { setSync('error'); } finally { w.busy = false; if (w.dirty) { w.dirty = false; flush(id); } }
+}
+async function initCloud() {
+  if (!window.claude || typeof window.claude.use !== 'function') { setSync('local'); return; }
+  let timer = 0;
+  try {
+    const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    const uid = db && user ? await user.id() : null;
+    if (!uid) { setSync('local'); return; }
+    const col = db.collection('data/users/' + uid);
+    timer = setTimeout(() => setSync('slow'), 10000);
+    const snap = await col.orderBy('ts', 'desc').limit(40).get();
+    clearTimeout(timer);
+    S.col = col;
+    const remote = new Set(); let changed = false;
+    for (const d of snap.docs) {
+      const v = d.data(); if (!v || typeof v.w !== 'number') continue;
+      remote.add(d.id);
+      const mine = S.sessions[d.id];
+      if (!mine || (v.upd || 0) > (mine.upd || 0)) { S.sessions[d.id] = { id: d.id, w: v.w, ts: v.ts, end: v.end || 0, upd: v.upd || v.ts, sets: JSON.parse(JSON.stringify(v.sets || {})) }; changed = true; }
+    }
+    for (const s of Object.values(S.sessions)) if (!remote.has(s.id) && hasDone(s)) flush(s.id);
+    setSync('cloud'); saveLocal();
+    if (changed && !document.activeElement.closest('.set')) { const nu = nextUp(); if (!S.touched) S.tab = nu.next; renderAll(); }
+  } catch (e) { clearTimeout(timer); setSync('local'); }
+}
+
+/* ================================================================== stage player */
+const player = { key: null, cv: null, g: null, raf: 0, t0: 0, playing: !reduced, visible: true, phaseEl: null, btn: null, phase: -1, lastT: 0.5, io: null, ro: null };
+const PHASES = ['מאמץ · נשיפה', 'כיווץ', 'חזרה איטית · שאיפה', 'מתיחה'];
+const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
+function readColors() {
+  const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
+  C = { stage: v('--stage'), grid: v('--grid'), floor: v('--floor'), ground: v('--ground'), fig: v('--fig'), far: v('--fig-far'), eq: v('--equip'), eq2: v('--equip-2'), pad: v('--pad'), cable: v('--cable'), muscle: v('--muscle'), accent: v('--accent') };
+  C.halo = C.stage;
+}
+function fitCanvas(cv, cssW) {
+  const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cssW * dpr));
+  if (cv.width !== w) { cv.width = w; cv.height = Math.round((w * SH) / SW); }
+}
+function paintStage(t) {
+  if (!player.cv) return;
+  const g = player.g, k = player.cv.width / SW;
+  g.setTransform(k, 0, 0, k, 0, 0); renderAnim(g, player.key, t, C, false); player.lastT = t;
+}
+function frame(now) {
+  if (!player.cv || !player.playing) return;
+  player.raf = requestAnimationFrame(frame);
+  if (!player.visible) return;
+  const ex = ANIM[player.key], tp = ex.tempo || [1.1, 0.25, 1.8, 0.35];
+  let x = ((now - player.t0) / 1000) % (tp[0] + tp[1] + tp[2] + tp[3]), t, ph;
+  if (x < tp[0]) { t = ease(x / tp[0]); ph = 0; } else if ((x -= tp[0]) < tp[1]) { t = 1; ph = 1; } else if ((x -= tp[1]) < tp[2]) { t = 1 - ease(x / tp[2]); ph = 2; } else { t = 0; ph = 3; }
+  if (ph !== player.phase && player.phaseEl) { player.phase = ph; player.phaseEl.textContent = (ex.phases || PHASES)[ph]; player.phaseEl.classList.toggle('hot', ph < 2); }
+  paintStage(t);
+}
+function setPlaying(on) {
+  player.playing = on; cancelAnimationFrame(player.raf);
+  if (player.btn) { player.btn.innerHTML = on ? ICON.pause : ICON.play; player.btn.setAttribute('aria-label', on ? 'השהה את ההדמיה' : 'נגן את ההדמיה'); }
+  if (on) { player.t0 = performance.now(); player.phase = -1; player.raf = requestAnimationFrame(frame); } else { if (player.phaseEl) { player.phaseEl.textContent = 'מושהה'; player.phaseEl.classList.remove('hot'); } paintStage(player.lastT); }
+}
+function startPlayer(cv, key, phaseEl, btn) {
+  stopPlayer();
+  Object.assign(player, { cv, key, g: cv.getContext('2d'), phaseEl, btn, phase: -1, lastT: 0.5, visible: true });
+  fitCanvas(cv, cv.getBoundingClientRect().width || 340);
+  if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); if (!player.playing) paintStage(player.lastT); }); player.ro.observe(cv); }
+  if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; }); player.io.observe(cv); }
+  setPlaying(player.playing);
+}
+function stopPlayer() {
+  cancelAnimationFrame(player.raf);
+  if (player.ro) player.ro.disconnect(); if (player.io) player.io.disconnect();
+  player.cv = null; player.ro = player.io = null;
+}
+function drawThumbs() {
+  const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+  for (const cv of $$('.ex-thumb')) {
+    cv.width = Math.round(64 * dpr); cv.height = Math.round(46 * dpr);
+    const g = cv.getContext('2d'), k = cv.width / SW;
+    const z = k * 1.32; g.setTransform(z, 0, 0, z, cv.width / 2 - 180 * z, cv.height / 2 - 142 * z); renderAnim(g, cv.dataset.anim, 0.5, C, true);
+  }
+}
+function onTheme() { readColors(); drawThumbs(); if (player.cv && !player.playing) paintStage(player.lastT); }
+
+/* ================================================================== workout UI */
+function renderTabs() {
+  const nu = nextUp();
+  $('#tabs').innerHTML = PLAN.map((w, i) => '<button class="tab" role="tab" type="button" data-tab="' + i + '" aria-selected="' + (i === S.tab) + '"><small>אימון ' + (i + 1) + '</small><b>' + w.name + '</b>' +
+    (nu.live === i ? '<span class="flag live">באמצע</span>' : nu.next === i ? '<span class="flag">הבא בתור</span>' : '') + '</button>').join('');
+}
+function rowHTML(w, e, i) {
+  const dn = doneCount(sessFor(w, false), e);
+  let dots = ''; for (let k = 0; k < e.sets; k++) dots += '<i' + (k < dn ? ' class="on"' : '') + '></i>';
+  return '<li class="ex' + (dn >= e.sets ? ' done' : '') + '" data-id="' + e.id + '">' +
+    '<button class="ex-head" type="button" aria-expanded="false" aria-controls="body-' + e.id + '">' +
+    '<span class="ex-n">' + (i + 1) + '</span><canvas class="ex-thumb" data-anim="' + e.a + '" aria-hidden="true"></canvas>' +
+    '<span class="ex-title"><span class="ex-name">' + esc(e.name) + '</span><span class="ex-sub">' + LIB[e.a].he + '</span></span>' +
+    '<span class="ex-side"><span class="ex-rx">' + Ltr(e.sets + ' × ' + e.reps) + '</span><span class="dots" aria-hidden="true">' + dots + '</span></span>' +
+    '</button><div class="ex-body" id="body-' + e.id + '" hidden></div></li>';
+}
+function bodyHTML(w, e) {
+  const info = LIB[e.a], s = sessFor(w, false), prev = prevFor(w, e.id, s && s.id), view = { side: 'מבט מהצד', back: 'מבט מאחור', top: 'מבט מלמעלה' }[ANIM[e.a].view];
+  let rows = '';
+  for (let i = 0; i < e.sets; i++) {
+    const cur = rowsOf(s, e.id)[i] || {}, pv = prev ? rowsOf(prev, e.id)[i] : null, up = i > 0 ? rowsOf(s, e.id)[i - 1] : null;
+    const phKg = pv && pv.kg != null ? pv.kg : up && up.kg != null ? up.kg : '—';
+    const phR = pv && pv.reps != null ? pv.reps : e.reps;
+    rows += '<div class="set' + (cur.done ? ' done' : '') + '" data-i="' + i + '">' +
+      '<span class="set-n">סט ' + (i + 1) + (e.lvl === 3 && i === e.sets - 1 ? '<em>עד כשל טכני</em>' : '') + '</span>' +
+      '<label class="field"><input id="kg-' + e.id + '-' + i + '" data-k="kg" type="text" inputmode="decimal" autocomplete="off" aria-label="משקל בסט ' + (i + 1) + '" placeholder="' + phKg + '" value="' + (cur.kg != null ? cur.kg : '') + '"><span>ק״ג</span></label>' +
+      '<label class="field"><input id="rp-' + e.id + '-' + i + '" data-k="reps" type="text" inputmode="numeric" autocomplete="off" aria-label="חזרות בסט ' + (i + 1) + '" placeholder="' + phR + '" value="' + (cur.reps != null ? cur.reps : '') + '"><span>חז׳</span></label>' +
+      '<button class="set-done" type="button" aria-pressed="' + !!cur.done + '" aria-label="סמן את סט ' + (i + 1) + ' כבוצע">' + ICON.check + '</button></div>';
+  }
+  let last = '';
+  if (prev) {
+    const pr = rowsOf(prev, e.id).slice(0, e.sets).filter((r) => r && r.done), top = parseFloat(String(e.reps).split('–').pop());
+    last = '<span>פעם קודמת (' + ago(prev.ts) + '): ' + pr.map((r) => Ltr(fmtRow(r))).join(' · ') + '</span>';
+    if (pr.length >= e.sets && pr.every((r) => r.kg != null && r.reps != null && r.reps >= top)) last += '<span class="up">הגעת לתקרת הטווח בכל הסטים. הגיע הזמן להעלות משקל.</span>';
+  } else last = '<span>עוד אין רישום קודם לתרגיל הזה. המשקל שתרשום היום יופיע כאן באימון הבא.</span>';
+  return '<div class="ex-a"><div class="stage-wrap"><canvas class="stage" role="img" aria-label="הדמיה של ' + esc(e.name) + '"></canvas>' +
+    '<span class="stage-tag">' + view + '</span><span class="stage-phase"></span>' +
+    '<button class="stage-play" type="button"></button></div>' +
+    '<div class="how"><p class="muscles"><i></i><span>' + info.m + '</span></p><ul class="cues">' + info.c.map((c) => '<li>' + c + '</li>').join('') + '</ul></div></div>' +
+    '<div class="ex-b"><div class="rx-row">' +
+    '<div><span class="rx-k">סטים × חזרות</span><span class="rx-v">' + Ltr(e.sets + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span></div>' +
+    '<div><span class="rx-k">מנוחה</span><span class="rx-v">' + restText(e).replace(/ (דק׳|שנ׳)/, ' <small>$1</small>') + '</span></div>' +
+    '<div><span class="rx-k">עצימות</span><span class="chip l' + e.lvl + '">' + e.int + '</span></div></div>' +
+    '<div class="sets">' + rows + '</div><p class="last">' + last + '</p>' +
+    '<button class="btn ask" type="button">' + ICON.cam + 'המכשיר תפוס? שאל את Claude על חלופה</button></div>';
+}
+function updateProgress() {
+  const wk = PLAN[S.tab], s = sessFor(S.tab, false), total = wk.ex.reduce((n, e) => n + e.sets, 0), dn = wk.ex.reduce((n, e) => n + doneCount(s, e), 0);
+  const bar = $('#wkBar'), txt = $('#wkTxt');
+  if (bar) bar.style.width = (dn / total) * 100 + '%';
+  if (txt) txt.innerHTML = Ltr(dn + ' / ' + total) + ' סטים';
+  const fin = $('#finishBtn'); if (fin) fin.disabled = dn === 0;
+  return { dn, total };
+}
+function renderHead() {
+  const wk = PLAN[S.tab], total = wk.ex.reduce((n, e) => n + e.sets, 0);
+  const mins = Math.round(wk.ex.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
+  $('#wkHead').innerHTML = '<p class="wk-kicker">אימון ' + (S.tab + 1) + ' מתוך 4 · ' + wk.he + '</p><h1>' + wk.name + '</h1>' +
+    '<p class="wk-meta">' + wk.ex.length + ' תרגילים · ' + total + ' סטים · כ־' + mins + ' דקות</p>' +
+    '<div class="wk-prog"><div class="bar"><i id="wkBar"></i></div><span id="wkTxt"></span></div>';
+}
+function renderFoot() {
+  const nu = PLAN[(S.tab + 1) % 4], s = sessFor(S.tab, false);
+  $('#wkFoot').innerHTML = '<button class="btn primary big" id="finishBtn" type="button">סיים אימון</button>' +
+    '<p class="foot-note">אחרי הסיום, הבא בתור יהיה אימון ' + (((S.tab + 1) % 4) + 1) + ' · ' + Ltr(nu.name) + '</p>' +
+    (s ? (S.resetAsk ? '<div class="confirm"><span>למחוק את מה שנרשם באימון הזה היום?</span><button class="btn" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></div>' : '<button class="link" id="resetBtn" type="button">נקה את הרישום של האימון הזה</button>') : '');
+}
+function renderHistory() {
+  const list = sorted().filter((s) => hasDone(s) && !isOpen(s)).slice(0, 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' });
+  $('#history').innerHTML = '<h2>אימונים אחרונים</h2>' + (list.length ? '<ul>' + list.map((s) => { const v = volume(s); return '<li><span>' + df.format(new Date(s.ts)) + ' · אימון ' + (s.w + 1) + ' ' + Ltr(PLAN[s.w].name) + '</span><span>' + setsDone(s) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + '</span></li>'; }).join('') + '</ul>'
+    : '<p>כאן יופיעו האימונים שסיימת, עם מספר הסטים והנפח הכולל.</p>');
+}
+function renderWorkout() {
+  stopPlayer();
+  const wk = PLAN[S.tab];
+  renderHead();
+  $('#exList').innerHTML = wk.ex.map((e, i) => rowHTML(S.tab, e, i)).join('');
+  drawThumbs(); renderFoot(); updateProgress();
+  const keep = S.open && wk.ex.some((e) => e.id === S.open) ? S.open : null;
+  S.open = null; if (keep) openEx(keep, false);
+}
+function renderAll() { renderTabs(); renderWorkout(); renderHistory(); }
+function closeEx() {
+  const li = $('.ex.open');
+  if (li) { li.classList.remove('open'); const b = $('.ex-body', li); b.hidden = true; b.innerHTML = ''; $('.ex-head', li).setAttribute('aria-expanded', 'false'); }
+  stopPlayer(); S.open = null;
+}
+function openEx(id, scroll) {
+  const li = $('.ex[data-id="' + id + '"]'), e = findEx(id);
+  if (!li || !e) return;
+  closeEx();
+  const body = $('.ex-body', li);
+  body.innerHTML = bodyHTML(S.tab, e); body.hidden = false;
+  li.classList.add('open'); $('.ex-head', li).setAttribute('aria-expanded', 'true'); S.open = id;
+  startPlayer($('.stage', body), e.a, $('.stage-phase', body), $('.stage-play', body));
+  if (scroll) li.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+}
+function refreshRow(e) {
+  const li = $('.ex[data-id="' + e.id + '"]'); if (!li) return;
+  const dn = doneCount(sessFor(S.tab, false), e);
+  li.classList.toggle('done', dn >= e.sets);
+  $$('.dots i', li).forEach((d, k) => d.classList.toggle('on', k < dn));
+}
+function rowData(exId, i) {
+  const s = sessFor(S.tab, true), arr = s.sets[exId] || (s.sets[exId] = []);
+  return { s, row: arr[i] || (arr[i] = { kg: null, reps: null, done: false }) };
+}
+function toggleDone(e, i, setEl) {
+  primeAudio();
+  const { s, row } = rowData(e.id, i);
+  row.done = !row.done;
+  if (row.done) for (const k of ['kg', 'reps']) {
+    const inp = $('[data-k="' + k + '"]', setEl), typed = num(inp.value, k === 'reps');
+    row[k] = typed != null ? typed : num(inp.placeholder, k === 'reps');
+    if (row[k] != null) inp.value = row[k];
+  }
+  setEl.classList.toggle('done', row.done); $('.set-done', setEl).setAttribute('aria-pressed', String(row.done));
+  persist(s); refreshRow(e); updateProgress(); renderTabs();
+  if (!$('#resetBtn') && !S.resetAsk) renderFoot(), updateProgress();
+  if (row.done) afterDone(e, i); else stopRest();
+}
+function afterDone(e, i) {
+  const wk = PLAN[S.tab], s = sessFor(S.tab, false), left = (x) => doneCount(s, x) < x.sets;
+  if (!wk.ex.some(left)) { stopRest(); const b = $('#finishBtn'); if (b) b.scrollIntoView({ block: 'center', behavior: reduced ? 'auto' : 'smooth' }); return; }
+  if (left(e)) {
+    const nx = rowsOf(s, e.id).findIndex((r, k) => k < e.sets && !(r && r.done)), n = nx < 0 ? rowsOf(s, e.id).length : nx;
+    const nextEl = $('.ex.open .set[data-i="' + n + '"] [data-k="kg"]');
+    if (nextEl && !nextEl.value) { const { row } = rowData(e.id, i); if (row.kg != null && !/^\d/.test(nextEl.placeholder)) nextEl.placeholder = row.kg; }
+    startRest(e.rest[0], e.rest[1], 'הבא: סט ' + (n + 1) + ' מתוך ' + e.sets);
+    return;
+  }
+  const idx = wk.ex.indexOf(e), nxt = wk.ex.slice(idx + 1).find(left) || wk.ex.find(left);
+  startRest(e.rest[0], e.rest[1], 'הבא: ' + nxt.name);
+  setTimeout(() => { if (S.open === e.id) openEx(nxt.id, true); }, 800);
+}
+function finishWorkout() {
+  const s = sessFor(S.tab, false); if (!s || !hasDone(s)) return;
+  const wk = PLAN[S.tab], total = wk.ex.reduce((n, e) => n + e.sets, 0), v = volume(s);
+  s.end = Date.now(); persist(s); stopRest();
+  const nu = nextUp(), b = $('#banner');
+  b.innerHTML = '<p><b>אימון ' + (s.w + 1) + ' · ' + Ltr(wk.name) + ' הושלם.</b> ' + setsDone(s) + ' מתוך ' + total + ' סטים' + (v ? ', נפח כולל ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + '. הבא בתור: אימון ' + (nu.next + 1) + ' · ' + Ltr(PLAN[nu.next].name) + '.</p><button type="button" id="bannerX" aria-label="סגור">' + ICON.x + '</button>';
+  b.hidden = false;
+  S.tab = nu.next; S.open = null; S.resetAsk = false; renderAll();
+  window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+}
+
+/* ================================================================== rest timer */
+const rest = { on: false, start: 0, min: 0, max: 0, iv: 0, minHit: false, ended: 0, label: '', lock: null };
+let actx = null;
+function primeAudio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { actx = null; } }
+function beep(n) {
+  if (!S.sound || !actx) return;
+  try {
+    for (let i = 0; i < n; i++) {
+      const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime + i * 0.3;
+      o.type = 'sine'; o.frequency.value = n === 1 ? 660 : 880;
+      gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(0.28, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+      o.connect(gn); gn.connect(actx.destination); o.start(t); o.stop(t + 0.26);
+    }
+  } catch (e) { /* no audio here */ }
+}
+const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+function startRest(min, max, label) {
+  clearInterval(rest.iv);
+  Object.assign(rest, { on: true, start: Date.now(), min, max, minHit: false, ended: 0, label });
+  $('#rest').hidden = false; $('#rest').classList.remove('ready', 'go'); $('#app').classList.add('has-rest');
+  tickRest(); rest.iv = setInterval(tickRest, 200);
+  if (navigator.wakeLock && !rest.lock) navigator.wakeLock.request('screen').then((l) => { rest.lock = l; }).catch(() => {});
+}
+function tickRest() {
+  const el = (Date.now() - rest.start) / 1000, left = Math.max(0, rest.max - el), box = $('#rest');
+  $('#restTime').textContent = mmss(Math.ceil(left));
+  $('#restFill').style.width = Math.min(100, (el / rest.max) * 100) + '%';
+  if (rest.min < rest.max && !rest.minHit && el >= rest.min && left > 0) { rest.minHit = true; beep(1); box.classList.add('ready'); }
+  if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); if (navigator.vibrate) { try { navigator.vibrate([180, 90, 180]); } catch (e) { /* unsupported */ } } box.classList.remove('ready'); box.classList.add('go'); }
+  const state = rest.ended ? 'קדימה, לסט הבא' : rest.minHit ? 'אפשר להתחיל' : 'מנוחה';
+  $('#restLabel').innerHTML = '<b>' + state + '</b> · ' + esc(rest.label);
+  if (rest.ended && Date.now() - rest.ended > 9000) stopRest();
+}
+function stopRest() {
+  clearInterval(rest.iv); rest.on = false;
+  $('#rest').hidden = true; $('#app').classList.remove('has-rest');
+  if (rest.lock) { try { rest.lock.release(); } catch (e) { /* already released */ } rest.lock = null; }
+}
+function nudgeRest(d) {
+  if (!rest.on) return;
+  rest.max = Math.max(5, rest.max + d); rest.min = Math.min(rest.min, rest.max);
+  if (rest.ended && (Date.now() - rest.start) / 1000 < rest.max) { rest.ended = 0; $('#rest').classList.remove('go'); }
+  tickRest();
+}
+function paintSound() { const b = $('#restSound'); b.innerHTML = S.sound ? ICON.snd : ICON.mute; b.setAttribute('aria-label', S.sound ? 'השתק צליל' : 'הפעל צליל'); }
+
+/* ================================================================== chat with Claude */
+const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
+function planText() {
+  return PLAN.map((w, i) => 'אימון ' + (i + 1) + ' – ' + w.name + ':\n' + w.ex.map((e, j) => (j + 1) + '. ' + e.name + ': ' + e.sets + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e) + ' | ' + e.int).join('\n')).join('\n\n');
+}
+const RULES = 'אתה מאמן כוח מנוסה שמשולב באפליקציית האימונים האישית של המשתמש. ענה תמיד בעברית, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
+  'התוכנית של המשתמש (Upper/Lower, ארבעה אימונים שמתבצעים במחזור לפי הסדר):\n\n' + planText() + '\n\n' +
+  'כללים:\n' +
+  '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה בתשובה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה הסבר קצר (שרירי מטרה ודפוס תנועה), איך להתאים סטים, חזרות, מנוחה וקרבה לכשל, ודגש ביצוע אחד.\n' +
+  '- בשאלות אחרות (טכניקה, משקל התחלתי, סדר תרגילים) ענה ישר, בלי שורת פסיקה.\n' +
+  '- אם צורפה תמונה, פתח את ההסבר בזיהוי של המכשיר או התרגיל שרואים בה ("בתמונה: ..."), כי בהודעות ההמשך התמונה כבר לא תהיה זמינה לך. אם התמונה לא ברורה, אמור מה אתה כן רואה ובקש צילום מזווית אחרת.\n' +
+  '- אם נאמר שצורפה תמונה אבל היא לא הגיעה אליך, בקש לצרף אותה שוב.\n' +
+  '- כשאין תחליף מדויק, הצע חלופה אחת או שתיים שנפוצות בחדרי כושר.\n' +
+  '- שמור על כוונת התוכנית: אותה קבוצת שרירים, אותו טווח חזרות ואותה קרבה לכשל.\n' +
+  '- אין לך מידע רפואי על המשתמש. אם מוזכרים כאב או פציעה, המלץ להפסיק את התרגיל ולהתייעץ עם איש מקצוע.\n' +
+  '- טקסט פשוט בלבד, בלי טבלאות ובלי כותרות. אפשר שורות קצרות שמתחילות ב-"• ".';
+const ERR = {
+  not_granted: 'לא אישרת ל-Claude לענות בדף הזה, ולכן הצ׳אט כבוי כרגע. אפשר לשנות את זה בהרשאות של הדף.',
+  sampling_disabled: 'Claude לא זמין בחשבון הזה, ולכן הצ׳אט כבוי.',
+  rate_limited: 'הגעת למגבלת השימוש כרגע. נסה שוב בעוד כמה דקות.',
+  session_expired: 'ההתחברות פגה. התחבר מחדש ל-Claude ונסה שוב.',
+  image_rejected: 'לא הצלחתי לשלוח את התמונה. נסה לצלם שוב או לבחור תמונה אחרת.',
+  images_unavailable: 'אי אפשר לשלוח תמונות בתצוגה הזאת. תאר את המכשיר במילים.',
+  refused: 'Claude לא ענה על השאלה הזאת. נסה לנסח אותה אחרת.',
+  empty_completion: 'לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.',
+  prompt_too_large: 'השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.',
+  upstream_error: 'התקשורת עם Claude נקטעה. נסה לשלוח שוב.',
+};
+const HIDE = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'];
+function splitVerdict(text, final) {
+  const m = text.match(/^\s*(?:פסיקה\s*[:\-–]\s*)?(מתאים חלקית|לא מומלץ|מתאים)\s*[.!]?\s*(\n|$)/);
+  if (!m || (!final && !m[2])) return null;
+  return { kind: m[1] === 'מתאים' ? 'ok' : m[1] === 'מתאים חלקית' ? 'mid' : 'no', label: m[1], rest: text.slice(m[0].length) };
+}
+function fmtText(text) {
+  let html = '', list = false;
+  for (const raw of esc(text).split('\n')) {
+    const ln = raw.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/^#+\s*/, '').replace(/\d+(?:[.,]\d+)?(?:\s?[–\-×xX]\s?\d+(?:[.,]\d+)?)+/g, '<bdi dir="ltr">$&</bdi>'), m = ln.match(/^\s*[•\-*]\s+(.*)$/);
+    if (m) { if (!list) { html += '<ul>'; list = true; } html += '<li>' + m[1] + '</li>'; continue; }
+    if (list) { html += '</ul>'; list = false; }
+    if (ln.trim()) html += '<p>' + ln + '</p>';
+  }
+  return html + (list ? '</ul>' : '');
+}
+function msgHTML(m) {
+  if (m.role === 'sys') return '<div class="msg sys">' + esc(m.text) + '</div>';
+  if (m.role === 'u') return '<div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="התמונה ששלחת">' : m.hadImg ? '<span class="note">[תמונה]</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note" style="color:inherit;opacity:.75">לגבי ' + esc(m.ctx) + '</span>' : '') + '</div>';
+  if (!m.text) return '<div class="msg a"><span class="think">חושב…</span></div>';
+  const v = splitVerdict(m.text, !m.live);
+  return '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(m.text)) + (m.note ? '<span class="note">' + esc(m.note) + '</span>' : '') + '</div>';
+}
+const SUGS = ['המכשיר תפוס. מה אפשר לעשות במקום?', 'צילמתי מכשיר אחר. הוא מתאים כתחליף?', 'תן לי דגשי ביצוע לתרגיל הזה', 'איך יודעים שנשארה חזרה אחת לפני כשל?'];
+function renderMsgs() {
+  const box = $('#msgs');
+  if (chat.off) { box.innerHTML = '<div class="empty"><strong>הצ׳אט לא זמין כרגע</strong><span>' + esc(chat.off) + '</span></div>'; return; }
+  if (!chat.msgs.length) {
+    box.innerHTML = '<div class="empty"><strong>המכשיר תפוס, או שאין אותו בחדר הכושר שלך?</strong><span>צלם את המכשיר שכן פנוי או כתוב שם של תרגיל, ואגיד לך אם הוא מחליף טוב את מה שבתוכנית ואיך להתאים אותו.</span><div class="sugs">' +
+      SUGS.map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>').join('') + '</div></div>';
+    return;
+  }
+  box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
+}
+function paintLast() {
+  const box = $('#msgs'), el = box.lastElementChild, stick = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  if (el) el.outerHTML = msgHTML(chat.msgs[chat.msgs.length - 1]);
+  if (stick) box.scrollTop = box.scrollHeight;
+}
+function setBusy(on) {
+  chat.busy = on; const b = $('#sendBtn');
+  b.innerHTML = on ? ICON.stop : ICON.send; b.setAttribute('aria-label', on ? 'עצור' : 'שלח');
+}
+function compNote(t) { const n = $('#compNote'); n.textContent = t || ''; n.hidden = !t; }
+function setAttach(blob) {
+  if (chat.imgUrl && !chat.msgs.some((m) => m.imgUrl === chat.imgUrl)) URL.revokeObjectURL(chat.imgUrl);
+  chat.img = blob || null; chat.imgUrl = blob ? URL.createObjectURL(blob) : '';
+  $('#attach').hidden = !blob; if (blob) $('#attachImg').src = chat.imgUrl;
+}
+async function pickImage(file) {
+  if (!file) return;
+  compNote('');
+  try {
+    let src, w, h;
+    if (window.createImageBitmap) { try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { src = null; } }
+    if (!src) { src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); }); }
+    w = src.width || src.naturalWidth; h = src.height || src.naturalHeight;
+    const k = Math.min(1, 1600 / Math.max(w, h)), cv = document.createElement('canvas');
+    cv.width = Math.round(w * k); cv.height = Math.round(h * k); cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
+    const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
+    if (!blob) throw new Error('encode');
+    setAttach(blob); $('#chatInput').focus();
+  } catch (e) { compNote('לא הצלחתי לקרוא את התמונה. נסה לצלם שוב או לבחור קובץ JPG או PNG.'); }
+}
+function ctxLine() {
+  const id = $('#chatCtx').value, e = id && findEx(id); if (!e) return null;
+  const w = wkOf(id), s = sessFor(w, false), src = (s && rowsOf(s, id).some((r) => r && r.done) && s) || prevFor(w, id, null);
+  let t = '[הקשר מהאפליקציה: השאלה מתייחסת לתרגיל "' + e.name + '" (אימון ' + (w + 1) + ' · ' + PLAN[w].name + '): ' + e.sets + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + ', ' + e.int + '.';
+  if (src) t += ' ביצוע אחרון שנרשם (ק״ג×חזרות): ' + rowsOf(src, id).filter((r) => r && r.done).map(fmtRow).join(', ') + '.';
+  return { text: t + ']', name: e.name };
+}
+async function sendChat(preset) {
+  if (chat.busy) { if (chat.ctl) chat.ctl.abort(); return; }
+  if (chat.off) return;
+  const inp = $('#chatInput'), typed = (preset || inp.value).trim(), img = chat.img, imgUrl = chat.imgUrl;
+  if (!typed && !img) { inp.focus(); return; }
+  const text = typed || 'מה המכשיר שבתמונה, והאם הוא מתאים כתחליף?', ctx = ctxLine();
+  compNote(''); setBusy(true);
+  chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx ? ctx.name : '' });
+  const reply = { role: 'a', text: '', live: true }; chat.msgs.push(reply);
+  chat.turns.push({ role: 'user', content: (ctx ? ctx.text + '\n\n' : '') + text + (img ? '\n\n[להודעה הזאת צורפה תמונה אחת]' : '') });
+  inp.value = ''; inp.style.height = ''; chat.img = null; chat.imgUrl = ''; $('#attach').hidden = true;
+  renderMsgs();
+  const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); inp.value = typed; if (img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
+  let sample = null;
+  try { sample = await chat.sampleP; } catch (e) { sample = null; }
+  if (!sample) { undo(); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); setBusy(false); return; }
+  chat.ctl = new AbortController();
+  try {
+    const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { reply.text = u.text; paintLast(); } };
+    if (img) opts.images = [img];
+    const res = await sample([{ role: 'user', content: RULES }].concat(chat.turns.slice(-16)), opts);
+    reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'התשובה נקטעה באמצע. בקש המשך או שאל שאלה קצרה יותר.';
+    chat.turns.push({ role: 'assistant', content: res.text }); paintLast();
+  } catch (e) {
+    const code = (e && e.code) || 'upstream_error', part = e && e.text;
+    if (HIDE.includes(code)) { undo(); chat.off = ERR[code] || 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); }
+    else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = code === 'cancelled' ? 'עצרת את התשובה.' : ERR[code] || ERR.upstream_error; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
+    else { undo(); if (code !== 'cancelled') compNote(ERR[code] || ERR.upstream_error); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); } }
+  } finally { chat.ctl = null; setBusy(false); }
+}
+function showImgBtns() { $('#camBtn').hidden = $('#galBtn').hidden = !chat.canImg; }
+function initChat() {
+  $('#chatCtx').innerHTML = '<option value="">כל התוכנית (שאלה כללית)</option>' + PLAN.map((w, i) => '<optgroup label="אימון ' + (i + 1) + ' · ' + w.name + '">' + w.ex.map((e) => '<option value="' + e.id + '">' + esc(e.name) + '</option>').join('') + '</optgroup>').join('');
+  if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); return; }
+  chat.sampleP = window.claude.use('sample');
+  chat.sampleP.then(async (sample) => {
+    if (!sample) { chat.off = 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); return; }
+    try { const lim = await sample.limits(); chat.canImg = !!(lim && lim.images); } catch (e) { chat.canImg = false; }
+    showImgBtns();
+    if (!chat.canImg) $('#chatInput').placeholder = 'כתוב שם של מכשיר או תרגיל חלופי';
+  }).catch(() => {});
+  renderMsgs();
+}
+function openChat(exId) {
+  if (exId) $('#chatCtx').value = exId;
+  $('#chat').classList.add('open');
+  if (!matchMedia('(min-width:1000px)').matches) document.body.style.overflow = 'hidden';
+  else $('#chatInput').focus();
+}
+function closeChat() { $('#chat').classList.remove('open'); document.body.style.overflow = ''; }
+
+/* ================================================================== wiring */
+function wire() {
+  $('#tabs').addEventListener('click', (ev) => { const b = ev.target.closest('.tab'); if (!b) return; S.tab = +b.dataset.tab; S.touched = true; S.open = null; S.resetAsk = false; renderTabs(); renderWorkout(); const first = PLAN[S.tab].ex.find((e) => doneCount(sessFor(S.tab, false), e) < e.sets); if (first) openEx(first.id, false); });
+  const list = $('#exList');
+  list.addEventListener('click', (ev) => {
+    const li = ev.target.closest('.ex'); if (!li) return;
+    const e = findEx(li.dataset.id);
+    if (ev.target.closest('.ex-head')) { S.touched = true; if (S.open === e.id) closeEx(); else openEx(e.id, false); return; }
+    if (ev.target.closest('.stage-play')) { setPlaying(!player.playing); return; }
+    if (ev.target.closest('.ask')) { openChat(e.id); return; }
+    const d = ev.target.closest('.set-done');
+    if (d) { const setEl = d.closest('.set'); S.touched = true; toggleDone(e, +setEl.dataset.i, setEl); }
+  });
+  list.addEventListener('input', (ev) => {
+    const inp = ev.target.closest('.field input'); if (!inp) return;
+    const li = inp.closest('.ex'), setEl = inp.closest('.set'), { s, row } = rowData(li.dataset.id, +setEl.dataset.i);
+    row[inp.dataset.k] = num(inp.value, inp.dataset.k === 'reps'); S.touched = true; persist(s);
+    if (!$('#resetBtn') && !S.resetAsk) { renderFoot(); updateProgress(); }
+  });
+  $('#wkFoot').addEventListener('click', (ev) => {
+    const id = ev.target.closest('button') && ev.target.closest('button').id;
+    if (id === 'finishBtn') finishWorkout();
+    else if (id === 'resetBtn') { S.resetAsk = true; renderFoot(); updateProgress(); }
+    else if (id === 'resetNo') { S.resetAsk = false; renderFoot(); updateProgress(); }
+    else if (id === 'resetYes') { const s = sessFor(S.tab, false); if (s) { delete S.sessions[s.id]; saveLocal(); flush(s.id); } S.resetAsk = false; stopRest(); renderAll(); }
+  });
+  $('#banner').addEventListener('click', (ev) => { if (ev.target.closest('#bannerX')) $('#banner').hidden = true; });
+  $('#restSkip').addEventListener('click', stopRest);
+  $('#restPlus').addEventListener('click', () => nudgeRest(15));
+  $('#restMinus').addEventListener('click', () => nudgeRest(-15));
+  $('#restSound').addEventListener('click', () => { S.sound = !S.sound; paintSound(); saveLocal(); if (S.sound) { primeAudio(); beep(1); } });
+  $('#fab').addEventListener('click', () => openChat(S.open));
+  $('#chatOpen').addEventListener('click', () => openChat(S.open));
+  $('#chatClose').addEventListener('click', closeChat);
+  $('#chatNew').addEventListener('click', () => { if (chat.ctl) chat.ctl.abort(); chat.msgs = []; chat.turns = []; setAttach(null); compNote(''); renderMsgs(); });
+  $('#sendBtn').addEventListener('click', () => sendChat());
+  const inp = $('#chatInput');
+  inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); sendChat(); } });
+  inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.height = Math.min(120, inp.scrollHeight + 2) + 'px'; });
+  $('#msgs').addEventListener('click', (ev) => { const b = ev.target.closest('.sug'); if (b) sendChat(SUGS[+b.dataset.sug]); });
+  $('#camBtn').addEventListener('click', () => $('#camFile').click());
+  $('#galBtn').addEventListener('click', () => $('#galFile').click());
+  for (const id of ['#camFile', '#galFile']) $(id).addEventListener('change', (ev) => { const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; pickImage(f); });
+  $('#attachX').addEventListener('click', () => setAttach(null));
+  if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
+  new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {});
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && rest.on) tickRest(); });
+}
+let booted = false;
+function boot(data) {
+  if (booted) return; booted = true;
+  data = data || {};
+  document.documentElement.lang = 'he'; document.documentElement.dir = 'rtl';
+  const d = loadLocal();
+  if (d.sessions) S.sessions = d.sessions;
+  if (typeof d.sound === 'boolean') S.sound = d.sound;
+  S.tab = typeof data.tab === 'number' ? data.tab : nextUp().next;
+  if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
+  if (Array.isArray(data.turns)) chat.turns = data.turns;
+  readColors(); wire(); paintSound(); renderAll(); initChat();
+  const s = sessFor(S.tab, false), first = (data.open && findEx(data.open) && wkOf(data.open) === S.tab && findEx(data.open)) || PLAN[S.tab].ex.find((e) => doneCount(s, e) < e.sets);
+  if (first) openEx(first.id, false);
+  initCloud();
+}
+(function () {
+  const hot = window.claude && window.claude.hot;
+  try { if (hot && typeof hot.snapshot === 'function') hot.snapshot(() => ({ tab: S.tab, open: S.open, turns: chat.turns.slice(-16), msgs: chat.msgs.filter((m) => !m.live).slice(-24).map((m) => ({ role: m.role, text: m.text, hadImg: !!m.hadImg, ctx: m.ctx || '', note: m.note || '' })) })); } catch (e) { /* no hot reload here */ }
+  try { if (hot && typeof hot.ready === 'function') { hot.ready(boot); setTimeout(() => boot({}), 1200); } else boot((hot && hot.data) || {}); } catch (e) { boot({}); }
+})();
+</script>

@@ -150,13 +150,13 @@ function bodyHTML(e) {
     '<button class="btn ask" type="button">' + ICON.cam + 'המכשיר תפוס? שאל את אילון על חלופה</button></div>';
 }
 function renderHistory() {
-  const list = sorted().filter((s) => hasDone(s) && s.end).slice(0, 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }), s = live(S.tab);
+  const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }), s = live(S.tab);
   let act = '<div class="hist-act">';
   if (s) act += '<button class="btn primary" id="finishBtn" type="button">סיים אימון</button>' + (S.resetAsk ? '<span class="confirm"><span>למחוק את מה שנרשם באימון הזה?</span><button class="btn" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></span>' : '<button class="link" id="resetBtn" type="button">נקה את הרישום של האימון הזה</button>');
   if (S.dl && list.length) act += '<button class="link" id="exportBtn" type="button">ייצוא כל הרישום לקובץ CSV</button>';
   act += '</div>';
-  $('#history').innerHTML = act + '<h2>אימונים אחרונים</h2>' + (list.length ? '<ul>' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span>' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span>' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + '</span>' + (S.delAsk === x.id ? '<span class="confirm"><button class="link" type="button" data-delyes="' + x.id + '">למחוק</button><button class="link" type="button" data-delno="1">ביטול</button></span>' : '<button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</li>'; }).join('') + '</ul>'
-    : '<p>כאן יופיעו האימונים שסיימת, עם מספר הסטים, הנפח הכולל ומשך האימון.</p>');
+  $('#history').innerHTML = act + '<h2>אימונים אחרונים</h2>' + (list.length ? '<ul>' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span class="h-t">' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span class="h-act">' + (S.delAsk === x.id ? '<button class="link" type="button" data-delyes="' + x.id + '">כן, למחוק</button><button class="link" type="button" data-delno="1">ביטול</button>' : '<button class="link" type="button" data-edit="' + x.id + '" aria-label="ערוך את האימון הזה">עריכה</button><button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</span><span class="h-s">' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + '</span></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">הצג עוד אימונים</button>' : '')
+    : '<p>כאן יופיעו האימונים שסיימת. כל אימון אפשר יהיה לערוך או למחוק.</p>');
   updateProgress();
 }
 function markCur() {
@@ -371,9 +371,71 @@ function showSummary(s) {
 function finishWorkout() {
   const s = live(S.tab); if (!s || !hasDone(s)) return;
   clearInterval(rest.iv); rest.on = false; rest.last = null;
-  s.end = Date.now(); touch(s); letSleep();
+  s.end = Date.now(); s.mt = s.end; touch(s); letSleep();
   S.edit = null; S.draft = null; S.resetAsk = false; S.open = null; S.tab = nextUp().next;
   renderAll(); showSummary(s); window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+}
+/* ---- fix the record afterwards: edit any set of a finished workout, move it to another day, reopen or delete it ---- */
+function deleteSession(id) {
+  if (!S.sessions[id]) return;
+  delete S.sessions[id]; S.gone.add(id); S.dirty.add(id); saveLocal(); schedule(id, 100);
+}
+const isoDay = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function editorActions(s) {
+  if (S.edDel) return '<span class="confirm"><span>למחוק את האימון הזה לגמרי?</span><button class="btn danger" id="edDelYes" type="button">כן, מחק</button><button class="btn" id="edDelNo" type="button">ביטול</button></span>';
+  return '<button class="btn danger" id="edDelAsk" type="button">מחק אימון</button>' + (!live(s.w) && Date.now() - s.end < 12 * HOUR ? '<button class="btn" id="edReopen" type="button">המשך את האימון</button>' : '') + '<button class="btn primary" id="edDone" type="button">סיום</button>';
+}
+function openEditor(id) {
+  const s = S.sessions[id]; if (!s) return;
+  const wk = PLAN[s.w];
+  let list = '';
+  for (const e of wk.ex) {
+    const r = rowsOf(s, e.id), n = Math.max(e.sets, r.length);
+    list += '<section class="ed-ex"><h3>' + esc(e.name) + '</h3>';
+    for (let i = 0; i < n; i++) {
+      const row = r[i] || {}, on = isDone(row);
+      list += '<div class="ed-row' + (on ? ' on' : '') + '" data-ex="' + e.id + '" data-i="' + i + '"><span>סט ' + (i + 1) + '</span>' +
+        '<label class="ed-f"><input type="text" inputmode="decimal" autocomplete="off" data-k="kg" aria-label="משקל בסט ' + (i + 1) + '" value="' + (on && row.kg != null ? fmtKg(row.kg) : '') + '"><span>ק״ג</span></label><span aria-hidden="true">×</span>' +
+        '<label class="ed-f"><input type="text" inputmode="numeric" autocomplete="off" data-k="reps" aria-label="חזרות בסט ' + (i + 1) + '" value="' + (on && row.reps != null ? row.reps : '') + '"><span>חז׳</span></label>' +
+        '<button class="ed-clr" type="button" aria-label="נקה את סט ' + (i + 1) + '">' + ICON.x + '</button></div>';
+    }
+    list += '</section>';
+  }
+  S.edSid = id; S.edDel = false;
+  const sh = $('#sheet');
+  sh.innerHTML = '<div class="sheet-in ed" role="dialog" aria-modal="true" aria-label="עריכת אימון"><div class="ed-h"><div><p class="kicker">עריכת אימון ' + (s.w + 1) + '</p><h2>' + Ltr(wk.name) + '</h2></div><button class="icon-btn" id="sheetClose" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+    '<label class="ed-date" for="edDate"><span>תאריך האימון</span><input type="date" id="edDate" value="' + isoDay(new Date(s.ts)) + '" max="' + isoDay(new Date()) + '"></label>' +
+    '<p class="ed-note">כל שינוי נשמר מיד. סט בלי מספר חזרות נחשב כלא בוצע.</p><div class="ed-list">' + list + '</div><div class="ed-act" id="edAct">' + editorActions(s) + '</div></div>';
+  sh.hidden = false;
+}
+function closeSheet() {
+  const sh = $('#sheet'); if (sh.hidden) return;
+  sh.hidden = true; sh.innerHTML = '';
+  if (S.edSid) { S.edSid = null; S.edDel = false; renderAll(); }
+}
+function editorInput(rowEl) {
+  const s = S.sessions[S.edSid]; if (!s || !rowEl) return;
+  const exId = rowEl.dataset.ex, i = +rowEl.dataset.i, arr = s.sets[exId] || (s.sets[exId] = []), row = arr[i] || (arr[i] = { kg: null, reps: null, done: false });
+  const kg = num($('[data-k="kg"]', rowEl).value), reps = num($('[data-k="reps"]', rowEl).value, true);
+  row.kg = kg != null && kg > 0 ? kg : null; row.reps = reps != null && reps > 0 ? reps : null; row.done = row.reps != null; row.t = Date.now(); delete row.pr;
+  rowEl.classList.toggle('on', row.done); touch(s);
+}
+function editorDate(val) {
+  const s = S.sessions[S.edSid]; if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(val)) return;
+  const old = new Date(s.ts), p = val.split('-').map(Number), len = s.end ? s.end - s.ts : 0;
+  let nt = new Date(p[0], p[1] - 1, p[2], old.getHours(), old.getMinutes(), old.getSeconds()).getTime();
+  if (nt + len > Date.now()) nt = Date.now() - len - 60000;
+  if (nt === s.ts) return;
+  s.ts = nt; if (s.end) s.end = nt + len; s.mt = Date.now(); touch(s);
+}
+function editorReopen() {
+  const s = S.sessions[S.edSid]; if (!s || live(s.w)) return;
+  s.end = 0; s.mt = Date.now(); touch(s);
+  S.tab = s.w; S.touched = true; S.open = null; S.edSid = null; S.edDel = false;
+  const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = '';
+  renderAll();
+  const first = PLAN[S.tab].ex.find((e) => firstUndone(s, e) >= 0); if (first) { openEx(first.id, false); renderDock(); }
+  window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
 }
 async function exportCsv() {
   if (!S.dl) return;
@@ -457,11 +519,24 @@ function wireApp() {
     const b = ev.target.closest('button'), ds = b ? b.dataset : {};
     if (ds.del) { S.delAsk = ds.del; renderHistory(); }
     else if (ds.delno) { S.delAsk = null; renderHistory(); }
-    else if (ds.delyes && S.sessions[ds.delyes]) { delete S.sessions[ds.delyes]; S.gone.add(ds.delyes); S.dirty.add(ds.delyes); S.delAsk = null; saveLocal(); schedule(ds.delyes, 100); if (!S.touched) S.tab = nextUp().next; renderAll(); }
+    else if (ds.delyes && S.sessions[ds.delyes]) { deleteSession(ds.delyes); S.delAsk = null; if (!S.touched) S.tab = nextUp().next; renderAll(); }
+    else if (ds.edit) { S.delAsk = null; openEditor(ds.edit); }
+    else if (id === 'histMore') { S.histN = (S.histN || 6) + 10; renderHistory(); }
   });
   $('#hero').addEventListener('click', (ev) => { if (ev.target.closest('#bannerX')) { S.banner = ''; renderHero(); updateProgress(); } });
-  $('#sheet').addEventListener('click', (ev) => { if (ev.target.id === 'sheet' || ev.target.closest('#sheetClose')) $('#sheet').hidden = true; });
-  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { if (!$('#sheet').hidden) $('#sheet').hidden = true; else closeChat(); } });
+  const sheet = $('#sheet');
+  sheet.addEventListener('click', (ev) => {
+    const id = (ev.target.closest('button') || {}).id;
+    if (ev.target === sheet || id === 'sheetClose' || id === 'edDone') { closeSheet(); return; }
+    if (id === 'edDelAsk' || id === 'edDelNo') { S.edDel = id === 'edDelAsk'; $('#edAct').innerHTML = editorActions(S.sessions[S.edSid]); }
+    else if (id === 'edDelYes') { deleteSession(S.edSid); if (!S.touched) S.tab = nextUp().next; closeSheet(); }
+    else if (id === 'edReopen') editorReopen();
+    const clr = ev.target.closest('.ed-clr');
+    if (clr) { const rowEl = clr.closest('.ed-row'); $$('input', rowEl).forEach((x) => { x.value = ''; }); editorInput(rowEl); }
+  });
+  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); });
+  sheet.addEventListener('change', (ev) => { if (ev.target.id === 'edDate') editorDate(ev.target.value); });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { if (!sheet.hidden) closeSheet(); else closeChat(); } });
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (rest.on) tickRest(); if (live(S.tab)) keepAwake(); });

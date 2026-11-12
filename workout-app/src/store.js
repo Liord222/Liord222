@@ -47,7 +47,7 @@ function sweep() {
     if (s.end) continue;
     const idle = Date.now() - Math.max(lastT(s), s.upd || 0);
     if (idle < STALE) continue;
-    if (hasDone(s)) { s.end = lastT(s); touch(s, true); } else { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); schedule(s.id); }
+    if (hasDone(s)) { s.end = lastT(s); s.mt = Date.now(); touch(s, true); } else { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); schedule(s.id); }
     changed = true;
   }
   if (changed) saveLocal();
@@ -107,7 +107,7 @@ function setSync(state) {
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
 function schedule(id, ms) { const w = W(id); clearTimeout(w.timer); w.timer = setTimeout(() => flush(id), ms == null ? 800 : ms); }
-const docOf = (s) => JSON.parse(JSON.stringify({ v: 2, w: s.w, ts: s.ts, end: s.end || 0, upd: s.upd || s.ts, sets: s.sets || {} }));
+const docOf = (s) => JSON.parse(JSON.stringify({ v: 2, w: s.w, ts: s.ts, end: s.end || 0, mt: s.mt || 0, upd: s.upd || s.ts, sets: s.sets || {} }));
 async function flush(id) {
   const w = W(id);
   if (!S.col || !S.dirty.has(id)) return;
@@ -123,12 +123,14 @@ async function flush(id) {
     if (w.fail < 4) schedule(id, 2500 * w.fail + Math.random() * 900);
   } finally { w.busy = false; if (w.again) { w.again = false; schedule(id, 300); } }
 }
-const sig = (s) => !s ? '' : (s.end || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
+const sig = (s) => !s ? '' : s.ts + '|' + (s.end || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
 /* merge set by set: the row with the later timestamp wins, so two devices never wipe each other */
 function mergeSession(a, b) {
   if (!a) return [b, false];
-  let newer = (a.end || 0) > (b.end || 0);
-  const out = { id: a.id, v: 2, w: a.w, ts: Math.min(a.ts, b.ts || a.ts), end: Math.max(a.end || 0, b.end || 0), upd: Math.max(a.upd || 0, b.upd || 0), sets: {} };
+  /* start and end follow whoever changed them last on purpose (finish, reopen, date edit); otherwise earliest start, latest end */
+  const am = a.mt || 0, bm = b.mt || 0, meta = am > bm ? a : bm > am ? b : null;
+  let newer = am > bm || (am === bm && (a.end || 0) > (b.end || 0));
+  const out = { id: a.id, v: 2, w: a.w, ts: meta ? meta.ts : Math.min(a.ts, b.ts || a.ts), end: meta ? meta.end || 0 : Math.max(a.end || 0, b.end || 0), mt: Math.max(am, bm), upd: Math.max(a.upd || 0, b.upd || 0), sets: {} };
   for (const k of new Set(Object.keys(a.sets || {}).concat(Object.keys(b.sets || {})))) {
     const x = (a.sets || {})[k] || [], y = (b.sets || {})[k] || [], arr = [];
     for (let i = 0; i < Math.max(x.length, y.length); i++) {
@@ -158,7 +160,7 @@ async function initCloud(onChange) {
         if (!v || typeof v.w !== 'number' || S.gone.has(id)) continue;
         seen.add(id);
         const before = sig(S.sessions[id]);
-        const [m, newer] = mergeSession(S.sessions[id], { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, upd: v.upd || v.ts, sets: JSON.parse(JSON.stringify(v.sets || {})) });
+        const [m, newer] = mergeSession(S.sessions[id], { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, sets: JSON.parse(JSON.stringify(v.sets || {})) });
         S.sessions[id] = m;
         if (sig(m) !== before) changed = true;
         if (newer) { S.dirty.add(id); schedule(id, 400); }

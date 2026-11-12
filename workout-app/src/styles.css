@@ -182,7 +182,10 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .history h2{font-family:var(--f-display);font-size:32px;line-height:1}
 .history ul{list-style:none;margin:0;padding:0;display:grid}
 .history li{display:flex;gap:10px;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;font-variant-numeric:tabular-nums}
-.history li span:last-child{color:var(--ink-2);text-align:end}
+.history li>span:first-child{flex:1;min-width:0}
+.history li>span:nth-child(2){color:var(--ink-2);text-align:end}
+.history li .link{padding:0 2px;font-size:12.5px}
+.history li .confirm{gap:10px}
 .history p{font-size:13.5px;color:var(--ink-2)}
 .hist-act{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}

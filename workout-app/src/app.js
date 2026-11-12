@@ -155,7 +155,7 @@ function renderHistory() {
   if (s) act += '<button class="btn primary" id="finishBtn" type="button">סיים אימון</button>' + (S.resetAsk ? '<span class="confirm"><span>למחוק את מה שנרשם באימון הזה?</span><button class="btn" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></span>' : '<button class="link" id="resetBtn" type="button">נקה את הרישום של האימון הזה</button>');
   if (S.dl && list.length) act += '<button class="link" id="exportBtn" type="button">ייצוא כל הרישום לקובץ CSV</button>';
   act += '</div>';
-  $('#history').innerHTML = act + '<h2>אימונים אחרונים</h2>' + (list.length ? '<ul>' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span>' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span>' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + '</span></li>'; }).join('') + '</ul>'
+  $('#history').innerHTML = act + '<h2>אימונים אחרונים</h2>' + (list.length ? '<ul>' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span>' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span>' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + '</span>' + (S.delAsk === x.id ? '<span class="confirm"><button class="link" type="button" data-delyes="' + x.id + '">למחוק</button><button class="link" type="button" data-delno="1">ביטול</button></span>' : '<button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</li>'; }).join('') + '</ul>'
     : '<p>כאן יופיעו האימונים שסיימת, עם מספר הסטים, הנפח הכולל ומשך האימון.</p>');
   updateProgress();
 }
@@ -454,6 +454,10 @@ function wireApp() {
     else if (id === 'resetNo') { S.resetAsk = false; renderHistory(); }
     else if (id === 'resetYes') { const s = live(S.tab); if (s) { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); saveLocal(); schedule(s.id, 100); } clearInterval(rest.iv); rest.on = false; S.resetAsk = false; S.edit = null; S.draft = null; letSleep(); renderAll(); }
     else if (id === 'exportBtn') exportCsv();
+    const b = ev.target.closest('button'), ds = b ? b.dataset : {};
+    if (ds.del) { S.delAsk = ds.del; renderHistory(); }
+    else if (ds.delno) { S.delAsk = null; renderHistory(); }
+    else if (ds.delyes && S.sessions[ds.delyes]) { delete S.sessions[ds.delyes]; S.gone.add(ds.delyes); S.dirty.add(ds.delyes); S.delAsk = null; saveLocal(); schedule(ds.delyes, 100); if (!S.touched) S.tab = nextUp().next; renderAll(); }
   });
   $('#hero').addEventListener('click', (ev) => { if (ev.target.closest('#bannerX')) { S.banner = ''; renderHero(); updateProgress(); } });
   $('#sheet').addEventListener('click', (ev) => { if (ev.target.id === 'sheet' || ev.target.closest('#sheetClose')) $('#sheet').hidden = true; });

@@ -52,10 +52,11 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   check('after the deload: next workout is week 1 of mesocycle 2', (await txt('#mesoBtn')).includes('מזוציקל 2') && (await txt('#mesoBtn')).includes('שבוע 1 מתוך 5') && (await txt('#mesoBtn')).includes('3 חזרות לפני כשל'), await txt('#mesoBtn'));
   const t1 = await p.evaluate(() => { const e = findEx('ua1', null), t = targetOf(e, 0, null); return [t.kg, t.reps, t.mode, e.sets]; });
   check('new mesocycle starts further from failure, sets back to base', t1[2] === 'base' && t1[1] >= 6 && t1[1] <= 10 && t1[0] <= 62.5 && t1[3] === 3, t1);
-  await p.click('#mesoBtn'); await p.waitForTimeout(300);
+  check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('Upper A'), await txt('#home'));
+  await p.click('#planBtn'); await p.waitForTimeout(300);
   check('mesocycle sheet between cycles offers the summary only', (await txt('.ms-act')).includes('סיכום מזוציקל 1') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('.ms-act'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
-  await p.click('#dkStart'); await p.waitForTimeout(500);
+  await p.click('#homeGo'); await p.waitForTimeout(400); await p.click('#dkStart'); await p.waitForTimeout(500);
   const m2 = await p.evaluate(() => { const s = live(S.tab); return { cfg: S.cfg.meso.id, past: S.cfg.past.map((x) => x.id), m: s.m, wk: s.wk, rir: s.rir, dl: s.dl }; });
   check('starting it rolls the mesocycle over', m2.cfg === 'm2' && m2.past.join() === 'm1' && m2.m === 'm2' && m2.wk === 1 && m2.rir === 3 && m2.dl === 0, m2);
   await p.context().close();

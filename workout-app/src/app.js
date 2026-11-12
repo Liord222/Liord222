@@ -14,11 +14,36 @@ function cursor() {
   e = list.find((x) => firstUndone(s, x) >= 0);
   return e ? { e, i: firstUndone(s, e) } : null;
 }
-function renderTabs() {
-  const nu = nextUp();
-  $('#tabs').innerHTML = PLAN.map((w, i) => '<button class="tab" role="tab" type="button" data-tab="' + i + '" aria-selected="' + (i === S.tab) + '"><small>אימון ' + (i + 1) + '</small><b>' + w.name + '</b>' +
-    (nu.live === i ? '<span class="flag live">באמצע</span>' : nu.next === i ? '<span class="flag">הבא בתור</span>' : '') + '</button>').join('');
+/* ---- three places: today, one workout, progress ---- */
+function setView(v, keep) {
+  S.view = v; $('#app').dataset.view = v;
+  for (const b of $$('#tabbar [data-view]')) { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }
+  if (!keep) window.scrollTo(0, 0);
 }
+/* open a workout: the one that is next (from the big button) or one picked from the week */
+function openWorkout(w, picked) {
+  if (picked) S.touched = true;
+  if (w !== S.tab) { S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.fbFor = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
+  S.tab = w; setView('workout'); renderAll(); if (!S.open) startTab();
+}
+const minsOf = (list) => Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
+const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="סגור">' + ICON.x + '</button></div>' : '');
+/* today: the workout that is next (or running) and where the week stands */
+function renderHome() {
+  const nu = nextUp(), w = nu.live >= 0 ? nu.live : nu.next, wk = PLAN[w], s = live(w), list = exList(w, s), P = phase(w, s), M = S.cfg.meso;
+  const total = list.reduce((n, e) => n + e.sets, 0), dn = s ? list.reduce((n, e) => n + doneCount(s, e), 0) : 0;
+  const ended = (i) => mesoSessions(M.id).filter((x) => x.w === i && x.end).length, over = mesoDone(M), base = ended(nu.next);
+  const week = PLAN.map((x, i) => {
+    const st = live(i) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
+    return '<button class="tab ' + st + '" type="button" data-tab="' + i + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : '') + '</span><b>' + x.name + '</b><small>' + { live: 'באמצע', next: 'הבא', done: 'הושלם', todo: '' }[st] + '</small></button>';
+  }).join('');
+  $('#home').innerHTML = '<div class="page-h"><p class="cap">' + (P.m ? 'מזוציקל ' + P.n + ' · ' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks) : 'ארבעה אימונים במחזור') + '</p><h1 class="big">היום</h1></div>' + bannerHTML() +
+    '<section class="card next" aria-label="האימון הבא"><p class="k">' + (s ? 'באמצע אימון' : 'האימון הבא') + '</p><h2>' + wk.name + '</h2>' +
+    '<p class="meta">' + wk.he + ' · ' + (s ? dn + ' מתוך ' + total + ' סטים בוצעו' : wk.ex.length + ' תרגילים · כ־' + minsOf(list) + ' דקות') + '</p>' +
+    '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? 'המשך אימון' : 'התחל אימון') + '</button></section>' +
+    '<section class="card week" aria-label="האימונים של השבוע"><div class="card-h"><h2>השבוע</h2>' + (!P.dl && volWarn() ? '<em class="warn-pill">נפח</em>' : '') + '<button class="go-link" id="planBtn" type="button" aria-label="התוכנית והמזוציקל">התוכנית' + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
+}
+function renderTabs() { renderHome(); }
 const totals = () => { const s = live(S.tab), l = exList(S.tab, s); return { total: l.reduce((n, e) => n + e.sets, 0), dn: l.reduce((n, e) => n + doneCount(s, e), 0) }; };
 function updateProgress() {
   const { dn, total } = totals(), arc = $('#ringArc'), txt = $('#ringTxt');
@@ -31,14 +56,13 @@ function tickElapsed() {
   if (el && s) el.innerHTML = 'באימון כבר <b>' + Ltr(mmss(Math.max(0, (Date.now() - s.ts) / 1000))) + '</b>';
 }
 function renderHero() {
-  const wk = PLAN[S.tab], s = live(S.tab), list = exList(S.tab, s), total = list.reduce((n, e) => n + e.sets, 0), P = phase(S.tab, s);
-  const mins = Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
+  const wk = PLAN[S.tab], s = live(S.tab), list = exList(S.tab, s), total = list.reduce((n, e) => n + e.sets, 0), P = phase(S.tab, s), mins = minsOf(list);
   const prev = sorted().find((x) => x.w === S.tab && x.end && hasDone(x));
   const line2 = s ? '<span id="elapsed"></span>' : prev ? 'פעם קודמת ' + ago(prev.ts) + ': ' + setsDone(prev) + ' סטים' + (volume(prev) ? ', ' + volume(prev).toLocaleString('he-IL') + ' ק״ג' : '') : wk.ex.length + ' תרגילים · כ־' + mins + ' דקות';
   const meso = P.m ? '<button class="meso' + (P.dl ? ' dl' : '') + '" id="mesoBtn" type="button" aria-label="מזוציקל ותוכנית: פרטים והגדרות"><span>מזוציקל ' + P.n + ' · ' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks) + '</span><b>' + rirText(P.rir) + '</b>' + (!P.dl && volWarn() ? '<em>נפח</em>' : '') + ICON.fwd + '</button>' : '';
-  $('#hero').innerHTML = (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" id="bannerX" aria-label="סגור">' + ICON.x + '</button></div>' : '') +
-    '<div><p class="kicker">אימון ' + (S.tab + 1) + ' מתוך 4 · ' + wk.he + '</p><h1>' + wk.name + '</h1><p class="meta">' + (s || prev ? wk.ex.length + ' תרגילים · כ־' + mins + ' דקות<br>' : '') + line2 + '</p></div>' +
-    '<div class="ring" role="img" aria-label="התקדמות באימון"><svg viewBox="0 0 86 86" aria-hidden="true"><circle class="tr" cx="43" cy="43" r="36"/><circle class="pr" id="ringArc" cx="43" cy="43" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><div><b id="ringTxt">0/' + total + '</b><span>סטים</span></div></div>' + meso;
+  $('#hero').innerHTML = bannerHTML() +
+    '<div class="hero-card"><div><p class="kicker">אימון ' + (S.tab + 1) + ' מתוך 4 · ' + wk.he + '</p><h1>' + wk.name + '</h1><p class="meta">' + (s || prev ? wk.ex.length + ' תרגילים · כ־' + mins + ' דקות<br>' : '') + line2 + '</p></div>' +
+    '<div class="ring" role="img" aria-label="התקדמות באימון"><svg viewBox="0 0 86 86" aria-hidden="true"><circle class="tr" cx="43" cy="43" r="36"/><circle class="pr" id="ringArc" cx="43" cy="43" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><div><b id="ringTxt">0/' + total + '</b><span>סטים</span></div></div></div>' + meso;
   tickElapsed();
 }
 const pipsHTML = (e, dn) => { let p = ''; for (let k = 0; k < e.sets; k++) p += '<i' + (k < dn ? ' class="on"' : '') + '></i>'; return p; };
@@ -124,13 +148,19 @@ function bodyHTML(e) {
 }
 function renderHistory() {
   const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }), s = live(S.tab);
-  let act = '<div class="hist-act">';
-  if (s) act += '<button class="btn primary" id="finishBtn" type="button">סיים אימון</button>' + (S.resetAsk ? '<span class="confirm"><span>למחוק את מה שנרשם באימון הזה?</span><button class="btn" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></span>' : '<button class="link" id="resetBtn" type="button">נקה את הרישום של האימון הזה</button>');
-  if (S.dl && list.length) act += '<button class="link" id="exportBtn" type="button">ייצוא כל הרישום לקובץ CSV</button>';
-  act += '</div>';
-  $('#history').innerHTML = act + '<h2>אימונים אחרונים</h2>' + (list.length ? '<ul>' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span class="h-t">' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span class="h-act">' + (S.delAsk === x.id ? '<button class="link" type="button" data-delyes="' + x.id + '">כן, למחוק</button><button class="link" type="button" data-delno="1">ביטול</button>' : '<button class="link" type="button" data-edit="' + x.id + '" aria-label="ערוך את האימון הזה">עריכה</button><button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</span><span class="h-s">' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + (x.dl ? ' · דילואד' : x.wk ? ' · שבוע ' + x.wk : '') + '</span></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">הצג עוד אימונים</button>' : '')
-    : '<p>כאן יופיעו האימונים שסיימת. כל אימון אפשר יהיה לערוך או למחוק.</p>');
+  $('#wkAct').innerHTML = !s ? '' : '<button class="btn big" id="finishBtn" type="button">סיים אימון</button>' + (S.resetAsk ? '<span class="confirm"><span>למחוק את מה שנרשם באימון הזה?</span><button class="btn danger" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></span>' : '<button class="link" id="resetBtn" type="button">נקה את הרישום של האימון הזה</button>');
+  renderGains();
+  $('#history').innerHTML = '<h2 class="sec">אימונים אחרונים</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span class="h-t">' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span class="h-act">' + (S.delAsk === x.id ? '<button class="link" type="button" data-delyes="' + x.id + '">כן, למחוק</button><button class="link" type="button" data-delno="1">ביטול</button>' : '<button class="link" type="button" data-edit="' + x.id + '" aria-label="ערוך את האימון הזה">עריכה</button><button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</span><span class="h-s">' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + (x.dl ? ' · דילואד' : x.wk ? ' · שבוע ' + x.wk : '') + '</span></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">הצג עוד אימונים</button>' : '')
+    : '<p class="empty-note">כאן יופיעו האימונים שסיימת. כל אימון אפשר יהיה לערוך או למחוק.</p>') +
+    (S.dl && list.length ? '<button class="link" id="exportBtn" type="button">ייצוא כל הרישום לקובץ CSV</button>' : '');
   updateProgress();
+}
+/* progress: how the best set of each movement moved since the mesocycle began */
+function renderGains() {
+  const M = S.cfg.meso, R = mesoSummary(M.id), sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
+  $('#progCap').textContent = 'מזוציקל ' + M.n + (R.n ? ' · ' + R.n + (R.n === 1 ? ' אימון' : ' אימונים') : '');
+  $('#gains').innerHTML = '<h2 class="sec">הכוח שלך</h2>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + Ltr(esc(EN[g.mv])) + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + ' בהתחלה · ' + Ltr(fmtRow(g.best)) + ' בשיא</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
+    : '<p class="empty-note">אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי בכוח.</p>') + (R.n ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום המזוציקל המלא</button>' : '');
 }
 function markCur() {
   const cur = live(S.tab) ? cursor() : null;
@@ -144,7 +174,7 @@ function renderList() {
   const keep = S.open && list.some((e) => e.id === S.open) ? S.open : null;
   S.open = null; if (keep) openEx(keep, false); else markCur();
 }
-function renderAll() { renderTabs(); renderHero(); renderPre(); renderList(); renderHistory(); renderDock(); }
+function renderAll() { renderHome(); renderHero(); renderPre(); renderList(); renderHistory(); renderDock(); }
 function closeEx() {
   const li = $('.ex.open');
   if (li) { li.classList.remove('open'); const b = $('.ex-body', li); b.hidden = true; b.innerHTML = ''; $('.ex-head', li).setAttribute('aria-expanded', 'false'); }
@@ -197,21 +227,28 @@ function dockTarget() {
 }
 /* the weight shown for the next set: what the lifter dialled in, else the target */
 function curKg(e, i, s, T) {
-  const d = S.draft; if (d && d.ex === e.id && d.i === i) return d.kg;
+  const d = S.draft; if (d && d.ex === e.id && d.i === i && d.kg !== undefined) return d.kg;
   if (T === undefined) T = targetOf(e, i, s);
   return T ? T.kg : null;
 }
+/* the reps shown for the next set: what the lifter dialled in, else the target, else the middle of the range */
+function curReps(e, i, s, T) {
+  const d = S.draft; if (d && d.ex === e.id && d.i === i && d.reps != null) return d.reps;
+  if (T === undefined) T = targetOf(e, i, s);
+  if (T && T.reps != null) return T.reps;
+  const rr = repRange(e); return Math.round((rr[0] + rr[1]) / 2);
+}
+const draftOf = (t) => (S.draft && S.draft.ex === t.e.id && S.draft.i === t.i ? S.draft : (S.draft = { ex: t.e.id, i: t.i }));
+const repsHTML = (r) => '<b>' + (r == null ? '—' : r) + '</b><small>חזרות</small>';
 const kgHTML = (kg) => (kg == null ? '<b>—</b><small>בלי משקל</small>' : '<b>' + fmtKg(kg) + '</b><small>ק״ג</small>');
-/* weight stepper, the one-tap "hit the target" button and the rep chips. T is the target (shown greyed until it is confirmed or changed) */
-function controlsHTML(e, kg, selReps, T, ghost) {
-  const rr2 = repRange(e), lo = rr2[0], hi = rr2[1], tr = T && selReps == null ? T.reps : null;
-  let chips = '';
-  for (let r = Math.max(1, Math.min(lo - 3, tr != null ? tr - 2 : lo)); r <= Math.max(hi + 3, tr != null ? tr + 2 : hi); r++) chips += '<button class="chip-r' + (r >= lo && r <= hi ? ' in' : '') + (r === tr ? ' tgt' : '') + (r === selReps ? ' sel' : '') + '" type="button" data-r="' + r + '" aria-label="' + r + ' חזרות' + (r === tr ? ', היעד' : '') + '">' + r + '</button>';
-  return '<div class="dk-w"><button class="step" type="button" data-d="-1" aria-label="הפחת משקל">−</button>' +
-    '<div class="dk-kg' + (ghost ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="משקל, לחיצה להקלדה">' + kgHTML(kg) + '</div>' +
-    '<button class="step" type="button" data-d="1" aria-label="הוסף משקל">+</button>' +
-    (tr != null ? '<button class="hit" id="dkHit" type="button" aria-label="עמדתי ביעד: ' + tr + ' חזרות. נגיעה אחת רושמת את הסט">' + ICON.check + '<b>' + tr + '</b><small>חזרות<br>כמו היעד</small></button>' : '') + '</div>' +
-    '<div class="dk-r"><span class="dk-lbl">' + (selReps != null ? 'כמה חזרות היו בסט?' : tr != null ? badge(T, e) + 'יצא מספר אחר? <b>נגיעה במספר רושמת את הסט</b>' : 'כמה חזרות עשית? <b>נגיעה אחת רושמת את הסט</b>') + '</span><div class="chips" id="chips">' + chips + '<button class="chip-r more" type="button" id="repsMore">מספר אחר</button></div></div>';
+/* weight and reps, each with its own stepper. A target is shown a shade lighter until it is confirmed or changed; a tap on a number opens typing */
+function numsHTML(kg, reps, ghostKg, ghostReps) {
+  return '<div class="dk-nums"><div class="num" role="group" aria-label="משקל"><button class="step" type="button" data-d="-1" aria-label="הפחת משקל">−</button>' +
+    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="משקל, לחיצה להקלדה">' + kgHTML(kg) + '</div>' +
+    '<button class="step" type="button" data-d="1" aria-label="הוסף משקל">+</button></div>' +
+    '<div class="num" role="group" aria-label="חזרות"><button class="rstep" type="button" data-d="-1" aria-label="הפחת חזרה">−</button>' +
+    '<div class="dk-reps' + (ghostReps ? ' ghost' : '') + '" id="dkReps" role="button" tabindex="0" aria-label="חזרות, לחיצה להקלדה">' + repsHTML(reps) + '</div>' +
+    '<button class="rstep" type="button" data-d="1" aria-label="הוסף חזרה">+</button></div></div>';
 }
 function fbPanel(s) {
   const e = S.fbFor && s ? exList(S.tab, s).find((x) => x.id === S.fbFor) : null;
@@ -222,21 +259,21 @@ function closeFb() { const id = S.fbFor; S.fbFor = null; renderDock(); if (id &&
 /* "swap from the next workout", offered next to a pain report */
 function swapNext(exId, mv) { swapTo(exId, mv, true); renderDock(); if (S.open) refreshEx({ id: S.open }); }
 function renderDock() {
-  const d = $('#dock'), wk = PLAN[S.tab], s = live(S.tab), fbp = fbPanel(s);
+  const dock = $('#dock'), wk = PLAN[S.tab], s = live(S.tab), fbp = fbPanel(s);
   let cls = 'dock', h;
   if (rest.on) {
     const L = rest.last; cls += ' rest';
     h = '<div class="rt"><div class="rt-time" id="rtTime">0:00</div><div class="rt-mid"><div class="rt-state" id="rtState"></div><div class="rt-track"><i id="rtFill"></i></div>' +
-      (L ? '<div class="rt-log"><span>נרשם ' + Ltr(fmtRow(L)) + '</span>' + (L.pr ? '<span class="pr">שיא אישי</span>' : '') + '<button class="link" id="rtUndo" type="button">בטל</button></div>' : '') + '</div>' +
-      '<div class="rt-btns"><button type="button" id="rtMinus" class="opt" aria-label="הפחת 15 שניות">' + Ltr('−15') + '</button><button type="button" id="rtPlus" aria-label="הוסף 15 שניות">' + Ltr('+15') + '</button>' +
-      '<button type="button" id="rtSound" class="opt" aria-label="' + (S.sound ? 'השתק צליל' : 'הפעל צליל') + '">' + (S.sound ? ICON.snd : ICON.mute) + '</button><button type="button" id="rtSkip" class="go">המשך</button></div></div>' + fbp;
+      (L ? '<div class="rt-log"><span>נרשם ' + Ltr(fmtRow(L)) + '</span>' + (L.pr ? '<span class="pr">שיא אישי</span>' : '') + '<button class="link" id="rtUndo" type="button">בטל</button></div>' : '') + '</div></div>' +
+      '<div class="rt-btns"><button type="button" id="rtMinus" aria-label="הפחת 15 שניות">' + Ltr('−15') + '</button><button type="button" id="rtPlus" aria-label="הוסף 15 שניות">' + Ltr('+15') + '</button>' +
+      '<button type="button" id="rtSound" aria-label="' + (S.sound ? 'השתק צליל' : 'הפעל צליל') + '">' + (S.sound ? ICON.snd : ICON.mute) + '</button><button type="button" id="rtSkip" class="go">המשך</button></div>' + fbp;
   } else if (fbp) {
     S.edit = null;
     h = fbp + (cursor() ? '' : '<div class="dk-row"><div class="dk-msg">כל הסטים בוצעו</div><button class="btn primary" id="dkFinish" type="button">סיים אימון</button></div>');
   } else if (S.edit && findEx(S.edit.ex) && isDone(rowsOf(s, S.edit.ex)[S.edit.i])) {
     const e = findEx(S.edit.ex), row = rowsOf(s, e.id)[S.edit.i];
-    h = '<div class="dk-top"><div class="dk-go"><span class="dk-name">' + esc(e.name) + '</span><span class="dk-set">עריכת סט <b>' + (S.edit.i + 1) + '</b> · ' + Ltr(fmtRow(row)) + '</span></div>' +
-      '<button class="btn" id="edDel" type="button">מחק סט</button><button class="btn primary" id="edClose" type="button">סיום</button></div>' + controlsHTML(e, row.kg, row.reps, null, false);
+    h = '<div class="dk-top"><div class="dk-go"><span class="dk-name">' + esc(e.name) + '</span><span class="dk-set">עריכת סט <b>' + (S.edit.i + 1) + '</b> · כל שינוי נשמר מיד</span></div>' +
+      '<button class="btn danger" id="edDel" type="button">מחק סט</button><button class="btn primary" id="edClose" type="button">סיום</button></div>' + numsHTML(row.kg, row.reps, false, false);
   } else if (!s) {
     S.edit = null;
     const P = phase(S.tab, null);
@@ -246,25 +283,25 @@ function renderDock() {
     const cur = cursor();
     if (!cur) h = '<div class="dk-row"><div class="dk-msg">כל הסטים בוצעו<small>אפשר לסיים, או לגעת בסט כדי לתקן אותו</small></div><button class="btn primary" id="dkFinish" type="button">סיים אימון</button></div>';
     else {
-      const e = cur.e, i = cur.i, T = targetOf(e, i, s), drafted = !!(S.draft && S.draft.ex === e.id && S.draft.i === i), note = S.cfg.notes[e.mv];
+      const e = cur.e, i = cur.i, T = targetOf(e, i, s), d = S.draft && S.draft.ex === e.id && S.draft.i === i ? S.draft : null, note = S.cfg.notes[e.mv];
       if (S.mini) cls += ' mini';
       h = '<div class="dk-top"><button class="dk-go" type="button" id="dkGo"><span class="dk-name">' + esc(e.name) + '</span><span class="dk-set">סט <b>' + (i + 1) + '</b> מתוך ' + e.sets + (T ? ' · יעד ' + Ltr(fmtRow(T)) : e.suf ? ' · ' + e.reps + ' ' + e.suf : '') + (T && T.ref && !T.ref.other ? ' · פעם קודמת ' + Ltr(fmtRow(T.ref)) : '') + '</span></button>' +
         '<button class="dk-ic coach" id="dkCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true">א</span></button>' +
         '<button class="dk-ic" id="dkMini" type="button" aria-label="' + (S.mini ? 'הרחב את הסרגל' : 'מזער את הסרגל') + '">' + (S.mini ? ICON.up : ICON.down) + '</button></div>' +
         (note ? '<p class="dk-note">' + ICON.pin + '<span>' + esc(note) + '</span></p>' : '') +
-        controlsHTML(e, curKg(e, i, s, T), null, T, !!T && !drafted);
+        numsHTML(curKg(e, i, s, T), curReps(e, i, s, T), !!T && !(d && d.kg !== undefined), !!T && !(d && d.reps != null)) +
+        '<p class="dk-lbl">' + (T ? badge(T, e) + '<span>יצא אחרת? מעדכנים את המספרים</span>' : '<span>בוחרים משקל וחזרות, ואז נגיעה אחת</span>') + '</p>' +
+        '<button class="hit" id="dkHit" type="button">' + ICON.check + '<span>סיימתי סט</span></button>';
     }
   }
-  d.className = cls; d.innerHTML = '<div class="dock-in">' + h + '</div>';
-  const row = $('#chips'), ins = row ? $$('.chip-r.in', row) : [], mark = row && ($('.chip-r.sel', row) || $('.chip-r.tgt', row) || ins[Math.floor((ins.length - 1) / 2)]);
-  if (mark) row.scrollLeft = mark.offsetLeft - row.clientWidth / 2 + mark.offsetWidth / 2;
+  dock.className = cls; dock.innerHTML = '<div class="dock-in">' + h + '</div>';
   if (rest.on) tickRest();
 }
 function setKg(kg) {
   const t = dockTarget(); if (!t) return;
   kg = kg == null || !(kg > 0) ? null : Math.round(kg * 100) / 100;
   if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); }
-  else S.draft = { ex: t.e.id, i: t.i, kg };
+  else draftOf(t).kg = kg;
   const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); if (!$('input', box)) box.innerHTML = kgHTML(kg); }
 }
 function stepKg(d) {
@@ -272,24 +309,41 @@ function stepKg(d) {
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).kg : curKg(t.e, t.i, s);
   setKg((cur == null ? 0 : cur) + d * incOf(t.e.mv));
 }
-function typeKg() {
-  const box = $('#dkKg'), t = dockTarget(); if (!box || !t || $('input', box)) return;
-  const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).kg : curKg(t.e, t.i, s);
-  box.innerHTML = '<input id="dkKgIn" type="text" inputmode="decimal" autocomplete="off" aria-label="משקל בק״ג" value="' + (cur == null ? '' : fmtKg(cur)) + '">';
-  const inp = $('#dkKgIn'); inp.focus(); inp.select();
-  const done = () => { const v = num(inp.value); box.innerHTML = ''; setKg(v); };
-  inp.addEventListener('blur', done, { once: true });
+function setReps(r) {
+  const t = dockTarget(); if (!t || r == null || !(r >= 1)) return;
+  r = Math.min(200, Math.round(r));
+  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.reps = r; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); }
+  else draftOf(t).reps = r;
+  const box = $('#dkReps'); if (box) { box.classList.remove('ghost'); if (!$('input', box)) box.innerHTML = repsHTML(r); }
+}
+function stepReps(d) {
+  const t = dockTarget(); if (!t) return;
+  const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).reps : curReps(t.e, t.i, s);
+  setReps(Math.max(1, (cur || 0) + d));
+}
+/* a tap on a number turns it into a field; leaving the field or Enter keeps the value */
+function typeIn(box, id, label, mode, val, done) {
+  if (!box || $('input', box)) return;
+  box.innerHTML = '<input id="' + id + '" type="text" inputmode="' + mode + '" autocomplete="off" aria-label="' + label + '" value="' + val + '">';
+  const inp = $('#' + id); inp.focus(); inp.select();
+  inp.addEventListener('blur', () => { const v = inp.value; box.innerHTML = ''; done(v); }, { once: true });
   inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); inp.blur(); } });
 }
-function typeReps() {
-  const row = $('#chips'); if (!row) return;
-  row.outerHTML = '<div class="reps-in"><span><input id="repsIn" type="text" inputmode="numeric" autocomplete="off" aria-label="מספר החזרות"></span><button class="btn primary" id="repsOk" type="button">רשום</button></div>';
-  $('#repsIn').focus();
+function typeKg() {
+  const t = dockTarget(); if (!t) return;
+  const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).kg : curKg(t.e, t.i, s);
+  typeIn($('#dkKg'), 'dkKgIn', 'משקל בק״ג', 'decimal', cur == null ? '' : fmtKg(cur), (v) => setKg(num(v)));
 }
-function chooseReps(r, el) {
-  const t = dockTarget(); if (!t || logBusy || r == null || r < 1 || r > 200) return;
-  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; row.reps = r; row.t = Date.now(); delete row.pr; touch(s); S.edit = null; refreshEx(t.e); renderDock(); return; }
-  const s = ensure(S.tab), kg = curKg(t.e, t.i, s);
+function typeReps() {
+  const t = dockTarget(); if (!t) return;
+  const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).reps : curReps(t.e, t.i, s);
+  typeIn($('#dkReps'), 'dkRepsIn', 'מספר החזרות', 'numeric', cur == null ? '' : cur, (v) => { const r = num(v, true), box = $('#dkReps'); if (r != null && r >= 1) setReps(r); else if (box) box.innerHTML = repsHTML(cur); });
+}
+/* the one tap: log the set as it stands in the dock */
+function logSet(el) {
+  const t = dockTarget(); if (!t || t.edit || logBusy) return;
+  const s = ensure(S.tab), kg = curKg(t.e, t.i, s), r = curReps(t.e, t.i, s);
+  if (r == null || r < 1 || r > 200) return;
   logBusy = true; if (el) el.classList.add('hit-on'); buzz(14); primeAudio(); keepAwake();
   setTimeout(() => { logBusy = false; commitSet(t.e, t.i, kg, r); }, el && !reduced ? 180 : 0);
 }
@@ -399,7 +453,7 @@ function finishWorkout() {
   clearInterval(rest.iv); rest.on = false; rest.last = null;
   s.end = Date.now(); s.mt = s.end; touch(s); letSleep();
   S.edit = null; S.draft = null; S.resetAsk = false; S.open = null; S.fbFor = null; S.banner = ''; S.bannerKind = ''; S.tab = nextUp().next;
-  renderAll();
+  setView('home', true); renderAll();
   const M = S.cfg.meso;
   if (s.m === M.id && mesoDone(M)) showMesoSummary(M.id, s);
   else if (s.m === M.id && !s.dl && !M.early && M.asked !== s.id && fatigued()) { M.asked = s.id; saveCfg(); showDeloadOffer(s); }
@@ -463,7 +517,7 @@ function editorDate(val) {
 function editorReopen() {
   const s = S.sessions[S.edSid]; if (!s || live(s.w)) return;
   s.end = 0; s.mt = Date.now(); touch(s);
-  S.tab = s.w; S.touched = true; S.open = null; S.edSid = null; S.edDel = false; S.sheet = null;
+  S.tab = s.w; S.touched = true; S.open = null; S.edSid = null; S.edDel = false; S.sheet = null; setView('workout', true);
   const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = '';
   renderAll();
   const first = exList(S.tab, s).find((e) => firstUndone(s, e) >= 0); if (first) { openEx(first.id, false); renderDock(); }
@@ -487,11 +541,18 @@ function startTab() {
 
 /* ================================================================== wiring */
 function wireApp() {
-  $('#tabs').addEventListener('click', (ev) => {
-    const b = ev.target.closest('.tab'); if (!b) return;
-    S.tab = +b.dataset.tab; S.touched = true; S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.banner = ''; S.bannerKind = ''; S.fbFor = null; S.preOpen = false;
-    if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; }
-    renderAll(); startTab();
+  $('#tabbar').addEventListener('click', (ev) => {
+    const b = ev.target.closest('button[data-view]'); if (!b) return;
+    closeChat(); setView(b.dataset.view);
+  });
+  $('#backBtn').addEventListener('click', () => { renderHome(); setView('home'); });
+  $('#topCoach').addEventListener('click', () => openChat(S.open));
+  $('#home').addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.classList.contains('banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); updateProgress(); }
+    else if (b.id === 'homeGo') openWorkout(+b.dataset.w, false);
+    else if (b.id === 'planBtn') openMeso();
+    else if (b.classList.contains('tab')) openWorkout(+b.dataset.tab, true);
   });
   const list = $('#exList');
   list.addEventListener('click', (ev) => {
@@ -521,23 +582,23 @@ function wireApp() {
     saveCfg(); if (!rest.on) renderDock();
   });
   const dock = $('#dock');
+  /* the page keeps clear of the dock, however tall it gets */
+  if (window.ResizeObserver) new ResizeObserver(() => { const h = dock.offsetHeight; if (h) $('#app').style.setProperty('--dock-h', h + 'px'); }).observe(dock);
   let hold = 0, rep = 0;
   const endHold = () => { clearTimeout(hold); clearInterval(rep); };
   dock.addEventListener('pointerdown', (ev) => {
-    const st = ev.target.closest('.step'); if (!st) return;
-    ev.preventDefault(); const d = +st.dataset.d; stepKg(d); buzz(6); endHold();
-    hold = setTimeout(() => { rep = setInterval(() => stepKg(d), 90); }, 380);
+    const st = ev.target.closest('.step,.rstep'); if (!st) return;
+    ev.preventDefault(); const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); buzz(6); endHold();
+    hold = setTimeout(() => { rep = setInterval(() => go(d), st.classList.contains('rstep') ? 140 : 90); }, 380);
   });
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
   dock.addEventListener('click', (ev) => {
     const t = ev.target, id = (t.closest('button,[role="button"]') || {}).id;
-    const st = t.closest('.step'); if (st) { if (ev.detail === 0) stepKg(+st.dataset.d); return; }
-    const ch = t.closest('.chip-r[data-r]'); if (ch) { S.touched = true; chooseReps(+ch.dataset.r, ch); return; }
+    const st = t.closest('.step,.rstep'); if (st) { if (ev.detail === 0) (st.classList.contains('rstep') ? stepReps : stepKg)(+st.dataset.d); return; }
     const fbBtn = t.closest('[data-fb]'); if (fbBtn) { onFb(fbBtn.closest('.fbk').dataset.ex, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const sn = t.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
-    if (id === 'repsMore') typeReps();
-    else if (id === 'repsOk') chooseReps(num($('#repsIn').value, true), null);
-    else if (id === 'dkHit') { const c = cursor(), T = c && targetOf(c.e, c.i, live(S.tab)); if (T) { S.touched = true; chooseReps(T.reps, t.closest('#dkHit')); } }
+    if (id === 'dkHit') { S.touched = true; logSet(t.closest('#dkHit')); }
+    else if (id === 'dkReps') typeReps();
     else if (id === 'fbSkip') skipFb();
     else if (id === 'dkKg') typeKg();
     else if (id === 'dkStart') { S.touched = true; ensure(S.tab); primeAudio(); keepAwake(); S.mini = false; saveLocal(); renderHero(); renderPre(); renderList(); renderHistory(); renderTabs(); const c = cursor(); if (c && S.open !== c.e.id) openEx(c.e.id, true); else refreshOpenSets(); renderDock(); }
@@ -555,9 +616,9 @@ function wireApp() {
   });
   dock.addEventListener('keydown', (ev) => {
     if (ev.target.id === 'dkKg' && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); typeKg(); }
-    if (ev.target.id === 'repsIn' && ev.key === 'Enter') { ev.preventDefault(); chooseReps(num(ev.target.value, true), null); }
+    if (ev.target.id === 'dkReps' && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); typeReps(); }
   });
-  $('#history').addEventListener('click', (ev) => {
+  const logClick = (ev) => {
     const id = (ev.target.closest('button') || {}).id;
     if (id === 'finishBtn') finishWorkout();
     else if (id === 'resetBtn') { S.resetAsk = true; renderHistory(); }
@@ -570,9 +631,11 @@ function wireApp() {
     else if (ds.delyes && S.sessions[ds.delyes]) { deleteSession(ds.delyes); S.delAsk = null; if (!S.touched) S.tab = nextUp().next; renderAll(); }
     else if (ds.edit) { S.delAsk = null; openEditor(ds.edit); }
     else if (id === 'histMore') { S.histN = (S.histN || 6) + 10; renderHistory(); }
-  });
+    else if (ds.sum) showMesoSummary(ds.sum, false);
+  };
+  for (const box of ['#wkAct', '#history', '#gains']) $(box).addEventListener('click', logClick);
   $('#hero').addEventListener('click', (ev) => {
-    if (ev.target.closest('#bannerX')) { S.banner = ''; S.bannerKind = ''; renderHero(); updateProgress(); }
+    if (ev.target.closest('.banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); updateProgress(); }
     else if (ev.target.closest('#mesoBtn')) openMeso();
   });
   const sheet = $('#sheet');

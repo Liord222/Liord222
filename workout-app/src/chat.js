@@ -188,12 +188,12 @@ function initChat() {
 function openChat(exId) {
   fillCtx();
   if (exId) $('#chatCtx').value = exId;
-  $('#chat').classList.add('open');
+  $('#chat').classList.add('open'); $('#app').classList.add('chat-on');
   if (!matchMedia('(min-width:1000px)').matches) document.body.style.overflow = 'hidden'; else $('#chatInput').focus();
 }
-function closeChat() { $('#chat').classList.remove('open'); document.body.style.overflow = ''; }
+function closeChat() { $('#chat').classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = ''; }
 function wireChat() {
-  $('#chatOpen').addEventListener('click', () => openChat(S.open));
+  $('#chatOpen').addEventListener('click', () => openChat(S.view === 'workout' ? S.open : null));
   $('#chatClose').addEventListener('click', closeChat);
   $('#chatNew').addEventListener('click', () => { if (chat.ctl) chat.ctl.abort(); chat.msgs = []; chat.turns = []; setAttach(null); compNote(''); renderMsgs(); });
   $('#sendBtn').addEventListener('click', () => sendChat());

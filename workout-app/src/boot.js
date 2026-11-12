@@ -17,6 +17,7 @@ function boot(data) {
   S.tab = typeof data.tab === 'number' && data.tab >= 0 && data.tab < 4 ? data.tab : nextUp().next;
   if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
   if (Array.isArray(data.turns)) chat.turns = data.turns;
+  setView(data.view === 'workout' || data.view === 'progress' || data.view === 'home' ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   readColors(); wireApp(); wireCoach(); wireChat(); renderAll(); initChat();
   const s = live(S.tab), list = exList(S.tab, s), first = (data.open && list.find((e) => e.id === data.open)) || list.find((e) => firstUndone(s, e) >= 0) || list[0];
   if (first) { openEx(first.id, false); renderDock(); }
@@ -25,6 +26,6 @@ function boot(data) {
 }
 (function () {
   const hot = window.claude && window.claude.hot;
-  try { if (hot && typeof hot.snapshot === 'function') hot.snapshot(() => ({ tab: S.tab, open: S.open, turns: chat.turns.slice(-16), msgs: chat.msgs.filter((m) => !m.live).slice(-24).map((m) => ({ role: m.role, text: m.text, hadImg: !!m.hadImg, ctx: m.ctx || '', note: m.note || '' })) })); } catch (e) { /* no live update here */ }
+  try { if (hot && typeof hot.snapshot === 'function') hot.snapshot(() => ({ view: S.view, tab: S.tab, open: S.open, turns: chat.turns.slice(-16), msgs: chat.msgs.filter((m) => !m.live).slice(-24).map((m) => ({ role: m.role, text: m.text, hadImg: !!m.hadImg, ctx: m.ctx || '', note: m.note || '' })) })); } catch (e) { /* no live update here */ }
   try { if (hot && typeof hot.ready === 'function') { hot.ready(boot); setTimeout(() => boot({}), 1200); } else boot((hot && hot.data) || {}); } catch (e) { boot({}); }
 })();

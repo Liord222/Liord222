@@ -56,40 +56,47 @@ async function device(b, scheme) {
   return { p, errs };
 }
 const ok = [], bad = [], ERR = [];
-const report = () => { console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (ERR.map((e) => e.join(' | ')).filter(Boolean).join(' | ') || 'none')); };
+const report = () => { if (process.env.LIST) console.log(ok.join('\n')); console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (ERR.map((e) => e.join(' | ')).filter(Boolean).join(' | ') || 'none')); };
 const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'number').map((k) => cloud[k]);
 (async () => {
   const scheme = process.argv[2] || 'light', b = await chromium.launch(), A = await device(b, scheme), p = A.p; ERR.push(A.errs);
   const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : ' -> ' + JSON.stringify(info)));
   const T = (pg) => (sel) => pg.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
   const txt = T(p), shot = (n, pg) => snap(pg || p, n);
+  // the dock: type the reps, then one tap logs the set
+  const reps = async (pg, n) => { await pg.click('#dkReps'); await pg.fill('#dkRepsIn', String(n)); await pg.keyboard.press('Enter'); await pg.waitForTimeout(120); };
+  const log = async (pg, n) => { await reps(pg, n); await pg.click('#dkHit'); };
+  const tab = async (pg, v) => { await pg.click('#tabbar [data-view="' + v + '"]'); await pg.waitForTimeout(250); };
 
   // ---------- first workout, nothing logged before ----------
   check('hero flags a volume warning', (await txt('#mesoBtn em')) === 'נפח', await txt('#mesoBtn'));
   check('hero shows the mesocycle week and its RIR', (await txt('#mesoBtn')).includes('שבוע 1 מתוך 5') && (await txt('#mesoBtn')).includes('3 חזרות לפני כשל'), await txt('#mesoBtn'));
+  check('opens on today, with the next workout and the week', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('Upper A') && (await txt('.tab[aria-current="true"]')).includes('הבא'), await txt('#home'));
+  await shot('g0-home');
+  await p.click('#homeGo'); await p.waitForTimeout(500);
   await p.click('#dkStart'); await p.waitForTimeout(700);
   await p.click('#dkKg'); await p.fill('#dkKgIn', '60'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
   await shot('g1-log');
-  await p.click('.chip-r[data-r="8"]'); await p.waitForTimeout(500);
+  await log(p, 8); await p.waitForTimeout(500);
   check('one tap logs the set and starts rest', (await txt('.rt-log')).includes('60×8'), await txt('#dock'));
   await p.click('#rtSkip'); await p.waitForTimeout(200);
-  check('weight carries to the next set, with a one-tap target', (await txt('#dkKg')).startsWith('60') && (await txt('.dk-set')).includes('2') && (await txt('#dkHit')).includes('8'), [await txt('#dkKg'), await txt('.dk-set'), await txt('#dkHit')]);
+  check('weight carries to the next set, with a one-tap target', (await txt('#dkKg')).startsWith('60') && (await txt('.dk-set')).includes('2') && (await txt('#dkReps')).startsWith('8') && !!(await p.$('#dkReps.ghost')), [await txt('#dkKg'), await txt('.dk-set'), await txt('#dkReps')]);
   check('target is greyed until confirmed', !!(await p.$('#dkKg.ghost')), 'ghost');
   await p.dispatchEvent('.step[data-d="1"]', 'pointerdown'); await p.dispatchEvent('.step[data-d="1"]', 'pointerup');
   check('stepper adds one step', (await txt('#dkKg')).startsWith('62.5') && !(await p.$('#dkKg.ghost')), await txt('#dkKg'));
-  await p.click('.chip-r[data-r="7"]'); await p.waitForTimeout(450);
+  await log(p, 7); await p.waitForTimeout(450);
   await p.click('#rtUndo'); await p.waitForTimeout(250);
   check('undo returns to the same set', (await txt('.dk-set')).includes('2') && (await p.$$('.ex.open .pips i.on')).length === 1, await txt('.dk-set'));
-  await p.click('.chip-r[data-r="9"]'); await p.waitForTimeout(450); await p.click('#rtSkip'); await p.waitForTimeout(150);
+  await log(p, 9); await p.waitForTimeout(450); await p.click('#rtSkip'); await p.waitForTimeout(150);
   await p.click('.ex.open .setp[data-i="0"]'); await p.waitForTimeout(200);
-  await p.click('.chip-r[data-r="10"]'); await p.waitForTimeout(200);
+  await reps(p, 10); await p.click('#edClose'); await p.waitForTimeout(200);
   const sets = await p.evaluate(() => [...document.querySelectorAll('.ex.open .setp')].map((x) => x.innerText.replace(/\n/g, ' ')));
   check('editing a logged set', sets[0].includes('60') && sets[0].includes('10') && sets[1].includes('9') && !sets[1].includes('שיא'), sets);
   check('ring shows 2 of 21', (await txt('#ringTxt')) === '2/21', await txt('#ringTxt'));
   // pinned note
   await p.fill('.ex.open .note-in', 'מושב בגובה 4, עצירה למטה'); await p.dispatchEvent('.ex.open .note-in', 'change'); await p.waitForTimeout(200);
   check('pinned note is saved and shown in the dock', (await txt('.dk-note')).includes('מושב בגובה 4') && (await p.evaluate(() => S.cfg.notes.inclineSmith)) === 'מושב בגובה 4, עצירה למטה', await txt('#dock'));
-  await p.click('#chatOpen'); await p.waitForTimeout(250);
+  await p.click('#topCoach'); await p.waitForTimeout(250);
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC', 'base64');
   await p.setInputFiles('#galFile', { name: 'm.png', mimeType: 'image/png', buffer: png }); await p.waitForTimeout(300);
   await p.fill('#chatInput', 'זה מתאים במקום?'); await p.click('#sendBtn'); await p.waitForTimeout(900);
@@ -104,12 +111,13 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('cloud copy has both exercises and the mesocycle fields', !!c0 && c0.sets.ua2.length === 3 && c0.sets.ua1[0].reps === 10 && c0.m === 'm1' && c0.wk === 1 && c0.rir === 3 && c0.n.ua1 === 3, c0);
   check('settings document reached the cloud', !!cloud['data/users/u_test/cfg'] && cloud['data/users/u_test/cfg'].notes.inclineSmith.includes('מושב'), Object.keys(cloud));
   await p.click('#finishBtn'); await p.waitForTimeout(500);
-  check('summary and next workout', (await txt('#sheet')).includes('5/21') && (await txt('.tab[aria-selected="true"]')).includes('Lower A'), await txt('#sheet'));
+  check('summary and next workout', (await txt('#sheet')).includes('5/21') && (await txt('.tab[aria-current="true"]')).includes('Lower A') && (await p.evaluate(() => S.view)) === 'home', await txt('#sheet'));
   await p.click('#sheetClose'); await p.waitForTimeout(1200);
   check('finished workout reached the cloud', sess()[0].end > 0, sess()[0].end);
+  await tab(p, 'progress'); await shot('g1b-progress');
   await p.click('#history [data-edit]'); await p.waitForTimeout(250);
   await p.click('#edReopen'); await p.waitForTimeout(500);
-  check('reopen continues the same workout', (await txt('#tabs')).includes('באמצע') && (await txt('#ringTxt')) === '5/21' && !!(await p.$('#chips')), [await txt('#tabs'), await txt('#ringTxt')]);
+  check('reopen continues the same workout', (await txt('#tabs')).includes('באמצע') && (await txt('#ringTxt')) === '5/21' && !!(await p.$('#dkHit')) && (await p.evaluate(() => S.view)) === 'workout', [await txt('#tabs'), await txt('#ringTxt')]);
   await p.click('#finishBtn'); await p.waitForTimeout(400); await p.click('#sheetClose'); await p.waitForTimeout(1200);
   check('still one workout in the cloud after reopen', sess().length === 1 && sess()[0].end > 0, Object.keys(cloud));
   check('nothing was deleted from the cloud', !(await p.evaluate(() => window.__deleted)), 'deleted');
@@ -117,7 +125,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   // ---------- a second device: empty local storage, same account ----------
   const B = await device(b, scheme), q = B.p; ERR.push(B.errs); await q.waitForTimeout(400);
   const t2 = T(q);
-  check('second device: next up is workout 2', (await t2('.tab[aria-selected="true"]')).includes('Lower A') && (await t2('#history')).includes('5 סטים'), [await t2('#tabs'), await t2('#history')]);
+  check('second device: next up is workout 2', (await t2('.tab[aria-current="true"]')).includes('Lower A') && (await t2('#history')).includes('5 סטים'), [await t2('#tabs'), await t2('#history')]);
   check('second device: the note arrived with the settings', (await q.evaluate(() => S.cfg.notes.inclineSmith || '')).includes('מושב'), 'note');
   await q.click('.tab[data-tab="0"]'); await q.waitForTimeout(400);
   check('second device: last time shown', (await t2('.ex.open .sets')).includes('60×10'), await t2('.ex.open .sets'));
@@ -139,7 +147,9 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await q.click('.fb-dock [data-fb="pump"][data-v="2"]'); await q.click('.fb-dock [data-fb="load"][data-v="1"]'); await q.waitForTimeout(1400);
   const fbB = (sess().find((x) => !x.end) || {}).fb;
   check('feedback saved and the panel closes', !(await q.$('.fb-dock')) && !!fbB && fbB.ua1.pump === 2 && fbB.ua1.load === 1 && fbB.ua1.pain === 0, fbB);
+  await q.click('#backBtn'); await q.waitForTimeout(200); await tab(q, 'progress');
   if (await q.$('#exportBtn')) { await q.click('#exportBtn'); await q.waitForTimeout(200); }
+  await tab(q, 'home'); await q.click('#homeGo'); await q.waitForTimeout(400);
   check('export offers a csv', (await q.evaluate(() => window.__saved.length)) === 1, 'saved');
 
   // ---------- swap inside the same movement pattern ----------
@@ -173,7 +183,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
     S.sessions.seedLA = { id: 'seedLA', v: 3, w: 1, ts: t0, end: t0 + 3600e3, mt: t0 + 3600e3, upd: t0 + 3600e3, ft: t0, m: 'm1', wk: 1, dl: 0, rir: 3, n: { la1: 3, la2: 3, la3: 3, la4: 3, la5: 3, la6: 2 }, mv: {}, sore: {}, cut: {},
       fb: { la2: { pain: 0, pump: 1, load: 0 }, la4: { pain: 0, pump: 1, load: 0 }, la5: { pain: 0, pump: 0, load: 1 } },
       sets: { la1: [R(100, 8), R(100, 8), R(100, 7)], la2: [R(80, 9), R(80, 9), R(80, 8)], la3: [R(200, 12), R(200, 11), R(200, 10)], la4: [R(40, 12), R(40, 11), R(40, 10)], la5: [R(60, 14), R(60, 13), R(60, 12)], la6: [R(15, 12), R(15, 12)] } };
-    touch(S.sessions.seedLA); S.tab = 1; S.touched = true; S.open = null; renderAll(); startTab();
+    touch(S.sessions.seedLA); S.tab = 1; S.touched = true; S.open = null; setView('workout', true); renderAll(); startTab();
   });
   await p.waitForTimeout(400); await shot('g6-pre');
   check('recovery check lists the muscles of this workout', (await txt('#pre')).includes('ארבע ראשי') && (await txt('#pre')).includes('ירך אחורית') && (await txt('#pre')).includes('שוקיים'), await txt('#pre'));
@@ -187,12 +197,12 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await p.click('#dkStart'); await p.waitForTimeout(600);
   // sore quads hold last week's performance instead of adding a rep
   check('sore muscle holds the target', (await txt('.dk-set')).includes('יעד 100×8') && (await txt('.dk-lbl')).includes('לשמור'), [await txt('.dk-set'), await txt('.dk-lbl')]);
-  await p.click('.chip-r[data-r="12"]').catch(() => {}); await p.waitForTimeout(500);
+  await log(p, 12); await p.waitForTimeout(500);
   check('calibration: far more reps than predicted re-aims the next set', (await txt('.rt-state')).includes('מעלים ל-') && (await p.evaluate(() => { const T = targetOf(findEx('la1'), 1, live(1)); return T.mode + ':' + T.kg; })).startsWith('cal:1'), [await txt('.rt-state'), await p.evaluate(() => JSON.stringify(targetOf(findEx('la1'), 1, live(1))))]);
   await p.click('#rtSkip'); await p.waitForTimeout(200); await shot('g7-cal');
   const calKg = await p.evaluate(() => targetOf(findEx('la1'), 1, live(1)).kg);
   check('calibrated weight is rounded to the equipment step', calKg % 5 === 0 && calKg > 100 && (await txt('#dkKg')).startsWith(String(calKg)) && (await txt('.dk-lbl')).includes('כויל מחדש'), [calKg, await txt('#dkKg'), await txt('.dk-lbl')]);
-  await p.click('.chip-r[data-r="4"]'); await p.waitForTimeout(500); await p.click('#rtSkip'); await p.waitForTimeout(200);
+  await log(p, 4); await p.waitForTimeout(500); await p.click('#rtSkip'); await p.waitForTimeout(200);
   const dn = await p.evaluate(() => targetOf(findEx('la1'), 2, live(1)));
   check('down-set: under the range drops the load 10%', dn.mode === 'down' && dn.kg <= calKg * 0.9 && dn.kg % 5 === 0 && dn.reps >= 6 && dn.reps <= 10 && (await txt('.dk-lbl')).includes('ירד ב-10%'), dn);
   await p.click('#dkHit'); await p.waitForTimeout(500);

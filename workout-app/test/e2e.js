@@ -69,7 +69,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   const tab = async (pg, v) => { await pg.click('#tabbar [data-view="' + v + '"]'); await pg.waitForTimeout(250); };
 
   // ---------- first workout, nothing logged before ----------
-  check('hero flags a volume warning', (await txt('#mesoBtn em')) === 'נפח', await txt('#mesoBtn'));
+  check('hero flags a volume warning', (await txt('#mesoBtn em')) === 'לבדוק סטים', await txt('#mesoBtn'));
   check('hero shows the mesocycle week and its RIR', (await txt('#mesoBtn')).includes('שבוע 1 מתוך 5') && (await txt('#mesoBtn')).includes('3 חזרות לפני כשל'), await txt('#mesoBtn'));
   check('opens on today, with the next workout and the week', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('Upper A') && (await txt('.tab[aria-current="true"]')).includes('הבא'), await txt('#home'));
   await shot('g0-home');
@@ -142,7 +142,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await q.click('#rtSkip'); await q.waitForTimeout(100);
   await q.click('.ex.open .same'); await q.waitForTimeout(400);
   check('"log the rest at target" fills the remaining sets', (await q.$$('.ex[data-id="ua1"] .pips i.on')).length === 3, await t2('.ex[data-id="ua1"]'));
-  check('finished exercise asks for feedback', (await t2('.fb-dock')).includes('פאמפ') && (await t2('.fb-dock')).includes('כאב במפרקים'), await t2('#dock'));
+  check('finished exercise asks for feedback', (await t2('.fb-dock')).includes('תחושה בשריר') && (await t2('.fb-dock')).includes('כאב במפרקים'), await t2('#dock'));
   await shot('g3-feedback', q);
   await q.click('.fb-dock [data-fb="pump"][data-v="2"]'); await q.click('.fb-dock [data-fb="load"][data-v="1"]'); await q.waitForTimeout(1400);
   const fbB = (sess().find((x) => !x.end) || {}).fb;
@@ -166,7 +166,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   // ---------- mesocycle sheet: volume landmarks, set counts, increments ----------
   await q.click('#mesoBtn'); await q.waitForTimeout(300); await shot('g5-meso', q);
   const ms = await t2('#sheet');
-  check('mesocycle sheet shows the RIR ramp and a deload', ms.includes('RIR 3') && ms.includes('RIR 0') && ms.includes('דילואד'), ms.slice(0, 200));
+  check('mesocycle sheet shows the RIR ramp and a deload', ms.includes('3 חזרות') && ms.includes('עד כשל') && ms.includes('שבוע קל') && !/מזוציקל|דילואד|RIR/.test(ms), ms.slice(0, 200));
   const flags = await q.evaluate(() => [...document.querySelectorAll('.vol-row')].map((r) => r.querySelector('.vol-n').textContent + ':' + r.querySelector('.vol-v b').textContent + ':' + (r.querySelector('.vol-flag') ? r.querySelector('.vol-flag').textContent : '')));
   check('fractional volume and the below-minimum warning', flags.some((f) => f.startsWith('חזה:8:') && !f.includes('מתחת')) && flags.some((f) => f.startsWith('שוקיים:6:') && f.includes('מתחת למינימום')) && flags.some((f) => f.startsWith('ירך אחורית:10.5:')), flags);
   await q.click('[data-base="la5"][data-n="4"]'); await q.waitForTimeout(150); await q.click('[data-base="lb6"][data-n="4"]'); await q.waitForTimeout(200);
@@ -235,13 +235,13 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   const dl = await p.evaluate(() => { const P = phaseNext(1), e = findEx('la4', null), T = targetOf(e, 0, null); return { dl: P.dl, rir: P.rir, sets: planned(1, {}).la4, kg: T.kg, mode: T.mode, early: S.cfg.meso.early > 0 }; });
   check('deload week: half the sets, 15% lighter, far from failure', dl.dl && dl.rir === 4 && dl.sets === 2 && dl.kg === 30 && dl.mode === 'deload' && dl.early, dl);
   check('no recovery questions in a deload week', !(await p.$('#pre .pre')), await txt('#pre'));
-  check('hero says deload', (await txt('#mesoBtn')).includes('דילואד'), await txt('#mesoBtn'));
+  check('hero says deload', (await txt('#mesoBtn')).includes('שבוע קל'), await txt('#mesoBtn'));
 
   // ---------- mesocycle summary ----------
   const sum = await p.evaluate(() => { const R = mesoSummary('m1'); return { n: R.n, sets: R.sets, gains: R.gains.map((g) => g.mv + ':' + g.pct.toFixed(1)), mus: R.mus.length }; });
   check('mesocycle summary has volume and strength', sum.n >= 3 && !!sum.sets && sum.sets.peak >= sum.sets.start && sum.mus > 3 && sum.gains.some((g) => g.startsWith('inclineSmith:')), sum);
   await p.evaluate(() => showMesoSummary('m1', false)); await p.waitForTimeout(300); await shot('g10-summary');
-  check('summary card renders', (await txt('#sheet')).includes('שינוי כוח לפי תרגיל') && (await txt('#sheet')).includes('נפח לפי שריר') && (await txt('#sheet')).includes('הגיבו הכי טוב'), (await txt('#sheet')).slice(0, 300));
+  check('summary card renders', (await txt('#sheet')).includes('שינוי כוח לפי תרגיל') && (await txt('#sheet')).includes('סטים לפי שריר') && (await txt('#sheet')).includes('הגיבו הכי טוב'), (await txt('#sheet')).slice(0, 300));
   await p.click('#sheetClose'); await p.waitForTimeout(300);
 
   // ---------- fix a past workout on the second device ----------

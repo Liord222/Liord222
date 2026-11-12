@@ -40,21 +40,21 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   });
   ses.dlive = Object.assign(mk('dlive', 3, 6e5, 5, 1, 4, { lb1: [R(77.5, 8, now - 6e4)] }), { end: 0, upd: now - 6e4 });
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: ses, cfg: { upd: 5, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, meso: { id: 'm1', n: 1, start: 0, early: 0 }, past: [] } }); txt = T(p);
-  check('deload workout: hero and halved sets', (await txt('#mesoBtn')).includes('דילואד') && (await p.evaluate(() => findEx('lb1').sets)) === 3, [await txt('#mesoBtn'), await p.evaluate(() => findEx('lb1').sets)]);
+  check('deload workout: hero and halved sets', (await txt('#mesoBtn')).includes('שבוע קל') && (await p.evaluate(() => findEx('lb1').sets)) === 3, [await txt('#mesoBtn'), await p.evaluate(() => findEx('lb1').sets)]);
   await p.click('#finishBtn'); await p.waitForTimeout(500);
   const sheet = await txt('#sheet');
-  check('finishing the last deload shows the mesocycle summary', sheet.includes('המזוציקל הושלם') && sheet.includes('שינוי כוח לפי תרגיל') && sheet.includes('Incline Smith Machine Press') && sheet.includes('התרגילים שהגיבו הכי טוב') && sheet.includes('פאמפ חזק'), sheet.slice(0, 400));
+  check('finishing the last deload shows the mesocycle summary', sheet.includes('הסבב הושלם') && sheet.includes('שינוי כוח לפי תרגיל') && sheet.includes('Incline Smith Machine Press') && sheet.includes('התרגילים שהגיבו הכי טוב') && sheet.includes('תחושה חזקה'), sheet.slice(0, 400));
   await snap(p, 'h1-mesodone');
   const sm = await p.evaluate(() => { const r = mesoSummary('m1'); return { sets: r.sets, g: r.gains.map((x) => x.mv + ':' + x.pct.toFixed(1)), top: r.top.map((x) => x.mv) }; });
   check('summary numbers: weekly sets, strength change, best responders', sm.sets.start === 8 && sm.sets.peak === 8 && sm.g.length === 3 && sm.g.some((x) => x.startsWith('assistedPullup:') && !x.includes('-')) && sm.top.length === 3, sm);
   await p.click('#sheetClose'); await p.waitForTimeout(300);
   // ---- 3. the next workout opens mesocycle 2 ----
-  check('after the deload: next workout is week 1 of mesocycle 2', (await txt('#mesoBtn')).includes('מזוציקל 2') && (await txt('#mesoBtn')).includes('שבוע 1 מתוך 5') && (await txt('#mesoBtn')).includes('3 חזרות לפני כשל'), await txt('#mesoBtn'));
+  check('after the deload: next workout is week 1 of mesocycle 2', (await txt('#mesoBtn')).includes('סבב 2') && (await txt('#mesoBtn')).includes('שבוע 1 מתוך 5') && (await txt('#mesoBtn')).includes('3 חזרות לפני כשל'), await txt('#mesoBtn'));
   const t1 = await p.evaluate(() => { const e = findEx('ua1', null), t = targetOf(e, 0, null); return [t.kg, t.reps, t.mode, e.sets]; });
   check('new mesocycle starts further from failure, sets back to base', t1[2] === 'base' && t1[1] >= 6 && t1[1] <= 10 && t1[0] <= 62.5 && t1[3] === 3, t1);
   check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('Upper A'), await txt('#home'));
   await p.click('#planBtn'); await p.waitForTimeout(300);
-  check('mesocycle sheet between cycles offers the summary only', (await txt('.ms-act')).includes('סיכום מזוציקל 1') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('.ms-act'));
+  check('mesocycle sheet between cycles offers the summary only', (await txt('.ms-act')).includes('סיכום סבב 1') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('.ms-act'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
   await p.click('#homeGo'); await p.waitForTimeout(400); await p.click('#dkStart'); await p.waitForTimeout(500);
   const m2 = await p.evaluate(() => { const s = live(S.tab); return { cfg: S.cfg.meso.id, past: S.cfg.past.map((x) => x.id), m: s.m, wk: s.wk, rir: s.rir, dl: s.dl }; });

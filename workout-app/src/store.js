@@ -288,7 +288,7 @@ function mesoSummary(id) {
 
 function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + ' דק׳'; return Ltr(a === b ? a : a + '–' + b) + ' שנ׳'; }
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
-const rirText = (r) => (r == null ? '' : r >= 4 ? 'דילואד, קל ורחוק מכשל' : r === 0 ? 'עד כשל טכני' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
+const rirText = (r) => (r == null ? '' : r >= 4 ? 'שבוע קל, רחוק מכשל' : r === 0 ? 'עד כשל טכני' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
 function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }

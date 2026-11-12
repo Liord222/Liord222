@@ -1698,7 +1698,7 @@ function mesoSummary(id) {
 
 function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + ' דק׳'; return Ltr(a === b ? a : a + '–' + b) + ' שנ׳'; }
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
-const rirText = (r) => (r == null ? '' : r >= 4 ? 'דילואד, קל ורחוק מכשל' : r === 0 ? 'עד כשל טכני' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
+const rirText = (r) => (r == null ? '' : r >= 4 ? 'שבוע קל, רחוק מכשל' : r === 0 ? 'עד כשל טכני' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
 function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
@@ -1919,7 +1919,7 @@ function onTheme() { readColors(); drawThumbs(); if (player.cv && !player.playin
 /* ================================================================== workout UI */
 const valHTML = (r) => Ltr(r.kg != null ? Ltr(fmtKg(r.kg)) + '<small><bdi> ק״ג</bdi></small>' + Ltr(' × ' + (r.reps != null ? r.reps : '–')) : Ltr(r.reps != null ? r.reps : '–') + '<small><bdi> חז׳</bdi></small>');
 /* what today's set is trying to beat */
-const MODE = { reps: ['יעד: יותר חזרות', 'g-reps'], weight: ['יעד: יותר משקל', 'g-wt'], hold: ['לשמור על הביצוע', ''], base: ['בסיס חדש למזוציקל', ''], deload: ['דילואד', ''], down: ['המשקל ירד ב-10%', 'g-down'], cal: ['כויל מחדש', 'g-cal'] };
+const MODE = { reps: ['יעד: יותר חזרות', 'g-reps'], weight: ['יעד: יותר משקל', 'g-wt'], hold: ['לשמור על הביצוע', ''], base: ['בסיס חדש לסבב', ''], deload: ['שבוע קל', ''], down: ['המשקל ירד ב-10%', 'g-down'], cal: ['כויל מחדש', 'g-cal'] };
 function badge(T, e) {
   if (!T || !MODE[T.mode]) return '';
   const inv = LIB[e.mv].inv, t = inv && T.mode === 'weight' ? 'יעד: פחות סיוע' : inv && T.mode === 'down' ? 'נוסף סיוע' : MODE[T.mode][0];
@@ -1955,11 +1955,11 @@ function renderHome() {
     const st = live(i) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
     return '<button class="tab ' + st + '" type="button" data-tab="' + i + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : '') + '</span><b>' + x.name + '</b><small>' + { live: 'באמצע', next: 'הבא', done: 'הושלם', todo: '' }[st] + '</small></button>';
   }).join('');
-  $('#home').innerHTML = '<div class="page-h"><p class="cap">' + (P.m ? 'מזוציקל ' + P.n + ' · ' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks) : 'ארבעה אימונים במחזור') + '</p><h1 class="big">היום</h1></div>' + bannerHTML() +
+  $('#home').innerHTML = '<div class="page-h"><p class="cap">' + (P.m ? 'סבב ' + P.n + ' · ' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks) : 'ארבעה אימונים במחזור') + '</p><h1 class="big">היום</h1></div>' + bannerHTML() +
     '<section class="card next" aria-label="האימון הבא"><p class="k">' + (s ? 'באמצע אימון' : 'האימון הבא') + '</p><h2>' + wk.name + '</h2>' +
     '<p class="meta">' + wk.he + ' · ' + (s ? dn + ' מתוך ' + total + ' סטים בוצעו' : wk.ex.length + ' תרגילים · כ־' + minsOf(list) + ' דקות') + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? 'המשך אימון' : 'התחל אימון') + '</button></section>' +
-    '<section class="card week" aria-label="האימונים של השבוע"><div class="card-h"><h2>השבוע</h2>' + (!P.dl && volWarn() ? '<em class="warn-pill">נפח</em>' : '') + '<button class="go-link" id="planBtn" type="button" aria-label="התוכנית והמזוציקל">התוכנית' + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
+    '<section class="card week" aria-label="האימונים של השבוע"><div class="card-h"><h2>השבוע</h2>' + (!P.dl && volWarn() ? '<em class="warn-pill">לבדוק סטים</em>' : '') + '<button class="go-link" id="planBtn" type="button" aria-label="התוכנית והסבב">התוכנית' + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
 }
 function renderTabs() { renderHome(); }
 const totals = () => { const s = live(S.tab), l = exList(S.tab, s); return { total: l.reduce((n, e) => n + e.sets, 0), dn: l.reduce((n, e) => n + doneCount(s, e), 0) }; };
@@ -1977,7 +1977,7 @@ function renderHero() {
   const wk = PLAN[S.tab], s = live(S.tab), list = exList(S.tab, s), total = list.reduce((n, e) => n + e.sets, 0), P = phase(S.tab, s), mins = minsOf(list);
   const prev = sorted().find((x) => x.w === S.tab && x.end && hasDone(x));
   const line2 = s ? '<span id="elapsed"></span>' : prev ? 'פעם קודמת ' + ago(prev.ts) + ': ' + setsDone(prev) + ' סטים' + (volume(prev) ? ', ' + volume(prev).toLocaleString('he-IL') + ' ק״ג' : '') : wk.ex.length + ' תרגילים · כ־' + mins + ' דקות';
-  const meso = P.m ? '<button class="meso' + (P.dl ? ' dl' : '') + '" id="mesoBtn" type="button" aria-label="מזוציקל ותוכנית: פרטים והגדרות"><span>מזוציקל ' + P.n + ' · ' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks) + '</span><b>' + rirText(P.rir) + '</b>' + (!P.dl && volWarn() ? '<em>נפח</em>' : '') + ICON.fwd + '</button>' : '';
+  const meso = P.m ? '<button class="meso' + (P.dl ? ' dl' : '') + '" id="mesoBtn" type="button" aria-label="סבב ותוכנית: פרטים והגדרות"><span>סבב ' + P.n + ' · ' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks) + '</span><b>' + rirText(P.rir) + '</b>' + (!P.dl && volWarn() ? '<em>לבדוק סטים</em>' : '') + ICON.fwd + '</button>' : '';
   $('#hero').innerHTML = bannerHTML() +
     '<div class="hero-card"><div><p class="kicker">אימון ' + (S.tab + 1) + ' מתוך 4 · ' + wk.he + '</p><h1>' + wk.name + '</h1><p class="meta">' + (s || prev ? wk.ex.length + ' תרגילים · כ־' + mins + ' דקות<br>' : '') + line2 + '</p></div>' +
     '<div class="ring" role="img" aria-label="התקדמות באימון"><svg viewBox="0 0 86 86" aria-hidden="true"><circle class="tr" cx="43" cy="43" r="36"/><circle class="pr" id="ringArc" cx="43" cy="43" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><div><b id="ringTxt">0/' + total + '</b><span>סטים</span></div></div></div>' + meso;
@@ -2030,7 +2030,7 @@ function trendHTML(e) {
 /* three one-tap answers about the exercise that was just finished */
 const FB = [
   { k: 'pain', q: 'כאב במפרקים', o: ['בלי כאב', 'קל', 'חזק'] },
-  { k: 'pump', q: 'פאמפ וחיבור לשריר', o: ['חלש', 'בינוני', 'חזק'] },
+  { k: 'pump', q: 'תחושה בשריר', o: ['חלשה', 'בינונית', 'חזקה'] },
   { k: 'load', q: 'עומס העבודה', o: ['קל מדי', 'מתאים', 'יותר מדי'] },
 ];
 function fbHTML(e, s) {
@@ -2060,7 +2060,7 @@ function bodyHTML(e) {
     '<div><span class="rx-k">סטים × חזרות</span><span class="rx-v">' + Ltr(e.n0 + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span></div>' +
     '<div><span class="rx-k">מנוחה</span><span class="rx-v">' + restText(e).replace(/ (דק׳|שנ׳)/, ' <small>$1</small>') + '</span></div>' +
     '<div><span class="rx-k">' + (rir == null ? 'עצימות' : 'עצימות השבוע') + '</span><span class="chip l' + lvl + '">' + (rir == null ? e.int : rirText(rir)) + '</span></div></div>' +
-    (lowPump(e.mv) ? '<p class="flag-line">' + ICON.swap + '<span>פאמפ חלש פעמיים ברצף בתרגיל הזה. שווה לשקול להחליף אותו.</span></p>' : '') +
+    (lowPump(e.mv) ? '<p class="flag-line">' + ICON.swap + '<span>פעמיים ברצף כמעט לא הרגשת את השריר בתרגיל הזה. שווה לשקול להחליף אותו.</span></p>' : '') +
     '<div class="sets">' + setsHTML(e) + '</div><div class="fb-wrap"' + (fw ? '' : ' hidden') + '>' + fw + '</div>' + trendHTML(e) +
     '<div class="ex-acts"><button class="btn swap" type="button">' + ICON.swap + 'החלף תרגיל</button><button class="btn ask" type="button">' + ICON.cam + 'המכשיר תפוס? שאל את אילון</button></div></div>';
 }
@@ -2068,7 +2068,7 @@ function renderHistory() {
   const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }), s = live(S.tab);
   $('#wkAct').innerHTML = !s ? '' : '<button class="btn big" id="finishBtn" type="button">סיים אימון</button>' + (S.resetAsk ? '<span class="confirm"><span>למחוק את מה שנרשם באימון הזה?</span><button class="btn danger" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></span>' : '<button class="link" id="resetBtn" type="button">נקה את הרישום של האימון הזה</button>');
   renderGains(); renderBackup();
-  $('#history').innerHTML = '<h2 class="sec">אימונים אחרונים</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span class="h-t">' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span class="h-act">' + (S.delAsk === x.id ? '<button class="link" type="button" data-delyes="' + x.id + '">כן, למחוק</button><button class="link" type="button" data-delno="1">ביטול</button>' : '<button class="link" type="button" data-edit="' + x.id + '" aria-label="ערוך את האימון הזה">עריכה</button><button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</span><span class="h-s">' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + (x.dl ? ' · דילואד' : x.wk ? ' · שבוע ' + x.wk : '') + '</span></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">הצג עוד אימונים</button>' : '')
+  $('#history').innerHTML = '<h2 class="sec">אימונים אחרונים</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const v = volume(x), mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li><span class="h-t">' + df.format(new Date(x.ts)) + ' · אימון ' + (x.w + 1) + ' ' + Ltr(PLAN[x.w].name) + '</span><span class="h-act">' + (S.delAsk === x.id ? '<button class="link" type="button" data-delyes="' + x.id + '">כן, למחוק</button><button class="link" type="button" data-delno="1">ביטול</button>' : '<button class="link" type="button" data-edit="' + x.id + '" aria-label="ערוך את האימון הזה">עריכה</button><button class="link" type="button" data-del="' + x.id + '" aria-label="מחק את האימון הזה מהרישום">מחק</button>') + '</span><span class="h-s">' + setsDone(x) + ' סטים' + (v ? ' · ' + v.toLocaleString('he-IL') + ' ק״ג' : '') + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + (x.dl ? ' · שבוע קל' : x.wk ? ' · שבוע ' + x.wk : '') + '</span></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">הצג עוד אימונים</button>' : '')
     : '<p class="empty-note">כאן יופיעו האימונים שסיימת. כל אימון אפשר יהיה לערוך או למחוק.</p>') +
     (S.dl && list.length ? '<button class="link" id="exportBtn" type="button">ייצוא כל הרישום לקובץ CSV</button>' : '');
   updateProgress();
@@ -2099,9 +2099,9 @@ function importBackup(file) {
 /* progress: how the best set of each movement moved since the mesocycle began */
 function renderGains() {
   const M = S.cfg.meso, R = mesoSummary(M.id), sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
-  $('#progCap').textContent = 'מזוציקל ' + M.n + (R.n ? ' · ' + R.n + (R.n === 1 ? ' אימון' : ' אימונים') : '');
+  $('#progCap').textContent = 'סבב ' + M.n + (R.n ? ' · ' + R.n + (R.n === 1 ? ' אימון' : ' אימונים') : '');
   $('#gains').innerHTML = '<h2 class="sec">הכוח שלך</h2>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + Ltr(esc(EN[g.mv])) + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + ' בהתחלה · ' + Ltr(fmtRow(g.best)) + ' בשיא</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
-    : '<p class="empty-note">אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי בכוח.</p>') + (R.n ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום המזוציקל המלא</button>' : '');
+    : '<p class="empty-note">אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי בכוח.</p>') + (R.n ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום הסבב המלא</button>' : '');
 }
 function markCur() {
   const cur = live(S.tab) ? cursor() : null;
@@ -2218,7 +2218,7 @@ function renderDock() {
   } else if (!s) {
     S.edit = null;
     const P = phase(S.tab, null);
-    h = '<div class="dk-row"><div class="dk-msg">אימון ' + (S.tab + 1) + ' · ' + Ltr(wk.name) + '<small>' + (P.dl ? 'שבוע דילואד: חצי מהסטים ומשקל קל' : 'שבוע ' + P.wk + ' · ' + rirText(P.rir)) + '</small></div><button class="btn primary" id="dkStart" type="button">' + ICON.go + 'התחל אימון</button></div>';
+    h = '<div class="dk-row"><div class="dk-msg">אימון ' + (S.tab + 1) + ' · ' + Ltr(wk.name) + '<small>' + (P.dl ? 'שבוע קל: חצי מהסטים ופחות משקל' : 'שבוע ' + P.wk + ' · ' + rirText(P.rir)) + '</small></div><button class="btn primary" id="dkStart" type="button">' + ICON.go + 'התחל אימון</button></div>';
   } else {
     S.edit = null;
     const cur = cursor();
@@ -2381,10 +2381,10 @@ function showSummary(s) {
   const wk = PLAN[s.w], total = exList(s.w, s).reduce((n, e) => n + e.sets, 0), v = volume(s), mn = Math.max(1, Math.round((s.end - s.ts) / 60000)), prs = prCount(s);
   const prev = sorted().find((x) => x.w === s.w && x.id !== s.id && x.end && hasDone(x)), pv = prev ? volume(prev) : 0, nu = nextUp();
   let cmp = '';
-  if (pv && v && !s.dl) { const d = ((v - pv) / pv) * 100; cmp = Math.abs(d) < 0.5 ? 'אותו נפח כמו באימון הקודם של ' + Ltr(wk.name) + '.' : (d > 0 ? 'נפח גבוה ב-' : 'נפח נמוך ב-') + Ltr(Math.abs(d).toFixed(0) + '%') + ' מהאימון הקודם של ' + Ltr(wk.name) + '.'; }
+  if (pv && v && !s.dl) { const d = ((v - pv) / pv) * 100; cmp = Math.abs(d) < 0.5 ? 'אותה כמות עבודה כמו באימון הקודם של ' + Ltr(wk.name) + '.' : 'הרמת ' + Ltr(Math.abs(d).toFixed(0) + '%') + (d > 0 ? ' יותר' : ' פחות') + ' מבאימון הקודם של ' + Ltr(wk.name) + '.'; }
   const sh = $('#sheet'); S.sheet = 'sum';
-  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="סיכום אימון"><p class="kicker">אימון ' + (s.w + 1) + ' הושלם' + (s.dl ? ' · דילואד' : s.wk ? ' · שבוע ' + s.wk : '') + '</p><h2>' + Ltr(wk.name) + '</h2>' +
-    '<div class="stats"><div><b>' + setsDone(s) + '/' + total + '</b><span>סטים</span></div><div><b>' + (v ? v.toLocaleString('en-US') : '–') + '</b><span>ק״ג נפח כולל</span></div><div><b>' + mn + '</b><span>' + (mn === 1 ? 'דקה' : 'דקות') + '</span></div></div>' +
+  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="סיכום אימון"><p class="kicker">אימון ' + (s.w + 1) + ' הושלם' + (s.dl ? ' · שבוע קל' : s.wk ? ' · שבוע ' + s.wk : '') + '</p><h2>' + Ltr(wk.name) + '</h2>' +
+    '<div class="stats"><div><b>' + setsDone(s) + '/' + total + '</b><span>סטים</span></div><div><b>' + (v ? v.toLocaleString('en-US') : '–') + '</b><span>ק״ג בסך הכול</span></div><div><b>' + mn + '</b><span>' + (mn === 1 ? 'דקה' : 'דקות') + '</span></div></div>' +
     '<p>' + (prs ? '<b>' + prs + (prs === 1 ? ' שיא אישי' : ' שיאים אישיים') + ' באימון הזה.</b> ' : '') + cmp + ' הבא בתור: אימון ' + (nu.next + 1) + ' · ' + Ltr(PLAN[nu.next].name) + '.</p>' +
     '<button class="btn primary big" id="sheetClose" type="button">סגור</button></div>';
   sh.hidden = false; $('#sheetClose').focus();
@@ -2429,7 +2429,7 @@ function openEditor(id) {
   }
   S.edSid = id; S.edDel = false; S.sheet = 'ed';
   const sh = $('#sheet');
-  sh.innerHTML = '<div class="sheet-in ed" role="dialog" aria-modal="true" aria-label="עריכת אימון"><div class="ed-h"><div><p class="kicker">עריכת אימון ' + (s.w + 1) + (s.dl ? ' · דילואד' : s.wk ? ' · שבוע ' + s.wk : '') + '</p><h2>' + Ltr(wk.name) + '</h2></div><button class="icon-btn" id="sheetClose" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+  sh.innerHTML = '<div class="sheet-in ed" role="dialog" aria-modal="true" aria-label="עריכת אימון"><div class="ed-h"><div><p class="kicker">עריכת אימון ' + (s.w + 1) + (s.dl ? ' · שבוע קל' : s.wk ? ' · שבוע ' + s.wk : '') + '</p><h2>' + Ltr(wk.name) + '</h2></div><button class="icon-btn" id="sheetClose" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
     '<label class="ed-date" for="edDate"><span>תאריך האימון</span><input type="date" id="edDate" value="' + isoDay(new Date(s.ts)) + '" max="' + isoDay(new Date()) + '"></label>' +
     '<p class="ed-note">כל שינוי נשמר מיד. סט בלי מספר חזרות נחשב כלא בוצע.</p><div class="ed-list">' + list + '</div><div class="ed-act" id="edAct">' + editorActions(s) + '</div></div>';
   sh.hidden = false;
@@ -2673,7 +2673,7 @@ function volHTML(dl) {
 function builderHTML() {
   return PLAN.map((wk, w) => {
     const s = live(w), dl = phase(w, s).dl;
-    return '<div class="bl-w"><h4>אימון ' + (w + 1) + ' · ' + Ltr(wk.name) + (dl ? '<small>דילואד: חצי מהסטים</small>' : '') + '</h4>' + exList(w, s).map((e) => '<div class="bl-row"><span class="bl-n"><b>' + esc(e.name) + '</b><small>' + MUSCLE[LIB[e.mv].p].he + ' · ' + Ltr(e.reps) + ' חזרות</small></span>' +
+    return '<div class="bl-w"><h4>אימון ' + (w + 1) + ' · ' + Ltr(wk.name) + (dl ? '<small>שבוע קל: חצי מהסטים</small>' : '') + '</h4>' + exList(w, s).map((e) => '<div class="bl-row"><span class="bl-n"><b>' + esc(e.name) + '</b><small>' + MUSCLE[LIB[e.mv].p].he + ' · ' + Ltr(e.reps) + ' חזרות</small></span>' +
       '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="סט אחד פחות"' + (dl || e.n0 <= 1 ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="סט נוסף"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>').join('') + '</div>';
   }).join('');
 }
@@ -2681,22 +2681,22 @@ function renderMeso() {
   const sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, M = S.cfg.meso, s = live(S.tab), P = phase(S.tab, s), W = S.cfg.weeks, past = (S.cfg.past || []).filter((p) => mesoSessions(p.id).length).slice(-1)[0];
   if (!P.m) P.n = M.n;
   let strip = '';
-  for (let k = 1; k <= W; k++) { const d = k === W, cur = P.dl ? d : k === P.wk; strip += '<li class="' + (cur ? 'cur' : '') + (d ? ' dl' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><small>שבוע ' + k + '</small><b>' + (d ? 'דילואד' : Ltr('RIR ' + rirFor(k, W))) + '</b></li>'; }
+  for (let k = 1; k <= W; k++) { const d = k === W, cur = P.dl ? d : k === P.wk; strip += '<li class="' + (cur ? 'cur' : '') + (d ? ' dl' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><small>שבוע ' + k + '</small><b>' + (d ? 'שבוע קל' : ((r) => (r === 0 ? 'עד כשל' : r === 1 ? 'חזרה 1' : r + ' חזרות'))(rirFor(k, W))) + '</b></li>'; }
   /* the last mesocycle is complete and the next workout opens a new one: nothing to steer until then */
   const over = mesoDone(M);
   let act;
-  if (over) act = '<span class="ms-sub">מזוציקל ' + M.n + ' הושלם. האימון הבא פותח את מזוציקל ' + (M.n + 1) + '.</span><button class="btn" type="button" data-sum="' + M.id + '">סיכום מזוציקל ' + M.n + '</button>';
-  else if (S.msAsk === 'dl') act = '<span class="confirm"><span>להפוך את האימונים הבאים לשבוע דילואד (חצי מהסטים, 15% פחות משקל)? אחריו יתחיל מזוציקל חדש.</span><button class="btn primary" id="msDlYes" type="button">כן, דילואד</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
-  else if (S.msAsk === 'new') act = '<span class="confirm"><span>לסגור את המזוציקל הזה ולהתחיל חדש משבוע 1? הרישום נשמר.</span><button class="btn primary" id="msNewYes" type="button">כן, מזוציקל חדש</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
-  else act = (M.early ? '<button class="btn" id="msDlOff" type="button">בטל את הדילואד המוקדם</button>' : P.dl ? '' : '<button class="btn" id="msDl" type="button">דילואד עכשיו</button>') + '<button class="btn" id="msNew" type="button">מזוציקל חדש</button>' +
-    (mesoSessions(M.id).length ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום עד עכשיו</button>' : '') + (past ? '<button class="btn" type="button" data-sum="' + past.id + '">סיכום מזוציקל ' + past.n + '</button>' : '');
-  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="מזוציקל ותוכנית"><div class="ed-h"><div><p class="kicker">מזוציקל ' + P.n + (M.early && !over ? ' · דילואד מוקדם' : '') + '</p><h2>' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' <small>מתוך ' + W + '</small>') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+  if (over) act = '<span class="ms-sub">סבב ' + M.n + ' הושלם. האימון הבא פותח את סבב ' + (M.n + 1) + '.</span><button class="btn" type="button" data-sum="' + M.id + '">סיכום סבב ' + M.n + '</button>';
+  else if (S.msAsk === 'dl') act = '<span class="confirm"><span>להפוך את האימונים הבאים לשבוע קל (חצי מהסטים, 15% פחות משקל)? אחריו יתחיל סבב חדש.</span><button class="btn primary" id="msDlYes" type="button">כן, שבוע קל</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
+  else if (S.msAsk === 'new') act = '<span class="confirm"><span>לסגור את הסבב הזה ולהתחיל חדש משבוע 1? הרישום נשמר.</span><button class="btn primary" id="msNewYes" type="button">כן, סבב חדש</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
+  else act = (M.early ? '<button class="btn" id="msDlOff" type="button">בטל את השבוע הקל המוקדם</button>' : P.dl ? '' : '<button class="btn" id="msDl" type="button">שבוע קל עכשיו</button>') + '<button class="btn" id="msNew" type="button">סבב חדש</button>' +
+    (mesoSessions(M.id).length ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום עד עכשיו</button>' : '') + (past ? '<button class="btn" type="button" data-sum="' + past.id + '">סיכום סבב ' + past.n + '</button>' : '');
+  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="סבב ותוכנית"><div class="ed-h"><div><p class="kicker">סבב ' + P.n + (M.early && !over ? ' · שבוע קל מוקדם' : '') + '</p><h2>' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' <small>מתוך ' + W + '</small>') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
     '<ol class="wk-strip">' + strip + '</ol>' +
-    '<p>' + Ltr('RIR') + ' הוא מספר החזרות שנשארות לפני כשל. כל שבוע מתקרבים בחזרה אחת, והיעד לכל סט עולה בהתאם: עוד חזרה באותו משקל, או יותר משקל כשמגיעים לראש הטווח. השבוע האחרון הוא דילואד.</p>' +
-    '<section><h3>נפח שבועי לפי שריר</h3><p class="ms-sub">סט מלא לשריר הראשי וחצי סט לשריר מסייע (המספרים הקטנים: ישירים + עקיפים). הרצועה הבהירה היא הטווח המומלץ: מהמינימום היעיל ועד המקסימום שאפשר להתאושש ממנו.' + (P.dl ? ' בשבוע דילואד הנפח נמוך בכוונה.' : '') + '</p><div class="vol">' + volHTML(P.dl) + '</div></section>' +
-    '<section><h3>סטים בתוכנית</h3><p class="ms-sub">שינוי כאן חל מהאימון הבא של אותו תרגיל. במהלך המזוציקל האפליקציה מוסיפה או מורידה סט לפי משוב ההתאוששות.</p>' + builderHTML() + '</section>' +
+    '<p>בכל שבוע כתוב כמה חזרות משאירים לפני כשל. כל שבוע מתקרבים בחזרה אחת, והיעד לכל סט עולה בהתאם: עוד חזרה באותו משקל, או יותר משקל כשמגיעים לראש הטווח. השבוע האחרון קל, כדי להתאושש.</p>' +
+    '<section><h3>סטים בשבוע לפי שריר</h3><p class="ms-sub">סט מלא לשריר הראשי וחצי סט לשריר מסייע (המספרים הקטנים: ישירים + עקיפים). הרצועה הבהירה היא הטווח המומלץ: מהמינימום היעיל ועד המקסימום שאפשר להתאושש ממנו.' + (P.dl ? ' בשבוע קל יש פחות סטים בכוונה.' : '') + '</p><div class="vol">' + volHTML(P.dl) + '</div></section>' +
+    '<section><h3>סטים בתוכנית</h3><p class="ms-sub">שינוי כאן חל מהאימון הבא של אותו תרגיל. במהלך הסבב האפליקציה מוסיפה או מורידה סט לפי משוב ההתאוששות.</p>' + builderHTML() + '</section>' +
     '<section><h3>קפיצת משקל לפי ציוד</h3><p class="ms-sub">היעדים מעוגלים לקפיצה הקטנה ביותר שאפשר להעמיס בפועל.</p><div class="inc">' + Object.keys(EQUIP).map((k) => '<label class="inc-row"><span>' + EQUIP[k].he + '</span><select data-inc="' + k + '">' + INC_CHOICES.map((v) => '<option value="' + v + '"' + (v === (+S.cfg.inc[k] || EQUIP[k].inc) ? ' selected' : '') + '>' + v + ' ק״ג</option>').join('') + '</select></label>').join('') + '</div></section>' +
-    '<section><h3>אורך המזוציקל</h3><div class="bl-row"><span class="bl-n"><b>' + W + ' שבועות</b><small>' + (W - 1) + ' שבועות עבודה ושבוע דילואד</small></span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="שבוע פחות"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="שבוע נוסף"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></div></section>' +
+    '<section><h3>אורך הסבב</h3><div class="bl-row"><span class="bl-n"><b>' + W + ' שבועות</b><small>' + (W - 1) + ' שבועות עבודה ושבוע קל</small></span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="שבוע פחות"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="שבוע נוסף"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></div></section>' +
     '<div class="ed-act ms-act">' + act + '</div></div>';
   $('.sheet-in', sh).scrollTop = top;
 }
@@ -2705,29 +2705,29 @@ function openMeso() { S.sheet = 'meso'; S.msAsk = null; renderMeso(); $('#sheet'
 function showMesoSummary(id, justDone) {
   const R = mesoSummary(id), n = +String(id).slice(1) || 1, sh = $('#sheet'), avg = R.gains.length ? R.gains.reduce((a, g) => a + g.pct, 0) / R.gains.length : null;
   const sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
-  let body = '<p>עוד אין אימונים רשומים במזוציקל הזה.</p>';
+  let body = '<p>עוד אין אימונים רשומים בסבב הזה.</p>';
   if (R.n) {
     body = '<div class="stats"><div><b>' + (R.sets ? fmtN(R.sets.peak) : '–') + '</b><span>סטים בשבוע השיא' + (R.sets && R.sets.start !== R.sets.peak ? ' (בהתחלה ' + fmtN(R.sets.start) + ')' : '') + '</span></div><div><b>' + (avg == null ? '–' : sign(avg)) + '</b><span>שינוי כוח ממוצע</span></div><div><b>' + R.n + '</b><span>אימונים</span></div></div>' +
-      (R.mus.length ? '<section><h3>נפח לפי שריר</h3><ul class="sum-list">' + R.mus.map((m) => '<li><span>' + MUSCLE[m.k].he + '</span><span>' + (m.weeks > 1 && m.peak !== m.start ? fmtN(m.start) + ' סטים בשבוע הראשון, <b>' + fmtN(m.peak) + '</b> בשיא (שבוע ' + m.peakWk + ')' : '<b>' + fmtN(m.peak) + '</b> סטים בשבוע') + '</span></li>').join('') + '</ul></section>' : '') +
+      (R.mus.length ? '<section><h3>סטים לפי שריר</h3><ul class="sum-list">' + R.mus.map((m) => '<li><span>' + MUSCLE[m.k].he + '</span><span>' + (m.weeks > 1 && m.peak !== m.start ? fmtN(m.start) + ' סטים בשבוע הראשון, <b>' + fmtN(m.peak) + '</b> בשיא (שבוע ' + m.peakWk + ')' : '<b>' + fmtN(m.peak) + '</b> סטים בשבוע') + '</span></li>').join('') + '</ul></section>' : '') +
       '<section><h3>שינוי כוח לפי תרגיל</h3>' + (R.gains.length ? '<ul class="sum-list">' + R.gains.slice(0, 14).map((g) => '<li><span>' + Ltr(esc(EN[g.mv])) + '</span><span>' + Ltr(fmtRow(g.first)) + ' בהתחלה, ' + Ltr(fmtRow(g.best)) + ' בשיא · <b class="' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</b></span></li>').join('') + '</ul>' : '<p class="ms-sub">צריך לפחות שני אימונים של אותו תרגיל כדי להשוות.</p>') + '</section>' +
-      '<section><h3>התרגילים שהגיבו הכי טוב</h3>' + (R.top.length ? '<ul class="sum-list">' + R.top.map((t) => '<li><span>' + Ltr(esc(EN[t.mv])) + '</span><span>פאמפ ' + (t.pump >= 1.5 ? 'חזק' : 'בינוני') + ' · ' + (t.pain === 0 ? 'בלי כאב במפרקים' : 'כאב קל לפעמים') + '</span></li>').join('') + '</ul>' : '<p class="ms-sub">אין עדיין מספיק משוב. התשובות על פאמפ וכאב בסוף כל תרגיל הן מה שמזין את הדירוג הזה.</p>') + '</section>';
+      '<section><h3>התרגילים שהגיבו הכי טוב</h3>' + (R.top.length ? '<ul class="sum-list">' + R.top.map((t) => '<li><span>' + Ltr(esc(EN[t.mv])) + '</span><span>תחושה ' + (t.pump >= 1.5 ? 'חזקה' : 'בינונית') + ' בשריר · ' + (t.pain === 0 ? 'בלי כאב במפרקים' : 'כאב קל לפעמים') + '</span></li>').join('') + '</ul>' : '<p class="ms-sub">אין עדיין מספיק משוב. התשובות על התחושה בשריר ועל כאב בסוף כל תרגיל הן מה שמזין את הדירוג הזה.</p>') + '</section>';
   }
   S.sheet = 'msum';
-  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="סיכום מזוציקל"><div class="ed-h"><div><p class="kicker">' + (justDone ? 'המזוציקל הושלם' : 'סיכום') + '</p><h2>מזוציקל ' + n + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' + body +
-    (justDone ? '<p>האימון הבא פותח מזוציקל חדש: מספר הסטים חוזר לבסיס והעצימות חוזרת ל-3 חזרות לפני כשל.</p>' : '') + '<button class="btn primary big" id="sheetClose" type="button">סגור</button></div>';
+  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="סיכום סבב"><div class="ed-h"><div><p class="kicker">' + (justDone ? 'הסבב הושלם' : 'סיכום') + '</p><h2>סבב ' + n + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' + body +
+    (justDone ? '<p>האימון הבא פותח סבב חדש: מספר הסטים חוזר לבסיס והעצימות חוזרת ל-3 חזרות לפני כשל.</p>' : '') + '<button class="btn primary big" id="sheetClose" type="button">סגור</button></div>';
   sh.hidden = false;
 }
 /* two workouts in a row fell short for two muscle groups or more: offer the deload now */
 function showDeloadOffer(s) {
   const mus = Array.from(missedMuscles(s)).map((k) => MUSCLE[k].he), sh = $('#sheet');
   S.sheet = 'dlo';
-  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="הצעה לשבוע דילואד"><p class="kicker">אימון ' + (s.w + 1) + ' הושלם</p><h2>סימני עייפות</h2>' +
+  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="הצעה לשבוע קל"><p class="kicker">אימון ' + (s.w + 1) + ' הושלם</p><h2>סימני עייפות</h2>' +
     '<p>בשני האימונים האחרונים לא הגעת ליעד בשתי קבוצות שריר או יותר (היום: ' + mus.join(', ') + '). כשזה קורה ברצף, בדרך כלל זו עייפות מצטברת ולא יום חלש.</p>' +
-    '<p><b>שבוע דילואד:</b> חצי מהסטים, 15% פחות משקל ורחוק מכשל, בכל ארבעת האימונים. אחריו מתחיל מזוציקל חדש.</p>' +
-    '<button class="btn primary big" id="dlYes" type="button">להתחיל שבוע דילואד עכשיו</button><button class="btn big" data-close="1" type="button">לא עכשיו, להמשיך כרגיל</button></div>';
+    '<p><b>שבוע קל:</b> חצי מהסטים, 15% פחות משקל ורחוק מכשל, בכל ארבעת האימונים. אחריו מתחיל סבב חדש.</p>' +
+    '<button class="btn primary big" id="dlYes" type="button">להתחיל שבוע קל עכשיו</button><button class="btn big" data-close="1" type="button">לא עכשיו, להמשיך כרגיל</button></div>';
   sh.hidden = false;
 }
-function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>שבוע דילואד התחיל.</b> בארבעת האימונים הבאים: חצי מהסטים, 15% פחות משקל ורחוק מכשל. אחריהם מתחיל מזוציקל חדש.'; }
+function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>שבוע קל התחיל.</b> בארבעת האימונים הבאים: חצי מהסטים, 15% פחות משקל ורחוק מכשל. אחריהם מתחיל סבב חדש.'; }
 /* clicks inside the sheet that belong to this file; returns true when the click was handled */
 function coachSheetClick(ev, id) {
   const b = ev.target.closest('button'), ds = b ? b.dataset : {};
@@ -2744,7 +2744,7 @@ function coachSheetClick(ev, id) {
   if (id === 'msDl' || id === 'msNew' || id === 'msNo') { S.msAsk = id === 'msDl' ? 'dl' : id === 'msNew' ? 'new' : null; renderMeso(); return true; }
   if (id === 'msDlYes') { startDeload(); S.msAsk = null; closeSheet(); return true; }
   if (id === 'msDlOff') { S.cfg.meso.early = 0; saveCfg(); renderMeso(); return true; }
-  if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>מזוציקל ' + S.cfg.meso.n + ' התחיל.</b> האימון הבא הוא שבוע 1.'; closeSheet(); return true; }
+  if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>סבב ' + S.cfg.meso.n + ' התחיל.</b> האימון הבא הוא שבוע 1.'; closeSheet(); return true; }
   if (id === 'dlYes') { startDeload(); closeSheet(); return true; }
   return false;
 }
@@ -2771,7 +2771,7 @@ function wireCoach() {
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
-  return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return 'אימון ' + (i + 1) + ' – ' + w.name + (P.m ? ' (' + (P.dl ? 'שבוע דילואד' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' במזוציקל') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.name + ': ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
+  return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return 'אימון ' + (i + 1) + ' – ' + w.name + (P.m ? ' (' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.name + ': ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
 }
 const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
   'התוכנית של המשתמש (Upper/Lower, ארבעה אימונים שמתבצעים במחזור לפי הסדר). בסוגריים המרובעים מופיע מזהה התרגיל:\n\n' + planText() + '\n\n' +
@@ -2784,7 +2784,8 @@ const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, א�
   '  השתמש בתרגיל שבהקשר אם לא צוין תרגיל אחר. אל תוסיף את השורה אם לא ביקשו לרשום, או אם חסר מספר החזרות (במקרה כזה שאל). אל תזכיר את השורה הזאת בטקסט.\n' +
   '- כשאין תחליף מדויק, הצע חלופה אחת או שתיים שנפוצות בחדרי כושר.\n' +
   '- שמור על כוונת התוכנית: אותה קבוצת שרירים, אותו טווח חזרות ואותה קרבה לכשל.\n' +
-  '- האפליקציה מנהלת מזוציקל: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון הוא דילואד. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל) ומאפשרת להחליף תרגיל בכפתור "החלף תרגיל" לתרגיל באותו דפוס תנועה. כששואלים על יעד, משקל או עצימות, התבסס על הנתונים שבהקשר.\n' +
+  '- האפליקציה מנהלת סבב אימונים של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל) ומאפשרת להחליף תרגיל בכפתור "החלף תרגיל" לתרגיל באותו דפוס תנועה. כששואלים על יעד, משקל או עצימות, התבסס על הנתונים שבהקשר.\n' +
+  '- דבר בשפה פשוטה. אל תשתמש במונחים כמו מזוציקל, דילואד או RIR: אמור "סבב", "שבוע קל" ו"חזרות לפני כשל".\n' +
   '- אין לך מידע רפואי על המשתמש. אם מוזכרים כאב או פציעה, המלץ להפסיק את התרגיל ולהתייעץ עם איש מקצוע.\n' +
   '- טקסט פשוט בלבד, בלי טבלאות ובלי כותרות. אפשר שורות קצרות שמתחילות ב-"• ".';
 const ERR = {

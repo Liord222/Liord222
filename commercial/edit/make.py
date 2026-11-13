@@ -65,6 +65,9 @@ class Film:
         yy, xx = np.mgrid[0:self.H, 0:W].astype(np.float32)
         self.xx, self.yy = xx, yy
         self.rr = np.sqrt(((xx - W / 2) / (W / 2)) ** 2 + ((yy - self.H / 2) / (self.H / 2)) ** 2) / math.sqrt(2)
+        # the distance from the middle as a true circle (0 in the middle, 1 in the corners)
+        self.rc = np.sqrt((xx - W / 2) ** 2 + (yy - self.H / 2) ** 2) / (math.hypot(W, self.H) / 2)
+        self.streaks = [(rng.uniform(0, math.tau), rng.uniform(0.08, 0.5), rng.uniform(0.25, 1.0), rng.uniform(1.0, 3.2)) for _ in range(90)]
         # points of light that drift up through gymi's world
         self.dots = [dict(x=rng.uniform(0, 1), y=rng.uniform(0, 1), r=rng.uniform(4, 34), a=rng.uniform(0.04, 0.16), v=rng.uniform(0.004, 0.02),
                           c=(BLUE if rng.random() < 0.6 else GOLD if rng.random() < 0.6 else np.ones(3, np.float32)), ph=rng.uniform(0, 6.28)) for _ in range(46)]
@@ -322,11 +325,27 @@ class Film:
                 # the iris: gymi's blue opens from the middle onto black, and the name is there
                 t = (f - 24) / 12.0
                 r = ease_out(t * 1.35, 2.2) * 1.25
-                edge = np.clip((self.rr - r) / 0.05, 0, 1)[..., None]
+                edge = np.clip((self.rc - r) / 0.05, 0, 1)[..., None]
                 a = BLUE[None, None, :] * (1.0 + 0.35 * (1 - self.rr[..., None])) * edge
-                ring = np.exp(-((self.rr - r) / 0.022) ** 2)[..., None]
+                ring = np.exp(-((self.rc - r) / 0.02) ** 2)[..., None]
                 a = a + ring * np.array([0.55, 0.7, 1.0], np.float32) * (1 - t) * 0.9
                 a = a.astype(np.float32)
+                # light flying past as we fall in: thin streaks out of the middle, blue and gold
+                if t < 0.85:
+                    lay = Image.new('RGB', (W // 2, H // 2), (0, 0, 0))
+                    d = ImageDraw.Draw(lay)
+                    R0 = math.hypot(W, H) / 4
+                    for ang, r0, ln, wd in self.streaks:
+                        p0 = (r0 + t * 1.5) % 1.15
+                        p1 = p0 + ln * (0.1 + 0.5 * t)
+                        if p0 > r * 0.92:
+                            continue
+                        col = (255, 214, 120) if wd > 2.6 else (150, 185, 255)
+                        fade = (1 - t / 0.85) * min(1.0, p0 * 4)
+                        col = tuple(int(c * fade * 0.8) for c in col)
+                        d.line([W / 4 + math.cos(ang) * p0 * R0, H / 4 + math.sin(ang) * p0 * R0, W / 4 + math.cos(ang) * min(p1, r) * R0, H / 4 + math.sin(ang) * min(p1, r) * R0], fill=col, width=max(1, int(wd * k / 2 + 0.5)))
+                    lay = lay.filter(ImageFilter.GaussianBlur(0.8 * k)).resize((W, H), Image.BILINEAR)
+                    a = a + np.asarray(lay, np.float32) / 255
                 la = ease(span(t, 0.22, 0.6))
                 lay = self.wordmark(170 * k, True, 1.0, ease(span(t, 0.55, 0.95)))
                 a = self.paste(a, lay, W / 2, H / 2, lerp(1.3, 1.0, ease_out(span(t, 0.22, 0.8), 3)), la)

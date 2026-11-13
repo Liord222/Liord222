@@ -33,7 +33,7 @@ function cursor() {
 const anyLeft = (s) => exList(S.tab, s).some((x) => firstUndone(s, x) >= 0);
 /* ---- four places: today, one workout, the profile, progress ---- */
 function setView(v, keep) {
-  S.view = v; $('#app').dataset.view = v;
+  S.view = v; $('#app').dataset.view = v; $('#app').dataset.w = S.tab;
   for (const b of $$('#tabbar [data-view]')) { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }
   if (v === 'profile') renderProfile();
   if (!keep) window.scrollTo(0, 0);
@@ -54,17 +54,17 @@ function renderHome() {
   const SAY = { live: say('באמצע', 'in progress'), next: say('הבא', 'next'), done: say('הושלם', 'complete'), todo: say('עוד לא', 'not yet') };
   const week = PLAN.map((x, i) => {
     const st = live(i) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
-    return '<button class="tab ' + st + '" type="button" data-tab="' + i + '" aria-label="' + wkFull(i) + ', ' + SAY[st] + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : i + 1) + '</span><b>' + wkShort(i) + '</b></button>';
+    return '<button class="tab w' + i + ' ' + st + '" type="button" data-tab="' + i + '" aria-label="' + wkFull(i) + ', ' + SAY[st] + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : i + 1) + '</span><b>' + wkShort(i) + '</b></button>';
   }).join('');
   $('#home').innerHTML = playerHTML(meNow()) + bannerHTML() +
-    '<section class="card next" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
+    '<section class="card next w' + w + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
     '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
     '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (!P.m ? say('השבוע', 'This week') : P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + ' <small>' + say('מתוך ', 'of ') + S.cfg.weeks + '</small>') + '</h2>' + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
 }
 function renderTabs() { renderHome(); }
 /* a workout that is under way is marked on "today", from wherever the lifter is looking */
-function markLive() { const b = $('#tabbar [data-view="home"]'), on = nextUp().live >= 0; b.classList.toggle('live', on); const s = $('span', b); if (s) s.title = on ? say('אימון באמצע', 'A workout is in progress') : ''; }
+function markLive() { const b = $('#tabbar [data-view="home"]'), on = nextUp().live >= 0; b.classList.toggle('live', on); const s = $('.tb-l', b); if (s) s.title = on ? say('אימון באמצע', 'A workout is in progress') : ''; }
 const totals = () => { const s = live(S.tab), l = exList(S.tab, s); return { total: l.reduce((n, e) => n + e.sets, 0), dn: l.reduce((n, e) => n + doneCount(s, e), 0) }; };
 /* how far the workout is: one quiet bar of the sets done */
 function updateProgress() {
@@ -74,6 +74,7 @@ function updateProgress() {
 /* the top of a workout: its name, and which exercise of it is on screen */
 function renderHero() {
   const list = exList(S.tab), cur = $('#app').classList.contains('pre-on') ? null : shown(), i = cur ? list.findIndex((x) => x.id === cur.id) : -1;
+  $('#app').dataset.w = S.tab;
   $('#wkTitle').innerHTML = '<b>' + wkName(S.tab) + '</b><span class="sub">' + (i >= 0 ? say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length : wkOrd(S.tab)) + '</span>';
   $('#hero').innerHTML = bannerHTML();
   updateProgress();
@@ -317,9 +318,9 @@ function beep(n) {
   try {
     for (let i = 0; i < n; i++) {
       const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime + i * 0.3;
-      o.type = 'sine'; o.frequency.value = n === 1 ? 660 : 880;
-      gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(0.28, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
-      o.connect(gn); gn.connect(actx.destination); o.start(t); o.stop(t + 0.26);
+      o.type = 'sine'; o.frequency.value = n === 1 ? 587 : 784;
+      gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(0.11, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+      o.connect(gn); gn.connect(actx.destination); o.start(t); o.stop(t + 0.32);
     }
   } catch (e) { /* no audio here */ }
 }
@@ -444,7 +445,7 @@ function logSet(el) {
   const t = dockTarget(); if (!t || t.edit || logBusy) return;
   const s = ensure(S.tab), kg = curKg(t.e, t.i, s), r = curReps(t.e, t.i, s);
   if (r == null || r < 1 || r > MAX_REPS) return;
-  logBusy = true; if (el) el.classList.add('hit-on'); haptic('success'); feltAt = Date.now(); primeAudio(); keepAwake();
+  logBusy = true; if (el) el.classList.add('hit-on'); primeAudio(); keepAwake();
   setTimeout(() => { logBusy = false; commitSet(t.e, t.i, kg, r); }, el && !reduced ? 180 : 0);
 }
 function writeRow(e, i, kg, reps) {
@@ -709,8 +710,8 @@ function wireApp() {
   const endHold = () => { clearTimeout(hold); clearInterval(rep); };
   dock.addEventListener('pointerdown', (ev) => {
     const st = ev.target.closest('.step,.rstep'); if (!st) return;
-    ev.preventDefault(); const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); haptic('step'); sfx('step'); endHold();
-    hold = setTimeout(() => { rep = setInterval(() => { go(d); sfx('step'); }, st.classList.contains('rstep') ? 140 : 90); }, 380);
+    ev.preventDefault(); const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); endHold();
+    hold = setTimeout(() => { rep = setInterval(() => { go(d); haptic('step'); }, st.classList.contains('rstep') ? 140 : 90); }, 380);
   });
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
   dock.addEventListener('click', (ev) => {

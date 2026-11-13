@@ -15,6 +15,10 @@ const GLYPH = {
   gift: '<path d="M4 10h16v10H4zM3 6.5h18V10H3zM12 6.5V20M12 6.5C10 3 6.5 3.5 7.5 5.5S12 6.5 12 6.5zM12 6.5c2-3.5 5.5-3 4.5-1S12 6.5 12 6.5z"/>',
   pen: '<path d="M4 20l1-4.5L16 4.5a2.1 2.1 0 0 1 3 3L8.5 19zM14 6.5l3 3"/>',
 };
+/* the streak's flame: drawn in two tones, not a line icon */
+const flameSVG = () => '<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.4 1.6c.5 3.6 6 6 6 12a6.4 6.4 0 0 1-12.8 0c0-2.5 1.1-4.4 2.6-5.7.3 1.8 1 2.9 2.1 3.5-.4-3.6.4-7 2.1-9.8z" fill="var(--flame)"/><path d="M12.1 11.6c.5 1.7 2.7 2.7 2.7 5.2a2.8 2.8 0 0 1-5.6 0c0-2.1 1.9-3 2.9-5.2z" fill="var(--flame-2)"/></svg>';
+/* the colours a medal can have: fill and darker edge */
+const MEDAL = [['#2152E0', '#1A40B4'], ['#0B8A57', '#066B43'], ['#7446E0', '#5530B5'], ['#D04509', '#A63405'], ['#D6246E', '#A81853'], ['#0B7E8C', '#075F6A']];
 const glyph = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + GLYPH[k] + '</svg>';
 const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
@@ -26,6 +30,7 @@ const avatar = (lvl, o) => avatarSVG(S.cfg.me.look, lvl, o);
 function renderMe() {
   const P = meNow();
   S.lvl = P.L.lvl;
+  const me = $('#tbMe'); if (me) me.innerHTML = avatar(P.L.lvl, { bust: true });
   if (S.view === 'profile') renderProfile(P);
   return P;
 }
@@ -34,9 +39,9 @@ function playerHTML(P) {
   const me = S.cfg.me;
   return '<button class="player" id="playerBtn" type="button" aria-label="' + say('הפרופיל שלי: רמה ', 'My profile: level ') + P.L.lvl + ', ' + nm(P.rank) + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
     '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + esc(me.name) : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
-    (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + glyph('flame') + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
+    (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + flameSVG() + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
-function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
+function badgeHTML(b, on) { const m = MEDAL[BADGES.indexOf(b) % MEDAL.length]; return '<li class="bdg' + (on ? ' on' : '') + '" style="--bc:' + m[0] + ';--bl:' + m[1] + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
 /* the profile: the character, where it stands in the game, and the achievements. One card, one row of medals, one way to the settings */
 function renderProfile(P) {
   P = P || meNow();
@@ -104,8 +109,8 @@ function meSheetClick(ev) {
   else if (b.id === 'restoreBtn') $('#restoreFile').click();
   else if (b.id === 'exportBtn') exportCsv();
   else if (k === 'lang') setLang(v);
-  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) { feel('coin', 'select'); } else feltAt = Date.now(); renderSettings(); }
-  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); haptic('success'); feltAt = Date.now(); renderSettings(); }
+  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) sfx('coin'); renderSettings(); }
+  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); haptic('success'); renderSettings(); }
   else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
   else return false;
   return true;
@@ -123,8 +128,8 @@ function chime() {
   try {
     [523, 659, 784, 1047].forEach((f, i) => {
       const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime + i * 0.11;
-      o.type = 'triangle'; o.frequency.value = f;
-      gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(0.22, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + (i === 3 ? 0.5 : 0.18));
+      o.type = 'sine'; o.frequency.value = f;
+      gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(0.08, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + (i === 3 ? 0.5 : 0.18));
       o.connect(gn); gn.connect(actx.destination); o.start(t); o.stop(t + 0.55);
     });
   } catch (e) { /* no audio here */ }

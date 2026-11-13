@@ -7,10 +7,10 @@ const STATIC = () => [
   ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
   ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
-  ['#tabbar [data-view="home"] span', '', say('היום', 'Today')],
-  ['#tabbar [data-view="profile"] span', '', say('פרופיל', 'Profile')],
-  ['#tabbar [data-view="progress"] span', '', say('התקדמות', 'Progress')],
-  ['#chatOpen span', '', say('אילון', 'Eilon')],
+  ['#tabbar [data-view="home"] .tb-l', '', say('היום', 'Today')],
+  ['#tabbar [data-view="profile"] .tb-l', '', say('פרופיל', 'Profile')],
+  ['#tabbar [data-view="progress"] .tb-l', '', say('התקדמות', 'Progress')],
+  ['#chatOpen .tb-l', '', say('אילון', 'Eilon')],
   ['#pre', 'aria-label', say('התאוששות מהאימון הקודם', 'Recovery since the last workout')],
   ['.v-progress .big', '', say('התקדמות', 'Progress')],
   ['#chat', 'aria-label', say('צ׳אט עם אילון', 'Chat with Eilon')],
@@ -55,7 +55,26 @@ const OB_LAST = 5;
 const EXP = () => [[say('מתחיל', 'Beginner'), say('פחות מחצי שנה', 'Less than six months')], [say('מתאמן קבוע', 'Regular'), say('חצי שנה עד שנתיים', 'Six months to two years')], [say('מנוסה', 'Experienced'), say('יותר משנתיים', 'More than two years')]];
 const GOALS = () => [[say('לבנות שריר', 'Build muscle')], [say('להתחזק', 'Get stronger')], [say('כושר ובריאות', 'Fitness and health')]];
 const barsIcon = (n) => '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + [0, 1, 2].map((k) => '<path d="M' + (6 + k * 6) + ' 19v-' + (5 + k * 4) + '"' + (k < n ? '' : ' opacity=".25"') + '/>').join('') + '</svg>';
-const OB_ICON = { exp: [barsIcon(1), barsIcon(2), barsIcon(3)], goal: [ICON.bell, glyph('bolt'), '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-9.6A4 4 0 0 1 12 8a4 4 0 0 1 7 2.4C19 15.7 12 20 12 20z"/></svg>'] };
+/* an icon on a tile of colour, for the answers and for the three promises at the end */
+const tile = (ic, k) => '<i class="ic-tile w' + k + '" aria-hidden="true">' + ic + '</i>';
+const OB_ICON = { exp: [tile(barsIcon(1), 1), tile(barsIcon(2), 0), tile(barsIcon(3), 2)], goal: [tile(ICON.bell, 0), tile(glyph('bolt'), 3), tile('<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-9.6A4 4 0 0 1 12 8a4 4 0 0 1 7 2.4C19 15.7 12 20 12 20z"/></svg>', 1)] };
+/* the welcome shows what the game is: the character climbing through the levels, filling out and earning its gear */
+const OB_SHOW = [1, 3, 8, 12, 20, 30, 40];
+function obShow() {
+  clearInterval(OB.showT); OB.showI = 0;
+  if (reduced || OB.step !== 0) return;
+  OB.showT = setInterval(() => {
+    const box = $('#obAv'), chip = $('#obLv');
+    if (!box || !chip || !OB.on || OB.step !== 0) { clearInterval(OB.showT); return; }
+    OB.showI = (OB.showI + 1) % OB_SHOW.length;
+    const lvl = OB_SHOW[OB.showI];
+    box.innerHTML = avatarSVG(S.cfg.me.look, lvl, { still: true });
+    const av = $('.av', box);
+    requestAnimationFrame(() => requestAnimationFrame(() => { if (av.isConnected) av.classList.add('flex'); }));
+    setTimeout(() => { if (av.isConnected) av.classList.remove('flex'); }, 950);
+    chip.textContent = say('רמה ', 'Level ') + lvl; chip.classList.remove('pop'); void chip.offsetWidth; chip.classList.add('pop');
+  }, 1800);
+}
 
 /* a beginner starts with one set less on the exercises that have three or more; anyone else gets the plan as written.
    Only before the first logged set: after that the plan belongs to what the lifter has done with it */
@@ -76,7 +95,8 @@ function obHTML() {
   if (st === 0) {
     cta = say('בואו נתחיל', "Let's start");
     body = '<div class="ob-hero"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
-      '<div class="ob-av">' + avatar(lvl) + '</div><h1 id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1><p>' + say('תוכנית כוח של ארבעה אימונים, שמרגישה כמו משחק.', 'A four-workout strength plan that plays like a game.') + '</p>' +
+      '<div class="ob-sky" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>' +
+      '<div class="ob-show"><div class="ob-av" id="obAv">' + avatar(lvl) + '</div><span class="lv-badge ob-lv" id="obLv" aria-hidden="true">' + say('רמה ', 'Level ') + lvl + '</span></div><h1 id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1><p>' + say('תוכנית כוח של ארבעה אימונים, שמרגישה כמו משחק.', 'A four-workout strength plan that plays like a game.') + '</p>' +
       '<div class="seg ob-lang" role="group" aria-label="' + LANG_LABEL + '">' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div></div>';
   } else if (st === 1) {
     body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">';
@@ -90,10 +110,10 @@ function obHTML() {
     const old = meNow().T.wk > 0, fact = (ic, t) => '<li>' + ic + '<span>' + t + '</span></li>';
     cta = old ? say('קדימה', "Let's go") : say('לאימון הראשון', 'To the first workout');
     body = '<div class="ob-hero done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><div class="ob-av">' + avatar(lvl, { flex: true }) + '</div><h1 id="obTitle">' + (OB.name ? esc(OB.name) + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
-      '<ul class="ob-facts">' + fact(ICON.bell, say('ארבעה אימונים, תרגיל אחד בכל פעם', 'Four workouts, one exercise at a time')) + fact(glyph('bolt'), say('כל סט שווה נקודות', 'Every set earns points')) + fact(glyph('star'), say('עולים רמות, והדמות מתחזקת', 'Level up and your character grows')) + '</ul>' +
+      '<ul class="ob-facts">' + fact(tile(ICON.bell, 0), say('ארבעה אימונים, תרגיל אחד בכל פעם', 'Four workouts, one exercise at a time')) + fact(tile(glyph('bolt'), 3), say('כל סט שווה נקודות', 'Every set earns points')) + fact(tile(glyph('star'), 2), say('עולים רמות, והדמות מתחזקת', 'Level up and your character grows')) + '</ul>' +
       '<p class="ob-note">' + say('האפליקציה אינה תחליף לייעוץ רפואי. אם יש כאב או מגבלה, מתייעצים קודם עם איש מקצוע.', 'This app is not medical advice. If you have pain or a condition, talk to a professional first.') + '</p></div>';
   }
-  return '<div class="ob-in"><div class="ob-top">' + (st > 0 ? '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '<span class="ob-sp"></span>') +
+  return '<div class="ob-in" data-step="' + st + '"><div class="ob-top">' + (st > 0 ? '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '<span class="ob-sp"></span>') +
     (st > 0 ? '<div class="ob-prog" role="img" aria-label="' + say('שלב ' + st + ' מתוך ' + OB_LAST, 'Step ' + st + ' of ' + OB_LAST) + '"><i style="width:' + Math.round((st / OB_LAST) * 100) + '%"></i></div>' : '<span></span>') +
     (st === 0 ? '<button class="link" id="obSkip" type="button">' + say('דלג', 'Skip') + '</button>' : '<span class="ob-sp"></span>') + '</div>' +
     '<div class="ob-body' + (OB.dir > 0 ? ' in-next' : OB.dir < 0 ? ' in-prev' : '') + '">' + body + '</div>' +
@@ -103,7 +123,7 @@ function renderOb() {
   const el = $('#ob'); el.innerHTML = obHTML(); OB.dir = 0;
   if (OB.step === 1) { const inp = $('#obName'); try { inp.focus({ preventScroll: true }); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* not focusable here */ } }
   if (OB.step === OB_LAST) { confetti($('#obConfetti'), 70); feel('done'); }
-  el.scrollTop = 0;
+  el.scrollTop = 0; obShow();
 }
 function openOb() {
   const me = S.cfg.me;

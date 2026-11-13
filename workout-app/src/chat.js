@@ -249,6 +249,7 @@ function chatText() {
 function initChat() {
   fillCtx(); chatText();
   for (const el of $$('.ava')) if (!el.firstChild) el.innerHTML = coachFace();
+  const tb = $('#tbCoach'); if (tb && !tb.firstChild) tb.innerHTML = coachFace();
   $('#chatKey').hidden = !window.GYMI_NATIVE;
   chat.needKey = !!window.GYMI_NATIVE && !window.GYMI_COACH;
   /* in the phone app the coach answers only once the owner has saved an API key */

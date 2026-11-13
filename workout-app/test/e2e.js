@@ -124,18 +124,18 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   check('the arrows step between exercises', (await txt('#wkTitle .sub')) === 'תרגיל 2 מתוך 8' && (await p.evaluate(() => S.open)) === 'ua2' && (await p.$$('#exList .ex')).length === 1, await txt('.fx-head'));
   await p.click('#exPrev'); await p.waitForTimeout(350);
   check('and back, and the first one has nothing before it', (await p.evaluate(() => S.open)) === 'ua1' && (await p.isDisabled('#exPrev')), await p.evaluate(() => S.open));
-  await p.evaluate(() => { window.__felt = []; window.gymiHaptic = (k) => window.__felt.push(k); });
+  await p.evaluate(() => { window.__felt = []; window.__heard = []; window.gymiHaptic = (k) => window.__felt.push(k); const real = window.sfx; window.sfx = (k) => { window.__heard.push(k); return real(k); }; });
   await p.click('#exNext'); await p.waitForTimeout(250); await p.click('#exPrev'); await p.waitForTimeout(250);
-  check('a plain press is felt: a tap going forward, a softer one going back', (await p.evaluate(() => window.__felt.join())) === 'tap,back', await p.evaluate(() => window.__felt.join()));
+  check('a plain press is felt in the hand and makes no sound: a tap going forward, a softer one going back', (await p.evaluate(() => window.__felt.join() + '|' + window.__heard.join())) === 'tap,back|', await p.evaluate(() => window.__felt.join() + '|' + window.__heard.join()));
   await p.evaluate(() => { window.__felt = []; });
   await p.click('#dkKg'); await p.fill('#dkKgIn', '60'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
   await shot('g1-log');
   /* what the hand and the ear get: the shell's touch hook records each kind */
   await p.evaluate(() => { window.__felt = []; });
-  await reps(p, 8); await p.click('#dkHit'); await p.waitForTimeout(260);
+  await reps(p, 8); await p.evaluate(() => { window.__felt = []; }); await p.click('#dkHit'); await p.waitForTimeout(260);
   const fly = await p.evaluate(() => { const f = document.querySelector('.fly'); return f ? f.textContent : ''; });
   await p.waitForTimeout(240);
-  check('logging a set is felt as a success, once, and its points fly up from the button', (await p.evaluate(() => window.__felt.join())) === 'success' && fly === '+10' && !!(await p.$('.ex.open .setp.pop[data-i="0"]')), [await p.evaluate(() => window.__felt.join()), fly]);
+  check('logging a set is felt as a success and heard as one soft sound, and its points fly up from the button', (await p.evaluate(() => window.__felt.join() + '|' + window.__heard.join())) === 'success|set' && fly === '+10' && !!(await p.$('.ex.open .setp.pop[data-i="0"]')), [await p.evaluate(() => window.__felt.join() + '|' + window.__heard.join()), fly]);
   await p.waitForTimeout(700);
   check('(the flying points are gone again)', !(await p.$('.fly')), 'fly');
   await p.evaluate(() => { delete window.gymiHaptic; });

@@ -12,8 +12,9 @@
       "bundleIdentifier": "com.liord222.gymi",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "כדי לצלם מכשיר בחדר הכושר ולשאול את אילון עליו.",
-        "NSPhotoLibraryUsageDescription": "כדי לבחור תמונה של מכשיר ולשאול את אילון עליה."
+        "NSCameraUsageDescription": "To take a photo of a gym machine and ask Eilon, the coach, about it.",
+        "NSPhotoLibraryUsageDescription": "To choose a photo of a gym machine and ask Eilon, the coach, about it.",
+        "CFBundleAllowMixedLocalizations": true
       }
     },
     "android": {
@@ -34,6 +35,10 @@
     "plugins": [
       "expo-system-ui",
       "expo-secure-store"
-    ]
+    ],
+    "locales": {
+      "he": "./locales/he.json",
+      "en": "./locales/en.json"
+    }
   }
 }

@@ -39,35 +39,49 @@ async function exportFile(filename, data) {
   if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(file.uri, { mimeType: mime, UTI: json ? 'public.json' : 'public.comma-separated-values-text', dialogTitle: 'gymi' });
 }
 
+/* the shell's own texts, in the language the page is in */
+const TEXT = {
+  he: {
+    title: 'החיבור של אילון', on: 'אילון מחובר. אפשר להחליף את המפתח או לנתק אותו.',
+    off: 'מדביקים כאן מפתח API של Anthropic. הוא נשמר רק בטלפון הזה, באחסון המאובטח שלו, ונשלח רק ל-Anthropic. השימוש מחויב בחשבון Anthropic שלך.',
+    field: 'מפתח API של Anthropic', replace: 'החלפת המפתח', save: 'שמירה וחיבור', remove: 'ניתוק אילון ומחיקת המפתח', close: 'סגירה',
+  },
+  en: {
+    title: 'Eilon\'s connection', on: 'Eilon is connected. You can replace the key or disconnect it.',
+    off: 'Paste an Anthropic API key here. It is kept only on this phone, in its secure storage, and is sent only to Anthropic. Usage is billed to your Anthropic account.',
+    field: 'Anthropic API key', replace: 'Replace the key', save: 'Save and connect', remove: 'Disconnect Eilon and delete the key', close: 'Close',
+  },
+};
+
 /* where the owner pastes the API key for the coach, replaces it or removes it */
-function KeySheet({ open, hasKey, c, onSave, onRemove, onClose }) {
+function KeySheet({ open, hasKey, lang, c, onSave, onRemove, onClose }) {
   const [value, setValue] = useState('');
   useEffect(() => { if (open) setValue(''); }, [open]);
-  const ok = value.trim().length >= 20;
-  const rtl = { writingDirection: 'rtl', textAlign: 'right' };
+  const ok = value.trim().length >= 20, T = TEXT[lang] || TEXT.he;
+  const rtl = lang === 'en' ? { writingDirection: 'ltr', textAlign: 'left' } : { writingDirection: 'rtl', textAlign: 'right' };
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(8,10,14,0.45)' }}>
         <View style={{ backgroundColor: c.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 34, gap: 14 }}>
-          <Text accessibilityRole="header" style={[rtl, { color: c.ink, fontSize: 26, fontWeight: '800' }]}>החיבור של אילון</Text>
+          <Text accessibilityRole="header" style={[rtl, { color: c.ink, fontSize: 26, fontWeight: '800' }]}>{T.title}</Text>
           <Text style={[rtl, { color: c.ink2, fontSize: 15, lineHeight: 22 }]}>
-            {hasKey ? 'אילון מחובר. אפשר להחליף את המפתח או לנתק אותו.' : 'מדביקים כאן מפתח API של Anthropic. הוא נשמר רק בטלפון הזה, באחסון המאובטח שלו, ונשלח רק ל-Anthropic. השימוש מחויב בחשבון Anthropic שלך.'}
+            {hasKey ? T.on : T.off}
           </Text>
           <TextInput
             testID="keyInput" value={value} onChangeText={setValue} placeholder="sk-ant-..." placeholderTextColor={c.ink2}
-            secureTextEntry autoCapitalize="none" autoCorrect={false} accessibilityLabel="מפתח API של Anthropic"
+            secureTextEntry autoCapitalize="none" autoCorrect={false} accessibilityLabel={T.field}
             style={{ height: 52, borderRadius: 16, paddingHorizontal: 16, backgroundColor: c.field, color: c.ink, fontSize: 16, textAlign: 'left' }}
           />
           <Pressable testID="keySave" accessibilityRole="button" disabled={!ok} onPress={() => onSave(value.trim())} style={{ height: 58, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: c.accent, opacity: ok ? 1 : 0.4 }}>
-            <Text style={{ color: c.onAccent, fontSize: 18, fontWeight: '700' }}>{hasKey ? 'החלפת המפתח' : 'שמירה וחיבור'}</Text>
+            <Text style={{ color: c.onAccent, fontSize: 18, fontWeight: '700' }}>{hasKey ? T.replace : T.save}</Text>
           </Pressable>
           {hasKey ? (
             <Pressable testID="keyRemove" accessibilityRole="button" onPress={onRemove} style={{ height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: c.field }}>
-              <Text style={{ color: c.danger, fontSize: 16, fontWeight: '600' }}>ניתוק אילון ומחיקת המפתח</Text>
+              <Text style={{ color: c.danger, fontSize: 16, fontWeight: '600' }}>{T.remove}</Text>
             </Pressable>
           ) : null}
           <Pressable testID="keyClose" accessibilityRole="button" onPress={onClose} style={{ height: 48, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: c.accent, fontSize: 16, fontWeight: '600' }}>סגירה</Text>
+            <Text style={{ color: c.accent, fontSize: 16, fontWeight: '600' }}>{T.close}</Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -82,6 +96,7 @@ export default function App() {
   const [html, setHtml] = useState(null);
   const [hasKey, setHasKey] = useState(false);
   const [keyOpen, setKeyOpen] = useState(false);
+  const [lang, setLang] = useState('he');
 
   /* read the phone's copy of the log and whether a key is saved, then build the page once */
   useEffect(() => {
@@ -119,6 +134,7 @@ export default function App() {
     else if (m.type === 'export') exportFile(m.filename, String(m.data || '')).catch(() => {});
     else if (m.type === 'key-get' && typeof m.id === 'string') keyStore.get().catch(() => null).then((key) => { if (shell.current) shell.current.run('window.__gymiReply(' + JSON.stringify(m.id) + ',' + JSON.stringify(key || null) + ')'); });
     else if (m.type === 'key-edit') setKeyOpen(true);
+    else if (m.type === 'lang') setLang(m.lang === 'en' ? 'en' : 'he');
     else if (m.type === 'back' && !m.handled) BackHandler.exitApp();
   }, []);
 
@@ -129,7 +145,7 @@ export default function App() {
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
         {html ? <Shell ref={shell} html={html} onMessage={onMessage} background={c.paper} /> : <View style={{ flex: 1, backgroundColor: c.paper }} />}
         <KeySheet
-          open={keyOpen} hasKey={hasKey} c={c} onClose={() => setKeyOpen(false)}
+          open={keyOpen} hasKey={hasKey} lang={lang} c={c} onClose={() => setKeyOpen(false)}
           onSave={(key) => keyStore.set(key).then(() => coachState(true)).catch(() => setKeyOpen(false))}
           onRemove={() => keyStore.del().catch(() => {}).then(() => coachState(false))}
         />

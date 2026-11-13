@@ -47,6 +47,11 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   });
   check('without a key the coach tab offers to connect', (await txt('#msgs')).includes('חיבור עם מפתח API') && !(await f.evaluate(() => window.GYMI_COACH)), await txt('#msgs'));
   await f.click('#coachKey'); await p.waitForSelector('[data-testid="keyInput"]');
+  check('the shell\'s own sheet is in the language of the page', (await p.evaluate(() => document.body.innerText)).includes('החיבור של אילון') && (await p.getAttribute('[data-testid="keyInput"]', 'aria-label')) === 'מפתח API של Anthropic', await p.evaluate(() => document.body.innerText.slice(0, 200)));
+  /* the page turns to English: the shell's sheet follows, and back */
+  await p.click('[data-testid="keyClose"]'); await f.evaluate(() => setLang('en')); await p.waitForTimeout(300); await f.click('#coachKey'); await p.waitForSelector('[data-testid="keyInput"]');
+  check('and it follows a change of language', (await p.evaluate(() => document.body.innerText)).includes('Eilon\'s connection') && (await p.evaluate(() => document.body.innerText)).includes('Save and connect') && !/[\u0590-\u05FF]/.test(await p.evaluate(() => document.body.innerText)) && (await f.evaluate(() => document.querySelector('#msgs').innerText)).includes('Connect with an API key'), await p.evaluate(() => document.body.innerText.slice(0, 200)));
+  await p.click('[data-testid="keyClose"]'); await f.evaluate(() => setLang('he')); await p.waitForTimeout(300); await f.click('#coachKey'); await p.waitForSelector('[data-testid="keyInput"]');
   await p.fill('[data-testid="keyInput"]', 'sk-ant-test-000000000000000000000000'); await p.click('[data-testid="keySave"]'); await p.waitForTimeout(500);
   check('saving a key connects the coach', (await f.evaluate(() => window.GYMI_COACH)) === true && (await txt('#msgs')).includes('היי, אני אילון') && (await p.evaluate(() => localStorage.getItem('gymi.anthropic.key'))) === 'sk-ant-test-000000000000000000000000', await txt('#msgs'));
   await f.fill('#chatInput', 'ההאק תפוס, מה במקום?'); await f.click('#sendBtn'); await p.waitForTimeout(1500);

@@ -43,12 +43,13 @@ function applyLang() {
   document.documentElement.lang = LANG; document.documentElement.dir = dir; app.lang = LANG; app.dir = dir;
   staticText();
   if (was !== LANG) { S.banner = ''; S.bannerKind = ''; S.backupNote = ''; setSync(); fillCtx(); chatText(); compNote(''); renderMsgs(); }
+  /* inside the phone app, the shell's own screens follow the page */
+  if (window.gymiNative && typeof window.gymiNative.lang === 'function') window.gymiNative.lang(LANG);
 }
 function setLang(l, keep) {
   if (l !== 'he' && l !== 'en') return;
   S.cfg.lang = l; applyLang();
   if (!keep) { saveCfg(); renderAll(); }
-  if (window.gymiNative && typeof window.gymiNative.lang === 'function') window.gymiNative.lang(l);
 }
 
 const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goal: null };

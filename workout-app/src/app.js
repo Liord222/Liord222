@@ -578,7 +578,9 @@ function openEditor(id) {
 function closeSheet() {
   const sh = $('#sheet'); if (sh.hidden) return;
   const kind = S.sheet;
-  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null;
+  /* the picker for adding an exercise was opened from the plan: closing it goes back there */
+  if (kind === 'swap' && S.pick && S.pick.mode === 'add') { S.pick = null; S.sheet = 'meso'; renderMeso(); return; }
+  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.pick = null; S.blEdit = null;
   if (kind && kind !== 'sum' && kind !== 'list') renderAll();
 }
 function editorInput(rowEl) {

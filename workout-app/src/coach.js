@@ -2,13 +2,13 @@
 const SORE = ['לא נתפס', 'החלים', 'עדיין תפוס'];
 const fmtN = (v) => String(Math.round(v * 10) / 10);
 /* muscles today's workout trains directly that have been trained before */
-function preMuscles(w) { const out = []; for (const pe of PLAN[w].ex) { const mu = LIB[pe.a].p; if (!out.includes(mu) && lastTrained(mu)) out.push(mu); } return out; }
+function preMuscles(w) { const out = []; for (const pe of planSlots(w)) { const mu = LIB[pe.a].p; if (!out.includes(mu) && lastTrained(mu)) out.push(mu); } return out; }
 /* what the recovery answers change in today's workout, in words */
 function soreEffects(w, sore) {
   const P = phaseNext(w), out = [];
   if (P.dl) return out;
   const a = planned(w, {}), b = planned(w, sore), s = live(w);
-  for (const pe of PLAN[w].ex) { const d = b[pe.id] - a[pe.id]; if (d) out.push((d > 0 ? 'סט נוסף: ' : 'סט פחות: ') + findEx(pe.id, s).he); }
+  for (const pe of planSlots(w)) { const d = b[pe.id] - a[pe.id]; if (d) out.push((d > 0 ? say('סט נוסף: ', 'One more set: ') : say('סט פחות: ', 'One set less: ')) + findEx(pe.id, s).nm); }
   for (const mu of Object.keys(sore)) if (sore[mu] === 2) out.push('חזרה פחות ל' + MUSCLE[mu].he);
   return out;
 }
@@ -32,24 +32,39 @@ function renderPre() {
 }
 function afterPre() { renderPre(); renderHero(); renderList(); updateProgress(); renderDock(); }
 
-/* ---- swap: only movements of the same pattern and muscle, so the week keeps its shape ---- */
-function openSwap(exId) {
-  const e = findEx(exId); if (!e) return;
-  const pe = planEx(exId), s = live(wkOf(exId)), started = !!s && rowsOf(s, exId).some(isDone), used = exList(wkOf(exId), s).map((x) => x.mv);
-  const opt = (k) => {
-    const o = LIB[k], b = bestFor(k);
-    return '<li class="sw-opt"><canvas class="ex-thumb" data-anim="' + animOf(k) + '" aria-hidden="true"></canvas><div class="sw-t"><b>' + o.he + '</b><span>' + EQUIP[o.eq].he + ' · ' + Ltr(esc(EN[k])) + '</span>' +
-      '<span class="tags">' + (k === pe.a ? '<span class="tagx">המקורי</span>' : '') + (o.jf ? '<span class="tagx ok">נוח למפרקים</span>' : '') + (used.includes(k) ? '<span class="tagx">כבר באימון</span>' : '') + (b ? '<span class="tagx">שיא ' + Ltr(fmtRow(b)) + '</span>' : '') + '</span></div>' +
-      '<div class="sw-b">' + (started ? '' : '<button class="btn" type="button" data-sw="' + k + '" data-mode="today">רק היום</button>') + '<button class="btn primary" type="button" data-sw="' + k + '" data-mode="always">' + (started ? 'מהאימון הבא' : 'קבוע') + '</button></div></li>';
-  };
-  S.sheet = 'swap'; S.swEx = exId;
-  const sh = $('#sheet');
-  sh.innerHTML = '<div class="sheet-in sw" role="dialog" aria-modal="true" aria-label="החלפת תרגיל"><div class="ed-h"><div><p class="kicker">החלפת תרגיל</p><h2>' + e.he + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
-    '<p>אותו שריר, אותה תנועה. הסטים וההיסטוריה נשמרים.' + (started ? ' ההחלפה תחול מהאימון הבא.' : '') + '</p>' +
-    '<ul class="sw-list">' + swapOptions(e).map(opt).join('') + '</ul>' +
-    '<button class="btn ask" id="swAsk" type="button">' + ICON.cam + 'מכשיר אחר? שאל את אילון</button></div>';
-  sh.hidden = false; drawThumbs();
+/* ---- the exercise picker: change the exercise of a slot, or add one to a workout.
+   For a change, movements of the same kind come first: they keep the slot's numbers and history. Any other is a tap on its muscle away ---- */
+function pickOptions(P) {
+  if (P.mode === 'swap' && P.mu === 'rec') return swapOptions(findEx(P.ex));
+  const cur = P.mode === 'swap' ? findEx(P.ex).mv : null;
+  return Object.keys(LIB).filter((k) => LIB[k].p === P.mu && k !== cur);
 }
+function renderPick() {
+  const P = S.pick, sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, swap = P.mode === 'swap', e = swap ? findEx(P.ex) : null, w = swap ? wkOf(P.ex) : P.w;
+  if (swap && !e) { closeSheet(); return; }
+  const pe = swap ? planEx(P.ex) : null, s = live(w), started = swap && !!s && rowsOf(s, P.ex).some(isDone), used = exList(w, s).map((x) => x.mv);
+  const same = (k) => swap && LIB[k].pat === LIB[pe.a].pat && LIB[k].p === LIB[pe.a].p;
+  const opt = (k) => {
+    const o = LIB[k], b = bestFor(k), later = say('מהאימון הבא', 'From next time');
+    return '<li class="sw-opt"><canvas class="ex-thumb" data-anim="' + animOf(k) + '" aria-hidden="true"></canvas><div class="sw-t"><b>' + mvName(k) + '</b><span>' + eqName(o.eq) + (LANG === 'he' ? ' · ' + Ltr(esc(EN[k])) : '') + '</span>' +
+      '<span class="tags">' + (swap && k === pe.a ? '<span class="tagx">' + say('המקורי', 'The original') + '</span>' : '') + (o.jf ? '<span class="tagx ok">' + say('נוח למפרקים', 'Easy on the joints') + '</span>' : '') + (used.includes(k) ? '<span class="tagx">' + say('כבר באימון', 'Already in this workout') + '</span>' : '') + (b ? '<span class="tagx">' + say('שיא ', 'Best ') + Ltr(fmtRow(b)) + '</span>' : '') + '</span></div>' +
+      '<div class="sw-b">' + (!swap ? '<button class="btn primary" type="button" data-add="' + k + '">' + say('הוסף', 'Add') + '</button>'
+        : same(k) ? (started ? '' : '<button class="btn" type="button" data-sw="' + k + '" data-mode="today">' + say('רק היום', 'Today only') + '</button>') + '<button class="btn primary" type="button" data-sw="' + k + '" data-mode="always">' + (started ? later : say('קבוע', 'For good')) + '</button>'
+        : '<button class="btn primary" type="button" data-sw="' + k + '" data-mode="always">' + (started ? later : say('החלף', 'Swap')) + '</button>') + '</div></li>';
+  };
+  const mus = Object.keys(MUSCLE).filter((k) => Object.keys(LIB).some((m) => LIB[m].p === k)), chips = (swap ? [['rec', say('מומלץ', 'Suggested')]] : []).concat(mus.map((k) => [k, muName(k)]));
+  const list = pickOptions(P);
+  sh.innerHTML = '<div class="sheet-in sw" role="dialog" aria-modal="true" aria-label="' + (swap ? say('החלפת תרגיל', 'Swap exercise') : say('הוספת תרגיל', 'Add exercise')) + '"><div class="ed-h"><div><p class="kicker">' + (swap ? say('החלפת תרגיל', 'Swap exercise') : say('הוספת תרגיל · ', 'Add exercise · ') + wkName(w)) + '</p><h2>' + (swap ? e.nm : say('מה מוסיפים?', 'What to add?')) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    '<div class="mu-row" role="group" aria-label="' + say('סינון לפי שריר', 'Filter by muscle') + '">' + chips.map((c) => '<button type="button" data-pick="' + c[0] + '" aria-pressed="' + (c[0] === P.mu) + '">' + c[1] + '</button>').join('') + '</div>' +
+    (swap ? '<p>' + (P.mu === 'rec' ? say('אותו שריר, אותה תנועה. הסטים וההיסטוריה נשמרים.', 'Same muscle, same movement. Sets and history are kept.') : say('תרגיל מסוג אחר מקבל סטים וחזרות שמתאימים לו.', 'A different kind of exercise gets sets and reps that suit it.')) + (started ? say(' ההחלפה תחול מהאימון הבא.', ' The change starts next workout.') : '') + '</p>' : '') +
+    (list.length ? '<ul class="sw-list">' + list.map(opt).join('') + '</ul>' : '<p class="ms-sub">' + say('אין כאן תרגילים נוספים.', 'No other exercises here.') + '</p>') +
+    (swap ? '<button class="btn ask" id="swAsk" type="button">' + ICON.cam + say('מכשיר אחר? שאל את אילון', 'Another machine? Ask Eilon') + '</button>' : '') + '</div>';
+  $('.sheet-in', sh).scrollTop = top; sh.hidden = false; drawThumbs();
+  /* the chosen muscle stays in sight in its row */
+  const on = $('.mu-row [aria-pressed="true"]', sh); if (on && on.scrollIntoView) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+function openSwap(exId) { if (!findEx(exId)) return; S.sheet = 'swap'; S.swEx = exId; S.pick = { mode: 'swap', ex: exId, mu: 'rec' }; renderPick(); }
+function openAdd(w) { S.sheet = 'swap'; S.pick = { mode: 'add', w, mu: w % 2 ? 'quads' : 'chest' }; renderPick(); }
 
 /* ---- mesocycle sheet: the weekly ramp, volume per muscle against its landmarks, set counts, increments ---- */
 function volHTML(dl) {
@@ -62,11 +77,17 @@ function volHTML(dl) {
       (st === 'ok' ? '' : '<span class="vol-flag">' + (st === 'under' ? '▼ מתחת למינימום (' + M.mev + ')' : '▲ מעל המקסימום (' + M.mrv + ')') + '</span>') + '</div>';
   }).join('');
 }
+/* each workout as a list: set counts by default; "reorder and remove" turns the rows into arrows and a cross; adding opens the picker */
 function builderHTML() {
   return PLAN.map((wk, w) => {
-    const s = live(w), dl = phase(w, s).dl;
-    return '<div class="bl-w"><h4>' + wkFull(w) + (dl ? '<small>חצי מהסטים</small>' : '') + '</h4>' + exList(w, s).map((e) => '<div class="bl-row"><span class="bl-n"><b>' + e.he + '</b><small>' + MUSCLE[LIB[e.mv].p].he + ' · ' + Ltr(e.reps) + '</small></span>' +
-      '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="סט אחד פחות"' + (dl || e.n0 <= 1 ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="סט נוסף"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>').join('') + '</div>';
+    const s = live(w), dl = phase(w, s).dl, ids = planIds(w), ed = S.blEdit === w;
+    return '<div class="bl-w"><h4>' + wkFull(w) + (dl ? '<small>' + say('חצי מהסטים', 'Half the sets') + '</small>' : '') + '</h4>' + exList(w, s).map((e) => {
+      const k = ids.indexOf(e.id);
+      return '<div class="bl-row"><span class="bl-n"><b>' + e.nm + '</b><small>' + muName(LIB[e.mv].p) + ' · ' + Ltr(e.reps) + '</small></span>' +
+        (k < 0 ? '<span class="tagx">' + say('רק היום', 'Today only') + '</span>'
+          : ed ? '<div class="bl-ed"><button type="button" data-mvs="' + e.id + '" data-d="-1" aria-label="' + say('הזז למעלה', 'Move up') + '"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.up + '</button><button type="button" data-mvs="' + e.id + '" data-d="1" aria-label="' + say('הזז למטה', 'Move down') + '"' + (k >= ids.length - 1 ? ' disabled' : '') + '>' + ICON.down + '</button><button class="rm" type="button" data-rm="' + e.id + '" aria-label="' + say('הסר את ', 'Remove ') + e.nm + '"' + (ids.length <= 1 ? ' disabled' : '') + '>' + ICON.x + '</button></div>'
+          : '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (dl || e.n0 <= 1 ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div>') + '</div>';
+    }).join('') + '<div class="bl-act"><button class="link" type="button" data-addw="' + w + '">' + say('+ הוסף תרגיל', '+ Add exercise') + '</button><button class="link" type="button" data-bled="' + w + '">' + (ed ? say('סיום', 'Done') : say('סידור והסרה', 'Reorder and remove')) + '</button></div></div>';
   }).join('');
 }
 function renderMeso() {
@@ -79,20 +100,22 @@ function renderMeso() {
   let act;
   if (over) act = '<span class="ms-sub">סבב ' + M.n + ' הושלם. האימון הבא פותח את סבב ' + (M.n + 1) + '.</span><button class="btn" type="button" data-sum="' + M.id + '">סיכום סבב ' + M.n + '</button>';
   else if (S.msAsk === 'dl') act = '<span class="confirm"><span>להתחיל שבוע קל? אחריו מתחיל סבב חדש.</span><button class="btn primary" id="msDlYes" type="button">כן, שבוע קל</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
+  else if (S.msAsk === 'plan') act = '<span class="confirm"><span>' + say('להחזיר את רשימת התרגילים המקורית?', 'Bring back the original list of exercises?') + '</span><button class="btn primary" id="planResetYes" type="button">' + say('כן, אפס', 'Yes, reset') + '</button><button class="btn" id="msNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
   else if (S.msAsk === 'new') act = '<span class="confirm"><span>להתחיל סבב חדש משבוע 1?</span><button class="btn primary" id="msNewYes" type="button">כן, סבב חדש</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
   else act = (M.early ? '<button class="btn" id="msDlOff" type="button">בטל שבוע קל</button>' : P.dl ? '' : '<button class="btn" id="msDl" type="button">שבוע קל עכשיו</button>') + '<button class="btn" id="msNew" type="button">סבב חדש</button>' +
-    (mesoSessions(M.id).length ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום</button>' : '') + (past ? '<button class="btn" type="button" data-sum="' + past.id + '">סיכום סבב ' + past.n + '</button>' : '');
+    (mesoSessions(M.id).length ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום</button>' : '') + (past ? '<button class="btn" type="button" data-sum="' + past.id + '">סיכום סבב ' + past.n + '</button>' : '') +
+    (planChanged() ? '<button class="btn" id="planReset" type="button">' + say('איפוס תרגילים', 'Reset exercises') + '</button>' : '');
   sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="סבב ותוכנית"><div class="ed-h"><div><p class="kicker">סבב ' + P.n + (M.early && !over ? ' · שבוע קל מוקדם' : '') + '</p><h2>' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' <small>מתוך ' + W + '</small>') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
     '<ol class="wk-strip">' + strip + '</ol>' +
     '<p>כמה חזרות משאירים לפני כשל: כל שבוע חזרה אחת פחות. השבוע האחרון קל.</p>' +
     '<section><h3>סטים בשבוע לפי שריר</h3><p class="ms-sub">הרצועה הבהירה היא הטווח המומלץ.</p><div class="vol">' + volHTML(P.dl) + '</div></section>' +
-    '<section><h3>סטים בתוכנית</h3><p class="ms-sub">שינוי חל מהאימון הבא.</p>' + builderHTML() + '</section>' +
+    '<section><h3>' + say('התרגילים והסטים', 'Exercises and sets') + '</h3>' + builderHTML() + '</section>' +
     '<section><h3>קפיצת משקל</h3><div class="inc">' + Object.keys(EQUIP).map((k) => '<label class="inc-row"><span>' + EQUIP[k].he + '</span><select data-inc="' + k + '">' + INC_CHOICES.map((v) => '<option value="' + v + '"' + (v === (+S.cfg.inc[k] || EQUIP[k].inc) ? ' selected' : '') + '>' + v + ' ק״ג</option>').join('') + '</select></label>').join('') + '</div></section>' +
     '<section><h3>אורך הסבב</h3><div class="bl-row"><span class="bl-n"><b>' + W + ' שבועות</b><small>האחרון קל</small></span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="שבוע פחות"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="שבוע נוסף"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></div></section>' +
     '<div class="ed-act ms-act">' + act + '</div></div>';
   $('.sheet-in', sh).scrollTop = top;
 }
-function openMeso() { S.sheet = 'meso'; S.msAsk = null; renderMeso(); $('#sheet').hidden = false; }
+function openMeso() { S.sheet = 'meso'; S.msAsk = null; S.blEdit = null; renderMeso(); $('#sheet').hidden = false; }
 /* the end-of-mesocycle card: volume from start to peak, strength per movement, and the movements that answered best */
 /* what a finished workout brought, as one line on the sheets that take the place of the workout's own summary */
 const xpLine = (R) => (R ? '<p class="xp-line"><span class="xp-tag">' + Ltr('+' + nf(R.y.xp)) + '</span><span>רמה ' + R.to.lvl + ' · ' + rankOf(R.to.lvl).he + (R.to.lvl > R.from.lvl ? ' · עלית רמה' : '') + '</span></p>' : '');
@@ -125,14 +148,25 @@ function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind 
 /* clicks inside the sheet that belong to this file; returns true when the click was handled */
 function coachSheetClick(ev, id) {
   const b = ev.target.closest('button'), ds = b ? b.dataset : {};
-  if (ds.sw) {
-    const exId = S.swEx, now = swapTo(exId, ds.sw, ds.mode === 'always'), w = wkOf(exId);
-    S.bannerKind = ''; S.banner = (now ? 'הוחלף: ' : 'מהאימון הבא: ') + LIB[ds.sw].he + (ds.mode === 'always' ? '' : ' (רק היום)') + '.';
-    if (S.tab === w) S.open = exId;
-    S.draft = null; closeSheet(); return true;
+  if (ds.pick && S.pick) { S.pick.mu = ds.pick; renderPick(); return true; }
+  if (ds.add && S.pick) { const w = S.pick.w, id = addSlot(w, ds.add); S.pick = null; S.sheet = 'meso'; S.msAsk = null; renderMeso(); if (id) { const row = $('#sheet [data-base="' + id + '"]'); if (row) row.closest('.bl-row').scrollIntoView({ block: 'center' }); } return true; }
+  if (ds.sw && S.pick) {
+    const exId = S.pick.ex, pe = planEx(exId), w = wkOf(exId), mv = ds.sw, same = LIB[mv].pat === LIB[pe.a].pat && LIB[mv].p === LIB[pe.a].p;
+    let now, at = exId;
+    if (same) now = swapTo(exId, mv, ds.mode === 'always');
+    else { const s = live(w); now = !(s && rowsOf(s, exId).some(isDone)); at = replaceSlot(exId, mv) || exId; }
+    S.bannerKind = ''; S.banner = (now ? say('הוחלף: ', 'Swapped: ') : say('מהאימון הבא: ', 'From next workout: ')) + mvName(mv) + (ds.mode === 'always' ? '' : say(' (רק היום)', ' (today only)')) + '.';
+    if (S.tab === w) S.open = now ? at : exId;
+    S.draft = null; S.pick = null; closeSheet(); return true;
   }
   if (id === 'swAsk') { const exId = S.swEx; closeSheet(); openChat(exId); return true; }
   if (ds.base) { setBase(ds.base, +ds.n); renderMeso(); return true; }
+  if (ds.addw) { openAdd(+ds.addw); return true; }
+  if (ds.bled) { S.blEdit = S.blEdit === +ds.bled ? null : +ds.bled; renderMeso(); return true; }
+  if (ds.mvs) { moveSlot(ds.mvs, +ds.d); renderMeso(); return true; }
+  if (ds.rm) { removeSlot(ds.rm); renderMeso(); return true; }
+  if (id === 'planReset') { S.msAsk = 'plan'; renderMeso(); return true; }
+  if (id === 'planResetYes') { resetPlan(); S.msAsk = null; S.blEdit = null; renderMeso(); return true; }
   if (ds.weeks) { S.cfg.weeks = clamp(+ds.weeks, 4, 7); saveCfg(); renderMeso(); return true; }
   if (ds.sum) { showMesoSummary(ds.sum, false); return true; }
   if (id === 'msDl' || id === 'msNew' || id === 'msNo') { S.msAsk = id === 'msDl' ? 'dl' : id === 'msNew' ? 'new' : null; renderMeso(); return true; }

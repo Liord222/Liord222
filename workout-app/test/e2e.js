@@ -226,6 +226,33 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('swap is stored and the weekly chest volume is unchanged', sw.cfg === 'inclineDb' && sw.mv === 'inclineDb' && sw.chest.d === 8, sw);
   check('swap reached the cloud settings', cloud['data/users/u_test/cfg'].swap.ua5 === 'inclineDb', cloud['data/users/u_test/cfg'].swap);
 
+  // ---------- change exercises freely: any exercise by its muscle, then add, move and remove in the plan ----------
+  const cfgKey = 'data/users/u_test/cfg';
+  await go(q, 'ua6'); await q.click('.ex.open .swap'); await q.waitForTimeout(300);
+  check('the picker opens on the suggested swaps, with every muscle a tap away', (await q.getAttribute('.mu-row [data-pick="rec"]', 'aria-pressed')) === 'true' && (await q.$$('.mu-row [data-pick]')).length === 12 && (await q.$$('.sw-opt')).length === 2, await t2('.mu-row'));
+  await q.click('.mu-row [data-pick="biceps"]'); await q.waitForTimeout(250); await shot('g4b-pick', q);
+  const bi = await q.$$eval('.sw-opt .sw-t b', (a) => a.map((x) => x.textContent));
+  check('a muscle lists every exercise for it', bi.length === 4 && bi.includes('כפיפת פטישים') && bi.includes('כפיפת מרפקים בכבל') && (await q.$$('.sw-opt [data-mode="today"]')).length === 0, bi);
+  await q.click('.sw-opt [data-sw="hammerCurl"]'); await q.waitForTimeout(1400);
+  const rp = await q.evaluate(() => { const ids = planIds(0), id = ids[5], c = S.cfg.slots[id] || {}, s = live(0); return { n: ids.length, old: ids.indexOf('ua6'), a: c.a, reps: c.reps, sets: c.sets, w: c.w, open: S.open === id, o: s.o.includes(id) && !s.o.includes('ua6'), name: document.querySelector('#exList .ex-name').textContent, rx: document.querySelector('.rx-chips').textContent.replace(/\s/g, ''), tri: muscleVolume(weekItems()).triceps.d, kept: !!planEx('ua6') }; });
+  check('a different kind of exercise takes the slot\'s place, with numbers of its own', rp.n === 8 && rp.old === -1 && rp.a === 'hammerCurl' && rp.reps === '10–15' && rp.sets === 2 && rp.w === 0 && rp.open && rp.o && rp.name === 'כפיפת פטישים' && rp.rx.includes('2×10–15') && rp.tri === 2 && rp.kept, rp);
+  check('the changed list reached the cloud with the settings', Object.keys(cloud[cfgKey].slots).length === 1 && cloud[cfgKey].order[0].length === 8 && !cloud[cfgKey].order[0].includes('ua6'), cloud[cfgKey].order);
+  await p.waitForTimeout(400);
+  check('the other device follows the changed list', (await p.evaluate(() => planSlots(0).map((x) => x.a)[5])) === 'hammerCurl', await p.evaluate(() => planIds(0)));
+  await list(q); await q.click('#mesoBtn'); await q.waitForTimeout(300);
+  await q.click('[data-addw="3"]'); await q.waitForTimeout(300);
+  check('adding an exercise opens the picker on a muscle of that workout', (await t2('#sheet .kicker')).includes('הוספת תרגיל') && (await t2('#sheet .kicker')).includes('גוף תחתון B') && (await q.getAttribute('.mu-row [data-pick="quads"]', 'aria-pressed')) === 'true' && !(await q.$('.mu-row [data-pick="rec"]')), await t2('#sheet .kicker'));
+  await q.click('.sw-opt [data-add="legPress"]'); await q.waitForTimeout(350); await shot('g4c-builder', q);
+  const ad = await q.evaluate(() => { const ids = planIds(3), c = S.cfg.slots[ids[ids.length - 1]] || {}; return { n: ids.length, a: c.a, reps: c.reps, sheet: S.sheet, id: ids[ids.length - 1] }; });
+  check('the added exercise joins the end of its workout, and the plan is back on screen', ad.n === 8 && ad.a === 'legPress' && ad.reps === '8–12' && ad.sheet === 'meso' && !!(await q.$('#sheet [data-base="' + ad.id + '"]')), ad);
+  await q.click('[data-bled="3"]'); await q.waitForTimeout(200);
+  await q.click('[data-mvs="' + ad.id + '"][data-d="-1"]'); await q.waitForTimeout(200);
+  check('the arrows move an exercise within its workout', (await q.evaluate((id) => planIds(3).indexOf(id), ad.id)) === 6 && (await q.evaluate(() => planIds(3)[7])) === 'lb7', await q.evaluate(() => planIds(3)));
+  await q.click('[data-rm="lb7"]'); await q.waitForTimeout(200);
+  check('the cross takes an exercise off its workout, and old workouts can still read it', (await q.evaluate(() => [planIds(3).includes('lb7'), planIds(3).length, !!planEx('lb7'), wkOf('lb7')].join())) === 'false,7,true,3', await q.evaluate(() => planIds(3)));
+  await q.click('[data-bled="3"]'); await q.waitForTimeout(200);
+  check('"done" brings the set counts back', !!(await q.$('#sheet [data-base="lb1"]')) && !(await q.$('#sheet [data-rm]')) && !!(await q.$('#planReset')), 'builder');
+  await q.click('#sheet [data-close]'); await q.waitForTimeout(300);
   // ---------- mesocycle sheet: volume landmarks, set counts, increments ----------
   await list(q); await q.click('#mesoBtn'); await q.waitForTimeout(300); await shot('g5-meso', q);
   const ms = await t2('#sheet');

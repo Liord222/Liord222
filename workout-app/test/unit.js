@@ -1,7 +1,7 @@
 // Unit checks for the pure parts: the progression engine (plan.js + lib.js + prog.js) and the game layer (game.js): node test/unit.js
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = process.argv[2] || path.join(__dirname, '..', 'src');
-const GAME = ['XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned'];
+const GAME = ['rxOf', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned'];
 const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => { try { return fs.readFileSync(path.join(src, f), 'utf8'); } catch (e) { return ''; } }).join('\n') +
   '\n;globalThis.X = { PLAN, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
   '\n;globalThis.G = {' + GAME.map((k) => k + ': typeof ' + k + " === 'undefined' ? undefined : " + k).join(', ') + '};';
@@ -148,6 +148,24 @@ t('nothing earned at the start', () => G.earned({ xp: 0, wk: 0, sets: 0, prs: 0,
 t('the first workout', () => G.earned({ xp: 310, wk: 1, sets: 21, prs: 0, kg: 9000 }, X0), ['first']);
 t('a seasoned lifter', () => G.earned({ xp: 20000, wk: 50, sets: 1000, prs: 25, kg: 100000 }, { lvl: 20, streak: 4, fullWeek: true, rounds: 1 }), ['first', 'week', 'pr1', 'w10', 'streak4', 'pr25', 'w25', 'round', 'ton100', 'w50', 'lvl20']);
 t('every achievement has a name and an icon', () => G.BADGES.filter((b) => !b.id || !b.he || !b.ic || typeof b.ok !== 'function').length, 0);
+
+// ================================================================== changing the plan
+// what a movement gets when the lifter adds it by hand: by the kind of movement it is
+t('a big lift added by hand', () => G.rxOf('legPress'), { sets: 3, reps: '8–12', rest: [120, 120], lvl: 2 });
+t('a small lift added by hand', () => G.rxOf('hammerCurl'), { sets: 2, reps: '10–15', rest: [75, 75], lvl: 3 });
+t('calves and core have their own', () => [G.rxOf('seatedCalf').reps, G.rxOf('pallof').reps, G.rxOf('pallof').lvl], ['12–20', '10–15', 0]);
+t('every movement in the library has a prescription', () => Object.keys(LIB).filter((k) => { const r = G.rxOf(k); return !r || !(r.sets >= 1) || !/^\d+–\d+$/.test(r.reps) || r.rest.length !== 2; }), []);
+// the order of a workout: the saved one, cleaned, else the plan's own
+const known = (id) => ['a', 'b', 'c', 'x'].includes(id);
+t('no saved order: the plan\'s own', () => G.orderOf(['a', 'b', 'c'], undefined, known), ['a', 'b', 'c']);
+t('a saved order wins', () => G.orderOf(['a', 'b', 'c'], ['c', 'x', 'a'], known), ['c', 'x', 'a']);
+t('unknown and repeated slots are dropped', () => G.orderOf(['a', 'b', 'c'], ['c', 'zz', 'c', 'a', 5, null], known), ['c', 'a']);
+t('an order with nothing left falls back to the plan', () => G.orderOf(['a', 'b', 'c'], ['zz'], known), ['a', 'b', 'c']);
+t('a saved order that is not a list is ignored', () => G.orderOf(['a', 'b'], { 0: 'a' }, known), ['a', 'b']);
+// a slot read from a file or from the account is rebuilt field by field
+t('a clean slot passes', () => G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '12–15', rest: [75, 75] }), { w: 1, a: 'legExt', sets: 3, reps: '12–15', rest: [75, 75] });
+t('a slot is clamped to sane numbers', () => G.cleanSlot({ w: 2, a: 'dbCurl', sets: 99, reps: '10–15', rest: [1, 9999] }), { w: 2, a: 'dbCurl', sets: 8, reps: '10–15', rest: [15, 600] });
+t('a slot with an unknown movement, workout or rep range is refused', () => [G.cleanSlot({ w: 1, a: '<img>', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 7, a: 'legExt', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '<b>', rest: [60, 60] }), G.cleanSlot(null)], [null, null, null, null]);
 
 console.log('UNIT PASS ' + pass + ' FAIL ' + bad.length + (bad.length ? '\n  ' + bad.join('\n  ') : ''));
 process.exit(bad.length ? 1 : 0);

@@ -83,3 +83,21 @@ function muscleVolume(items) {
   return out;
 }
 const landmark = (k, total) => (total > MUSCLE[k].mrv ? 'over' : total < MUSCLE[k].mev ? 'under' : 'ok');
+
+/* ---- changing the plan ---- */
+/* what a movement gets when the lifter adds it by hand, by the kind of movement it is: sets, rep range, rest and how hard (lvl as in the plan) */
+const RX = { big: { sets: 3, reps: '8–12', rest: [120, 120], lvl: 2 }, small: { sets: 2, reps: '10–15', rest: [75, 75], lvl: 3 }, calf: { sets: 3, reps: '12–20', rest: [60, 60], lvl: 3 }, core: { sets: 3, reps: '10–15', rest: [60, 60], lvl: 0 } };
+const RX_KIND = { hpress: 'big', vpress: 'big', vpull: 'big', hpull: 'big', squat: 'big', lunge: 'big', hinge: 'big', thrust: 'big', raise: 'small', rearfly: 'small', ext: 'small', curl: 'small', kcurl: 'small', kext: 'small', calf: 'calf', flex: 'core', antirot: 'core' };
+function rxOf(mv) { const r = RX[RX_KIND[LIB[mv].pat] || 'small']; return { sets: r.sets, reps: r.reps, rest: r.rest.slice(), lvl: r.lvl }; }
+/* the slots of a workout in order: the saved order with unknown and repeated ids dropped, else the plan's own */
+function orderOf(dflt, saved, known) {
+  if (!Array.isArray(saved)) return dflt;
+  const out = saved.filter((id, i) => typeof id === 'string' && known(id) && saved.indexOf(id) === i);
+  return out.length ? out : dflt;
+}
+/* a slot the lifter added, read from a file or from the account: rebuilt field by field, null when it makes no sense */
+function cleanSlot(v) {
+  if (!v || typeof v !== 'object' || !PLAN[v.w] || typeof v.a !== 'string' || !LIB[v.a] || typeof v.reps !== 'string' || !/^\d{1,2}(–\d{1,2})?$/.test(v.reps) || !Array.isArray(v.rest)) return null;
+  const sec = (x) => clamp(Math.round(+x) || 60, 15, 600);
+  return { w: v.w, a: v.a, sets: clamp(Math.round(+v.sets) || 1, 1, 8), reps: v.reps, rest: [sec(v.rest[0]), sec(v.rest[1])] };
+}

@@ -88,3 +88,7 @@ const EN = {};
 for (const w of PLAN) for (const e of w.ex) if (!EN[e.a]) EN[e.a] = e.name;
 for (const k of Object.keys(LIB)) if (LIB[k].en) EN[k] = LIB[k].en;
 const animOf = (mv) => LIB[mv].an || mv;
+/* names in the language of the page */
+const mvName = (k) => say(LIB[k].he, EN[k]);
+const muName = (k) => say(MUSCLE[k].he, MUSCLE[k].en || MUSCLE[k].he);
+const eqName = (k) => say(EQUIP[k].he, EQUIP[k].en || EQUIP[k].he);

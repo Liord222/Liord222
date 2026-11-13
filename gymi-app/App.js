@@ -16,6 +16,15 @@ import Shell from './src/Shell';
 import { buildDocument } from './src/document';
 
 const STORE = 'gymi:log:v1';
+/* the touch the page asks for, played by the phone's own engine */
+const hapticOf = (kind) => {
+  if (kind === 'select' || kind === 'step') return Haptics.selectionAsync();
+  if (kind === 'success') return Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  if (kind === 'pr') return Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).then(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success));
+  if (kind === 'heavy') return Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+  if (kind === 'warn') return Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+  return Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+};
 const KEY_NAME = 'gymi.anthropic.key';
 const THEME = {
   light: { paper: '#F2F3F5', surface: '#FFFFFF', field: '#F2F3F5', ink: '#0E1116', ink2: '#4B5261', accent: '#2152E0', onAccent: '#FFFFFF', danger: '#D12D45' },
@@ -130,7 +139,7 @@ export default function App() {
   const onMessage = useCallback((m) => {
     if (!m || typeof m !== 'object') return;
     if (m.type === 'save' && typeof m.data === 'string') AsyncStorage.setItem(STORE, m.data).catch(() => {});
-    else if (m.type === 'haptic') (m.strong ? Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) : Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)).catch(() => {});
+    else if (m.type === 'haptic') hapticOf(m.kind || (m.strong ? 'success' : 'tap')).catch(() => {});
     else if (m.type === 'awake') (m.on ? activateKeepAwakeAsync('gymi') : deactivateKeepAwake('gymi')).catch(() => {});
     else if (m.type === 'export') exportFile(m.filename, String(m.data || '')).catch(() => {});
     else if (m.type === 'key-get' && typeof m.id === 'string') keyStore.get().catch(() => null).then((key) => { if (shell.current) shell.current.run('window.__gymiReply(' + JSON.stringify(m.id) + ',' + JSON.stringify(key || null) + ')'); });

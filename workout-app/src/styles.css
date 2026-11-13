@@ -94,7 +94,21 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .btn.big{min-height:58px;font-size:18px;width:100%;border-radius:20px}
 .btn.danger{color:var(--muscle)}
 .btn:disabled{opacity:.4;cursor:default}
-.btn:active:not(:disabled),.step:active,.rstep:active,.setp:active,.hit:active,.seg button:active,.tab:active .dot,.player:active .p-ava{transform:scale(.97)}
+ /* every press gives under the finger, and springs back when it is let go */
+button,[role="button"]{transition:transform .22s cubic-bezier(.3,1.8,.5,1),background-color .15s,color .15s,box-shadow .15s}
+button:active:not(:disabled),[role="button"]:active{transform:scale(.94);transition-duration:.07s}
+.btn.big:active:not(:disabled),.hit:active,.sug:active,.m-row:active,.sw-row:active,.ex-head:active,.row-b:active,.ob-opt:active,.setp:active{transform:scale(.97)}
+.stage-wrap:active,.player:active{transform:scale(.985)}
+.tab:active .dot,.player:active .p-ava{transform:scale(.92)}
+.tab:active,.goal:active{transform:none}
+/* the set that was just logged fills in with a little bounce; a personal best glows gold */
+.setp.pop{animation:set-pop .5s cubic-bezier(.3,1.7,.5,1)}
+.setp.pr-pop{animation:set-pop .5s cubic-bezier(.3,1.7,.5,1),pr-glow 1.2s ease-out}
+@keyframes set-pop{0%{transform:scale(.8);background:var(--accent-soft)}55%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes pr-glow{0%,40%{box-shadow:0 0 0 3px var(--xp-fill)}100%{box-shadow:0 0 0 0 transparent}}
+/* points that fly up from where they were earned */
+.fly{position:fixed;z-index:85;transform:translate(-50%,0);font-size:20px;font-weight:800;color:var(--xp);text-shadow:0 1px 0 var(--surface);pointer-events:none;animation:fly .9s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes fly{0%{opacity:0;transform:translate(-50%,6px) scale(.6)}20%{opacity:1;transform:translate(-50%,-10px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-70px) scale(1)}}
 .link{position:relative;background:none;border:0;padding:8px 4px;color:var(--accent);font-size:14px;font-weight:600}
 .link::after,.lk-sw::after{content:"";position:absolute;inset:-8px}
 .icon-btn{width:44px;height:44px;flex:none;border-radius:50%;border:0;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2)}

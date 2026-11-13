@@ -98,7 +98,21 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .btn.big{min-height:58px;font-size:18px;width:100%;border-radius:20px}
 .btn.danger{color:var(--muscle)}
 .btn:disabled{opacity:.4;cursor:default}
-.btn:active:not(:disabled),.step:active,.rstep:active,.setp:active,.hit:active,.seg button:active,.tab:active .dot,.player:active .p-ava{transform:scale(.97)}
+ /* every press gives under the finger, and springs back when it is let go */
+button,[role="button"]{transition:transform .22s cubic-bezier(.3,1.8,.5,1),background-color .15s,color .15s,box-shadow .15s}
+button:active:not(:disabled),[role="button"]:active{transform:scale(.94);transition-duration:.07s}
+.btn.big:active:not(:disabled),.hit:active,.sug:active,.m-row:active,.sw-row:active,.ex-head:active,.row-b:active,.ob-opt:active,.setp:active{transform:scale(.97)}
+.stage-wrap:active,.player:active{transform:scale(.985)}
+.tab:active .dot,.player:active .p-ava{transform:scale(.92)}
+.tab:active,.goal:active{transform:none}
+/* the set that was just logged fills in with a little bounce; a personal best glows gold */
+.setp.pop{animation:set-pop .5s cubic-bezier(.3,1.7,.5,1)}
+.setp.pr-pop{animation:set-pop .5s cubic-bezier(.3,1.7,.5,1),pr-glow 1.2s ease-out}
+@keyframes set-pop{0%{transform:scale(.8);background:var(--accent-soft)}55%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes pr-glow{0%,40%{box-shadow:0 0 0 3px var(--xp-fill)}100%{box-shadow:0 0 0 0 transparent}}
+/* points that fly up from where they were earned */
+.fly{position:fixed;z-index:85;transform:translate(-50%,0);font-size:20px;font-weight:800;color:var(--xp);text-shadow:0 1px 0 var(--surface);pointer-events:none;animation:fly .9s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes fly{0%{opacity:0;transform:translate(-50%,6px) scale(.6)}20%{opacity:1;transform:translate(-50%,-10px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-70px) scale(1)}}
 .link{position:relative;background:none;border:0;padding:8px 4px;color:var(--accent);font-size:14px;font-weight:600}
 .link::after,.lk-sw::after{content:"";position:absolute;inset:-8px}
 .icon-btn{width:44px;height:44px;flex:none;border-radius:50%;border:0;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2)}
@@ -1954,10 +1968,9 @@ function avatarSVG(look, lvl, o) {
   if (hair === 1 || hair === 4) topHair = P(cap, hc);
   else if (hair === 2) topHair = P(cap, hc) + P('M80 31C83 15 110 9 124 25C116 22.5 108 25 100 29.5C93 33.5 86 34.5 80 31Z', hc) + '<path d="M90 24Q101 17 114 21" stroke="' + tone(hc, 0.22) + '" stroke-width="1.6" stroke-linecap="round" fill="none"/>';
   else if (hair === 3) topHair = P(cap, hc) + [[78, 41, 8], [84, 31, 8.5], [93, 25, 8.5], [103, 23, 8.5], [113, 26, 8.5], [121, 33, 8], [124.5, 43, 7], [76, 50, 5.5]].map((c) => dot(c[0], c[1], c[2], hc)).join('');
-  /* the fringe: short darker sides and a tousled top, with a lighter fringe swept across the forehead in loose strands that reach the brows */
-  else if (hair === 5) topHair = P('M75 50C72.2 40 75 26 86.5 19.5Q90 14.5 95.5 16.8Q100.5 12 106.5 15.6Q111 13.6 114.5 18.6C124 23.5 128.2 38 125.4 50C124.6 45 123 41.5 120.5 39.5L80 39.5C77.6 41.5 76 45 75 50Z', tone(hc, -0.22)) +
-    P('M79.5 33C82 22.5 93 17.5 103 18.5C113 19.5 121.5 26 124 37.5Q124.6 41.4 123.9 44.6Q123.6 46.6 122.4 47.6Q119.6 46.2 118.2 43.4Q118 46.6 116.6 48.4Q112.4 47.4 110.2 43.6Q109.8 47.2 108 49Q103 47.6 100.4 43.8Q100 46.4 98.4 47.6Q94.2 46.2 92 42.4Q91.8 44.4 90.4 45.4Q87 43.6 85.4 39.8Q82.4 37.6 79.5 33Z', hc) +
-    '<path d="M91.5 24.5Q100.5 29.5 105.6 44M104.5 21.8Q112.6 28 115.2 43.6" stroke="' + tone(hc, 0.22) + '" stroke-width="1.3" stroke-linecap="round" fill="none" opacity=".7"/>';
+  /* the fringe: full on top, falling straight over the forehead in loose strands that reach the brows */
+  else if (hair === 5) topHair = P('M73.6 54C70 39 74.5 24 86 18.5Q91 13.8 97 16.6Q102.5 12.6 109.5 16.2C121.5 19.5 130.2 38 126.4 54C125.2 50 124 46.8 121.8 45Q119.6 47.8 116.2 47.4Q115.4 45 114.2 43.2Q111.8 47.6 107.6 48.2Q106.6 45.4 105.6 43.4Q103 48 98.6 48.6Q97.4 45.8 96.4 43.6Q94.2 47.4 89.8 47.8Q88.6 45.2 87.6 43Q85.6 46.2 81.6 46.4Q80.4 44.6 79.6 43.2Q77.4 46 75.6 50Q74.4 52 73.6 54Z', hc) +
+    '<path d="M112.6 25.5Q116.4 34 115.6 44M102.6 20.5Q106.2 31 106.6 44.2M93.4 21Q95.2 32 97.4 44.4M85 26.5Q86.2 35 88.6 43.8" stroke="' + tone(hc, 0.24) + '" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".75"/>';
   const beardD = 'M75.5 55C75.5 72 86 85.5 100 85.5C114 85.5 124.5 72 124.5 55C121.5 62 117 64.5 112 64.5C108 61 92 61 88 64.5C83 64.5 78.5 62 75.5 55Z';
   const beard = look.beard === 2 ? P(beardD, hasHair ? hc : '#4A3A30') + '<ellipse cx="100" cy="69.3" rx="7.4" ry="3.9" fill="' + skin + '"/>' : look.beard === 1 ? P(beardD, hasHair ? hc : '#4A3A30', ' opacity=".26"') : '';
   const bandC = look.shirt === 2 ? '#F4F5F7' : '#E0364F';
@@ -1974,7 +1987,7 @@ function avatarSVG(look, lvl, o) {
     '<path class="av-smile" d="M92.6 68Q100 74 107.4 68" stroke="#1B1F27" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
     '<g class="av-grin"><path d="M91.6 66.6Q100 78 108.4 66.6Z" fill="#1B1F27" stroke="#1B1F27" stroke-width="1.6" stroke-linejoin="round"/><path d="M94.4 67.3h11.2q-1 2.6-5.6 2.6t-5.6-2.6z" fill="#fff"/></g>' +
     topHair + band + crown +
-    (look.stud ? '<circle cx="127.7" cy="58" r="1.3" fill="#B7BDC8" stroke="#858C99" stroke-width=".45"/><circle cx="126.9" cy="61.1" r="1.1" fill="#B7BDC8" stroke="#858C99" stroke-width=".45"/>' : '');
+    (look.stud ? '<circle cx="127.6" cy="58.2" r="1.35" fill="#C9CED8" stroke="#7C8492" stroke-width=".6"/><circle cx="126.8" cy="61.3" r="1.15" fill="#C9CED8" stroke="#7C8492" stroke-width=".6"/>' : '');
 
   const body = '<g class="av-bod">' + (tank ? P(torso, skin) + P(tankTop, shirt) : P(torso, shirt)) + pecs + belt +
     '<rect x="' + X(-nw) + '" y="74" width="' + (nw * 2).toFixed(1) + '" height="20" rx="5" fill="' + skin + '"/><ellipse cx="100" cy="83.5" rx="' + nw + '" ry="4.2" fill="' + shd + '"/>' +
@@ -2730,7 +2743,8 @@ function setsHTML(e) {
   for (let i = 0; i < e.sets; i++) {
     const row = r[i], on = isDone(row), isCur = !S.edit && !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s), ed = on && !!S.edit && S.edit.ex === e.id && S.edit.i === i;
     const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + fmtRow(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + fmtRow(T) : '');
-    h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
+    const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
+    h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
       (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + (T ? setVal(T) : '–') + '</span>') + '</button>';
   }
   if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב.', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב.', 'Off today because of pain.')) + '</p>';
@@ -2955,7 +2969,6 @@ function beep(n) {
     }
   } catch (e) { /* no audio here */ }
 }
-function buzz(p) { if (S.buzz !== false && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) { /* unsupported */ } } }
 function keepAwake() { if (navigator.wakeLock && !wake && !document.hidden) navigator.wakeLock.request('screen').then((l) => { wake = l; l.addEventListener('release', () => { wake = null; }); }).catch(() => {}); }
 function letSleep() { if (wake) { try { wake.release(); } catch (e) { /* already released */ } wake = null; } }
 function dockTarget() {
@@ -3077,7 +3090,7 @@ function logSet(el) {
   const t = dockTarget(); if (!t || t.edit || logBusy) return;
   const s = ensure(S.tab), kg = curKg(t.e, t.i, s), r = curReps(t.e, t.i, s);
   if (r == null || r < 1 || r > MAX_REPS) return;
-  logBusy = true; if (el) el.classList.add('hit-on'); buzz(14); primeAudio(); keepAwake();
+  logBusy = true; if (el) el.classList.add('hit-on'); haptic('success'); feltAt = Date.now(); primeAudio(); keepAwake();
   setTimeout(() => { logBusy = false; commitSet(t.e, t.i, kg, r); }, el && !reduced ? 180 : 0);
 }
 function writeRow(e, i, kg, reps) {
@@ -3098,6 +3111,8 @@ function askFb(e, s) {
 function commitSet(e, i, kg, reps) {
   const lv0 = S.lvl, pr = writeRow(e, i, kg, reps), s = live(S.tab), list = exList(S.tab, s), left = (x) => firstUndone(s, x) >= 0;
   e = list.find((x) => x.id === e.id);
+  sfx(pr ? 'pr' : 'set'); if (pr) haptic('pr'); flyPoints($('#dkHit'), XP.set + (pr ? XP.pr : 0));
+  S.justDone = { ex: e.id, i, t: Date.now() };
   S.draft = null; refreshEx(e); renderTabs(); renderHistory(); renderPre();
   renderMe(); bump(lv0);
   S.why = false;
@@ -3135,7 +3150,7 @@ function tickRest() {
   if (!tm) return;
   tm.textContent = mmss(Math.ceil(left)); $('#rtFill').style.width = Math.min(100, (el / rest.max) * 100) + '%';
   if (rest.min < rest.max && !rest.minHit && el >= rest.min && left > 0) { rest.minHit = true; beep(1); }
-  if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); buzz([180, 90, 180]); }
+  if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); haptic('heavy'); }
   d.classList.toggle('ready', rest.minHit && !rest.ended); d.classList.toggle('go', !!rest.ended);
   $('#rtState').innerHTML = '<b>' + (rest.ended ? say('קדימה', 'Go') : rest.minHit ? say('אפשר להתחיל', 'Ready when you are') : say('מנוחה', 'Rest')) + '</b><span>' + say('הבא: ', 'Next: ') + esc(rest.label ? rest.label() : '') + '</span>';
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
@@ -3193,7 +3208,7 @@ function showSummary(s, R) {
   sh.hidden = false; $('#sheetClose').focus();
   countUp($('#sumXp'), y.xp); confetti($('#confetti'), up ? 110 : 50);
   requestAnimationFrame(() => requestAnimationFrame(() => { const b = $('#sumBar'); if (b) b.style.width = pctOf(R.to) + '%'; }));
-  if (up) { chime(); buzz([50, 40, 50, 40, 120]); } else buzz(30);
+  if (up) { chime(); haptic('heavy'); } else feel('done');
 }
 function finishWorkout() {
   const s = live(S.tab); if (!s || !hasDone(s)) return;
@@ -3340,8 +3355,8 @@ function wireApp() {
   const endHold = () => { clearTimeout(hold); clearInterval(rep); };
   dock.addEventListener('pointerdown', (ev) => {
     const st = ev.target.closest('.step,.rstep'); if (!st) return;
-    ev.preventDefault(); const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); buzz(6); endHold();
-    hold = setTimeout(() => { rep = setInterval(() => go(d), st.classList.contains('rstep') ? 140 : 90); }, 380);
+    ev.preventDefault(); const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); haptic('step'); sfx('step'); endHold();
+    hold = setTimeout(() => { rep = setInterval(() => { go(d); sfx('step'); }, st.classList.contains('rstep') ? 140 : 90); }, 380);
   });
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
   dock.addEventListener('click', (ev) => {
@@ -3428,6 +3443,76 @@ function wireApp() {
     return false;
   };
   setInterval(() => { if (sweep()) renderAll(); }, 60000);
+}
+
+/* ================================================================== feel: every press answers
+   A press is felt three ways at once: the control gives under the finger (styles.css), a light tick in the hand, and a soft
+   click. The moments that matter get more: a set logged, a personal best, points, a level, a finished workout.
+   Sounds are made on the spot (no files); the hand feels a tick through the phone app, the vibration of Android browsers,
+   or on an iPhone browser through the one control Safari lets buzz (a hidden switch). Sound and vibration each have a
+   switch in the settings. */
+const SFX = {
+  tap: [[1500, 0, 0.028, 0.045, 'triangle', 900]],
+  select: [[1150, 0, 0.04, 0.06, 'triangle', 1500]],
+  back: [[900, 0, 0.05, 0.05, 'triangle', 620]],
+  step: [[2100, 0, 0.022, 0.035, 'triangle', 1700]],
+  set: [[660, 0, 0.09, 0.16, 'sine'], [990, 0.07, 0.16, 0.16, 'sine']],
+  pr: [[784, 0, 0.09, 0.15, 'sine'], [988, 0.08, 0.09, 0.15, 'sine'], [1319, 0.16, 0.26, 0.17, 'sine']],
+  coin: [[1568, 0, 0.06, 0.07, 'triangle'], [2093, 0.05, 0.14, 0.07, 'triangle']],
+  done: [[523, 0, 0.12, 0.15, 'triangle'], [659, 0.11, 0.12, 0.15, 'triangle'], [784, 0.22, 0.12, 0.15, 'triangle'], [1047, 0.34, 0.5, 0.17, 'triangle'], [784, 0.34, 0.5, 0.08, 'sine']],
+  warn: [[440, 0, 0.12, 0.09, 'sine', 330]],
+};
+/* one note: [frequency, start, length, volume, wave, frequency it slides to] */
+function sfx(kind) {
+  const notes = SFX[kind]; if (!notes || !S.sound) return;
+  primeAudio(); if (!actx) return;
+  try {
+    const t0 = actx.currentTime + 0.005;
+    for (const n of notes) {
+      const o = actx.createOscillator(), g = actx.createGain(), t = t0 + n[1], end = t + n[2];
+      o.type = n[4]; o.frequency.setValueAtTime(n[0], t); if (n[5]) o.frequency.exponentialRampToValueAtTime(n[5], end);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(n[3], t + Math.min(0.012, n[2] / 3)); g.gain.exponentialRampToValueAtTime(0.0001, end);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(end + 0.02);
+    }
+  } catch (e) { /* no audio here */ }
+}
+/* the hand: kinds from lightest to strongest */
+const HAPTIC = { tap: 6, select: 8, step: 5, back: 6, success: [14, 50, 22], pr: [18, 40, 18, 40, 30], heavy: [40, 30, 60], warn: [30, 60, 30] };
+let feelSwitch = null;
+function haptic(kind) {
+  if (S.buzz === false || !HAPTIC[kind]) return;
+  if (typeof window.gymiHaptic === 'function') { try { window.gymiHaptic(kind); } catch (e) { /* the shell is gone */ } return; }
+  if (navigator.vibrate) { try { navigator.vibrate(HAPTIC[kind]); } catch (e) { /* unsupported */ } return; }
+  /* an iPhone browser: toggling a switch control is the one thing Safari answers with a tick, and only during a tap */
+  if (!feelSwitch) {
+    feelSwitch = document.createElement('label');
+    feelSwitch.setAttribute('aria-hidden', 'true');
+    feelSwitch.style.cssText = 'position:fixed;width:1px;height:1px;left:-9px;top:-9px;opacity:0;pointer-events:none;overflow:hidden';
+    feelSwitch.innerHTML = '<input type="checkbox" switch tabindex="-1">';
+    document.body.appendChild(feelSwitch);
+  }
+  try { feelSwitch.click(); if (Array.isArray(HAPTIC[kind])) setTimeout(() => { try { feelSwitch.click(); } catch (e) { /* gone */ } }, 90); } catch (e) { /* not here */ }
+}
+let feltAt = 0;
+/* sound and touch together; a richer answer from the code that knows what happened wins over the plain tick of the tap */
+function feel(kind, touch) { feltAt = Date.now(); sfx(kind); haptic(touch || (kind === 'set' ? 'success' : kind === 'done' || kind === 'coin' ? 'heavy' : kind)); }
+/* points that fly up from where they were earned */
+function flyPoints(el, n) {
+  if (!el || !(n > 0) || reduced) return;
+  const r = el.getBoundingClientRect(), f = document.createElement('span');
+  f.className = 'fly'; f.setAttribute('aria-hidden', 'true'); f.textContent = '+' + n;
+  f.style.left = r.left + r.width / 2 + 'px'; f.style.top = r.top + 4 + 'px';
+  document.body.appendChild(f); setTimeout(() => f.remove(), 950);
+}
+function wireFeel() {
+  /* after the button's own work: a plain press gets a tick, unless that work already answered with something richer */
+  document.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button,[role="button"],a[href]'); if (!b || b.disabled) return;
+    primeAudio();
+    if (Date.now() - feltAt < 120 || b.closest('.step,.rstep') || b.id === 'dkHit') return;
+    const kind = b.matches('[data-close],#backBtn,#sheetClose,#chatClose,#exPrev,#fbSkip,#edClose,#resetNo,#msNo,#edDelNo') ? 'back' : b.matches('[aria-pressed],[role="switch"],[aria-checked],[data-pick],[data-sel],.seg button') ? 'select' : 'tap';
+    sfx(kind); haptic(kind);
+  });
 }
 
 /* ================================================================== recovery check, exercise swap, mesocycle sheet */
@@ -3744,8 +3829,8 @@ function meSheetClick(ev) {
   else if (b.id === 'restoreBtn') $('#restoreFile').click();
   else if (b.id === 'exportBtn') exportCsv();
   else if (k === 'lang') setLang(v);
-  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) { primeAudio(); beep(1); } renderSettings(); }
-  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); buzz(30); renderSettings(); }
+  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) { feel('coin', 'select'); } else feltAt = Date.now(); renderSettings(); }
+  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); haptic('success'); feltAt = Date.now(); renderSettings(); }
   else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
   else return false;
   return true;
@@ -3769,7 +3854,7 @@ function chime() {
     });
   } catch (e) { /* no audio here */ }
 }
-function levelUp(lvl) { toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); chime(); buzz([50, 40, 50, 40, 120]); }
+function levelUp(lvl) { toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); chime(); haptic('heavy'); }
 /* call after a change that may have earned points, with the level from before it */
 function bump(lv0) { if (lv0 && S.lvl > lv0) levelUp(S.lvl); }
 /* paper confetti over a sheet: a short burst that falls and stops by itself */
@@ -3808,7 +3893,7 @@ function wireMe() {
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false, limits: false, gen: 0 };
 /* the coach has a face: the same figure as the player's, with a look of his own */
 /* the coach's face: brown hair with a loose fringe, a clean chin, a stud in the ear, a light T-shirt and an open smile */
-const COACH = { skin: 1, hair: 5, hairC: '#8A5F38', beard: 0, shirtC: '#F3EDE0', stud: true, gear: false };
+const COACH = { skin: 1, hair: 5, hairC: '#7A5232', beard: 0, shirtC: '#F3EDE0', stud: true, gear: false };
 const coachFace = () => avatarSVG(COACH, 12, { bust: true, grin: true });
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
@@ -4202,7 +4287,7 @@ function obHTML() {
 function renderOb() {
   const el = $('#ob'); el.innerHTML = obHTML(); OB.dir = 0;
   if (OB.step === 1) { const inp = $('#obName'); try { inp.focus({ preventScroll: true }); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* not focusable here */ } }
-  if (OB.step === OB_LAST) { confetti($('#obConfetti'), 70); buzz([40, 30, 40]); }
+  if (OB.step === OB_LAST) { confetti($('#obConfetti'), 70); feel('done'); }
   el.scrollTop = 0;
 }
 function openOb() {
@@ -4259,7 +4344,7 @@ function boot(data) {
   if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
   if (Array.isArray(data.turns)) chat.turns = data.turns;
   applyLang();
-  readColors(); wireApp(); wireCoach(); wireChat(); wireMe(); wireOb();
+  readColors(); wireApp(); wireFeel(); wireCoach(); wireChat(); wireMe(); wireOb();
   setView(['workout', 'progress', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
   renderAll(); initChat();

@@ -124,9 +124,21 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   check('the arrows step between exercises', (await txt('#wkTitle .sub')) === 'תרגיל 2 מתוך 8' && (await p.evaluate(() => S.open)) === 'ua2' && (await p.$$('#exList .ex')).length === 1, await txt('.fx-head'));
   await p.click('#exPrev'); await p.waitForTimeout(350);
   check('and back, and the first one has nothing before it', (await p.evaluate(() => S.open)) === 'ua1' && (await p.isDisabled('#exPrev')), await p.evaluate(() => S.open));
+  await p.evaluate(() => { window.__felt = []; window.gymiHaptic = (k) => window.__felt.push(k); });
+  await p.click('#exNext'); await p.waitForTimeout(250); await p.click('#exPrev'); await p.waitForTimeout(250);
+  check('a plain press is felt: a tap going forward, a softer one going back', (await p.evaluate(() => window.__felt.join())) === 'tap,back', await p.evaluate(() => window.__felt.join()));
+  await p.evaluate(() => { window.__felt = []; });
   await p.click('#dkKg'); await p.fill('#dkKgIn', '60'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
   await shot('g1-log');
-  await log(p, 8); await p.waitForTimeout(500);
+  /* what the hand and the ear get: the shell's touch hook records each kind */
+  await p.evaluate(() => { window.__felt = []; });
+  await reps(p, 8); await p.click('#dkHit'); await p.waitForTimeout(260);
+  const fly = await p.evaluate(() => { const f = document.querySelector('.fly'); return f ? f.textContent : ''; });
+  await p.waitForTimeout(240);
+  check('logging a set is felt as a success, once, and its points fly up from the button', (await p.evaluate(() => window.__felt.join())) === 'success' && fly === '+10' && !!(await p.$('.ex.open .setp.pop[data-i="0"]')), [await p.evaluate(() => window.__felt.join()), fly]);
+  await p.waitForTimeout(700);
+  check('(the flying points are gone again)', !(await p.$('.fly')), 'fly');
+  await p.evaluate(() => { delete window.gymiHaptic; });
   check('one tap logs the set and starts rest', (await txt('.rt-log')).includes('60×8'), await txt('#dock'));
   check('a logged set earns 10 points, shown next to it', (await txt('.rt-log .xp-tag')) === '+10' && (await p.evaluate(() => meNow().T.xp)) === 10, await txt('.rt-log'));
   check('the first set starts the workout and moves the bar', (await p.evaluate(() => !!live(0))) && (await p.evaluate(() => document.querySelector('#wkBar .bar i').style.width)) === '5%', await p.getAttribute('#wkBar .bar', 'aria-label'));
@@ -160,7 +172,7 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   check('a workout that is under way is marked on "today"', !!(await p.$('#tabbar [data-view="home"].live')) && (await p.evaluate(() => getComputedStyle(document.querySelector('#tabbar [data-view="home"]'), '::after').width)) === '9px', 'live');
   await more(p); await p.click('#moreAsk'); await p.waitForTimeout(250);
   check('the coach chat opens tidy: a face, four first questions, and what the question is about', !!(await p.$('#chat .chat-h .ava svg')) && !!(await p.$('#msgs .ava.big svg')) && (await p.$$('#msgs .sug')).length === 4 && (await p.isHidden('#chatNew')) && (await p.$eval('#chatCtx', (el) => el.value)) === 'ua1' && !!(await p.$('.composer .chat-ctx #chatCtx')), await txt('#msgs'));
-  const face = await p.evaluate(() => { const el = document.querySelector('#msgs .ava.big svg'), h = el.outerHTML; return { grin: el.classList.contains('grin'), bust: el.classList.contains('bust'), studs: (h.match(/#B7BDC8/g) || []).length, band: h.includes('#E0364F'), shirt: h.includes('#F3EDE0'), hair: h.includes('#8A5F38'), beard: /opacity="\.26"/.test(h), same: h === document.querySelector('#chat .chat-h .ava svg').outerHTML }; });
+  const face = await p.evaluate(() => { const el = document.querySelector('#msgs .ava.big svg'), h = el.outerHTML; return { grin: el.classList.contains('grin'), bust: el.classList.contains('bust'), studs: (h.match(/#C9CED8/g) || []).length, band: h.includes('#E0364F'), shirt: h.includes('#F3EDE0'), hair: h.includes('#7A5232'), beard: /opacity="\.26"/.test(h), same: h === document.querySelector('#chat .chat-h .ava svg').outerHTML }; });
   check('the coach has a face of his own: a fringe, a stud in the ear, an open smile, a light shirt and no gear', face.grin && face.bust && face.studs === 2 && !face.band && face.shirt && face.hair && !face.beard && face.same, face);
   const own = await p.evaluate(() => { const plain = avatarSVG({ skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, 12, { bust: true }), odd = avatarSVG({ skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0, hairC: '"><img src=x>', shirtC: 'red' }, 12, { bust: true }); return { band: plain.includes('#E0364F'), grin: plain.includes('av bust grin'), safe: odd === plain, me: JSON.stringify(Object.keys(S.cfg.me.look).sort()) }; });
   check('a player\'s character is drawn as before, and takes no colour that is not one of its own choices', own.band && !own.grin && own.safe && own.me === '["beard","hair","hc","shirt","skin"]', own);

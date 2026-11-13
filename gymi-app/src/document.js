@@ -41,6 +41,8 @@ function bridge(saved, theme, platform, hasKey) {
   document.addEventListener('visibilitychange', function () { if (document.hidden) flush(); });
   window.addEventListener('pagehide', flush);
   try { Object.defineProperty(navigator, 'vibrate', { configurable: true, value: function (p) { post({ type: 'haptic', strong: Array.isArray(p) }); return true; } }); } catch (e) {}
+  /* the page names the kind of touch it wants (tap, select, step, back, success, pr, heavy, warn); the phone plays its own */
+  window.gymiHaptic = function (kind) { post({ type: 'haptic', kind: String(kind || 'tap') }); };
   try {
     Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request: function () {
       post({ type: 'awake', on: true });

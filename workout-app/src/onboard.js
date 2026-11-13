@@ -102,7 +102,7 @@ function obHTML() {
 function renderOb() {
   const el = $('#ob'); el.innerHTML = obHTML(); OB.dir = 0;
   if (OB.step === 1) { const inp = $('#obName'); try { inp.focus({ preventScroll: true }); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* not focusable here */ } }
-  if (OB.step === OB_LAST) { confetti($('#obConfetti'), 70); buzz([40, 30, 40]); }
+  if (OB.step === OB_LAST) { confetti($('#obConfetti'), 70); feel('done'); }
   el.scrollTop = 0;
 }
 function openOb() {

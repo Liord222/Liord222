@@ -18,7 +18,7 @@ function boot(data) {
   if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
   if (Array.isArray(data.turns)) chat.turns = data.turns;
   applyLang();
-  readColors(); wireApp(); wireCoach(); wireChat(); wireMe(); wireOb();
+  readColors(); wireApp(); wireFeel(); wireCoach(); wireChat(); wireMe(); wireOb();
   setView(['workout', 'progress', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
   renderAll(); initChat();

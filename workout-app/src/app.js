@@ -97,7 +97,8 @@ function setsHTML(e) {
   for (let i = 0; i < e.sets; i++) {
     const row = r[i], on = isDone(row), isCur = !S.edit && !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s), ed = on && !!S.edit && S.edit.ex === e.id && S.edit.i === i;
     const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + fmtRow(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + fmtRow(T) : '');
-    h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
+    const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
+    h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
       (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + (T ? setVal(T) : '–') + '</span>') + '</button>';
   }
   if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב.', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב.', 'Off today because of pain.')) + '</p>';
@@ -322,7 +323,6 @@ function beep(n) {
     }
   } catch (e) { /* no audio here */ }
 }
-function buzz(p) { if (S.buzz !== false && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) { /* unsupported */ } } }
 function keepAwake() { if (navigator.wakeLock && !wake && !document.hidden) navigator.wakeLock.request('screen').then((l) => { wake = l; l.addEventListener('release', () => { wake = null; }); }).catch(() => {}); }
 function letSleep() { if (wake) { try { wake.release(); } catch (e) { /* already released */ } wake = null; } }
 function dockTarget() {
@@ -444,7 +444,7 @@ function logSet(el) {
   const t = dockTarget(); if (!t || t.edit || logBusy) return;
   const s = ensure(S.tab), kg = curKg(t.e, t.i, s), r = curReps(t.e, t.i, s);
   if (r == null || r < 1 || r > MAX_REPS) return;
-  logBusy = true; if (el) el.classList.add('hit-on'); buzz(14); primeAudio(); keepAwake();
+  logBusy = true; if (el) el.classList.add('hit-on'); haptic('success'); feltAt = Date.now(); primeAudio(); keepAwake();
   setTimeout(() => { logBusy = false; commitSet(t.e, t.i, kg, r); }, el && !reduced ? 180 : 0);
 }
 function writeRow(e, i, kg, reps) {
@@ -465,6 +465,8 @@ function askFb(e, s) {
 function commitSet(e, i, kg, reps) {
   const lv0 = S.lvl, pr = writeRow(e, i, kg, reps), s = live(S.tab), list = exList(S.tab, s), left = (x) => firstUndone(s, x) >= 0;
   e = list.find((x) => x.id === e.id);
+  sfx(pr ? 'pr' : 'set'); if (pr) haptic('pr'); flyPoints($('#dkHit'), XP.set + (pr ? XP.pr : 0));
+  S.justDone = { ex: e.id, i, t: Date.now() };
   S.draft = null; refreshEx(e); renderTabs(); renderHistory(); renderPre();
   renderMe(); bump(lv0);
   S.why = false;
@@ -502,7 +504,7 @@ function tickRest() {
   if (!tm) return;
   tm.textContent = mmss(Math.ceil(left)); $('#rtFill').style.width = Math.min(100, (el / rest.max) * 100) + '%';
   if (rest.min < rest.max && !rest.minHit && el >= rest.min && left > 0) { rest.minHit = true; beep(1); }
-  if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); buzz([180, 90, 180]); }
+  if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); haptic('heavy'); }
   d.classList.toggle('ready', rest.minHit && !rest.ended); d.classList.toggle('go', !!rest.ended);
   $('#rtState').innerHTML = '<b>' + (rest.ended ? say('קדימה', 'Go') : rest.minHit ? say('אפשר להתחיל', 'Ready when you are') : say('מנוחה', 'Rest')) + '</b><span>' + say('הבא: ', 'Next: ') + esc(rest.label ? rest.label() : '') + '</span>';
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
@@ -560,7 +562,7 @@ function showSummary(s, R) {
   sh.hidden = false; $('#sheetClose').focus();
   countUp($('#sumXp'), y.xp); confetti($('#confetti'), up ? 110 : 50);
   requestAnimationFrame(() => requestAnimationFrame(() => { const b = $('#sumBar'); if (b) b.style.width = pctOf(R.to) + '%'; }));
-  if (up) { chime(); buzz([50, 40, 50, 40, 120]); } else buzz(30);
+  if (up) { chime(); haptic('heavy'); } else feel('done');
 }
 function finishWorkout() {
   const s = live(S.tab); if (!s || !hasDone(s)) return;
@@ -707,8 +709,8 @@ function wireApp() {
   const endHold = () => { clearTimeout(hold); clearInterval(rep); };
   dock.addEventListener('pointerdown', (ev) => {
     const st = ev.target.closest('.step,.rstep'); if (!st) return;
-    ev.preventDefault(); const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); buzz(6); endHold();
-    hold = setTimeout(() => { rep = setInterval(() => go(d), st.classList.contains('rstep') ? 140 : 90); }, 380);
+    ev.preventDefault(); const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); haptic('step'); sfx('step'); endHold();
+    hold = setTimeout(() => { rep = setInterval(() => { go(d); sfx('step'); }, st.classList.contains('rstep') ? 140 : 90); }, 380);
   });
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
   dock.addEventListener('click', (ev) => {

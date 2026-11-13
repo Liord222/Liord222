@@ -104,8 +104,8 @@ function meSheetClick(ev) {
   else if (b.id === 'restoreBtn') $('#restoreFile').click();
   else if (b.id === 'exportBtn') exportCsv();
   else if (k === 'lang') setLang(v);
-  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) { primeAudio(); beep(1); } renderSettings(); }
-  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); buzz(30); renderSettings(); }
+  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) { feel('coin', 'select'); } else feltAt = Date.now(); renderSettings(); }
+  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); haptic('success'); feltAt = Date.now(); renderSettings(); }
   else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
   else return false;
   return true;
@@ -129,7 +129,7 @@ function chime() {
     });
   } catch (e) { /* no audio here */ }
 }
-function levelUp(lvl) { toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); chime(); buzz([50, 40, 50, 40, 120]); }
+function levelUp(lvl) { toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); chime(); haptic('heavy'); }
 /* call after a change that may have earned points, with the level from before it */
 function bump(lv0) { if (lv0 && S.lvl > lv0) levelUp(S.lvl); }
 /* paper confetti over a sheet: a short burst that falls and stops by itself */

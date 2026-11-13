@@ -2,7 +2,7 @@
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false, limits: false, gen: 0 };
 /* the coach has a face: the same figure as the player's, with a look of his own */
 /* the coach's face: brown hair with a loose fringe, a clean chin, a stud in the ear, a light T-shirt and an open smile */
-const COACH = { skin: 1, hair: 5, hairC: '#8A5F38', beard: 0, shirtC: '#F3EDE0', stud: true, gear: false };
+const COACH = { skin: 1, hair: 5, hairC: '#7A5232', beard: 0, shirtC: '#F3EDE0', stud: true, gear: false };
 const coachFace = () => avatarSVG(COACH, 12, { bust: true, grin: true });
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {

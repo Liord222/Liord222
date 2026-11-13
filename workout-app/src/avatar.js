@@ -46,10 +46,9 @@ function avatarSVG(look, lvl, o) {
   if (hair === 1 || hair === 4) topHair = P(cap, hc);
   else if (hair === 2) topHair = P(cap, hc) + P('M80 31C83 15 110 9 124 25C116 22.5 108 25 100 29.5C93 33.5 86 34.5 80 31Z', hc) + '<path d="M90 24Q101 17 114 21" stroke="' + tone(hc, 0.22) + '" stroke-width="1.6" stroke-linecap="round" fill="none"/>';
   else if (hair === 3) topHair = P(cap, hc) + [[78, 41, 8], [84, 31, 8.5], [93, 25, 8.5], [103, 23, 8.5], [113, 26, 8.5], [121, 33, 8], [124.5, 43, 7], [76, 50, 5.5]].map((c) => dot(c[0], c[1], c[2], hc)).join('');
-  /* the fringe: short darker sides and a tousled top, with a lighter fringe swept across the forehead in loose strands that reach the brows */
-  else if (hair === 5) topHair = P('M75 50C72.2 40 75 26 86.5 19.5Q90 14.5 95.5 16.8Q100.5 12 106.5 15.6Q111 13.6 114.5 18.6C124 23.5 128.2 38 125.4 50C124.6 45 123 41.5 120.5 39.5L80 39.5C77.6 41.5 76 45 75 50Z', tone(hc, -0.22)) +
-    P('M79.5 33C82 22.5 93 17.5 103 18.5C113 19.5 121.5 26 124 37.5Q124.6 41.4 123.9 44.6Q123.6 46.6 122.4 47.6Q119.6 46.2 118.2 43.4Q118 46.6 116.6 48.4Q112.4 47.4 110.2 43.6Q109.8 47.2 108 49Q103 47.6 100.4 43.8Q100 46.4 98.4 47.6Q94.2 46.2 92 42.4Q91.8 44.4 90.4 45.4Q87 43.6 85.4 39.8Q82.4 37.6 79.5 33Z', hc) +
-    '<path d="M91.5 24.5Q100.5 29.5 105.6 44M104.5 21.8Q112.6 28 115.2 43.6" stroke="' + tone(hc, 0.22) + '" stroke-width="1.3" stroke-linecap="round" fill="none" opacity=".7"/>';
+  /* the fringe: full on top, falling straight over the forehead in loose strands that reach the brows */
+  else if (hair === 5) topHair = P('M73.6 54C70 39 74.5 24 86 18.5Q91 13.8 97 16.6Q102.5 12.6 109.5 16.2C121.5 19.5 130.2 38 126.4 54C125.2 50 124 46.8 121.8 45Q119.6 47.8 116.2 47.4Q115.4 45 114.2 43.2Q111.8 47.6 107.6 48.2Q106.6 45.4 105.6 43.4Q103 48 98.6 48.6Q97.4 45.8 96.4 43.6Q94.2 47.4 89.8 47.8Q88.6 45.2 87.6 43Q85.6 46.2 81.6 46.4Q80.4 44.6 79.6 43.2Q77.4 46 75.6 50Q74.4 52 73.6 54Z', hc) +
+    '<path d="M112.6 25.5Q116.4 34 115.6 44M102.6 20.5Q106.2 31 106.6 44.2M93.4 21Q95.2 32 97.4 44.4M85 26.5Q86.2 35 88.6 43.8" stroke="' + tone(hc, 0.24) + '" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".75"/>';
   const beardD = 'M75.5 55C75.5 72 86 85.5 100 85.5C114 85.5 124.5 72 124.5 55C121.5 62 117 64.5 112 64.5C108 61 92 61 88 64.5C83 64.5 78.5 62 75.5 55Z';
   const beard = look.beard === 2 ? P(beardD, hasHair ? hc : '#4A3A30') + '<ellipse cx="100" cy="69.3" rx="7.4" ry="3.9" fill="' + skin + '"/>' : look.beard === 1 ? P(beardD, hasHair ? hc : '#4A3A30', ' opacity=".26"') : '';
   const bandC = look.shirt === 2 ? '#F4F5F7' : '#E0364F';
@@ -66,7 +65,7 @@ function avatarSVG(look, lvl, o) {
     '<path class="av-smile" d="M92.6 68Q100 74 107.4 68" stroke="#1B1F27" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
     '<g class="av-grin"><path d="M91.6 66.6Q100 78 108.4 66.6Z" fill="#1B1F27" stroke="#1B1F27" stroke-width="1.6" stroke-linejoin="round"/><path d="M94.4 67.3h11.2q-1 2.6-5.6 2.6t-5.6-2.6z" fill="#fff"/></g>' +
     topHair + band + crown +
-    (look.stud ? '<circle cx="127.7" cy="58" r="1.3" fill="#B7BDC8" stroke="#858C99" stroke-width=".45"/><circle cx="126.9" cy="61.1" r="1.1" fill="#B7BDC8" stroke="#858C99" stroke-width=".45"/>' : '');
+    (look.stud ? '<circle cx="127.6" cy="58.2" r="1.35" fill="#C9CED8" stroke="#7C8492" stroke-width=".6"/><circle cx="126.8" cy="61.3" r="1.15" fill="#C9CED8" stroke="#7C8492" stroke-width=".6"/>' : '');
 
   const body = '<g class="av-bod">' + (tank ? P(torso, skin) + P(tankTop, shirt) : P(torso, shirt)) + pecs + belt +
     '<rect x="' + X(-nw) + '" y="74" width="' + (nw * 2).toFixed(1) + '" height="20" rx="5" fill="' + skin + '"/><ellipse cx="100" cy="83.5" rx="' + nw + '" ry="4.2" fill="' + shd + '"/>' +

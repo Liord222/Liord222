@@ -3,7 +3,6 @@ let booted = false;
 function boot(data) {
   if (booted) return; booted = true;
   data = data || {};
-  document.documentElement.lang = 'he'; document.documentElement.dir = 'rtl';
   const d = loadLocal();
   if (d.sessions) S.sessions = d.sessions;
   if (typeof d.sound === 'boolean') S.sound = d.sound;
@@ -17,7 +16,8 @@ function boot(data) {
   S.tab = typeof data.tab === 'number' && data.tab >= 0 && data.tab < 4 ? data.tab : nextUp().next;
   if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
   if (Array.isArray(data.turns)) chat.turns = data.turns;
-  readColors(); wireApp(); wireCoach(); wireChat(); wireMe();
+  applyLang();
+  readColors(); wireApp(); wireCoach(); wireChat(); wireMe(); wireOb();
   setView(['workout', 'progress', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
   renderAll(); initChat();

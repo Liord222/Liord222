@@ -35,19 +35,21 @@ const ICON = {
      fb: { slotId: { pain, pump, load } }, cut: { slotId: slot whose pain report cancelled it }, ft (time of the last change to these) }
    S.cfg: settings and the running mesocycle, one document shared by the viewer's devices */
 /* S.cfg.me: the player. name and look (the character's choices, see avatar.js), made (when the character was set up),
-   arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned } */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, arch: archZero(), badges: {} });
+   ob (when the opening screens were passed), exp (gym experience: 0 beginner, 1 regular, 2 experienced), goal (0 muscle, 1 strength, 2 fitness),
+   arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
+   S.cfg.lang: 'he' or 'en'; empty until it is chosen */
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, arch: archZero(), badges: {} });
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), arch: {}, badges: {} };
   for (const k of Object.keys(d.arch)) out.arch[k] = pos(a[k]);
   for (const x of BADGES) if (pos(b[x.id])) out.badges[x.id] = b[x.id];
   return out;
 }
 /* S.cfg.slots: exercises the lifter added to the plan, { id: { w, a, sets, reps, rest } }. They are never removed, so old workouts stay readable.
    S.cfg.order: { workout: [slot ids] } for a workout whose list was changed; a workout that is not there follows the plan */
-const cfgDef = () => ({ upd: 0, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
+const cfgDef = () => ({ upd: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
 const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const SLOT_ID = /^c[a-z0-9]{4,20}$/;
@@ -56,7 +58,7 @@ function normCfg(v) {
   const d = cfgDef(), obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? clone(x) : {});
   v = v || {};
   return {
-    upd: +v.upd || 0, weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base), slots: cleanSlots(v.slots), order: obj(v.order),
+    upd: +v.upd || 0, lang: v.lang === 'en' || v.lang === 'he' ? v.lang : '', weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base), slots: cleanSlots(v.slots), order: obj(v.order),
     meso: v.meso && v.meso.id ? { id: String(v.meso.id), n: +v.meso.n || 1, start: +v.meso.start || 0, early: +v.meso.early || 0, asked: String(v.meso.asked || '') } : d.meso,
     past: Array.isArray(v.past) ? clone(v.past).slice(-4) : [], me: normMe(v.me),
   };
@@ -530,6 +532,7 @@ function restoreData(text) {
     const me = S.cfg.me, before = JSON.stringify(me), made = me.made ? null : mine.made ? mine : theirs.made ? theirs : null;
     me.arch = theirs.arch.until > mine.arch.until ? theirs.arch : mine.arch; me.badges = Object.assign({}, theirs.badges, mine.badges);
     if (made) { me.name = made.name; me.look = made.look; me.made = made.made; }
+    me.ob = me.ob || mine.ob || theirs.ob; if (me.exp == null) me.exp = mine.exp != null ? mine.exp : theirs.exp; if (me.goal == null) me.goal = mine.goal != null ? mine.goal : theirs.goal;
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }
   saveLocal();
@@ -579,7 +582,7 @@ async function initCloud(onChange) {
         const lost = Object.keys(slots).filter((id) => !S.cfg.slots[id]);
         if (lost.length) { for (const id of lost) S.cfg.slots[id] = slots[id]; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
         /* a copy of the page from before the profile existed saves the settings without the player: keep ours and send it back */
-        if (!v.me && (mine.made || mine.arch.until || Object.keys(mine.badges).length)) { S.cfg.me = mine; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
+        if (!v.me && (mine.made || mine.ob || mine.arch.until || Object.keys(mine.badges).length)) { S.cfg.me = mine; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
         saveLocal(); onChange();
       }
       else if (up < S.cfg.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }

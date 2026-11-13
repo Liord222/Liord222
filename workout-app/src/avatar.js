@@ -4,6 +4,8 @@
    so a class on the root is enough to move between standing and flexing. */
 const SKIN = [['#F9DCC4', '#E6B596'], ['#EFC09A', '#D69D72'], ['#D8A070', '#B87E50'], ['#B07A48', '#8C5C31'], ['#7A4E2D', '#5C381D']];
 const HAIR = ['קירח', 'קצר', 'בלורית', 'מתולתל', 'ארוך'];
+const HAIRS = () => (LANG === 'en' ? ['Bald', 'Short', 'Quiff', 'Curly', 'Long'] : HAIR);
+const BEARDS = () => (LANG === 'en' ? ['None', 'Stubble', 'Full'] : BEARD);
 const HAIRC = ['#26211F', '#4E3222', '#8B5E34', '#D9A94E', '#B9482B', '#A7ADB8'];
 const BEARD = ['בלי', 'זיפים', 'מלא'];
 const SHIRT = ['#2152E0', '#0E9F6E', '#E0364F', '#F08C1A', '#7B4BE0', '#3A4152'];

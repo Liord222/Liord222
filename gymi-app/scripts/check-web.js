@@ -13,11 +13,13 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   });
   await new Promise((res) => srv.listen(0, '127.0.0.1', res));
   const url = 'http://127.0.0.1:' + srv.address().port + '/';
-  const b = await chromium.launch(), ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', acceptDownloads: true }), p = await ctx.newPage();
+  const b = await chromium.launch(), ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', acceptDownloads: true, locale: 'he-IL' }), p = await ctx.newPage();
   p.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
   p.on('console', (m) => { if (m.type() === 'error' && !/status of 401/.test(m.text())) errs.push('CONSOLE ' + m.text()); });  // the 401 is this script's own test
   const inner = async () => { await p.waitForSelector('iframe[title="gymi"]'); const f = p.frames().find((x) => x !== p.mainFrame()); await f.waitForSelector('#homeGo', { state: 'attached' }); return f; };
   await p.goto(url); let f = await inner(); await p.waitForTimeout(500);
+  check('a new phone is met by the opening screens', await f.isVisible('#ob'), 'ob');
+  await f.click('#obSkip'); await f.waitForTimeout(300);
   const txt = (sel) => f.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
   check('the page boots inside the shell', (await txt('#home .next')).includes('גוף עליון A') && (await txt('#playerBtn')).includes('רמה 1') && (await f.evaluate(() => window.GYMI_NATIVE)) === 'web', await txt('#home'));
   check('the shell passes the phone\'s dark mode to the page', (await f.evaluate(() => document.documentElement.getAttribute('data-theme'))) === 'dark', 'theme');

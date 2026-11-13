@@ -36,6 +36,7 @@ function playerHTML(P) {
     '<span class="p-txt"><b>' + (me.name ? 'היי, ' + esc(me.name) : 'היי!') + '</b><span class="p-rank"><span class="lv-badge">רמה ' + P.L.lvl + '</span>' + P.rank.he + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
     (P.X.streak ? '<span class="p-streak" title="שבועות ברצף">' + glyph('flame') + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
+const setRow = (label, key, list, cur) => '<div class="lk-row"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
 function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + b.he + (on ? ', הושג' : ', עוד לא') + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + b.he + '</span></li>'; }
 function renderProfile(P) {
   P = P || meNow();
@@ -49,15 +50,20 @@ function renderProfile(P) {
     '<div class="pf-stats">' + stat(nf(P.T.wk), 'אימונים') + stat(P.X.streak, 'שבועות ברצף') + stat(nf(P.T.prs), 'שיאים') + stat(Ltr(tons(P.T.kg)), 'טון הורמו') + '</div>' +
     (nx ? '<section class="pf-next">' + glyph('gift') + '<span><small>הפרס הבא</small><b>' + nx.he + '</b></span><em>רמה ' + nx.at + '</em></section>' : '') +
     '<section class="pf-sec"><h2 class="sec">הישגים <small>' + have.size + '/' + BADGES.length + '</small></h2><ul class="badges">' + BADGES.map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
+    '<section class="pf-sec"><h2 class="sec">' + say('הגדרות', 'Settings') + '</h2><div class="pf-set">' +
+    setRow(say('שפה', 'Language'), 'lang', [['he', 'עברית'], ['en', 'English']], LANG) +
+    setRow(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp) +
+    setRow(say('מטרה', 'Goal'), 'goal', GOALS().map((o, i) => [i, o[0]]), me.goal) +
+    '<button class="link" id="obAgain" type="button">' + say('מסך הפתיחה', 'The opening screens') + '</button></div></section>' +
     '<section class="pf-sec"><h2 class="sec">איך צוברים נקודות</h2><div class="pf-how"><span><b>' + Ltr('+' + XP.set) + '</b>סט</span><span><b>' + Ltr('+' + XP.pr) + '</b>שיא אישי</span><span><b>' + Ltr('+' + XP.done) + '</b>סיום אימון</span></div></section>';
 }
 
 /* ---- the character sheet: name and looks; every choice is saved at once ---- */
 function lookRows() {
-  const k = S.cfg.me.look, sw = (key, list, hex) => '<div class="lk-opts" role="group">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="אפשרות ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
+  const k = S.cfg.me.look, sw = (key, list, hex) => '<div class="lk-opts" role="group">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + say('אפשרות ', 'Option ') + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
   const seg = (key, list) => '<div class="seg" role="group">' + list.map((t, i) => '<button type="button" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '">' + t + '</button>').join('') + '</div>';
-  return '<div class="lk-row"><span>עור</span>' + sw('skin', SKIN, (c) => c[0]) + '</div><div class="lk-row"><span>שיער</span>' + seg('hair', HAIR) + '</div>' +
-    '<div class="lk-row"><span>צבע שיער</span>' + sw('hc', HAIRC, (c) => c) + '</div><div class="lk-row"><span>זקן</span>' + seg('beard', BEARD) + '</div><div class="lk-row"><span>חולצה</span>' + sw('shirt', SHIRT, (c) => c) + '</div>';
+  const row = (label, body) => '<div class="lk-row col"><span>' + label + '</span>' + body + '</div>';
+  return row(say('עור', 'Skin'), sw('skin', SKIN, (c) => c[0])) + row(say('שיער', 'Hair'), seg('hair', HAIRS())) + row(say('צבע שיער', 'Hair colour'), sw('hc', HAIRC, (c) => c)) + row(say('זקן', 'Beard'), seg('beard', BEARDS())) + row(say('חולצה', 'Shirt'), sw('shirt', SHIRT, (c) => c));
 }
 function openLook() {
   const me = S.cfg.me, sh = $('#sheet');
@@ -122,5 +128,11 @@ function countUp(el, to) {
   requestAnimationFrame(step);
 }
 function wireMe() {
-  $('#profile').addEventListener('click', (ev) => { if (ev.target.closest('#lookBtn')) openLook(); });
+  $('#profile').addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.id === 'lookBtn') openLook();
+    else if (b.id === 'obAgain') openOb();
+    else if (b.dataset.set === 'lang') setLang(b.dataset.v);
+    else if (b.dataset.set === 'exp' || b.dataset.set === 'goal') { const me = S.cfg.me, k = b.dataset.set; me[k] = +b.dataset.v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
+  });
 }

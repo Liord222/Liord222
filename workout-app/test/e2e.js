@@ -41,7 +41,7 @@ const initScript = () => {
 };
 const pages = [];
 async function device(b, scheme) {
-  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: scheme });
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: scheme, locale: 'he-IL' });
   const p = await ctx.newPage(), errs = [];
   p.on('pageerror', (e) => errs.push('PAGEERR ' + e.message + ' ' + String(e.stack || '').split('\n').slice(1, 3).join(' ')));
   p.on('console', (m) => { if (m.type() === 'error') errs.push('CONSOLE ' + m.text()); });
@@ -76,6 +76,29 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   const log = async (pg, n) => { await reps(pg, n); await pg.click('#dkHit'); };
   const tab = async (pg, v) => { await pg.click('#tabbar [data-view="' + v + '"]'); await pg.waitForTimeout(250); };
 
+  // ---------- the opening screens: the coach asks, the player answers, once ----------
+  const cfgK = 'data/users/u_test/cfg';
+  check('a new player is met by the opening screens', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'ברוכים הבאים ל-gymi' && (await p.getAttribute('#ob [data-lang="he"]', 'aria-pressed')) === 'true' && (await p.evaluate(() => S.cfg.me.ob)) === 0, await txt('#ob'));
+  await p.click('#ob [data-lang="en"]'); await p.waitForTimeout(150);
+  check('the language is chosen on the first screen', (await txt('#obTitle')) === 'Welcome to gymi' && (await p.evaluate(() => document.documentElement.dir + ':' + document.documentElement.lang + ':' + document.querySelector('#app').dir)) === 'ltr:en:ltr' && (await txt('#obNext')) === "Let's start", await txt('#ob'));
+  await p.click('#ob [data-lang="he"]'); await p.waitForTimeout(150); await shot('o1-welcome');
+  await p.click('#obNext'); await p.waitForTimeout(400);
+  check('first question: the name, ready for typing', (await txt('#obTitle')) === 'איך קוראים לך?' && (await p.evaluate(() => document.activeElement.id)) === 'obName' && !!(await p.$('#ob .ob-q .ava svg')), await txt('#ob'));
+  await p.fill('#obName', 'ליאור'); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+  check('experience has to be chosen before going on', (await txt('#obTitle')).includes('ניסיון') && (await p.isDisabled('#obNext')) && (await p.$$('.ob-opt')).length === 3, await txt('#ob'));
+  await p.click('.ob-opt[data-v="1"]'); await p.waitForTimeout(150); await shot('o2-experience');
+  check('the chosen answer is marked', (await p.getAttribute('.ob-opt[data-v="1"]', 'aria-checked')) === 'true' && (await p.getAttribute('.ob-opt[data-v="0"]', 'aria-checked')) === 'false' && !(await p.isDisabled('#obNext')), 'exp');
+  await p.click('#obNext'); await p.waitForTimeout(400);
+  await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(400);
+  check('the character is designed on its own screen', (await txt('#obTitle')) === 'זו הדמות שלך' && !!(await p.$('#ob #lkStage svg')), await txt('#ob'));
+  await p.click('#ob [data-look="hair"][data-v="2"]'); await p.waitForTimeout(150); await shot('o3-character');
+  await p.click('#obBack'); await p.waitForTimeout(350);
+  check('back returns to the question before, with its answer kept', (await txt('#obTitle')) === 'מה המטרה שלך?' && (await p.getAttribute('.ob-opt[data-v="0"]', 'aria-checked')) === 'true', await txt('#ob'));
+  await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(600); await shot('o4-ready');
+  check('the last screen greets by name', (await txt('#obTitle')) === 'ליאור, הכול מוכן!' && (await txt('#obNext')) === 'לאימון הראשון' && !!(await p.$('#ob .av.flex')) && (await txt('.ob-note')).includes('ייעוץ רפואי'), await txt('#ob'));
+  await p.click('#obNext'); await p.waitForTimeout(1400);
+  const obA = await p.evaluate(() => { const m = S.cfg.me; return [m.name, m.exp, m.goal, m.look.hair, m.ob > 0, m.made > 0, S.cfg.lang, document.querySelector('#ob').hidden, planned(0, {}).ua1].join(); });
+  check('the answers are kept and the app opens', obA === 'ליאור,1,0,2,true,true,he,true,3' && !!cloud[cfgK] && cloud[cfgK].me.ob > 0 && cloud[cfgK].me.exp === 1 && cloud[cfgK].lang === 'he', [obA, cloud[cfgK] && cloud[cfgK].me]);
   // ---------- first workout, nothing logged before ----------
   check('today flags a volume warning', (await txt('#home .warn-pill')) === 'לבדוק סטים', await txt('#home .week'));
   check('the top of the page is the logo alone, centred', (await p.evaluate(() => { const l = document.querySelector('.logo').getBoundingClientRect(); return Math.abs(l.left + l.width / 2 - innerWidth / 2) < 2 && !document.querySelector('.credit') && getComputedStyle(document.querySelector('#syncNote')).display === 'none'; })), 'logo');
@@ -128,6 +151,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await p.selectOption('#chatCtx', 'ua2'); await p.fill('#chatInput', 'רשום לי 40 קילו 8 8 7'); await p.click('#sendBtn'); await p.waitForTimeout(900);
   const calls = await p.evaluate(() => window.__calls.map((c) => ({ img: c.hasImg, ctx: c.last, first: c.first })));
   check('photo goes to the coach with the exercise context', calls[0].img && calls[0].ctx.includes('[ua1]') && calls[0].ctx.includes('60×10') && calls[0].ctx.includes('היעד לסט הבא'), calls[0].ctx);
+  check('coach knows who is asking', calls[0].first.includes('שם: ליאור') && calls[0].first.includes('ניסיון בחדר כושר: מתאמן קבוע') && calls[0].first.includes('מטרה: לבנות שריר'), calls[0].first.slice(0, 700));
   check('coach knows the week and its RIR', calls[0].first.includes('שבוע 1 מתוך 5') && calls[0].first.includes('3 חזרות לפני כשל'), calls[0].first.slice(0, 400));
   check('coach gets the Hebrew names with the English ones beside them', calls[0].first.includes('אימון ראשון – גוף עליון A') && calls[0].first.includes('[ua2] מתח בסיוע (גרביטון) (Assisted Pull-ups)') && calls[0].ctx.includes('"לחיצת חזה בשיפוע עליון בסמית׳"'), calls[0].first.slice(300, 700));
   check('answers come from the coach\'s face, and a new chat is on offer once there is one', (await p.$$('#msgs .row.a .ava svg')).length === 2 && (await p.$$('#msgs .row.u')).length === 2 && !(await p.isHidden('#chatNew')), await txt('#msgs'));
@@ -161,6 +185,17 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('today greets the player by name', (await txt('#playerBtn')).includes('היי, ליאור') && (await p.evaluate(() => document.querySelector('#playerBtn .av.bust').innerHTML.includes('#E0364F'))), await txt('#playerBtn'));
   await p.click('#playerBtn'); await p.waitForTimeout(200);
   check('the player strip opens the profile', (await p.evaluate(() => S.view)) === 'profile' && (await p.evaluate(() => document.querySelector('#tabbar [data-view="profile"]').getAttribute('aria-current'))) === 'page', await p.evaluate(() => S.view));
+  await p.click('#profile [data-set="goal"][data-v="1"]'); await p.waitForTimeout(200);
+  check('the answers can be changed in the profile', (await p.evaluate(() => S.cfg.me.goal)) === 1 && (await p.getAttribute('#profile [data-set="goal"][data-v="1"]', 'aria-pressed')) === 'true' && (await p.getAttribute('#profile [data-set="exp"][data-v="1"]', 'aria-pressed')) === 'true' && (await p.getAttribute('#profile [data-set="lang"][data-v="he"]', 'aria-pressed')) === 'true', await txt('.pf-set'));
+  await p.click('#profile [data-set="lang"][data-v="en"]'); await p.waitForTimeout(250);
+  check('the language can be changed in the profile', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'en,ltr,en' && (await txt('.pf-set')).includes('Language'), await txt('.pf-set'));
+  await p.click('#profile [data-set="lang"][data-v="he"]'); await p.waitForTimeout(250);
+  await p.click('#obAgain'); await p.waitForTimeout(300);
+  check('the opening screens can be seen again, with the answers filled in', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'ברוכים הבאים ל-gymi', await txt('#ob'));
+  await p.click('#obNext'); await p.waitForTimeout(350);
+  check('and they remember the name', (await p.inputValue('#obName')) === 'ליאור', await p.inputValue('#obName'));
+  await p.click('#obBack'); await p.waitForTimeout(300); await p.click('#obSkip'); await p.waitForTimeout(300);
+  check('skip closes them without changing anything', (await p.isHidden('#ob')) && (await p.evaluate(() => [S.cfg.me.name, S.cfg.me.exp, S.cfg.me.goal].join())) === 'ליאור,1,1', await p.evaluate(() => JSON.stringify(S.cfg.me)));
   check('finished workout reached the cloud', sess()[0].end > 0, sess()[0].end);
   await tab(p, 'progress'); await shot('g1b-progress');
   await p.click('#history [data-edit]'); await p.waitForTimeout(250);
@@ -174,6 +209,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   const B = await device(b, scheme), q = B.p; ERR.push(B.errs); await q.waitForTimeout(400);
   const t2 = T(q);
   check('second device: next up is workout 2', (await cur(q)) === 'אימון שני – גוף תחתון A, הבא' && (await t2('#history')).includes('5 סטים') && (await t2('#history .xp-tag')) === '+150', [await cur(q), await t2('#history')]);
+  check('second device: the opening screens are not shown again', (await q.isHidden('#ob')) && (await q.evaluate(() => S.cfg.me.ob > 0 && S.cfg.me.exp === 1)), await q.evaluate(() => JSON.stringify(S.cfg.me)));
   check('second device: the same player, level and character', (await t2('#playerBtn')).includes('היי, ליאור') && (await q.evaluate(() => [meNow().T.xp, S.cfg.me.look.shirt, S.cfg.me.badges.first > 0].join())) === '150,2,true', await t2('#playerBtn'));
   check('second device: the note arrived with the settings', (await q.evaluate(() => S.cfg.notes.inclineSmith || '')).includes('מושב'), 'note');
   await q.click('.tab[data-tab="0"]'); await q.waitForTimeout(400);

@@ -60,7 +60,6 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manip
 h1,h2,h3,h4,p{margin:0}
 bdi{unicode-bidi:isolate;white-space:nowrap}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.app{direction:rtl}
 .wrap{max-width:1180px;margin-inline:auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
 
 /* top row and navigation */
@@ -621,6 +620,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 #lkRows{display:grid;gap:14px}
 .lk-row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;align-items:center}
 .lk-row>span{font-size:14px;font-weight:600;color:var(--ink-2)}
+.lk-row.col{grid-template-columns:minmax(0,1fr);gap:6px}
+.lk-row.col>span{font-size:13px}
 .lk-row input{width:100%;min-width:0;height:48px;border-radius:14px;border:0;background:var(--surface-2);padding:0 14px;font-size:16px}
 .lk-opts{display:flex;flex-wrap:wrap;gap:9px;padding:3px}
 .lk-sw{width:34px;height:34px;border-radius:50%;border:0;padding:0;background:var(--c);box-shadow:0 0 0 1px var(--line)}
@@ -643,6 +644,55 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .sum .sum-next{font-size:13.5px}
 .sum .btn{position:relative}
 .xp-line{display:flex;align-items:center;gap:8px;font-weight:600}
+
+/* the opening screens: one question at a time, asked by the coach */
+.ob{position:fixed;inset:0;z-index:90;background:var(--paper);overflow-y:auto;overscroll-behavior:contain}
+.ob-in{min-height:100%;max-width:480px;margin-inline:auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:18px;padding:calc(env(safe-area-inset-top,0px) + 10px) max(20px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(20px,env(safe-area-inset-left,0px))}
+.ob-top{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:44px}
+.ob-top .link{padding:0;justify-self:end;white-space:nowrap}
+.ob-sp{width:44px}
+.ob-prog{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.ob-prog i{display:block;height:100%;min-width:8px;border-radius:99px;background:var(--accent);transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.ob-body{display:grid;gap:18px;align-content:start}
+.ob-body.in-next{animation:fx-next .3s cubic-bezier(.2,.8,.2,1)}
+.ob-body.in-prev{animation:fx-prev .3s cubic-bezier(.2,.8,.2,1)}
+[dir="ltr"] .ob-body.in-next{animation-name:fx-prev}
+[dir="ltr"] .ob-body.in-prev{animation-name:fx-next}
+.ob-hero{display:grid;justify-items:center;text-align:center;gap:10px;padding-top:4vh;position:relative}
+.ob-hero .logo{justify-items:center}
+.ob-av{width:min(210px,56%);margin-block:8px 2px}
+.ob-hero h1{font-size:30px;font-weight:800;line-height:1.15;letter-spacing:-.02em;text-wrap:balance}
+.ob-hero>p{font-size:16px;color:var(--ink-2);max-width:320px;text-wrap:balance}
+.ob-lang{width:min(260px,100%);margin-top:14px;background:var(--surface)}
+.ob-lang button{min-height:46px;font-size:15px}
+.ob-q{display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:start;padding-top:8px}
+.ob-q .ava{width:56px;height:56px}
+.ob-bub{position:relative;background:var(--surface);border-radius:22px;border-start-start-radius:6px;padding:16px 18px;display:grid;gap:6px}
+.ob-bub h1{font-size:23px;font-weight:800;line-height:1.2;letter-spacing:-.02em;text-wrap:balance}
+.ob-bub p{font-size:14.5px;color:var(--ink-2)}
+.ob-in-name{width:100%;height:60px;border-radius:20px;border:0;background:var(--surface);padding:0 18px;font-size:20px;font-weight:600}
+.ob-in-name:focus{outline:2px solid var(--accent);outline-offset:0}
+.ob-opts{display:grid;gap:10px}
+.ob-opt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;min-height:68px;padding:10px 18px;border:0;border-radius:20px;background:var(--surface);text-align:start;box-shadow:inset 0 0 0 2px transparent;transition:box-shadow .15s,transform .08s}
+.ob-opt:active{transform:scale(.985)}
+.ob-opt>svg{width:26px;height:26px;color:var(--accent)}
+.ob-opt span{display:grid;min-width:0}
+.ob-opt b{font-size:17px;font-weight:700;line-height:1.3}
+.ob-opt small{font-size:13.5px;color:var(--ink-2)}
+.ob-chk{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--ink-4);color:transparent}
+.ob-chk svg{width:15px;height:15px;stroke-width:3}
+.ob-opt[aria-checked="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
+.ob-opt[aria-checked="true"] .ob-chk{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.ob .lk-stage{width:132px}
+.ob #lkRows{background:var(--surface);border-radius:22px;padding:16px}
+.ob-facts{list-style:none;margin:6px 0 0;padding:6px 18px;display:grid;width:100%;background:var(--surface);border-radius:22px;text-align:start}
+.ob-facts li{display:flex;align-items:center;gap:14px;min-height:54px;font-size:15.5px;font-weight:600}
+.ob-facts li+li{border-top:1px solid var(--line)}
+.ob-facts svg{width:24px;height:24px;color:var(--accent)}
+.ob-note{font-size:12.5px;color:var(--ink-3);max-width:340px}
+.ob-foot{position:sticky;bottom:0;padding-top:6px;background:linear-gradient(to top,var(--paper) 70%,transparent)}
+.pf-set{display:grid;gap:12px;background:var(--surface);border-radius:var(--r);padding:16px}
+.pf-set .link{justify-self:start;padding:0;min-height:36px}
 
 @media (max-width:999.98px){
   .chat{position:fixed;inset:0;z-index:60;display:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
@@ -751,6 +801,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
   <div class="dock" id="dock" role="region" aria-label="רישום סטים וטיימר מנוחה"></div>
   <div class="sheet" id="sheet" hidden></div>
   <div class="toast" id="toast" role="status" hidden></div>
+  <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden></div>
 </div>
 
 <script>
@@ -1730,6 +1781,8 @@ def('seatedCalf', {
    so a class on the root is enough to move between standing and flexing. */
 const SKIN = [['#F9DCC4', '#E6B596'], ['#EFC09A', '#D69D72'], ['#D8A070', '#B87E50'], ['#B07A48', '#8C5C31'], ['#7A4E2D', '#5C381D']];
 const HAIR = ['קירח', 'קצר', 'בלורית', 'מתולתל', 'ארוך'];
+const HAIRS = () => (LANG === 'en' ? ['Bald', 'Short', 'Quiff', 'Curly', 'Long'] : HAIR);
+const BEARDS = () => (LANG === 'en' ? ['None', 'Stubble', 'Full'] : BEARD);
 const HAIRC = ['#26211F', '#4E3222', '#8B5E34', '#D9A94E', '#B9482B', '#A7ADB8'];
 const BEARD = ['בלי', 'זיפים', 'מלא'];
 const SHIRT = ['#2152E0', '#0E9F6E', '#E0364F', '#F08C1A', '#7B4BE0', '#3A4152'];
@@ -1833,19 +1886,21 @@ const ICON = {
      fb: { slotId: { pain, pump, load } }, cut: { slotId: slot whose pain report cancelled it }, ft (time of the last change to these) }
    S.cfg: settings and the running mesocycle, one document shared by the viewer's devices */
 /* S.cfg.me: the player. name and look (the character's choices, see avatar.js), made (when the character was set up),
-   arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned } */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, arch: archZero(), badges: {} });
+   ob (when the opening screens were passed), exp (gym experience: 0 beginner, 1 regular, 2 experienced), goal (0 muscle, 1 strength, 2 fitness),
+   arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
+   S.cfg.lang: 'he' or 'en'; empty until it is chosen */
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, arch: archZero(), badges: {} });
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), arch: {}, badges: {} };
   for (const k of Object.keys(d.arch)) out.arch[k] = pos(a[k]);
   for (const x of BADGES) if (pos(b[x.id])) out.badges[x.id] = b[x.id];
   return out;
 }
 /* S.cfg.slots: exercises the lifter added to the plan, { id: { w, a, sets, reps, rest } }. They are never removed, so old workouts stay readable.
    S.cfg.order: { workout: [slot ids] } for a workout whose list was changed; a workout that is not there follows the plan */
-const cfgDef = () => ({ upd: 0, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
+const cfgDef = () => ({ upd: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
 const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const SLOT_ID = /^c[a-z0-9]{4,20}$/;
@@ -1854,7 +1909,7 @@ function normCfg(v) {
   const d = cfgDef(), obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? clone(x) : {});
   v = v || {};
   return {
-    upd: +v.upd || 0, weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base), slots: cleanSlots(v.slots), order: obj(v.order),
+    upd: +v.upd || 0, lang: v.lang === 'en' || v.lang === 'he' ? v.lang : '', weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base), slots: cleanSlots(v.slots), order: obj(v.order),
     meso: v.meso && v.meso.id ? { id: String(v.meso.id), n: +v.meso.n || 1, start: +v.meso.start || 0, early: +v.meso.early || 0, asked: String(v.meso.asked || '') } : d.meso,
     past: Array.isArray(v.past) ? clone(v.past).slice(-4) : [], me: normMe(v.me),
   };
@@ -2328,6 +2383,7 @@ function restoreData(text) {
     const me = S.cfg.me, before = JSON.stringify(me), made = me.made ? null : mine.made ? mine : theirs.made ? theirs : null;
     me.arch = theirs.arch.until > mine.arch.until ? theirs.arch : mine.arch; me.badges = Object.assign({}, theirs.badges, mine.badges);
     if (made) { me.name = made.name; me.look = made.look; me.made = made.made; }
+    me.ob = me.ob || mine.ob || theirs.ob; if (me.exp == null) me.exp = mine.exp != null ? mine.exp : theirs.exp; if (me.goal == null) me.goal = mine.goal != null ? mine.goal : theirs.goal;
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }
   saveLocal();
@@ -2377,7 +2433,7 @@ async function initCloud(onChange) {
         const lost = Object.keys(slots).filter((id) => !S.cfg.slots[id]);
         if (lost.length) { for (const id of lost) S.cfg.slots[id] = slots[id]; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
         /* a copy of the page from before the profile existed saves the settings without the player: keep ours and send it back */
-        if (!v.me && (mine.made || mine.arch.until || Object.keys(mine.badges).length)) { S.cfg.me = mine; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
+        if (!v.me && (mine.made || mine.ob || mine.arch.until || Object.keys(mine.badges).length)) { S.cfg.me = mine; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
         saveLocal(); onChange();
       }
       else if (up < S.cfg.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }
@@ -3067,6 +3123,8 @@ function onRemoteChange() {
   const a = document.activeElement;
   if (a && a.closest && (a.closest('#dock') || a.closest('#sheet') || a.closest('.note')) && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT')) return;
   sweep(); meSync(); if (!S.touched) S.tab = nextUp().next;
+  if ((S.cfg.lang || autoLang()) !== LANG) applyLang();
+  maybeOb();
   if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap' && S.sheet !== 'look' && S.sheet !== 'sum') renderAll();
 }
 function startTab() { S.open = null; renderList(); renderDock(); }
@@ -3185,7 +3243,7 @@ function wireApp() {
   });
   sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); });
   sheet.addEventListener('change', (ev) => { if (ev.target.id === 'edDate') editorDate(ev.target.value); else { coachSheetChange(ev); meSheetChange(ev); } });
-  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { if (!sheet.hidden) closeSheet(); else closeChat(); } });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on) { if (!sheet.hidden) closeSheet(); else closeChat(); } });
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (rest.on) tickRest(); if (live(S.tab)) keepAwake(); });
@@ -3193,6 +3251,7 @@ function wireApp() {
   window.gymiBack = () => {
     if (!sheet.hidden) { closeSheet(); return true; }
     if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }
+    if (OB.on) { if (OB.step > 0) { obStep(-1); return true; } return false; }
     if (S.view !== 'home') { renderHome(); setView('home'); return true; }
     return false;
   };
@@ -3436,6 +3495,7 @@ function playerHTML(P) {
     '<span class="p-txt"><b>' + (me.name ? 'היי, ' + esc(me.name) : 'היי!') + '</b><span class="p-rank"><span class="lv-badge">רמה ' + P.L.lvl + '</span>' + P.rank.he + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
     (P.X.streak ? '<span class="p-streak" title="שבועות ברצף">' + glyph('flame') + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
+const setRow = (label, key, list, cur) => '<div class="lk-row"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
 function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + b.he + (on ? ', הושג' : ', עוד לא') + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + b.he + '</span></li>'; }
 function renderProfile(P) {
   P = P || meNow();
@@ -3449,15 +3509,20 @@ function renderProfile(P) {
     '<div class="pf-stats">' + stat(nf(P.T.wk), 'אימונים') + stat(P.X.streak, 'שבועות ברצף') + stat(nf(P.T.prs), 'שיאים') + stat(Ltr(tons(P.T.kg)), 'טון הורמו') + '</div>' +
     (nx ? '<section class="pf-next">' + glyph('gift') + '<span><small>הפרס הבא</small><b>' + nx.he + '</b></span><em>רמה ' + nx.at + '</em></section>' : '') +
     '<section class="pf-sec"><h2 class="sec">הישגים <small>' + have.size + '/' + BADGES.length + '</small></h2><ul class="badges">' + BADGES.map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
+    '<section class="pf-sec"><h2 class="sec">' + say('הגדרות', 'Settings') + '</h2><div class="pf-set">' +
+    setRow(say('שפה', 'Language'), 'lang', [['he', 'עברית'], ['en', 'English']], LANG) +
+    setRow(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp) +
+    setRow(say('מטרה', 'Goal'), 'goal', GOALS().map((o, i) => [i, o[0]]), me.goal) +
+    '<button class="link" id="obAgain" type="button">' + say('מסך הפתיחה', 'The opening screens') + '</button></div></section>' +
     '<section class="pf-sec"><h2 class="sec">איך צוברים נקודות</h2><div class="pf-how"><span><b>' + Ltr('+' + XP.set) + '</b>סט</span><span><b>' + Ltr('+' + XP.pr) + '</b>שיא אישי</span><span><b>' + Ltr('+' + XP.done) + '</b>סיום אימון</span></div></section>';
 }
 
 /* ---- the character sheet: name and looks; every choice is saved at once ---- */
 function lookRows() {
-  const k = S.cfg.me.look, sw = (key, list, hex) => '<div class="lk-opts" role="group">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="אפשרות ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
+  const k = S.cfg.me.look, sw = (key, list, hex) => '<div class="lk-opts" role="group">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + say('אפשרות ', 'Option ') + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
   const seg = (key, list) => '<div class="seg" role="group">' + list.map((t, i) => '<button type="button" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '">' + t + '</button>').join('') + '</div>';
-  return '<div class="lk-row"><span>עור</span>' + sw('skin', SKIN, (c) => c[0]) + '</div><div class="lk-row"><span>שיער</span>' + seg('hair', HAIR) + '</div>' +
-    '<div class="lk-row"><span>צבע שיער</span>' + sw('hc', HAIRC, (c) => c) + '</div><div class="lk-row"><span>זקן</span>' + seg('beard', BEARD) + '</div><div class="lk-row"><span>חולצה</span>' + sw('shirt', SHIRT, (c) => c) + '</div>';
+  const row = (label, body) => '<div class="lk-row col"><span>' + label + '</span>' + body + '</div>';
+  return row(say('עור', 'Skin'), sw('skin', SKIN, (c) => c[0])) + row(say('שיער', 'Hair'), seg('hair', HAIRS())) + row(say('צבע שיער', 'Hair colour'), sw('hc', HAIRC, (c) => c)) + row(say('זקן', 'Beard'), seg('beard', BEARDS())) + row(say('חולצה', 'Shirt'), sw('shirt', SHIRT, (c) => c));
 }
 function openLook() {
   const me = S.cfg.me, sh = $('#sheet');
@@ -3522,7 +3587,13 @@ function countUp(el, to) {
   requestAnimationFrame(step);
 }
 function wireMe() {
-  $('#profile').addEventListener('click', (ev) => { if (ev.target.closest('#lookBtn')) openLook(); });
+  $('#profile').addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.id === 'lookBtn') openLook();
+    else if (b.id === 'obAgain') openOb();
+    else if (b.dataset.set === 'lang') setLang(b.dataset.v);
+    else if (b.dataset.set === 'exp' || b.dataset.set === 'goal') { const me = S.cfg.me, k = b.dataset.set; me[k] = +b.dataset.v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
+  });
 }
 
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
@@ -3534,9 +3605,17 @@ const coachFace = () => avatarSVG(COACH, 12, { bust: true });
 function planText() {
   return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return wkFull(i) + (P.m ? ' (' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.he + ' (' + e.name + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
 }
+/* what the opening screens learned about the lifter, for the coach */
+function aboutUser() {
+  const me = S.cfg.me, bits = [];
+  if (me.name) bits.push('שם: ' + me.name);
+  if (me.exp != null) bits.push('ניסיון בחדר כושר: ' + ['מתחיל (פחות מחצי שנה)', 'מתאמן קבוע (חצי שנה עד שנתיים)', 'מנוסה (יותר משנתיים)'][me.exp]);
+  if (me.goal != null) bits.push('מטרה: ' + ['לבנות שריר', 'להתחזק', 'כושר ובריאות'][me.goal]);
+  return bits.length ? 'על המשתמש: ' + bits.join(' · ') + '. התאם את הטון ואת העצות לניסיון ולמטרה.\n\n' : '';
+}
 const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
   'התוכנית של המשתמש (גוף עליון ותחתון, ארבעה אימונים שמתבצעים במחזור לפי הסדר). בסוגריים המרובעים מופיע מזהה התרגיל, ובסוגריים העגולים שמו באנגלית. באפליקציה התרגילים והאימונים מוצגים בעברית, אז השתמש בשמות העבריים:\n\n' + planText() + '\n\n' +
-  'כללים:\n' +
+  aboutUser() + 'כללים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה בתשובה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה הסבר קצר (שרירי מטרה ודפוס תנועה), איך להתאים סטים, חזרות, מנוחה וקרבה לכשל, ודגש ביצוע אחד.\n' +
   '- בשאלות אחרות (טכניקה, משקל התחלתי, התקדמות) ענה ישר, בלי שורת פסיקה. כשיש בהקשר נתוני ביצוע קודמים, התבסס עליהם.\n' +
   '- אם צורפה תמונה, פתח את ההסבר בזיהוי של המכשיר או התרגיל שרואים בה ("בתמונה: ..."), כי בהודעות ההמשך התמונה כבר לא תהיה זמינה לך. אם התמונה לא ברורה, אמור מה אתה כן רואה ובקש צילום מזווית אחרת. אם נאמר שצורפה תמונה אבל היא לא הגיעה אליך, בקש לצרף אותה שוב.\n' +
@@ -3759,12 +3838,114 @@ function wireChat() {
   $('#attachX').addEventListener('click', () => setAttach(null));
 }
 
+/* ================================================================== language and the opening screens
+   The opening screens are shown once. The coach asks a few short questions (language, name, experience, goal), the
+   player designs a character, and the app is ready. Every answer can be changed later in the profile. */
+const autoLang = () => (Object.keys(S.sessions).length || S.cfg.me.made || /^(he|iw)\b/i.test(navigator.language || '') ? 'he' : 'en');
+/* put the page in the chosen language: direction, the fixed texts of the page, and everything that is drawn from the log */
+function applyLang() {
+  LANG = S.cfg.lang || autoLang();
+  const dir = LANG === 'he' ? 'rtl' : 'ltr', app = $('#app');
+  document.documentElement.lang = LANG; document.documentElement.dir = dir; app.lang = LANG; app.dir = dir;
+  if (typeof staticText === 'function') staticText();
+}
+function setLang(l, keep) {
+  if (l !== 'he' && l !== 'en') return;
+  S.cfg.lang = l; applyLang();
+  if (!keep) { saveCfg(); renderAll(); fillCtx(); renderMsgs(); }
+  if (window.gymiNative && typeof window.gymiNative.lang === 'function') window.gymiNative.lang(l);
+}
+
+const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goal: null };
+const OB_LAST = 5;
+const EXP = () => [[say('מתחיל', 'Beginner'), say('פחות מחצי שנה', 'Less than six months')], [say('מתאמן קבוע', 'Regular'), say('חצי שנה עד שנתיים', 'Six months to two years')], [say('מנוסה', 'Experienced'), say('יותר משנתיים', 'More than two years')]];
+const GOALS = () => [[say('לבנות שריר', 'Build muscle')], [say('להתחזק', 'Get stronger')], [say('כושר ובריאות', 'Fitness and health')]];
+const barsIcon = (n) => '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + [0, 1, 2].map((k) => '<path d="M' + (6 + k * 6) + ' 19v-' + (5 + k * 4) + '"' + (k < n ? '' : ' opacity=".25"') + '/>').join('') + '</svg>';
+const OB_ICON = { exp: [barsIcon(1), barsIcon(2), barsIcon(3)], goal: [ICON.bell, glyph('bolt'), '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-9.6A4 4 0 0 1 12 8a4 4 0 0 1 7 2.4C19 15.7 12 20 12 20z"/></svg>'] };
+
+/* a beginner starts with one set less on the exercises that have three or more; anyone else gets the plan as written.
+   Only before the first logged set: after that the plan belongs to what the lifter has done with it */
+function applyExp() {
+  const me = S.cfg.me;
+  if (meNow().T.sets > 0) return;
+  for (const id of Object.keys(SLOT)) { if (me.exp === 0 && SLOT[id].sets >= 3) S.cfg.base[id] = { n: SLOT[id].sets - 1, t: Date.now() }; else delete S.cfg.base[id]; }
+}
+function obHTML() {
+  const st = OB.step, me = S.cfg.me, lvl = S.lvl || 1;
+  const ask = (t, sub) => '<div class="ob-q"><span class="ava" aria-hidden="true">' + coachFace() + '</span><div class="ob-bub"><h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
+  const opts = (key, list, cur) => '<div class="ob-opts" role="radiogroup" aria-labelledby="obTitle">' + list.map((o, i) => '<button type="button" class="ob-opt" role="radio" aria-checked="' + (cur === i) + '" data-ob="' + key + '" data-v="' + i + '">' + OB_ICON[key][i] + '<span><b>' + o[0] + '</b>' + (o[1] ? '<small>' + o[1] + '</small>' : '') + '</span><i class="ob-chk" aria-hidden="true">' + ICON.check + '</i></button>').join('') + '</div>';
+  let body, cta = say('המשך', 'Continue'), can = true;
+  if (st === 0) {
+    cta = say('בואו נתחיל', "Let's start");
+    body = '<div class="ob-hero"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
+      '<div class="ob-av">' + avatar(lvl) + '</div><h1 id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1><p>' + say('תוכנית כוח של ארבעה אימונים, שמרגישה כמו משחק.', 'A four-workout strength plan that plays like a game.') + '</p>' +
+      '<div class="seg ob-lang" role="group" aria-label="Language · שפה"><button type="button" data-lang="he" aria-pressed="' + (LANG === 'he') + '">עברית</button><button type="button" data-lang="en" aria-pressed="' + (LANG === 'en') + '">English</button></div></div>';
+  } else if (st === 1) {
+    body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">';
+  } else if (st === 2) {
+    body = ask(say('כמה ניסיון יש לך בחדר כושר?', 'How much gym experience do you have?'), say('לפי זה נקבע כמה סטים יהיו בהתחלה.', 'This sets how many sets you start with.')) + opts('exp', EXP(), OB.exp); can = OB.exp != null;
+  } else if (st === 3) {
+    body = ask(say('מה המטרה שלך?', 'What is your goal?'), say('אילון, המאמן, יתאים לזה את העצות שלו.', 'Eilon, your coach, will fit his advice to it.')) + opts('goal', GOALS(), OB.goal); can = OB.goal != null;
+  } else if (st === 4) {
+    body = ask(say('זו הדמות שלך', 'This is your character'), say('היא מתחזקת ומקבלת ציוד ככל שעולים רמות.', 'It grows stronger and earns gear as you level up.')) + '<div class="lk-stage" id="lkStage">' + avatar(lvl) + '</div><div id="lkRows">' + lookRows() + '</div>';
+  } else {
+    const old = meNow().T.wk > 0, fact = (ic, t) => '<li>' + ic + '<span>' + t + '</span></li>';
+    cta = old ? say('קדימה', "Let's go") : say('לאימון הראשון', 'To the first workout');
+    body = '<div class="ob-hero done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><div class="ob-av">' + avatar(lvl, { flex: true }) + '</div><h1 id="obTitle">' + (OB.name ? esc(OB.name) + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
+      '<ul class="ob-facts">' + fact(ICON.bell, say('ארבעה אימונים, תרגיל אחד בכל פעם', 'Four workouts, one exercise at a time')) + fact(glyph('bolt'), say('כל סט שווה נקודות', 'Every set earns points')) + fact(glyph('star'), say('עולים רמות, והדמות מתחזקת', 'Level up and your character grows')) + '</ul>' +
+      '<p class="ob-note">' + say('האפליקציה אינה תחליף לייעוץ רפואי. אם יש כאב או מגבלה, מתייעצים קודם עם איש מקצוע.', 'This app is not medical advice. If you have pain or a condition, talk to a professional first.') + '</p></div>';
+  }
+  return '<div class="ob-in"><div class="ob-top">' + (st > 0 ? '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '<span class="ob-sp"></span>') +
+    (st > 0 ? '<div class="ob-prog" role="img" aria-label="' + say('שלב ' + st + ' מתוך ' + OB_LAST, 'Step ' + st + ' of ' + OB_LAST) + '"><i style="width:' + Math.round((st / OB_LAST) * 100) + '%"></i></div>' : '<span></span>') +
+    (st === 0 ? '<button class="link" id="obSkip" type="button">' + say('דלג', 'Skip') + '</button>' : '<span class="ob-sp"></span>') + '</div>' +
+    '<div class="ob-body' + (OB.dir > 0 ? ' in-next' : OB.dir < 0 ? ' in-prev' : '') + '">' + body + '</div>' +
+    '<div class="ob-foot"><button class="btn primary big" id="obNext" type="button"' + (can ? '' : ' disabled') + '>' + cta + '</button></div></div>';
+}
+function renderOb() {
+  const el = $('#ob'); el.innerHTML = obHTML(); OB.dir = 0;
+  if (OB.step === 1) { const inp = $('#obName'); try { inp.focus({ preventScroll: true }); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* not focusable here */ } }
+  if (OB.step === OB_LAST) { confetti($('#obConfetti'), 70); buzz([40, 30, 40]); }
+  el.scrollTop = 0;
+}
+function openOb() {
+  const me = S.cfg.me;
+  Object.assign(OB, { on: true, step: 0, dir: 0, name: me.name || '', exp: me.exp, goal: me.goal });
+  $('#ob').hidden = false; document.body.style.overflow = 'hidden'; renderOb();
+}
+function closeOb() { OB.on = false; const el = $('#ob'); el.hidden = true; el.innerHTML = ''; if (!$('#chat').classList.contains('open')) document.body.style.overflow = ''; }
+/* the answers are kept when the last screen is passed. skip: only remember that the screens were seen */
+function obFinish(skip) {
+  const me = S.cfg.me;
+  if (!skip) { me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goal = OB.goal; me.made = me.made || Date.now(); applyExp(); }
+  me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
+  closeOb(); renderAll(); fillCtx(); renderMsgs();
+}
+function obStep(d) { const n = OB.step + d; if (n < 0) return; if (n > OB_LAST) { obFinish(false); return; } OB.step = n; OB.dir = d; renderOb(); }
+/* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */
+function maybeOb() {
+  if (OB.on) { if (S.cfg.me.ob) closeOb(); return; }
+  if (S.cfgReady && !S.cfg.me.ob && nextUp().live < 0 && $('#sheet').hidden) openOb();
+}
+function wireOb() {
+  const el = $('#ob');
+  el.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.id === 'obNext') obStep(1);
+    else if (b.id === 'obBack') obStep(-1);
+    else if (b.id === 'obSkip') obFinish(true);
+    else if (b.dataset.lang) { setLang(b.dataset.lang, true); renderOb(); }
+    else if (b.dataset.ob) { OB[b.dataset.ob] = +b.dataset.v; renderOb(); }
+    else if (b.dataset.look) setLook(b.dataset.look, +b.dataset.v);
+  });
+  el.addEventListener('input', (ev) => { if (ev.target.id === 'obName') OB.name = ev.target.value; });
+  el.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.id === 'obName') { ev.preventDefault(); obStep(1); } });
+}
+
 /* ================================================================== boot */
 let booted = false;
 function boot(data) {
   if (booted) return; booted = true;
   data = data || {};
-  document.documentElement.lang = 'he'; document.documentElement.dir = 'rtl';
   const d = loadLocal();
   if (d.sessions) S.sessions = d.sessions;
   if (typeof d.sound === 'boolean') S.sound = d.sound;
@@ -3778,7 +3959,8 @@ function boot(data) {
   S.tab = typeof data.tab === 'number' && data.tab >= 0 && data.tab < 4 ? data.tab : nextUp().next;
   if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
   if (Array.isArray(data.turns)) chat.turns = data.turns;
-  readColors(); wireApp(); wireCoach(); wireChat(); wireMe();
+  applyLang();
+  readColors(); wireApp(); wireCoach(); wireChat(); wireMe(); wireOb();
   setView(['workout', 'progress', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
   renderAll(); initChat();

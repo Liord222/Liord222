@@ -43,7 +43,7 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   });
   ses.dlive = Object.assign(mk('dlive', 3, 6e5, 5, 1, 4, { lb1: [R(77.5, 8, now - 6e4)] }), { end: 0, upd: now - 6e4 });
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: ses, cfg: { upd: 5, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, meso: { id: 'm1', n: 1, start: 0, early: 0 }, past: [] } }); txt = T(p);
-  check('easy week: the running workout opens on its exercise, far from failure', (await p.evaluate(() => S.view + ':' + S.open)) === 'workout:lb1' && (await txt('.rx-chips')).includes('רחוק מכשל') && (await p.evaluate(() => findEx('lb1').sets)) === 3, [await txt('.rx-chips'), await p.evaluate(() => findEx('lb1').sets)]);
+  check('easy week: the running workout opens on its exercise, far from failure', (await p.evaluate(() => S.view + ':' + S.open)) === 'workout:lb1' && (await txt('.fx-rx')).includes('רחוק מכשל') && (await p.evaluate(() => findEx('lb1').sets)) === 3, [await txt('.fx-rx'), await p.evaluate(() => findEx('lb1').sets)]);
   await p.click('#listBtn'); await p.waitForTimeout(250);
   check('easy week: the list of exercises says so', (await txt('#mesoBtn')).includes('שבוע קל') && (await p.$$('#allList .ex')).length === 7, await txt('#mesoBtn'));
   await p.click('#finishBtn'); await p.waitForTimeout(500);
@@ -281,9 +281,9 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
     check('narrow phone: the exercise and the bar fit the screen', (await past()).length === 0, await past());
     await q.click('#dkHit'); await q.waitForTimeout(500);
     check('narrow phone: the rest timer fits', (await past()).length === 0 && (await q.isVisible('#rtUndo')), await past());
-    await q.click('#rtSkip'); await q.waitForTimeout(200); await q.click('.ex.open .same'); await q.waitForTimeout(450);
+    await q.click('#rtSkip'); await q.waitForTimeout(200); await q.click('.ex.open .more'); await q.waitForTimeout(250); await q.click('#moreSame'); await q.waitForTimeout(450);
     check('narrow phone: the questions after an exercise fit, with their Skip in reach', (await past()).length === 0 && (await q.evaluate(() => { const r = document.querySelector('#fbSkip').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })), await past());
-    await q.click('#dock [data-fb="pain"][data-v="2"]'); await q.waitForTimeout(300);
+    await q.click('#dock [data-painask]'); await q.waitForTimeout(150); await q.click('#dock [data-fb="pain"][data-v="2"]'); await q.waitForTimeout(300);
     check('narrow phone: a pain report fits too', (await past()).length === 0, await past());
     await snap(q, 'h9-narrow-pain');
     /* a text link is easy to hit: its tap area is larger than its letters */

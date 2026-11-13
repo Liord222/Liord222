@@ -69,7 +69,7 @@ const seedFull = () => {
     const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }, pick = (a) => a[Math.floor(rnd() * a.length)];
     const ctx = await b.newContext({ viewport: { width: run.w, height: run.w > 1000 ? 800 : 700 }, locale: run.lang === 'en' ? 'en-US' : 'he-IL', reducedMotion: 'reduce' }), p = await ctx.newPage();
     const errs = [], acts = [], seen = new Set();
-    const W = { dkHit: 9, rtSkip: 4, homeGo: 5, preAll: 5, preDone: 4, obNext: 4, dkNext: 5, dkFinish: 3, finishBtn: 2, sheetClose: 3, chatOpen: 0.3, topCoach: 0.2, chatInput: 0.3, sendBtn: 0.5, chatClose: 4, obSkip: 0.5, resetBtn: 0.3, resetYes: 0.3, edDelYes: 0.4 };
+    const W = { dkHit: 9, rtSkip: 4, homeGo: 5, preAll: 5, preDone: 4, obNext: 4, dkNext: 5, dkFinish: 3, finishBtn: 2, sheetClose: 3, chatOpen: 0.3, moreAsk: 0.2, chatInput: 0.3, sendBtn: 0.5, chatClose: 4, obSkip: 0.5, resetBtn: 0.3, resetYes: 0.3, edDelYes: 0.4 };
     p.on('pageerror', (e) => errs.push('PAGEERR ' + e.message + ' ' + String(e.stack || '').split('\n').slice(1, 3).join(' ')));
     p.on('console', (m) => { if (m.type() === 'error') errs.push('CONSOLE ' + m.text()); });
     p.on('dialog', (d) => d.dismiss().catch(() => {}));

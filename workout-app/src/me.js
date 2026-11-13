@@ -54,6 +54,8 @@ function renderProfile(P) {
     setRow(say('שפה', 'Language'), 'lang', LANGS, LANG) +
     setRow(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp) +
     setRow(say('מטרה', 'Goal'), 'goal', GOALS().map((o, i) => [i, o[0]]), me.goal) +
+    setRow(say('צליל', 'Sound'), 'sound', [[1, say('פועל', 'On')], [0, say('כבוי', 'Off')]], S.sound ? 1 : 0) +
+    setRow(say('רטט', 'Vibration'), 'buzz', [[1, say('פועל', 'On')], [0, say('כבוי', 'Off')]], S.buzz !== false ? 1 : 0) +
     '<button class="link" id="obAgain" type="button">' + say('מסך הפתיחה', 'The opening screens') + '</button></div></section>' +
     '<section class="pf-sec"><h2 class="sec">' + say('איך צוברים נקודות', 'How points are earned') + '</h2><div class="pf-how"><span><b>' + Ltr('+' + XP.set) + '</b>' + say('סט', 'Set') + '</span><span><b>' + Ltr('+' + XP.pr) + '</b>' + say('שיא אישי', 'Personal best') + '</span><span><b>' + Ltr('+' + XP.done) + '</b>' + say('סיום אימון', 'Workout finished') + '</span></div></section>';
 }
@@ -133,6 +135,8 @@ function wireMe() {
     if (b.id === 'lookBtn') openLook();
     else if (b.id === 'obAgain') openOb();
     else if (b.dataset.set === 'lang') setLang(b.dataset.v);
+    else if (b.dataset.set === 'sound') { S.sound = b.dataset.v === '1'; saveLocal(); if (S.sound) { primeAudio(); beep(1); } renderProfile(); }
+    else if (b.dataset.set === 'buzz') { S.buzz = b.dataset.v === '1'; saveLocal(); buzz(30); renderProfile(); }
     else if (b.dataset.set === 'exp' || b.dataset.set === 'goal') { const me = S.cfg.me, k = b.dataset.set; me[k] = +b.dataset.v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
   });
 }

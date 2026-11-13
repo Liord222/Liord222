@@ -219,5 +219,21 @@ t('every movement has what the screens look up', () => {
   return out;
 }, []);
 
+// ---- every demo draws: each movement paints a frame at several points of the motion, as the big demo and as a small picture
+t('every movement draws its demo without an error', () => {
+  const ctx = vm.createContext({ console });
+  vm.runInContext(['plan.js', 'lib.js', 'prog.js', 'rig.js', 'moves.js'].map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') + '\n;globalThis.D = { ANIM, LIB, animOf, renderAnim };', ctx);
+  const D = ctx.D, out = [], calls = { n: 0 }, grad = { addColorStop() {} };
+  const g = new Proxy({}, { get: (o, k) => (k in o ? o[k] : /Gradient$|^createPattern$/.test(String(k)) ? () => grad : k === 'measureText' ? () => ({ width: 10 }) : () => { calls.n++; }), set: (o, k, v) => { o[k] = v; return true; } });
+  const C = new Proxy({ fx: 1, _fig: [128, 128, 128], _hi: [160, 160, 160], _lo: [96, 96, 96] }, { get: (o, k) => (k in o ? o[k] : '#808080') });
+  for (const k of Object.keys(D.LIB)) if (!D.ANIM[D.animOf(k)]) out.push(k + ': no demo');
+  for (const k of Object.keys(D.ANIM)) for (const thumb of [false, true]) for (const at of [0, 0.25, 0.5, 1]) {
+    const before = calls.n; C.fx = thumb ? 0 : 1;
+    try { D.renderAnim(g, k, at, C, thumb); } catch (e) { out.push(k + (thumb ? ' (small)' : '') + ' at ' + at + ': ' + e.message); break; }
+    if (calls.n - before < 20) out.push(k + (thumb ? ' (small)' : '') + ' at ' + at + ': drew almost nothing');
+  }
+  return out;
+}, []);
+
 console.log('UNIT PASS ' + pass + ' FAIL ' + bad.length + (bad.length ? '\n  ' + bad.join('\n  ') : ''));
 process.exit(bad.length ? 1 : 0);

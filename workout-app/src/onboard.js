@@ -5,7 +5,6 @@ const autoLang = () => (Object.keys(S.sessions).length || S.cfg.me.made || /^(he
 /* the texts that are written in the page itself and not drawn by a render: [selector, attribute ('' = its text), the text] */
 const STATIC = () => [
   ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
-  ['#topCoach', 'aria-label', say('שאל את אילון', 'Ask Eilon')],
   ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
   ['#tabbar [data-view="home"] span', '', say('היום', 'Today')],

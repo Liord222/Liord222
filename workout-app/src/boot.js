@@ -6,6 +6,7 @@ function boot(data) {
   const d = loadLocal();
   if (d.sessions) S.sessions = d.sessions;
   if (typeof d.sound === 'boolean') S.sound = d.sound;
+  if (typeof d.buzz === 'boolean') S.buzz = d.buzz;
   if (Array.isArray(d.dirty)) S.dirty = new Set(d.dirty);
   if (Array.isArray(d.gone)) S.gone = new Set(d.gone);
   if (d.cfg) S.cfg = normCfg(d.cfg);

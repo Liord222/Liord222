@@ -53,7 +53,7 @@ function normMe(v) {
 /* S.cfg.slots: exercises the lifter added to the plan, { id: { w, a, sets, reps, rest } }. They are never removed, so old workouts stay readable.
    S.cfg.order: { workout: [slot ids] } for a workout whose list was changed; a workout that is not there follows the plan */
 const cfgDef = () => ({ upd: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
-const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
+const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, buzz: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const SLOT_ID = /^c[a-z0-9]{4,20}$/;
 function cleanSlots(v) { const out = {}; if (v && typeof v === 'object') for (const id of Object.keys(v).slice(0, 400)) { const c = SLOT_ID.test(id) ? cleanSlot(v[id]) : null; if (c) out[id] = c; } return out; }
@@ -70,7 +70,7 @@ function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || 
 function saveLocal() {
   try {
     const keep = Object.values(S.sessions).sort((a, b) => b.ts - a.ts).slice(0, 80);
-    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, pre: S.pre }));
+    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, pre: S.pre }));
   } catch (e) { /* storage unavailable: keep working in memory */ }
 }
 function saveCfg() { S.cfg.upd = Date.now(); S.dirty.add('cfg'); saveLocal(); schedule('cfg'); }

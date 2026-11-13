@@ -287,29 +287,10 @@ const K = {
   bench(g, C, x1, x2, top) { K.cushion(g, C, (x1 + x2) / 2, top + 5.5, x2 - x1, 11, 0); K.dark(g, C, [x1 + 9, top + 11], [x1 + 6, G - 4], 4.5); K.dark(g, C, [x2 - 9, top + 11], [x2 - 6, G - 4], 4.5); K.foot(g, C, x1 + 6, 16); K.foot(g, C, x2 - 6, 16); },
 };
 
-function drawTrack(g, pts, C) {
-  if (!pts || pts.length < 2) return;
-  let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
-  if (len < 8) return;
-  g.save(); g.strokeStyle = C.accent; g.fillStyle = C.accent; g.globalAlpha = 0.9; g.lineWidth = 1.5; g.lineCap = 'butt'; g.setLineDash([3, 4]);
-  g.beginPath(); pts.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]))); g.stroke(); g.setLineDash([]);
-  for (const p of [pts[0], pts[pts.length - 1]]) { g.beginPath(); g.arc(p[0], p[1], 2.4, 0, TAU); g.fill(); }
-  g.restore();
-}
 function drawBackdrop(g, C, top) {
-  g.fillStyle = C.stage; g.fillRect(0, 0, SW, SH);
-  g.lineWidth = 1; g.strokeStyle = C.grid; g.beginPath();
-  for (let x = 20; x < SW; x += 20) { g.moveTo(x, 0); g.lineTo(x, SH); }
-  for (let y = 16; y < SH; y += 20) { g.moveTo(0, y); g.lineTo(SW, y); }
-  g.stroke();
-  g.strokeStyle = C.grid2; g.beginPath();
-  for (let x = 80; x < SW; x += 100) { g.moveTo(x, 0); g.lineTo(x, SH); }
-  for (let y = 36; y < SH; y += 100) { g.moveTo(0, y); g.lineTo(SW, y); }
-  g.stroke();
+  g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, SH);
   if (top) return;
-  g.fillStyle = C.floor; g.fillRect(0, G, SW, SH - G);
-  g.strokeStyle = C.ground; g.lineWidth = 2; g.beginPath(); g.moveTo(0, G); g.lineTo(SW, G); g.stroke();
-  g.lineWidth = 1; g.beginPath(); for (let x = 20; x < SW; x += 20) { g.moveTo(x, G); g.lineTo(x - 5, G + 7); } g.stroke();
+  g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(26, G); g.lineTo(SW - 26, G); g.stroke(); g.lineCap = 'butt';
 }
 
 /* ---- movement registry ---- */
@@ -317,13 +298,6 @@ const ANIM = {};
 function def(key, o) {
   if (o.base) { o.A = normPose(Object.assign({}, o.base, o.a)); o.B = normPose(Object.assign({}, o.base, o.b)); }
   ANIM[key] = o;
-}
-const TRACK = { hand: (J) => [J.armN.c], hands: (J) => [J.armN.c, J.armF.c], ankle: (J) => [J.legN.c], knee: (J) => [J.legN.b], hip: (J) => [J.hip], head: (J) => [J.head], sh: (J) => [J.sh] };
-function tracksOf(ex) {
-  if (ex._tr || !ex.track || !ex.A) return ex._tr;
-  const out = [];
-  for (let i = 0; i <= 16; i++) TRACK[ex.track](solve(mixPose(ex.A, ex.B, i / 16))).forEach((p, k) => (out[k] || (out[k] = [])).push(p));
-  return (ex._tr = out);
 }
 /* one frame. t: 0 = lengthened position, 1 = contracted; C.fx > 0 turns on the muscle glow */
 function renderAnim(g, key, t, C, thumb) {
@@ -335,5 +309,4 @@ function renderAnim(g, key, t, C, thumb) {
   if (ex.back) ex.back(g, J, C, t);
   (ex.view === 'back' ? drawBack : drawSide)(g, J, C, ex, t);
   if (ex.front) ex.front(g, J, C, t);
-  if (!thumb) (tracksOf(ex) || []).forEach((p) => drawTrack(g, p, C));
 }

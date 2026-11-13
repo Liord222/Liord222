@@ -76,38 +76,45 @@ const hebOn = (p) => p.evaluate(() => {
   await clean('the muscles one by one'); await snap(p, 'en2-pre');
   await p.click('#pre [data-mu="chest"][data-v="1"]'); await p.waitForTimeout(200); await p.click('#preDone'); await p.waitForTimeout(350);
   const ex = await txt('#exList .ex.open');
-  check('the exercise is in English', (await txt('#exList .ex-name')) === 'Incline Smith Machine Press' && ex.includes('Exercise 1 of 8') && ex.includes('Rest 2–3 min') && ex.includes('Swap exercise') && ex.includes('Ask Eilon') && ex.includes('Upper chest · front delts · triceps') && ex.includes('Side view'), ex.slice(0, 300));
-  check('its tabs and cues are in English, with no second name under them', (await txt('.fx-tabs')).replace(/\s+/g, ' ').trim() === 'How My note History' && (await p.$$eval('#fxPane .cues li', (l) => l.length)) === 3 && (await txt('#fxPane')).includes('Bench at 30–45°') && !(await p.$('#fxPane .en-name')), await txt('#fxPane'));
-  check('the header of the workout is in English', (await txt('#wkTitle')).includes('Upper Body A') && (await p.getAttribute('#backBtn', 'aria-label')) === 'Back to the main screen' && (await p.getAttribute('#listBtn', 'aria-label')) === 'All exercises', await txt('#wkTitle'));
+  check('the exercise is in English', (await txt('#exList .ex-name')) === 'Incline Smith Machine Press' && (await txt('.fx-rx')) === '6–10 reps · To failure' && ex.includes('Upper chest · front delts · triceps') && (await txt('.ex-acts')).replace(/\s+/g, ' ').trim() === 'Swap How to More' && (await p.getAttribute('.stage-wrap', 'aria-label')) === 'Pause the demo', ex.slice(0, 300));
+  /* the screen during a set: two arrows, the demo, one cell per set and three quiet actions. Nothing else to press, and no labels pasted over the demo */
+  check('the exercise screen holds only what a set needs', (await p.$$('#exList .ex.open button')).length === 9 && (await p.$$('#exList .ex.open .setp')).length === 3 && (await p.$$('#exList .ex.open .stage-wrap *')).length <= 4 && !(await p.$('#exList .chip, #exList .chipx, #exList .tagx, #exList .seg, #exList textarea')), (await p.$$('#exList .ex.open button')).length);
+  check('the header says where in the workout the screen stands', (await txt('#wkTitle')).replace(/\s+/g, ' ').includes('Upper Body A Exercise 1 of 8') && (await p.getAttribute('#backBtn', 'aria-label')) === 'Back to the main screen' && (await p.getAttribute('#listBtn', 'aria-label')) === 'All exercises' && (await p.getAttribute('#wkBar .bar', 'aria-label')) === '0 of 21 sets', [await txt('#wkTitle'), await p.getAttribute('#wkBar .bar', 'aria-label')]);
   const dock = await txt('#dock');
-  check('the bar at the bottom is in English', dock.includes('Set 1 of 3') && dock.includes('target') && dock.includes('kg') && dock.includes('reps') && dock.includes('Set done') && (await p.getAttribute('#dkKg', 'aria-label')) === 'Weight, tap to type' && (await p.getAttribute('#dock', 'aria-label')) === 'Set log and rest timer', dock);
+  check('the bar at the bottom is in English, and says each thing once', dock.includes('Set 1 of 3') && dock.includes('More reps') && dock.includes('kg') && dock.includes('reps') && dock.includes('Set done') && !dock.includes('target') && (await p.$$('#dock button')).length === 6 && (await p.getAttribute('#dkKg', 'aria-label')) === 'Weight, tap to type' && (await p.getAttribute('#dock', 'aria-label')) === 'Set log and rest timer', dock);
   await clean('the exercise'); await snap(p, 'en3-exercise', true);
-  await p.click('.fx-tabs [data-fx="hist"]'); await p.waitForTimeout(200);
-  check('history is in English', (await txt('#fxPane')).includes('Last time (') && (await txt('#fxPane')).includes('days ago') && (await txt('#fxPane')).includes('Your strength · 3 workouts'), await txt('#fxPane'));
-  await p.click('.fx-tabs [data-fx="note"]'); await p.waitForTimeout(200);
-  check('the note is in English', (await txt('#fxPane')).includes('A note that stays with this exercise') && (await p.getAttribute('.note-in', 'placeholder')) === 'Seat height, tempo, a cue', await txt('#fxPane'));
-  await clean('history and note');
-  await p.click('.fx-tabs [data-fx="cues"]'); await p.waitForTimeout(150);
+  await p.click('#dkWhy'); await p.waitForTimeout(150);
+  check('a tap on the goal says why, in English', (await txt('.dk-why')).startsWith('Last time you did ') && (await txt('.dk-why')).endsWith('Today, more reps.') && (await p.getAttribute('#dkWhy', 'aria-expanded')) === 'true', await txt('.dk-why'));
+  await clean('why this target'); await p.click('#dkWhy'); await p.waitForTimeout(100);
+  await p.click('.ex.open .how'); await p.waitForTimeout(250);
+  check('"how to" holds the three cues, with no second name under them', (await txt('#sheet .kicker')) === 'How to do it' && (await p.$$eval('#sheet .cues li', (l) => l.length)) === 3 && (await txt('#sheet')).includes('Bench at 30–45°') && !(await p.$('#sheet .en-name')), await txt('#sheet'));
+  await clean('how to do it'); await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
+  await p.click('.ex.open .more'); await p.waitForTimeout(250);
+  const more = await txt('#sheet');
+  check('"more" holds the note, the history and the rarer actions', more.includes('A note that stays with this exercise') && (await p.getAttribute('.note-in', 'placeholder')) === 'Seat height, tempo, a cue' && more.includes('History') && more.includes('Last time (') && more.includes('days ago') && more.includes('Your strength · 3 workouts') && more.includes('Log every set at its target') && more.includes('Ask Eilon'), more);
+  await clean('more'); await snap(p, 'en3b-more'); await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#dkHit'); await p.waitForTimeout(600);
   const rt = await txt('#dock');
-  check('the rest timer is in English', rt.includes('Rest') && rt.includes('Next: Set 2 of 3') && rt.includes('Logged') && rt.includes('Undo') && rt.includes('Continue') && (await p.getAttribute('#rtPlus', 'aria-label')) === '15 seconds more', rt);
+  check('the rest timer is in English', rt.includes('Rest') && rt.includes('Next: Set 2 of 3') && rt.includes('Logged') && rt.includes('personal best') && rt.includes('Undo') && rt.includes('Continue') && (await p.getAttribute('#rtPlus', 'aria-label')) === '15 seconds more' && (await p.$$('#dock button')).length === 4, rt);
   await clean('the rest timer'); await snap(p, 'en4-rest');
   /* a change of language reaches the timer that is already running */
   await p.evaluate(() => setLang('he')); await p.waitForTimeout(350);
-  check('(the check itself sees Hebrew when there is some)', (await hebOn(p)).length > 20, (await hebOn(p)).length);
+  check('(the check itself sees Hebrew when there is some)', (await hebOn(p)).length > 12, (await hebOn(p)).length);
   check('the running timer follows a change of language', (await txt('#rtState')).includes('סט 2 מתוך 3') && (await p.evaluate(() => document.documentElement.dir)) === 'rtl' && (await txt('#tabbar')).includes('היום') && (await txt('#exList .ex-name')) === 'לחיצת חזה בשיפוע עליון בסמית׳', await txt('#rtState'));
   await p.evaluate(() => setLang('en')); await p.waitForTimeout(350);
   check('and back', (await txt('#rtState')).includes('Next: Set 2 of 3') && (await txt('#exList .ex-name')) === 'Incline Smith Machine Press', await txt('#rtState'));
   await p.click('#rtSkip'); await p.waitForTimeout(250);
-  await p.click('.ex.open .same'); await p.waitForTimeout(500);
+  await p.click('.ex.open .more'); await p.waitForTimeout(250); await p.click('#moreSame'); await p.waitForTimeout(500);
   const fb = await txt('#dock');
-  check('the questions after an exercise are in English', fb.includes('How was it: Incline Smith Machine Press') && fb.includes('Pain') && fb.includes('None') && fb.includes('Feel in the muscle') && fb.includes('Load') && fb.includes('Too heavy') && fb.includes('Skip'), fb);
-  await clean('the questions after an exercise'); await snap(p, 'en5-feedback');
-  await p.click('#dock [data-fb="pain"][data-v="2"]'); await p.waitForTimeout(300);
+  check('the one question after an exercise is in English', fb.includes('How was it: Incline Smith Machine Press') && fb.includes('Too easy') && fb.includes('Just right') && fb.includes('Too heavy') && fb.includes('Did something hurt?') && fb.includes('Skip') && (await p.$$('#dock [data-fb]')).length === 3, fb);
+  await clean('the question after an exercise'); await snap(p, 'en5-feedback');
+  await p.click('#dock [data-painask]'); await p.waitForTimeout(150); await p.click('#dock [data-fb="pain"][data-v="2"]'); await p.waitForTimeout(300);
   const pain = await txt('#dock');
-  check('a pain report is answered in English', pain.includes('The remaining chest sets are off today.') && pain.includes('If the pain goes on, have it checked.') && pain.includes('Close'), pain);
-  await clean('a pain report');
-  await p.click('#dock [data-fb="pain"][data-v="0"]'); await p.waitForTimeout(200); await p.click('#dock [data-fb="pump"][data-v="2"]'); await p.click('#dock [data-fb="load"][data-v="1"]'); await p.waitForTimeout(900);
+  check('a pain report is answered in a few calm words', pain.includes('Chest: stopping for today') && pain.includes('Easier on the joints: Incline Dumbbell Press') && pain.includes('Swap from next workout') && pain.includes('If the pain goes on, have it checked.') && pain.includes('Close') && !pain.includes('Too heavy'), pain);
+  await clean('a pain report'); await snap(p, 'en5b-pain');
+  await p.click('#dock [data-fb="pain"][data-v="2"]'); await p.waitForTimeout(300);
+  check('a pain answer that is tapped again is taken back', (await p.evaluate(() => live(0).fb.ua1.pain)) === 0 && (await txt('#dock')).includes('Too heavy'), await txt('#dock'));
+  await p.click('#dock [data-fb="load"][data-v="1"]'); await p.waitForTimeout(900);
 
   // ---- the list of all exercises, the swap, the plan
   await p.click('#listBtn'); await p.waitForTimeout(300);
@@ -146,7 +153,7 @@ const hebOn = (p) => p.evaluate(() => {
   await p.click('#sheetClose'); await p.waitForTimeout(250);
 
   // ---- the coach
-  await p.click('.ex.open .ask'); await p.waitForTimeout(350);
+  await p.click('.ex.open .more'); await p.waitForTimeout(250); await p.click('#moreAsk'); await p.waitForTimeout(350);
   const ch = await txt('#chat');
   check('the coach greets in English', ch.includes('Eilon') && ch.includes('Your coach') && ch.includes('Hi, I am Eilon') && ch.includes('The machine is taken. What instead?') && ch.includes('About') && (await p.getAttribute('#chatInput', 'placeholder')) === 'Ask Eilon' && (await p.getAttribute('#sendBtn', 'aria-label')) === 'Send', ch.slice(0, 300));
   check('the exercise picker of the chat is in English', (await p.evaluate(() => { const s = document.querySelector('#chatCtx'); return [s.options[0].text, s.querySelector('optgroup').label, s.selectedOptions[0].text].join('|'); })) === 'The whole plan|Workout 1 – Upper Body A|Assisted Pull-ups', await p.evaluate(() => document.querySelector('#chatCtx').selectedOptions[0].text));
@@ -167,7 +174,7 @@ const hebOn = (p) => p.evaluate(() => {
   // ---- the end of a workout
   await p.click('#listBtn'); await p.waitForTimeout(250); await p.click('#finishBtn'); await p.waitForTimeout(700);
   const end = await txt('#sheet');
-  check('the end of a workout is in English', end.includes('Workout 1 complete') && end.includes('points') && end.includes('Level ') && end.includes('sets') && end.includes('minutes') && end.includes('PRs') && end.includes('Next: Workout 2 – Lower Body A') && end.includes('Continue'), end);
+  check('the end of a workout is in English', end.includes('Workout 1 complete') && end.includes('points') && end.includes('Level ') && / sets · [\d,]+ kg · \d+ min/.test(end) && !(await p.$('#sheet .stats')) && end.includes('Next: Workout 2 – Lower Body A') && end.includes('Continue'), end);
   await clean('the end of a workout'); await snap(p, 'en12-summary');
   await p.click('#sheetClose'); await p.waitForTimeout(300);
   /* the workout is over: the line about the sets the coach wrote stays, without an Undo that could no longer undo anything */

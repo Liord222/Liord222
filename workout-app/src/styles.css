@@ -586,7 +586,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .av.flex .av-arm.l{transform:rotate(96deg)}.av.flex .av-arm.r{transform:rotate(-96deg)}
 .av.flex .av-arm.l .av-fore{transform:rotate(118deg)}.av.flex .av-arm.r .av-fore{transform:rotate(-118deg)}
 .av.flex .av-bi{opacity:1;transform:scale(1)}
-.av-grin{opacity:0}.av.flex .av-smile{opacity:0}.av.flex .av-grin{opacity:1}
+.av-grin{opacity:0}.av.flex .av-smile,.av.grin .av-smile{opacity:0}.av.flex .av-grin,.av.grin .av-grin{opacity:1}
 .av-bod{animation:av-breathe 3.4s ease-in-out infinite}
 .av-eyes{transform-origin:100px 56px;animation:av-blink 4.8s infinite}
 .av.still .av-bod,.av.bust .av-bod,.av.bust .av-eyes{animation:none}

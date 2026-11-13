@@ -590,7 +590,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .av.flex .av-arm.l{transform:rotate(96deg)}.av.flex .av-arm.r{transform:rotate(-96deg)}
 .av.flex .av-arm.l .av-fore{transform:rotate(118deg)}.av.flex .av-arm.r .av-fore{transform:rotate(-118deg)}
 .av.flex .av-bi{opacity:1;transform:scale(1)}
-.av-grin{opacity:0}.av.flex .av-smile{opacity:0}.av.flex .av-grin{opacity:1}
+.av-grin{opacity:0}.av.flex .av-smile,.av.grin .av-smile{opacity:0}.av.flex .av-grin,.av.grin .av-grin{opacity:1}
 .av-bod{animation:av-breathe 3.4s ease-in-out infinite}
 .av-eyes{transform-origin:100px 56px;animation:av-blink 4.8s infinite}
 .av.still .av-bod,.av.bust .av-bod,.av.bust .av-eyes{animation:none}
@@ -1918,12 +1918,16 @@ const HAIRC = ['#26211F', '#4E3222', '#8B5E34', '#D9A94E', '#B9482B', '#A7ADB8']
 const BEARD = ['בלי', 'זיפים', 'מלא'];
 const SHIRT = ['#2152E0', '#0E9F6E', '#E0364F', '#F08C1A', '#7B4BE0', '#3A4152'];
 const tone = (hex, k) => mixRgb(hexRgb(hex), k < 0 ? [0, 0, 0] : [255, 255, 255], Math.abs(k));
+/* a colour of its own is taken only when it is a plain six-digit hex colour: it ends up inside the drawing's markup */
+const ownHex = (v) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v : null);
 
-/* o.bust: head and shoulders only, for small round portraits · o.flex: drawn flexing · o.still: no idle motion */
+/* o.bust: head and shoulders only, for small round portraits · o.flex: drawn flexing · o.still: no idle motion · o.grin: an open smile
+   A look can also carry what only the coach has: a hair or shirt colour of its own (hairC, shirtC), the fringe (hair: 5),
+   a stud in the ear (stud), and no gear whatever the level (gear: false). A player's look is cleaned to the choices above */
 function avatarSVG(look, lvl, o) {
   o = o || {}; look = look || {};
-  const b = buildOf(lvl), L = (a, z) => +(a + (z - a) * b).toFixed(1), has = (k) => REWARDS.some((r) => r.k === k && r.at <= lvl);
-  const sk = SKIN[look.skin] || SKIN[1], skin = sk[0], shd = sk[1], hc = HAIRC[look.hc] || HAIRC[0], shirt = SHIRT[look.shirt] || SHIRT[0], shirt2 = tone(shirt, -0.18);
+  const b = buildOf(lvl), L = (a, z) => +(a + (z - a) * b).toFixed(1), has = (k) => look.gear !== false && REWARDS.some((r) => r.k === k && r.at <= lvl);
+  const sk = SKIN[look.skin] || SKIN[1], skin = sk[0], shd = sk[1], hc = ownHex(look.hairC) || HAIRC[look.hc] || HAIRC[0], shirt = ownHex(look.shirtC) || SHIRT[look.shirt] || SHIRT[0], shirt2 = tone(shirt, -0.18);
   const sw = L(31, 43), cw = L(27, 39), ww = L(22, 25), nw = L(8, 11.5), ua = L(12, 19), fa = L(10, 14.5), lg = L(16, 21), sy = L(96, 93.5), tank = has('tank');
   const ln = (x1, y1, x2, y2, w, c) => '<path d="M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2 + '" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="round" fill="none"/>';
   const dot = (x, y, r, c) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + c + '"/>';
@@ -1950,6 +1954,10 @@ function avatarSVG(look, lvl, o) {
   if (hair === 1 || hair === 4) topHair = P(cap, hc);
   else if (hair === 2) topHair = P(cap, hc) + P('M80 31C83 15 110 9 124 25C116 22.5 108 25 100 29.5C93 33.5 86 34.5 80 31Z', hc) + '<path d="M90 24Q101 17 114 21" stroke="' + tone(hc, 0.22) + '" stroke-width="1.6" stroke-linecap="round" fill="none"/>';
   else if (hair === 3) topHair = P(cap, hc) + [[78, 41, 8], [84, 31, 8.5], [93, 25, 8.5], [103, 23, 8.5], [113, 26, 8.5], [121, 33, 8], [124.5, 43, 7], [76, 50, 5.5]].map((c) => dot(c[0], c[1], c[2], hc)).join('');
+  /* the fringe: short darker sides and a tousled top, with a lighter fringe swept across the forehead in loose strands that reach the brows */
+  else if (hair === 5) topHair = P('M75 50C72.2 40 75 26 86.5 19.5Q90 14.5 95.5 16.8Q100.5 12 106.5 15.6Q111 13.6 114.5 18.6C124 23.5 128.2 38 125.4 50C124.6 45 123 41.5 120.5 39.5L80 39.5C77.6 41.5 76 45 75 50Z', tone(hc, -0.22)) +
+    P('M79.5 33C82 22.5 93 17.5 103 18.5C113 19.5 121.5 26 124 37.5Q124.6 41.4 123.9 44.6Q123.6 46.6 122.4 47.6Q119.6 46.2 118.2 43.4Q118 46.6 116.6 48.4Q112.4 47.4 110.2 43.6Q109.8 47.2 108 49Q103 47.6 100.4 43.8Q100 46.4 98.4 47.6Q94.2 46.2 92 42.4Q91.8 44.4 90.4 45.4Q87 43.6 85.4 39.8Q82.4 37.6 79.5 33Z', hc) +
+    '<path d="M91.5 24.5Q100.5 29.5 105.6 44M104.5 21.8Q112.6 28 115.2 43.6" stroke="' + tone(hc, 0.22) + '" stroke-width="1.3" stroke-linecap="round" fill="none" opacity=".7"/>';
   const beardD = 'M75.5 55C75.5 72 86 85.5 100 85.5C114 85.5 124.5 72 124.5 55C121.5 62 117 64.5 112 64.5C108 61 92 61 88 64.5C83 64.5 78.5 62 75.5 55Z';
   const beard = look.beard === 2 ? P(beardD, hasHair ? hc : '#4A3A30') + '<ellipse cx="100" cy="69.3" rx="7.4" ry="3.9" fill="' + skin + '"/>' : look.beard === 1 ? P(beardD, hasHair ? hc : '#4A3A30', ' opacity=".26"') : '';
   const bandC = look.shirt === 2 ? '#F4F5F7' : '#E0364F';
@@ -1965,12 +1973,13 @@ function avatarSVG(look, lvl, o) {
     '<path d="M100 59.5q-2.6 3.4 0 4.6" stroke="' + shd + '" stroke-width="1.7" stroke-linecap="round" fill="none"/>' +
     '<path class="av-smile" d="M92.6 68Q100 74 107.4 68" stroke="#1B1F27" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
     '<g class="av-grin"><path d="M91.6 66.6Q100 78 108.4 66.6Z" fill="#1B1F27" stroke="#1B1F27" stroke-width="1.6" stroke-linejoin="round"/><path d="M94.4 67.3h11.2q-1 2.6-5.6 2.6t-5.6-2.6z" fill="#fff"/></g>' +
-    topHair + band + crown;
+    topHair + band + crown +
+    (look.stud ? '<circle cx="127.7" cy="58" r="1.3" fill="#B7BDC8" stroke="#858C99" stroke-width=".45"/><circle cx="126.9" cy="61.1" r="1.1" fill="#B7BDC8" stroke="#858C99" stroke-width=".45"/>' : '');
 
   const body = '<g class="av-bod">' + (tank ? P(torso, skin) + P(tankTop, shirt) : P(torso, shirt)) + pecs + belt +
     '<rect x="' + X(-nw) + '" y="74" width="' + (nw * 2).toFixed(1) + '" height="20" rx="5" fill="' + skin + '"/><ellipse cx="100" cy="83.5" rx="' + nw + '" ry="4.2" fill="' + shd + '"/>' +
     (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + medal + head + arm(-1) + arm(1) + '</g>';
-  if (o.bust) return '<svg class="av bust' + (o.flex ? ' flex' : '') + '" viewBox="58 14 84 84" aria-hidden="true">' + backHair + body + '</svg>';
+  if (o.bust) return '<svg class="av bust' + (o.flex ? ' flex' : '') + (o.grin ? ' grin' : '') + '" viewBox="58 14 84 84" aria-hidden="true">' + backHair + body + '</svg>';
 
   const legs = [-1, 1].map((d) => ln(X(d * 11.5), 170, X(d * 12.5), 231, lg, skin)).join('') +
     [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="#3A4152"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="#E7E9ED"/>'; }).join('') +
@@ -3798,8 +3807,9 @@ function wireMe() {
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false, limits: false, gen: 0 };
 /* the coach has a face: the same figure as the player's, with a look of his own */
-const COACH = { skin: 2, hair: 1, hc: 0, beard: 1, shirt: 5 };
-const coachFace = () => avatarSVG(COACH, 12, { bust: true });
+/* the coach's face: brown hair with a loose fringe, a clean chin, a stud in the ear, a light T-shirt and an open smile */
+const COACH = { skin: 1, hair: 5, hairC: '#8A5F38', beard: 0, shirtC: '#F3EDE0', stud: true, gear: false };
+const coachFace = () => avatarSVG(COACH, 12, { bust: true, grin: true });
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
   return PLAN.map((w, i) => {

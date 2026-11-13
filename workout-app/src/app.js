@@ -177,7 +177,7 @@ function renderHistory() {
 function renderBackup() {
   $('#backup').innerHTML = '<h2 class="sec">גיבוי</h2><div class="backup-act">' +
     (S.dl ? '<button class="btn" id="backupBtn" type="button">שמירה לקובץ</button>' : '') + '<button class="btn" id="restoreBtn" type="button">שחזור מקובץ</button>' + (S.dl && sorted().some((x) => hasDone(x) && x.end) ? '<button class="btn" id="exportBtn" type="button">ייצוא CSV</button>' : '') + '</div>' +
-    (S.backupNote ? '<p class="backup-note" role="status">' + S.backupNote + '</p>' : '<p class="empty-note">הקובץ מעביר את הכול בין Claude לאפליקציה בטלפון.</p>');
+    (S.backupNote ? '<p class="backup-note" role="status">' + S.backupNote + '</p>' : '') + '<p class="empty-note" id="syncNote2">' + (S.syncT || '') + '</p>';
 }
 async function exportBackup() {
   if (!S.dl) return;

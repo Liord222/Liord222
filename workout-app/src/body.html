@@ -8,7 +8,7 @@
     <div class="wk-title" id="wkTitle"></div>
     <span class="sync" id="syncNote"></span>
     <div class="top-acts">
-      <button class="top-coach" id="topCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true">א</span></button>
+      <button class="top-coach" id="topCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true"></span></button>
       <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
     </div>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
@@ -40,20 +40,19 @@
         <input type="file" id="restoreFile" accept=".json,application/json" hidden>
       </div>
 
-      <p class="credit">gymi · by Lior Dahan</p>
     </main>
 
     <aside class="chat" id="chat" aria-label="צ׳אט עם אילון">
       <div class="chat-h">
-        <span class="ava" aria-hidden="true">א</span>
+        <span class="ava" aria-hidden="true"></span>
         <div><h2>אילון</h2><p>המאמן שלך</p></div>
         <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M19 4l1.5 1.5"/></svg></button>
-        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה"><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
+        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
         <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
-      <label class="chat-ctx" for="chatCtx"><span>לגבי</span><select id="chatCtx"></select></label>
       <div class="msgs" id="msgs"></div>
       <div class="composer">
+        <label class="chat-ctx" for="chatCtx"><span>על</span><select id="chatCtx"></select><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></label>
         <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
         <p class="comp-note" id="compNote" hidden></p>
         <div class="comp-row">

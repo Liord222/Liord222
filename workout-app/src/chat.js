@@ -1,5 +1,8 @@
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
+/* the coach has a face: the same figure as the player's, with a look of his own */
+const COACH = { skin: 2, hair: 1, hc: 0, beard: 1, shirt: 5 };
+const coachFace = () => avatarSVG(COACH, 12, { bust: true });
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
   return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return wkFull(i) + (P.m ? ' (' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.he + ' (' + e.name + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
@@ -53,24 +56,26 @@ function fmtText(text) {
   return html + (list ? '</ul>' : '');
 }
 function msgHTML(m, idx) {
-  if (m.role === 'u') return '<div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="התמונה ששלחת">' : m.hadImg ? '<span class="note">[תמונה]</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">לגבי ' + esc(m.ctx) + '</span>' : '') + '</div>';
-  const text = stripCmd(m.text || '');
-  if (!text) return '<div class="msg a"><span class="think">' + (m.live ? 'אילון חושב…' : 'נרשם.') + '</span>' + loggedHTML(m, idx) + '</div>';
+  if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(m.ctx) + '</span>' : '') + '</div></div>';
+  const text = stripCmd(m.text || ''), face = '<span class="ava sm" aria-hidden="true">' + coachFace() + '</span>';
+  if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + say('נרשם.', 'Logged.') + '</span>') + loggedHTML(m, idx) + '</div></div>';
   const v = splitVerdict(text, !m.live);
-  return '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(m.note) + '</span>' : '') + loggedHTML(m, idx) + '</div>';
+  return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(m.note) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
 }
 function loggedHTML(m, idx) {
   if (!m.logged) return '';
   if (m.logged.undone) return '<div class="logged" style="color:var(--ink-3)">הרישום בוטל</div>';
   return '<div class="logged"><span>' + (m.logged.idx.length === 1 ? 'נרשם סט אחד' : 'נרשמו ' + m.logged.idx.length + ' סטים') + ' · ' + esc(m.logged.name) + '</span><button class="link" type="button" data-unlog="' + idx + '">בטל</button></div>';
 }
-const SUGS = ['המכשיר תפוס. מה במקום?', 'צילמתי מכשיר. הוא מתאים?', 'דגשים לתרגיל הזה', 'כמה משקל לשים היום?'];
+/* first things to ask, each with its sign */
+const SUGS = () => [[ICON.swap, say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?')], [ICON.cam, say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?')], [ICON.cues, say('דגשים לתרגיל הזה', 'Cues for this exercise')], [ICON.bell, say('כמה משקל לשים היום?', 'How much weight today?')]];
 function renderMsgs() {
-  const box = $('#msgs');
-  if (chat.off) { box.innerHTML = '<div class="empty"><strong>' + (chat.needKey ? 'חיבור אילון' : 'הצ׳אט לא זמין כרגע') + '</strong><span>' + esc(chat.off) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">חיבור עם מפתח API</button>' : '') + '</div>'; return; }
+  const box = $('#msgs'), face = '<span class="ava big" aria-hidden="true">' + coachFace() + '</span>';
+  $('#chatNew').hidden = !chat.msgs.length;
+  if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(chat.off) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
-    box.innerHTML = '<div class="empty"><strong>היי, אני אילון</strong><span>צלם מכשיר או שאל שאלה. אפשר גם לכתוב מה עשית, ואני ארשום.</span><div class="sugs">' +
-      SUGS.map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>').join('') + '</div></div>';
+    box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('צלם מכשיר או שאל שאלה. אפשר גם לכתוב מה עשית, ואני ארשום.', 'Snap a machine or ask a question. You can also tell me what you did and I will log it.') + '</span><div class="sugs">' +
+      SUGS().map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s[0] + '<span>' + s[1] + '</span>' + ICON.fwd + '</button>').join('') + '</div></div>';
     return;
   }
   box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
@@ -182,6 +187,7 @@ function fillCtx() {
 }
 function initChat() {
   fillCtx();
+  for (const el of $$('.ava')) if (!el.firstChild) el.innerHTML = coachFace();
   $('#chatKey').hidden = !window.GYMI_NATIVE;
   chat.needKey = !!window.GYMI_NATIVE && !window.GYMI_COACH;
   /* in the phone app the coach answers only once the owner has saved an API key */
@@ -216,7 +222,7 @@ function wireChat() {
   inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); sendChat(); } });
   inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.height = Math.min(120, inp.scrollHeight + 2) + 'px'; });
   $('#msgs').addEventListener('click', (ev) => {
-    const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS[+b.dataset.sug]); return; }
+    const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS()[+b.dataset.sug][1]); return; }
     const u = ev.target.closest('[data-unlog]'); if (u) undoLog(+u.dataset.unlog);
     if (ev.target.closest('#coachKey') && window.gymiNative) window.gymiNative.key();
   });

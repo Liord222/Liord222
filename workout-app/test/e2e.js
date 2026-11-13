@@ -78,6 +78,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
 
   // ---------- first workout, nothing logged before ----------
   check('today flags a volume warning', (await txt('#home .warn-pill')) === 'לבדוק סטים', await txt('#home .week'));
+  check('the top of the page is the logo alone, centred', (await p.evaluate(() => { const l = document.querySelector('.logo').getBoundingClientRect(); return Math.abs(l.left + l.width / 2 - innerWidth / 2) < 2 && !document.querySelector('.credit') && getComputedStyle(document.querySelector('#syncNote')).display === 'none'; })), 'logo');
   check('opens on today, with the next workout and the week', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('אימון ראשון') && (await txt('#home .next')).includes('גוף עליון A') && (await cur(p)) === 'אימון ראשון – גוף עליון A, הבא', [await txt('#home'), await cur(p)]);
   check('the whole page is in Hebrew: no English workout or exercise names on screen', !/Upper|Lower|Press|Curl|Squat|Row/.test(await txt('#home')) && !/[A-Za-z]{4,}/.test((await p.evaluate(() => [...document.querySelectorAll('.ex-name')].map((x) => x.textContent).join(' ')))), await txt('#home'));
   check('a new player starts at level 1 with nothing earned', (await txt('#playerBtn')).includes('רמה 1') && (await txt('#playerBtn')).includes('טירון') && (await p.evaluate(() => meNow().T.xp)) === 0, await txt('#playerBtn'));
@@ -120,6 +121,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await p.fill('.ex.open .note-in', 'מושב בגובה 4, עצירה למטה'); await p.dispatchEvent('.ex.open .note-in', 'change'); await p.waitForTimeout(200);
   check('pinned note is saved and shown in the dock', (await txt('.dk-note')).includes('מושב בגובה 4') && (await p.evaluate(() => S.cfg.notes.inclineSmith)) === 'מושב בגובה 4, עצירה למטה', await txt('#dock'));
   await p.click('#topCoach'); await p.waitForTimeout(250);
+  check('the coach chat opens tidy: a face, four first questions, and what the question is about', !!(await p.$('#chat .chat-h .ava svg')) && !!(await p.$('#msgs .ava.big svg')) && (await p.$$('#msgs .sug')).length === 4 && (await p.isHidden('#chatNew')) && (await p.$eval('#chatCtx', (el) => el.value)) === 'ua1' && !!(await p.$('.composer .chat-ctx #chatCtx')), await txt('#msgs'));
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC', 'base64');
   await p.setInputFiles('#galFile', { name: 'm.png', mimeType: 'image/png', buffer: png }); await p.waitForTimeout(300);
   await p.fill('#chatInput', 'זה מתאים במקום?'); await p.click('#sendBtn'); await p.waitForTimeout(900);
@@ -128,6 +130,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('photo goes to the coach with the exercise context', calls[0].img && calls[0].ctx.includes('[ua1]') && calls[0].ctx.includes('60×10') && calls[0].ctx.includes('היעד לסט הבא'), calls[0].ctx);
   check('coach knows the week and its RIR', calls[0].first.includes('שבוע 1 מתוך 5') && calls[0].first.includes('3 חזרות לפני כשל'), calls[0].first.slice(0, 400));
   check('coach gets the Hebrew names with the English ones beside them', calls[0].first.includes('אימון ראשון – גוף עליון A') && calls[0].first.includes('[ua2] מתח בסיוע (גרביטון) (Assisted Pull-ups)') && calls[0].ctx.includes('"לחיצת חזה בשיפוע עליון בסמית׳"'), calls[0].first.slice(300, 700));
+  check('answers come from the coach\'s face, and a new chat is on offer once there is one', (await p.$$('#msgs .row.a .ava svg')).length === 2 && (await p.$$('#msgs .row.u')).length === 2 && !(await p.isHidden('#chatNew')), await txt('#msgs'));
   check('verdict badge and hidden command line', (await txt('.verdict')) === 'מתאים חלקית' && !(await txt('#msgs')).includes('@@'), await txt('#msgs'));
   check('chat message logs sets', (await txt('.logged')).includes('3'), await txt('.logged'));
   await p.click('#chatClose'); await p.waitForTimeout(1000);

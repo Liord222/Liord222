@@ -71,6 +71,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .logo small{font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding-top:4px}
 .sync{flex:1;min-width:0;font-size:12px;color:var(--ink-3);text-align:end;line-height:1.3}
 .back,.top-coach,.top-list{display:none;width:44px;height:44px;flex:none;border:0;border-radius:50%;background:none;place-items:center;color:var(--ink);padding:0}
+.top-coach .ava{width:36px;height:36px}
 .top-acts{display:none;gap:0;justify-content:flex-end}
 .top-list svg{width:24px;height:24px}
 .wk-title{display:none;min-width:0;justify-items:center;text-align:center;line-height:1.25}
@@ -82,7 +83,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .back{margin-inline-start:-10px}
 .back svg{width:26px;height:26px;stroke-width:2.2}
 .app[data-view="workout"] .back{display:grid}
-.ava{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:700;font-size:15px;line-height:1;flex:none}
+.ava{display:block;width:34px;height:34px;border-radius:50%;background:var(--accent-soft);overflow:hidden;flex:none}
+.ava .av{width:100%;height:100%}
 .tabbar{position:fixed;z-index:65;left:0;right:0;bottom:0;display:flex;padding:6px max(12px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--surface) 94%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-top:1px solid var(--line)}
 .tabbar button{flex:1;display:grid;justify-items:center;gap:2px;min-height:46px;padding:3px 0 1px;border:0;border-radius:14px;background:none;color:var(--ink-3);font-size:11.5px;font-weight:500;line-height:1.25}
 .tabbar svg{width:25px;height:25px;stroke-width:1.9}
@@ -133,7 +135,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .xp-tag{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:99px;background:var(--xp-soft);color:var(--xp);font-size:13px;font-weight:800;line-height:1;white-space:nowrap}
 .hit .xp-tag,.btn.primary .xp-tag{background:color-mix(in srgb,var(--on-accent) 20%,transparent);color:var(--on-accent)}
 .app[data-view="workout"] .sync{display:none}
-.toast{position:fixed;z-index:80;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:99px;background:var(--ink);color:var(--paper);font-size:17px;font-weight:700;white-space:nowrap;box-shadow:0 12px 30px -14px rgb(0 0 0 / .55)}
+.toast{position:fixed;z-index:80;top:calc(env(safe-area-inset-top,0px) + 76px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:99px;background:var(--ink);color:var(--paper);font-size:17px;font-weight:700;white-space:nowrap;box-shadow:0 12px 30px -14px rgb(0 0 0 / .55)}
 .toast svg{color:var(--xp-fill);fill:var(--xp-fill)}
 .toast.in{animation:toast-in .4s cubic-bezier(.3,1.4,.5,1)}
 @keyframes toast-in{from{transform:translate(-50%,-18px);opacity:0}}
@@ -357,7 +359,6 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .backup-act .btn{background:var(--surface);flex:1;min-width:104px;padding:0 12px}
 .backup-note{font-size:14px;font-weight:600;color:var(--accent-ink);background:var(--accent-soft);border-radius:14px;padding:10px 14px}
 .empty .btn{justify-self:start}
-.credit{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);text-align:center;padding-top:14px;direction:ltr}
 
 /* dock: log a set, then rest */
 .dock{position:fixed;z-index:40;left:0;right:0;bottom:0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--surface) 96%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-radius:28px 28px 0 0;box-shadow:0 0 0 1px var(--line),0 -18px 40px -26px rgb(0 0 0 / .4)}
@@ -409,43 +410,63 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .fb-h b{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dock.rest .fb-dock{border-top:1px solid var(--line);padding-top:10px}
 
-/* chat */
+/* chat with the coach */
 .chat{flex-direction:column;background:var(--surface);min-height:0}
-.chat-h{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
-.chat-h .ava{width:44px;height:44px;font-size:20px}
+.chat-h{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.chat-h .ava{width:46px;height:46px}
 .chat-h div{flex:1;min-width:0}
-.chat-h h2{font-size:22px;font-weight:800;line-height:1.15;letter-spacing:-.02em}
+.chat-h h2{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
 .chat-h p{font-size:13px;color:var(--ink-2);line-height:1.35}
-.chat-ctx{display:flex;gap:10px;align-items:center;padding:4px 16px 10px;font-size:13.5px;color:var(--ink-2);border-bottom:1px solid var(--line)}
-.chat-ctx select{flex:1;min-width:0;height:44px;border-radius:14px;border:0;background:var(--surface-2);padding:0 10px;font-size:15px}
-.msgs{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain}
-.empty{margin:auto 0;display:grid;gap:12px;color:var(--ink-2);font-size:15px}
-.empty strong{color:var(--ink);font-size:20px;font-weight:800;letter-spacing:-.01em}
-.sugs{display:flex;flex-wrap:wrap;gap:8px}
-.sug{border:0;background:var(--surface-2);border-radius:99px;min-height:44px;padding:8px 16px;font-size:14.5px;font-weight:500;text-align:start;line-height:1.3}
-.msg{max-width:88%;padding:11px 15px;border-radius:20px;font-size:15.5px;line-height:1.55;overflow-wrap:anywhere}
-.msg.u{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-end-end-radius:6px}
-.msg.a{align-self:flex-start;background:var(--surface-2);border-end-start-radius:6px}
+.chat-h .icon-btn{width:40px;height:40px}
+.msgs{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;overscroll-behavior:contain}
+.empty{margin:auto 0;display:grid;justify-items:center;text-align:center;gap:8px;color:var(--ink-2);font-size:15px;padding-block:8px}
+.ava.big{width:88px;height:88px;margin-bottom:6px}
+.empty strong{color:var(--ink);font-size:24px;font-weight:800;line-height:1.2;letter-spacing:-.02em}
+.empty>span{max-width:300px}
+.empty .btn{margin-top:8px}
+.sugs{display:grid;gap:8px;width:100%;padding-top:12px}
+.sug{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:8px 14px;border:0;border-radius:18px;background:var(--surface-2);font-size:15px;font-weight:600;line-height:1.3;text-align:start;color:var(--ink)}
+.sug span{flex:1;min-width:0}
+.sug svg:first-child{color:var(--accent)}
+.sug svg:last-child{width:18px;height:18px;color:var(--ink-4)}
+.row{display:flex;align-items:flex-end;gap:8px}
+.row.u{justify-content:flex-end}
+.ava.sm{width:30px;height:30px}
+.msg{max-width:84%;padding:11px 15px;border-radius:20px;font-size:15.5px;line-height:1.55;overflow-wrap:anywhere}
+.msg.u{background:var(--accent);color:var(--on-accent);border-end-end-radius:6px}
+.msg.a{background:var(--surface-2);border-end-start-radius:6px}
 .msg img{display:block;max-width:170px;max-height:170px;border-radius:12px;margin-bottom:6px}
 .msg p{margin:0 0 6px}.msg p:last-child{margin-bottom:0}
 .msg ul{margin:0 0 6px;padding-inline-start:18px}
 .msg .note{display:block;font-size:12.5px;color:var(--ink-3);margin-top:6px}
 .msg.u .note{color:inherit;opacity:.8}
-.msg .think{color:var(--ink-3)}
+.think{display:inline-flex;gap:5px;align-items:center;height:22px}
+.think i{width:7px;height:7px;border-radius:50%;background:var(--ink-4);animation:think 1.1s ease-in-out infinite}
+.think i:nth-child(2){animation-delay:.16s}.think i:nth-child(3){animation-delay:.32s}
+@keyframes think{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
 .msg .logged{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--ok)}
 .msg .logged .link{padding:0 4px}
 .verdict{display:inline-block;font-weight:700;font-size:13px;line-height:1.7;padding:0 10px;border-radius:99px;margin-bottom:6px}
 .verdict.ok{background:var(--ok-soft);color:var(--ok)}
 .verdict.mid{background:var(--rest-soft);color:var(--rest)}
 .verdict.no{background:var(--muscle-soft);color:var(--muscle)}
-.composer{padding:10px 12px 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.composer{padding:8px 12px 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;border-top:1px solid var(--line)}
+/* what the question is about: a small pill above the field */
+.chat-ctx{position:relative;justify-self:start;display:flex;align-items:center;gap:6px;max-width:100%;min-height:36px;padding-inline:14px 34px;border-radius:99px;background:var(--surface-2);font-size:13.5px;color:var(--ink-2)}
+.chat-ctx select{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;height:36px;border:0;background:none;padding:0;font-size:14px;font-weight:600;color:var(--ink);text-overflow:ellipsis}
+.chat-ctx svg{position:absolute;inset-inline-end:10px;width:16px;height:16px;color:var(--ink-3);pointer-events:none}
 .attach{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink-2)}
 .attach img{width:48px;height:48px;object-fit:cover;border-radius:12px}
 .attach span{flex:1}
 .attach button{background:none;border:0;color:var(--ink-2);padding:6px}
 .comp-note{font-size:13px;color:var(--warn)}
-.comp-row{display:flex;gap:6px;align-items:flex-end;min-width:0}
-.comp-row textarea{flex:1;min-width:0;width:0;height:44px;max-height:120px;resize:none;border-radius:22px;border:0;background:var(--surface-2);padding:10px 16px;font-size:16px;line-height:1.5}
+/* one bar: attach, write, send */
+.comp-row{display:flex;gap:2px;align-items:flex-end;min-width:0;padding:5px;border-radius:27px;background:var(--surface-2)}
+.comp-row .icon-btn{width:44px;height:44px;background:none}
+.comp-row .icon-btn.send{background:var(--accent);color:var(--on-accent)}
+.comp-row textarea{flex:1;min-width:0;width:0;height:44px;max-height:120px;resize:none;border:0;background:none;padding:10px 8px;font-size:16px;line-height:1.5}
+.comp-row textarea:focus{outline:none}
+.comp-row:focus-within{box-shadow:0 0 0 2px var(--accent)}
 
 /* sheets: summary, editor, swap, mesocycle */
 .sheet{position:fixed;inset:0;z-index:70;display:grid;place-items:end center;background:rgb(8 10 14 / .45);padding-top:calc(24px + env(safe-area-inset-top,0px))}
@@ -624,7 +645,11 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
   .app.chat-on #chatOpen{color:var(--accent);font-weight:700}
   .app.chat-on:not([data-view="workout"]) .chat-close{display:none}
 }
-@media (max-width:420px){.sync{display:none}}
+@media (max-width:999.98px){
+  .sync{display:none}
+  .app:not([data-view="workout"]) .brand{justify-content:center}
+  .app:not([data-view="workout"]) .logo{justify-items:center}
+}
 @media (min-width:700px){
   .ex-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;padding:16px}
   .sheet{place-items:center;padding:24px}
@@ -653,7 +678,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
     <div class="wk-title" id="wkTitle"></div>
     <span class="sync" id="syncNote"></span>
     <div class="top-acts">
-      <button class="top-coach" id="topCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true">א</span></button>
+      <button class="top-coach" id="topCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true"></span></button>
       <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
     </div>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
@@ -685,20 +710,19 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
         <input type="file" id="restoreFile" accept=".json,application/json" hidden>
       </div>
 
-      <p class="credit">gymi · by Lior Dahan</p>
     </main>
 
     <aside class="chat" id="chat" aria-label="צ׳אט עם אילון">
       <div class="chat-h">
-        <span class="ava" aria-hidden="true">א</span>
+        <span class="ava" aria-hidden="true"></span>
         <div><h2>אילון</h2><p>המאמן שלך</p></div>
         <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M19 4l1.5 1.5"/></svg></button>
-        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה"><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
+        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
         <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
-      <label class="chat-ctx" for="chatCtx"><span>לגבי</span><select id="chatCtx"></select></label>
       <div class="msgs" id="msgs"></div>
       <div class="composer">
+        <label class="chat-ctx" for="chatCtx"><span>על</span><select id="chatCtx"></select><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></label>
         <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
         <p class="comp-note" id="compNote" hidden></p>
         <div class="comp-row">
@@ -1766,6 +1790,8 @@ const ICON = {
   list: '<svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg>',
   chat: '<svg class="i" viewBox="0 0 24 24"><path d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5h-7l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5z"/></svg>',
   clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.3 1.8M9.5 3.5h5"/></svg>',
+  bell: '<svg class="i" viewBox="0 0 24 24"><path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/></svg>',
+  cues: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></svg>',
 };
 /* S.sessions: id -> one workout:
    { id, v, w (workout 0-3), ts (start), end, mt, upd, sets: { slotId: [ { kg, reps, done, t, pr, tk, tr } ] },
@@ -2079,7 +2105,7 @@ const writers = new Map();
 const W = (id) => { let w = writers.get(id); if (!w) { w = { timer: 0, busy: false, again: false, fail: 0 }; writers.set(id, w); } return w; };
 function setSync(state) {
   const t = { cloud: 'נשמר בחשבון Claude', local: 'נשמר במכשיר הזה', slow: 'אין חיבור, נשמר במכשיר', error: 'אין חיבור, נשמר במכשיר' }[state];
-  if (t) $('#syncNote').textContent = t;
+  if (t) { S.syncT = t; $('#syncNote').textContent = t; const n = $('#syncNote2'); if (n) n.textContent = t; }
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
 function schedule(id, ms) { const w = W(id); clearTimeout(w.timer); w.timer = setTimeout(() => flush(id), ms == null ? 800 : ms); }
@@ -2478,7 +2504,7 @@ function renderHistory() {
 function renderBackup() {
   $('#backup').innerHTML = '<h2 class="sec">גיבוי</h2><div class="backup-act">' +
     (S.dl ? '<button class="btn" id="backupBtn" type="button">שמירה לקובץ</button>' : '') + '<button class="btn" id="restoreBtn" type="button">שחזור מקובץ</button>' + (S.dl && sorted().some((x) => hasDone(x) && x.end) ? '<button class="btn" id="exportBtn" type="button">ייצוא CSV</button>' : '') + '</div>' +
-    (S.backupNote ? '<p class="backup-note" role="status">' + S.backupNote + '</p>' : '<p class="empty-note">הקובץ מעביר את הכול בין Claude לאפליקציה בטלפון.</p>');
+    (S.backupNote ? '<p class="backup-note" role="status">' + S.backupNote + '</p>' : '') + '<p class="empty-note" id="syncNote2">' + (S.syncT || '') + '</p>';
 }
 async function exportBackup() {
   if (!S.dl) return;
@@ -3342,6 +3368,9 @@ function wireMe() {
 
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
+/* the coach has a face: the same figure as the player's, with a look of his own */
+const COACH = { skin: 2, hair: 1, hc: 0, beard: 1, shirt: 5 };
+const coachFace = () => avatarSVG(COACH, 12, { bust: true });
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
   return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return wkFull(i) + (P.m ? ' (' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.he + ' (' + e.name + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
@@ -3395,24 +3424,26 @@ function fmtText(text) {
   return html + (list ? '</ul>' : '');
 }
 function msgHTML(m, idx) {
-  if (m.role === 'u') return '<div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="התמונה ששלחת">' : m.hadImg ? '<span class="note">[תמונה]</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">לגבי ' + esc(m.ctx) + '</span>' : '') + '</div>';
-  const text = stripCmd(m.text || '');
-  if (!text) return '<div class="msg a"><span class="think">' + (m.live ? 'אילון חושב…' : 'נרשם.') + '</span>' + loggedHTML(m, idx) + '</div>';
+  if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(m.ctx) + '</span>' : '') + '</div></div>';
+  const text = stripCmd(m.text || ''), face = '<span class="ava sm" aria-hidden="true">' + coachFace() + '</span>';
+  if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + say('נרשם.', 'Logged.') + '</span>') + loggedHTML(m, idx) + '</div></div>';
   const v = splitVerdict(text, !m.live);
-  return '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(m.note) + '</span>' : '') + loggedHTML(m, idx) + '</div>';
+  return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(m.note) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
 }
 function loggedHTML(m, idx) {
   if (!m.logged) return '';
   if (m.logged.undone) return '<div class="logged" style="color:var(--ink-3)">הרישום בוטל</div>';
   return '<div class="logged"><span>' + (m.logged.idx.length === 1 ? 'נרשם סט אחד' : 'נרשמו ' + m.logged.idx.length + ' סטים') + ' · ' + esc(m.logged.name) + '</span><button class="link" type="button" data-unlog="' + idx + '">בטל</button></div>';
 }
-const SUGS = ['המכשיר תפוס. מה במקום?', 'צילמתי מכשיר. הוא מתאים?', 'דגשים לתרגיל הזה', 'כמה משקל לשים היום?'];
+/* first things to ask, each with its sign */
+const SUGS = () => [[ICON.swap, say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?')], [ICON.cam, say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?')], [ICON.cues, say('דגשים לתרגיל הזה', 'Cues for this exercise')], [ICON.bell, say('כמה משקל לשים היום?', 'How much weight today?')]];
 function renderMsgs() {
-  const box = $('#msgs');
-  if (chat.off) { box.innerHTML = '<div class="empty"><strong>' + (chat.needKey ? 'חיבור אילון' : 'הצ׳אט לא זמין כרגע') + '</strong><span>' + esc(chat.off) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">חיבור עם מפתח API</button>' : '') + '</div>'; return; }
+  const box = $('#msgs'), face = '<span class="ava big" aria-hidden="true">' + coachFace() + '</span>';
+  $('#chatNew').hidden = !chat.msgs.length;
+  if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(chat.off) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
-    box.innerHTML = '<div class="empty"><strong>היי, אני אילון</strong><span>צלם מכשיר או שאל שאלה. אפשר גם לכתוב מה עשית, ואני ארשום.</span><div class="sugs">' +
-      SUGS.map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>').join('') + '</div></div>';
+    box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('צלם מכשיר או שאל שאלה. אפשר גם לכתוב מה עשית, ואני ארשום.', 'Snap a machine or ask a question. You can also tell me what you did and I will log it.') + '</span><div class="sugs">' +
+      SUGS().map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s[0] + '<span>' + s[1] + '</span>' + ICON.fwd + '</button>').join('') + '</div></div>';
     return;
   }
   box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
@@ -3524,6 +3555,7 @@ function fillCtx() {
 }
 function initChat() {
   fillCtx();
+  for (const el of $$('.ava')) if (!el.firstChild) el.innerHTML = coachFace();
   $('#chatKey').hidden = !window.GYMI_NATIVE;
   chat.needKey = !!window.GYMI_NATIVE && !window.GYMI_COACH;
   /* in the phone app the coach answers only once the owner has saved an API key */
@@ -3558,7 +3590,7 @@ function wireChat() {
   inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); sendChat(); } });
   inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.height = Math.min(120, inp.scrollHeight + 2) + 'px'; });
   $('#msgs').addEventListener('click', (ev) => {
-    const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS[+b.dataset.sug]); return; }
+    const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS()[+b.dataset.sug][1]); return; }
     const u = ev.target.closest('[data-unlog]'); if (u) undoLog(+u.dataset.unlog);
     if (ev.target.closest('#coachKey') && window.gymiNative) window.gymiNative.key();
   });

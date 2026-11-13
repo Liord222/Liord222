@@ -3,7 +3,25 @@ let C = {};
 function readColors() {
   const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
   C = { stage: v('--stage'), grid: v('--grid'), grid2: v('--grid-2'), floor: v('--floor'), ground: v('--ground'), shadow: v('--shadow'), fig: v('--fig'), figHi: v('--fig-hi'), figLo: v('--fig-lo'), far: v('--fig-far'), cloth: v('--cloth'), clothFar: v('--cloth-far'), shoe: v('--shoe'), shoeFar: v('--shoe-far'), sole: v('--sole'), hair: v('--hair'), eq: v('--equip'), eqHi: v('--equip-hi'), eq2: v('--equip-2'), pad: v('--pad'), padHi: v('--pad-hi'), plate: v('--plate'), plateHi: v('--plate-hi'), cable: v('--cable'), muscle: v('--muscle'), accent: v('--accent'), surface: v('--surface') };
-  C.halo = C.stage; C._fig = hexRgb(C.fig); C._hi = hexRgb(C.figHi); C._lo = hexRgb(C.figLo); C.fx = 0;
+  C.halo = C.stage; C._fig = hexRgb(C.fig); C._hi = hexRgb(C.figHi); C._lo = hexRgb(C.figLo); C.fx = 0; worn = '';
+}
+/* the figure in the demos is the player's own character: its skin, its hair, and its colour on the shorts.
+   Worked out again only when the look or the ground changes */
+let worn = '';
+function wearLook() {
+  const k = S.cfg && S.cfg.me && S.cfg.me.look; if (!k || !C.surface) return;
+  const key = [k.skin, k.hair, k.hc, k.shirt, C.surface, C.muscle].join();
+  if (key === worn) return;
+  worn = key;
+  const sk = SKIN[k.skin] || SKIN[1], bg = hexRgb(C.surface), skin = hexRgb(sk[0]), shade = hexRgb(sk[1]), mu = hexRgb(C.muscle);
+  let cloth = hexRgb(SHIRT[k.shirt] || SHIRT[0]);
+  /* shorts too close to the colour that marks the working muscle would hide it: they go darker */
+  if (Math.hypot(cloth[0] - mu[0], cloth[1] - mu[1], cloth[2] - mu[2]) < 110) cloth = cloth.map((v) => Math.round(v * 0.55));
+  const css = (a) => 'rgb(' + a.map((v) => Math.round(v)).join(',') + ')', to = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+  C.fig = sk[0]; C.figLo = sk[1]; C._fig = skin; C._lo = shade; C._hi = to(skin, [255, 255, 255], 0.3);
+  C.far = css(to(shade, bg, 0.22)); C.eye = '#1B1F27';
+  C.hair = k.hair === 0 ? css(to(skin, shade, 0.6)) : HAIRC[k.hc] || HAIRC[0];
+  C.cloth = css(cloth); C.clothFar = css(to(cloth, bg, 0.42));
 }
 const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null };
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
@@ -14,7 +32,7 @@ function fitCanvas(cv, cssW) {
 function paintStage(t) {
   if (!player.cv) return;
   const g = player.g, k = player.cv.width / SW;
-  g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
+  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
 }
 function frame(now) {
   /* out of sight (another tab of the app, scrolled away): no more frames are asked for until it is seen again */
@@ -48,7 +66,7 @@ function stopPlayer() {
 }
 function drawThumbs() {
   const dpr = Math.min(2.5, window.devicePixelRatio || 1);
-  C.bg = C.halo = C.surface;
+  wearLook(); C.bg = C.halo = C.surface;
   for (const cv of $$('.ex-thumb')) {
     cv.width = Math.round(68 * dpr); cv.height = Math.round(49 * dpr);
     const g = cv.getContext('2d'), z = (cv.width / SW) * 1.3;

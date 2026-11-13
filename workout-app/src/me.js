@@ -96,6 +96,7 @@ function setLook(key, v) {
   const me = S.cfg.me; if (!(key in me.look)) return;
   me.look[key] = v; me.made = me.made || Date.now(); saveCfg();
   $('#lkStage').innerHTML = avatar(S.lvl || 1); $('#lkRows').innerHTML = lookRows();
+  if (player.cv && !player.playing) paintStage(player.lastT);
 }
 function setName(v) { const me = S.cfg.me, n = String(v || '').trim().slice(0, 16); if (n === me.name) return; me.name = n; me.made = me.made || Date.now(); saveCfg(); }
 /* clicks and typing inside the sheet that belong to this file; returns true when the click was handled */
@@ -142,7 +143,7 @@ function confetti(cv, n) {
   if (!cv || reduced) return;
   const g = cv.getContext('2d'), dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight, cs = getComputedStyle(document.documentElement);
   cv.width = W * dpr; cv.height = H * dpr; g.scale(dpr, dpr);
-  const cols = ['--accent', '--ok', '--rest', '--muscle'].map((v) => cs.getPropertyValue(v).trim()), t0 = performance.now();
+  const cols = ['--w0', '--w1', '--w2', '--w3', '--xp-fill', '--go'].map((v) => cs.getPropertyValue(v).trim()), t0 = performance.now();
   const ps = Array.from({ length: n }, (_, i) => ({ x: W / 2 + (Math.random() - 0.5) * 60, y: H * 0.34, vx: (Math.random() - 0.5) * 9, vy: -5 - Math.random() * 7, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, w: 5 + Math.random() * 5, c: cols[i % cols.length] }));
   const step = (now) => {
     const t = now - t0; g.clearRect(0, 0, W, H);

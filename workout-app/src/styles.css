@@ -7,11 +7,12 @@
    points, levels and rewards. The coach chat is a full sheet on phones and sits beside the page on wide screens. */
 :root{
   --paper:#F4F6FB; --surface:#FFFFFF; --surface-2:#F1F4FA; --surface-3:#E3E8F2; --ink:#0E1116; --ink-2:#4B5261; --ink-3:#666D7A; --ink-4:#9AA1AD; --line:#E3E7F0; --lip:#D3D9E6;
-  /* each of the four workouts has a colour of its own: the fill, its darker edge, a soft tint, and the ink that reads on white */
+  /* each of the four workouts has a colour of its own (cool for the upper body, warm for the lower; green is kept for "done"):
+     the fill, its darker edge, a soft tint, and the ink that reads on white */
   --w0:#2152E0; --w0-lip:#1A40B4; --w0-soft:#E3EAFF; --w0-ink:#1D46C4;
-  --w1:#0B8A57; --w1-lip:#066B43; --w1-soft:#DDF4E9; --w1-ink:#0A7A4E;
+  --w1:#D04509; --w1-lip:#A63405; --w1-soft:#FFE9DC; --w1-ink:#B83C07;
   --w2:#7446E0; --w2-lip:#5530B5; --w2-soft:#EDE6FF; --w2-ink:#6337CC;
-  --w3:#D04509; --w3-lip:#A63405; --w3-soft:#FFE9DC; --w3-ink:#B83C07;
+  --w3:#D6246E; --w3-lip:#A81853; --w3-soft:#FFE3EE; --w3-ink:#B81D5C;
   --go:#17A567; --go-lip:#0E8250; --flame:#FF8A00; --flame-2:#FFD23F; --flame-ink:#B85600; --accent-lip:#1A40B4;
   --accent:#2152E0; --on-accent:#FFFFFF; --accent-soft:#E3EAFF; --accent-ink:#1D46C4;
   --muscle:#D12D45; --muscle-soft:#FCE7EA; --warn:#A44A10; --warn-soft:#FBEBDD;
@@ -33,7 +34,7 @@
     --ok:#4AD3A1; --ok-soft:#113528; --on-ok:#06231A; --rest:#FFC15E; --rest-soft:#38290B;
     --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
     --lip:#07080A; --accent-lip:#5F82D9; --go:#22B573; --go-lip:#12804F; --flame-ink:#FFB24D;
-    --w0-soft:#1B2748; --w0-ink:#A9C2FF; --w1-soft:#0F3526; --w1-ink:#5FD9A6; --w2-soft:#2A1F4D; --w2-ink:#C4ADFF; --w3-soft:#3D1E0E; --w3-ink:#FFA36B;
+    --w0-soft:#1B2748; --w0-ink:#A9C2FF; --w1-soft:#3D1E0E; --w1-ink:#FFA36B; --w2-soft:#2A1F4D; --w2-ink:#C4ADFF; --w3-soft:#3D1227; --w3-ink:#FF8FB8;
     --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
     --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#6E93FF; --cloth-far:#33467A;
     --shoe:#6A7180; --shoe-far:#3D424D; --sole:#D9DCE2; --hair:#6A7180;
@@ -48,7 +49,7 @@
   --ok:#4AD3A1; --ok-soft:#113528; --on-ok:#06231A; --rest:#FFC15E; --rest-soft:#38290B;
   --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
   --lip:#07080A; --accent-lip:#5F82D9; --go:#22B573; --go-lip:#12804F; --flame-ink:#FFB24D;
-  --w0-soft:#1B2748; --w0-ink:#A9C2FF; --w1-soft:#0F3526; --w1-ink:#5FD9A6; --w2-soft:#2A1F4D; --w2-ink:#C4ADFF; --w3-soft:#3D1E0E; --w3-ink:#FFA36B;
+  --w0-soft:#1B2748; --w0-ink:#A9C2FF; --w1-soft:#3D1E0E; --w1-ink:#FFA36B; --w2-soft:#2A1F4D; --w2-ink:#C4ADFF; --w3-soft:#3D1227; --w3-ink:#FF8FB8;
   --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
   --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#6E93FF; --cloth-far:#33467A;
   --shoe:#6A7180; --shoe-far:#3D424D; --sole:#D9DCE2; --hair:#6A7180;
@@ -716,6 +717,8 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .card.next .xp-tag{background:rgb(255 255 255 / .2);color:#fff}
 .card.next .btn.primary{background:#fff;color:var(--wk-lip);box-shadow:0 4px 0 rgb(0 0 0 / .22)}
 .card.next .btn.primary:active:not(:disabled){box-shadow:0 0 0 rgb(0 0 0 / .22)}
+.w-dot{display:inline-block;width:12px;height:12px;margin-inline-end:10px;border-radius:50%;background:var(--wk);box-shadow:0 2px 0 var(--wk-lip)}
+.sum .kicker{display:inline-block;padding:4px 14px;border-radius:99px;background:var(--wk-soft);color:var(--wk-ink)}
 /* the week: each stop in the colour of its workout */
 .tab.done .dot{background:var(--wk);color:#fff;box-shadow:0 3px 0 var(--wk-lip)}
 .tab.next .dot,.tab.live .dot{background:var(--surface);box-shadow:inset 0 0 0 3px var(--wk),0 3px 0 var(--wk-soft);color:var(--wk-ink)}

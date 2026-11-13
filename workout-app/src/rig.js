@@ -177,7 +177,7 @@ function headSide(g, J, C) {
   capsule(g, add(J.sh, up, -2), add(c, up, -6), 9.6, C.fig);
   blob(g, OUT.head.map(P)); g.strokeStyle = C.halo; g.lineWidth = 3; g.lineJoin = 'round'; g.stroke(); g.fillStyle = C.fig; g.fill();
   blob(g, OUT.hair.map(P)); g.fillStyle = C.hair; g.fill();
-  const e = P([-1.4, -1.2]); g.beginPath(); g.ellipse(e[0], e[1], 1.7, 2.6, 0, 0, TAU); g.fillStyle = C.figLo; g.fill();
+  const e = P([-1.4, -1.2]); g.beginPath(); g.ellipse(e[0], e[1], 1.7, 2.6, 0, 0, TAU); g.fillStyle = C.eye || C.figLo; g.fill();
 }
 function drawSide(g, J, C, ex, glow) {
   const sp = spineFn(J), nf = J.p.nofeet;

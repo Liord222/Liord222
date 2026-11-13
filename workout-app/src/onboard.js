@@ -2,17 +2,52 @@
    The opening screens are shown once. The coach asks a few short questions (language, name, experience, goal), the
    player designs a character, and the app is ready. Every answer can be changed later in the profile. */
 const autoLang = () => (Object.keys(S.sessions).length || S.cfg.me.made || /^(he|iw)\b/i.test(navigator.language || '') ? 'he' : 'en');
-/* put the page in the chosen language: direction, the fixed texts of the page, and everything that is drawn from the log */
+/* the texts that are written in the page itself and not drawn by a render: [selector, attribute ('' = its text), the text] */
+const STATIC = () => [
+  ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
+  ['#topCoach', 'aria-label', say('שאל את אילון', 'Ask Eilon')],
+  ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
+  ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
+  ['#tabbar [data-view="home"] span', '', say('היום', 'Today')],
+  ['#tabbar [data-view="profile"] span', '', say('פרופיל', 'Profile')],
+  ['#tabbar [data-view="progress"] span', '', say('התקדמות', 'Progress')],
+  ['#chatOpen span', '', say('אילון', 'Eilon')],
+  ['#pre', 'aria-label', say('התאוששות מהאימון הקודם', 'Recovery since the last workout')],
+  ['.v-progress .big', '', say('התקדמות', 'Progress')],
+  ['#backup', 'aria-label', say('גיבוי', 'Backup')],
+  ['#chat', 'aria-label', say('צ׳אט עם אילון', 'Chat with Eilon')],
+  ['.chat-h h2', '', say('אילון', 'Eilon')],
+  ['.chat-h p', '', say('המאמן שלך', 'Your coach')],
+  ['#chatKey', 'aria-label', say('החיבור של אילון', 'Eilon\'s connection')],
+  ['#chatKey', 'title', say('החיבור של אילון', 'Eilon\'s connection')],
+  ['#chatNew', 'aria-label', say('שיחה חדשה', 'New chat')],
+  ['#chatNew', 'title', say('שיחה חדשה', 'New chat')],
+  ['#chatClose', 'aria-label', say('סגור את הצ׳אט', 'Close the chat')],
+  ['.chat-ctx span', '', say('על', 'About')],
+  ['#attachImg', 'alt', say('התמונה שצורפה', 'The attached photo')],
+  ['.attach span', '', say('תישלח עם ההודעה', 'Goes with your message')],
+  ['#attachX', 'aria-label', say('הסר את התמונה', 'Remove the photo')],
+  ['#camBtn', 'aria-label', say('צלם את המכשיר', 'Take a photo of the machine')],
+  ['#camBtn', 'title', say('צלם את המכשיר', 'Take a photo of the machine')],
+  ['#galBtn', 'aria-label', say('בחר תמונה מהגלריה', 'Choose a photo from the gallery')],
+  ['#galBtn', 'title', say('בחר תמונה מהגלריה', 'Choose a photo from the gallery')],
+  ['#chatInput', 'aria-label', say('הודעה לאילון', 'Message to Eilon')],
+  ['#dock', 'aria-label', say('רישום סטים וטיימר מנוחה', 'Set log and rest timer')],
+];
+function staticText() { for (const r of STATIC()) { const el = $(r[0]); if (!el) continue; if (r[1]) el.setAttribute(r[1], r[2]); else el.textContent = r[2]; } }
+/* put the page in the chosen language: direction, the fixed texts of the page, and the notes that were kept as written text */
 function applyLang() {
+  const was = LANG;
   LANG = S.cfg.lang || autoLang();
   const dir = LANG === 'he' ? 'rtl' : 'ltr', app = $('#app');
   document.documentElement.lang = LANG; document.documentElement.dir = dir; app.lang = LANG; app.dir = dir;
-  if (typeof staticText === 'function') staticText();
+  staticText();
+  if (was !== LANG) { S.banner = ''; S.bannerKind = ''; S.backupNote = ''; setSync(); fillCtx(); chatText(); compNote(''); renderMsgs(); }
 }
 function setLang(l, keep) {
   if (l !== 'he' && l !== 'en') return;
   S.cfg.lang = l; applyLang();
-  if (!keep) { saveCfg(); renderAll(); fillCtx(); renderMsgs(); }
+  if (!keep) { saveCfg(); renderAll(); }
   if (window.gymiNative && typeof window.gymiNative.lang === 'function') window.gymiNative.lang(l);
 }
 
@@ -39,7 +74,7 @@ function obHTML() {
     cta = say('בואו נתחיל', "Let's start");
     body = '<div class="ob-hero"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
       '<div class="ob-av">' + avatar(lvl) + '</div><h1 id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1><p>' + say('תוכנית כוח של ארבעה אימונים, שמרגישה כמו משחק.', 'A four-workout strength plan that plays like a game.') + '</p>' +
-      '<div class="seg ob-lang" role="group" aria-label="Language · שפה"><button type="button" data-lang="he" aria-pressed="' + (LANG === 'he') + '">עברית</button><button type="button" data-lang="en" aria-pressed="' + (LANG === 'en') + '">English</button></div></div>';
+      '<div class="seg ob-lang" role="group" aria-label="' + LANG_LABEL + '">' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div></div>';
   } else if (st === 1) {
     body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">';
   } else if (st === 2) {
@@ -78,7 +113,7 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) { me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goal = OB.goal; me.made = me.made || Date.now(); applyExp(); }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
-  closeOb(); renderAll(); fillCtx(); renderMsgs();
+  closeOb(); renderAll();
 }
 function obStep(d) { const n = OB.step + d; if (n < 0) return; if (n > OB_LAST) { obFinish(false); return; } OB.step = n; OB.dir = d; renderOb(); }
 /* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */

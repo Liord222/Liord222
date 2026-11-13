@@ -244,6 +244,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .fx .ex.in-prev{animation:fx-prev .28s cubic-bezier(.2,.8,.2,1)}
 @keyframes fx-next{from{opacity:0;transform:translateX(-28px)}}
 @keyframes fx-prev{from{opacity:0;transform:translateX(28px)}}
+[dir="ltr"] .i.dir{transform:scaleX(-1)}
 [dir="ltr"] .fx .ex.in-next{animation-name:fx-prev}
 [dir="ltr"] .fx .ex.in-prev{animation-name:fx-next}
 .fx-head{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:6px;padding-top:6px}
@@ -280,15 +281,17 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .flag-line svg{width:18px;height:18px;margin-top:1px}
 .sets{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
 .setp{display:grid;align-content:center;gap:1px;min-height:60px;padding:8px 12px;border-radius:16px;border:0;background:var(--surface-2);text-align:start;min-width:0}
-.setp .n{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.setp .n{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-2);white-space:nowrap}
+/* a personal best takes the place of the tick: the chip is too narrow for both */
+.setp .n .pr{margin-inline-start:auto}
+.setp .n .pr+.st{display:none}
 .setp .st{margin-inline-start:auto;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--ink-4);color:transparent}
 .setp .st svg{width:11px;height:11px;stroke-width:3.4}
 .setp .v{font-size:17px;font-weight:800;line-height:1.25;letter-spacing:-.02em;direction:ltr;text-align:right;white-space:nowrap}
 [dir="ltr"] .setp .v{text-align:left}
 .setp small{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-spacing:0}
-.setp .hint{font-size:15px;line-height:1.25;color:var(--ink-3);font-weight:600;white-space:nowrap}
+.setp .hint{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:5px;font-size:15px;line-height:1.25;color:var(--ink-3);font-weight:600;white-space:nowrap}
 .setp .hint em{font-style:normal;font-size:12px;color:var(--muscle);font-weight:700}
-.setp .tg+em{margin-inline-start:5px}
 .setp.done .st{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .setp.cur{box-shadow:inset 0 0 0 2px var(--accent);background:var(--surface)}
 .setp.cur .st{border-color:var(--accent)}
@@ -376,6 +379,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .dk-kg,.dk-reps{flex:1;min-width:0;height:100%;display:grid;align-content:center;justify-items:center}
 .dk-kg b,.dk-reps b{font-size:25px;font-weight:800;line-height:28px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .dk-kg small,.dk-reps small{font-size:11.5px;font-weight:600;line-height:14px;color:var(--ink-3);direction:rtl}
+[dir="ltr"] .dk-kg small,[dir="ltr"] .dk-reps small{direction:ltr}
 .dk-kg.ghost b,.dk-reps.ghost b{color:var(--ink-2)}
 .num input{width:100%;height:46px;border:0;border-radius:12px;background:var(--surface);text-align:center;font-size:24px;font-weight:800;direction:ltr;outline:2px solid var(--accent);padding:0}
 .hit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;border:0;border-radius:20px;background:var(--accent);color:var(--on-accent);font-size:18px;font-weight:700;transition:transform .08s,background .15s}
@@ -482,6 +486,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .stats div{background:var(--surface-2);border-radius:18px;padding:14px 12px 12px;display:grid;gap:2px}
 .stats b{font-size:24px;line-height:1.15;font-weight:800;letter-spacing:-.02em;direction:ltr;text-align:right}
+[dir="ltr"] .stats b{text-align:left}
 .stats span{font-size:12.5px;color:var(--ink-3);font-weight:600;line-height:1.3}
 .ed-h{display:flex;align-items:flex-start;gap:10px}
 .ed-h div{flex:1;min-width:0}
@@ -725,13 +730,13 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
   .tabbar button[aria-current="page"]{background:var(--surface)}
   #chatOpen,.chat-close{display:none}
   .chat{display:flex;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);height:calc(100vh - 112px);min-height:420px;margin-top:14px;border-radius:var(--r);overflow:hidden}
-  .dock{left:auto;right:max(20px,calc((100vw - 1180px)/2 + 20px));bottom:16px;width:min(620px,calc(100vw - 452px));border-radius:28px;padding:16px}
+  .dock{left:auto;right:auto;inset-inline-start:max(20px,calc((100vw - 1180px)/2 + 20px));bottom:16px;width:min(620px,calc(100vw - 452px));border-radius:28px;padding:16px}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
-    <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><svg class="i" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><svg class="i dir" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     <div class="logo" role="img" aria-label="gymi by Lior Dahan">
       <span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span>
       <small aria-hidden="true">by Lior Dahan</small>
@@ -810,6 +815,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
    Every text is written in both languages where it is used: say('עברית', 'English'). */
 let LANG = 'he';
 const say = (he, en) => (LANG === 'en' ? en : he);
+/* the languages, each under its own name, and the label of the choice between them (read by both kinds of reader) */
+const LANGS = [['he', 'עברית'], ['en', 'English']], LANG_LABEL = 'Language · שפה';
 
 /* ================================================================== plan */
 /* each workout: name = the short English name kept in exports, t / te = the title shown in the app in Hebrew / English */
@@ -859,21 +866,32 @@ const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי'];
 const wkName = (w) => say(PLAN[w].t, PLAN[w].te);
 const wkOrd = (w) => say('אימון ' + ORD[w], 'Workout ' + (w + 1));
 const wkFull = (w) => wkOrd(w) + ' – ' + wkName(w);
+/* the short name for the week's path: "עליון A" / "Upper A" */
+const wkShort = (w) => say(PLAN[w].t.replace('גוף ', ''), PLAN[w].name);
+/* a count with its noun: "3 סטים" / "3 sets", "סט אחד" / "1 set" */
+const cnt = (n, heN, he1, enN, en1) => (LANG === 'en' ? n + ' ' + (n === 1 ? en1 : enN) : n === 1 ? he1 : n + ' ' + heN);
+/* "from → to", in the direction the page is read */
+const arrow = () => say(' ← ', ' → ');
+/* dates in the language of the page; in English the month is written out, so that day and month cannot be confused */
+const dateFmt = () => (LANG === 'en' ? new Intl.DateTimeFormat(/^en\b/i.test(navigator.language || '') ? navigator.language : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }));
+/* the plan's own notes in English, by their Hebrew text */
+const PLAN_EN = { '1 חזרה לפני כשל': '1 rep before failure', '1–2 חזרות לפני כשל': '1–2 reps before failure', 'סט אחרון לכשל טכני': 'Last set to failure', 'חזרות קשות ומבוקרות': 'Hard, controlled reps', 'שליטה מלאה': 'Full control', 'חזרות נקיות': 'Clean reps', 'לצד': 'per side', 'לרגל': 'per leg' };
+const planNote = (he) => (he ? say(he, PLAN_EN[he] || he) : '');
 
 /* ================================================================== movement library */
 /* muscle groups with weekly set landmarks (direct sets + half sets for helpers): below mev is too little to grow, above mrv is more than most people recover from */
 const MUSCLE = {
-  chest: { he: 'חזה', mev: 8, mrv: 22 },
-  back: { he: 'גב', mev: 10, mrv: 25 },
-  delts: { he: 'כתף אמצעית ואחורית', mev: 8, mrv: 26 },
-  fdelt: { he: 'כתף קדמית', mev: 0, mrv: 12 },
-  biceps: { he: 'ביספס', mev: 8, mrv: 26 },
-  triceps: { he: 'טרייספס', mev: 6, mrv: 18 },
-  quads: { he: 'ארבע ראשי', mev: 8, mrv: 20 },
-  hams: { he: 'ירך אחורית', mev: 6, mrv: 20 },
-  glutes: { he: 'ישבן', mev: 0, mrv: 16 },
-  calves: { he: 'שוקיים', mev: 8, mrv: 20 },
-  abs: { he: 'בטן וליבה', mev: 0, mrv: 25 },
+  chest: { he: 'חזה', en: 'Chest', mev: 8, mrv: 22 },
+  back: { he: 'גב', en: 'Back', mev: 10, mrv: 25 },
+  delts: { he: 'כתף אמצעית ואחורית', en: 'Side and rear delts', mev: 8, mrv: 26 },
+  fdelt: { he: 'כתף קדמית', en: 'Front delts', mev: 0, mrv: 12 },
+  biceps: { he: 'ביספס', en: 'Biceps', mev: 8, mrv: 26 },
+  triceps: { he: 'טרייספס', en: 'Triceps', mev: 6, mrv: 18 },
+  quads: { he: 'ארבע ראשי', en: 'Quads', mev: 8, mrv: 20 },
+  hams: { he: 'ירך אחורית', en: 'Hamstrings', mev: 6, mrv: 20 },
+  glutes: { he: 'ישבן', en: 'Glutes', mev: 0, mrv: 16 },
+  calves: { he: 'שוקיים', en: 'Calves', mev: 8, mrv: 20 },
+  abs: { he: 'בטן וליבה', en: 'Abs and core', mev: 0, mrv: 25 },
 };
 /* a swap is only offered inside the same movement pattern, so the week keeps its shape */
 const PATTERN = {
@@ -884,8 +902,8 @@ const PATTERN = {
 };
 /* equipment decides the smallest realistic weight jump (kg); each one can be changed in the settings */
 const EQUIP = {
-  bar: { he: 'מוט חופשי', inc: 2.5 }, smith: { he: 'סמית׳', inc: 2.5 }, plates: { he: 'מכונת פלטות', inc: 5 }, machine: { he: 'מכונת משקולות', inc: 5 },
-  cable: { he: 'כבל', inc: 2.5 }, db: { he: 'משקולות יד', inc: 1 }, bw: { he: 'משקל גוף', inc: 1 },
+  bar: { he: 'מוט חופשי', en: 'Barbell', inc: 2.5 }, smith: { he: 'סמית׳', en: 'Smith machine', inc: 2.5 }, plates: { he: 'מכונת פלטות', en: 'Plate-loaded machine', inc: 5 }, machine: { he: 'מכונת משקולות', en: 'Weight-stack machine', inc: 5 },
+  cable: { he: 'כבל', en: 'Cable', inc: 2.5 }, db: { he: 'משקולות יד', en: 'Dumbbells', inc: 1 }, bw: { he: 'משקל גוף', en: 'Bodyweight', inc: 1 },
 };
 const INC_CHOICES = [0.5, 1, 1.25, 2, 2.5, 5, 10];
 
@@ -950,7 +968,171 @@ const EN = {};
 for (const w of PLAN) for (const e of w.ex) if (!EN[e.a]) EN[e.a] = e.name;
 for (const k of Object.keys(LIB)) if (LIB[k].en) EN[k] = LIB[k].en;
 const animOf = (mv) => LIB[mv].an || mv;
-/* names in the language of the page */
+
+/* English for the muscle lines and the form cues, by their Hebrew text */
+const EN_TEXT = {
+  'חזה עליון · כתף קדמית · טרייספס': 'Upper chest · front delts · triceps',
+  'רחב גבי · ביספס · גב עליון': 'Lats · biceps · upper back',
+  'רחב גבי · אמצע הגב · ביספס': 'Lats · mid back · biceps',
+  'כתף אמצעית': 'Side delts',
+  'חזה · טרייספס · כתף קדמית': 'Chest · triceps · front delts',
+  'טרייספס': 'Triceps',
+  'ביספס': 'Biceps',
+  'בטן ישרה': 'Abs',
+  'ארבע ראשי · ישבן': 'Quads · glutes',
+  'ירך אחורית · ישבן · זוקפי גב': 'Hamstrings · glutes · lower back',
+  'ירך אחורית': 'Hamstrings',
+  'תאומים (שוק)': 'Calves (gastrocnemius)',
+  'ליבה · אלכסונים': 'Core · obliques',
+  'כתפיים · טרייספס': 'Shoulders · triceps',
+  'כתף אחורית · אמצע הגב': 'Rear delts · mid back',
+  'ברכיאליס · ביספס · אמה': 'Brachialis · biceps · forearms',
+  'טרייספס (ראש ארוך)': 'Triceps (long head)',
+  'בטן תחתונה · כופפי ירך': 'Lower abs · hip flexors',
+  'ישבן · ירך אחורית': 'Glutes · hamstrings',
+  'ארבע ראשי': 'Quads',
+  'סוליאוס (שוק)': 'Calves (soleus)',
+  'ספסל בשיפוע 30–45°, שכמות אסופות לאחור ולמטה': 'Bench at 30–45°, shoulder blades pulled back and down',
+  'הורד את המוט לחזה העליון בשליטה': 'Lower the bar to the upper chest under control',
+  'דחוף למעלה בלי לנעול מרפקים בכוח': 'Press up without snapping the elbows locked',
+  'אחיזה מעט רחבה מהכתפיים': 'Grip a little wider than the shoulders',
+  'התחל מהשכמות ומשוך מרפקים למטה לכיוון הצלעות': 'Start from the shoulder blades and pull the elbows down toward the ribs',
+  'ירידה איטית עד יישור כמעט מלא': 'Lower slowly until the arms are almost straight',
+  'החזה צמוד לכרית לאורך כל החזרה': 'Keep the chest on the pad through the whole rep',
+  'משוך מרפקים לאחור לכיוון הירכיים': 'Pull the elbows back toward the hips',
+  'עצור שנייה בכיווץ וחזור עד מתיחה מלאה': 'Hold the squeeze for a second, then return to a full stretch',
+  'חזה על ספסל משופע, בלי תנופה מהגוף': 'Chest on an incline bench, no swing from the body',
+  'הרם לצדדים עד גובה הכתפיים, מרפק מעט כפוף': 'Raise out to shoulder height, elbows slightly bent',
+  'הובל עם המרפקים והורד לאט': 'Lead with the elbows and lower slowly',
+  'כוונן מושב כך שהידיות בגובה אמצע החזה': 'Set the seat so the handles are at mid-chest height',
+  'שכמות צמודות למשענת': 'Shoulder blades against the backrest',
+  'דחוף קדימה וחזור לאט עד מתיחה בחזה': 'Press forward and return slowly to a stretch in the chest',
+  'מרפקים צמודים לגוף ולא זזים': 'Elbows tight to the body and still',
+  'יישר עד הסוף וכווץ': 'Straighten all the way and squeeze',
+  'עלה בשליטה עד שהאמות מעט מעל קו המרפק': 'Come up under control until the forearms are just above elbow height',
+  'מרפקים צמודים לצד הגוף': 'Elbows at your sides',
+  'כף היד פונה למעלה, עלה בלי תנופה מהגב': 'Palms up, curl without swinging the back',
+  'הורד לאט עד יישור מלא': 'Lower slowly until the arms are straight',
+  'על הברכיים, החבל צמוד לצידי הראש': 'On your knees, rope held at the sides of the head',
+  'עגל את הגב וקרב צלעות לאגן, הירכיים נשארות במקום': 'Round the back and bring the ribs to the pelvis, hips stay where they are',
+  'חזור לאט עד מתיחה בבטן': 'Return slowly to a stretch in the abs',
+  'גב ואגן צמודים לכרית, כפות רגליים ברוחב כתפיים': 'Back and hips on the pad, feet shoulder-width apart',
+  'רד בשליטה עד עומק נוח, ברכיים בכיוון האצבעות': 'Lower under control to a comfortable depth, knees tracking the toes',
+  'דחוף דרך כל כף הרגל': 'Push through the whole foot',
+  'ברכיים מעט כפופות, שלח את האגן לאחור': 'Knees slightly bent, push the hips back',
+  'המוט צמוד לרגליים והגב ישר': 'Bar close to the legs, back flat',
+  'רד עד מתיחה בירך האחורית ועלה בדחיפת אגן קדימה': 'Lower to a hamstring stretch, then drive the hips forward to stand',
+  'גב תחתון ואגן צמודים למושב': 'Lower back and hips against the seat',
+  'רד עמוק בלי שהאגן מתרומם מהכרית': 'Go deep without the hips lifting off the pad',
+  'דחוף בלי לנעול ברכיים': 'Press without locking the knees',
+  'ציר המכונה מול הברך, כרית הירך נעולה': 'Machine axis in line with the knee, thigh pad locked down',
+  'כופף עד הסוף וכווץ': 'Curl all the way and squeeze',
+  'חזור לאט עד יישור כמעט מלא': 'Return slowly until almost straight',
+  'כריות כף הרגל על קצה המדרגה': 'Balls of the feet on the edge of the step',
+  'רד למתיחה מלאה ועצור רגע': 'Lower to a full stretch and pause',
+  'עלה גבוה על הבהונות, ברכיים כמעט ישרות': 'Rise high onto the toes, knees almost straight',
+  'עמוד בניצב לכבל, ידיים מול עצם החזה': 'Stand side-on to the cable, hands in front of the breastbone',
+  'דחוף ישר קדימה והתנגד למשיכה לצד': 'Press straight out and resist the pull to the side',
+  'אגן וכתפיים נשארים פונים קדימה, נשימה רגועה': 'Hips and shoulders stay square, breathe calmly',
+  'גב זקוף וחזה פתוח': 'Tall back, chest open',
+  'משוך את הידית לבטן, מרפקים קרוב לגוף': 'Pull the handle to the stomach, elbows close to the body',
+  'שחרר קדימה בשליטה בלי לעגל גב תחתון': 'Let it forward under control without rounding the lower back',
+  'גב צמוד למשענת, ידיות בגובה הכתפיים': 'Back against the pad, handles at shoulder height',
+  'דחוף למעלה בלי לקשת גב תחתון': 'Press up without arching the lower back',
+  'הורד לאט עד גובה האוזניים': 'Lower slowly to ear height',
+  'חזה צמוד לכרית, ידיים בגובה הכתפיים': 'Chest on the pad, hands at shoulder height',
+  'פתח לצדדים בקשת רחבה, מרפק מעט כפוף': 'Open out in a wide arc, elbows slightly bent',
+  'בלי להרים כתפיים לאוזניים, חזרה איטית': 'Keep the shoulders away from the ears, return slowly',
+  'כף היד פונה פנימה לאורך כל הדרך': 'Palms face in the whole way',
+  'מרפקים צמודים לגוף': 'Elbows tight to the body',
+  'עלה עד גובה הכתף והורד לאט': 'Curl to shoulder height and lower slowly',
+  'מרפקים פונים קדימה וקרובים לראש': 'Elbows point forward, close to the head',
+  'הורד מאחורי הראש עד מתיחה מלאה': 'Lower behind the head to a full stretch',
+  'יישר למעלה, הזרוע העליונה לא זזה': 'Straighten up, upper arms stay still',
+  'תלייה יציבה, בלי נדנוד': 'Hang steady, no swinging',
+  'הרם ברכיים לחזה וגלגל את האגן למעלה': 'Bring the knees to the chest and curl the pelvis up',
+  'הורד לאט, אל תיתן לרגליים ליפול': 'Lower slowly, do not let the legs drop',
+  'רגל אחורית על ספסל, רוב המשקל על הרגל הקדמית': 'Back foot on a bench, most of the weight on the front leg',
+  'רד ישר למטה, ברך קדמית בכיוון האצבעות': 'Drop straight down, front knee tracking the toes',
+  'דחוף דרך העקב הקדמי': 'Push through the front heel',
+  'שכמות על ספסל, כפות רגליים ברוחב אגן': 'Shoulder blades on a bench, feet hip-width apart',
+  'דחוף אגן למעלה עד קו ישר מכתף לברך': 'Drive the hips up to a straight line from shoulder to knee',
+  'סנטר לחזה ועצירה קצרה למעלה': 'Chin tucked, short pause at the top',
+  'אגן צמוד לספסל, הכרית מעל העקב': 'Hips on the bench, pad just above the heels',
+  'כופף לכיוון הישבן בלי להרים אגן': 'Curl toward the glutes without lifting the hips',
+  'חזרה איטית עד יישור': 'Return slowly until straight',
+  'ציר המכונה מול הברך, גב צמוד למשענת': 'Machine axis in line with the knee, back against the pad',
+  'יישר עד הסוף וכווץ לשנייה': 'Straighten fully and squeeze for a second',
+  'הורד לאט': 'Lower slowly',
+  'כרית מעל הברכיים, כריות כף הרגל על המדרגה': 'Pad over the knees, balls of the feet on the step',
+  'רד למתיחה מלאה': 'Lower to a full stretch',
+  'עלה גבוה ועצור רגע למעלה': 'Rise high and pause at the top',
+  'ספסל בשיפוע 30–45°, משקולות מעל החזה העליון': 'Bench at 30–45°, dumbbells over the upper chest',
+  'הורד לאט עד מתיחה בחזה, מרפקים בזווית של כ-45° מהגוף': 'Lower slowly to a chest stretch, elbows about 45° from the body',
+  'דחוף למעלה ומעט פנימה, בלי להקיש את המשקולות': 'Press up and slightly in, without clanking the dumbbells',
+  'ישיבה עם גב נתמך, משקולות בגובה האוזניים': 'Seated with back support, dumbbells at ear height',
+  'הורד לאט עד שהמרפקים מעט מתחת לקו הכתפיים': 'Lower slowly until the elbows are just below shoulder height',
+  'ספסל כמעט זקוף, המוט יורד מול הפנים': 'Bench almost upright, bar travels in front of the face',
+  'הורד עד גובה הסנטר ודחוף בלי לנעול בכוח': 'Lower to chin height and press without snapping locked',
+  'ירכיים נעולות מתחת לכרית, חזה מורם': 'Thighs locked under the pad, chest up',
+  'משוך את המוט לחזה העליון, מרפקים למטה ולאחור': 'Pull the bar to the upper chest, elbows down and back',
+  'שחרר לאט עד יישור כמעט מלא': 'Release slowly until almost straight',
+  'ידיות מקבילות, כפות הידיים זו מול זו': 'Parallel handles, palms facing each other',
+  'משוך לחזה ושמור מרפקים קרוב לגוף': 'Pull to the chest, elbows close to the body',
+  'חזרה איטית עד מתיחה ברחב הגבי': 'Return slowly to a stretch in the lats',
+  'חזה צמוד לכרית, הידיות מול הצלעות התחתונות': 'Chest on the pad, handles level with the lower ribs',
+  'משוך מרפקים לאחור וכווץ שכמות': 'Pull the elbows back and squeeze the shoulder blades',
+  'שחרר לאט עד מתיחה מלאה': 'Release slowly to a full stretch',
+  'פולי תחתון, הכבל עובר מאחורי הגוף': 'Low pulley, cable passing behind the body',
+  'הרם לצד עד גובה הכתף, מרפק מעט כפוף': 'Raise out to shoulder height, elbow slightly bent',
+  'הורד לאט ושמור על מתח רציף בכבל': 'Lower slowly and keep tension on the cable',
+  'מרפקים צמודים לכריות, גב זקוף': 'Elbows against the pads, back tall',
+  'הרם עם המרפקים עד גובה הכתפיים': 'Raise with the elbows to shoulder height',
+  'הורד בשליטה בלי להניח את המשקל': 'Lower under control without resting the weight',
+  'כבלים מוצלבים בגובה הכתפיים': 'Cables crossed at shoulder height',
+  'חזור לאט בלי להרים כתפיים': 'Return slowly without shrugging',
+  'חזה על ספסל משופע, משקולות תלויות מתחת לכתפיים': 'Chest on an incline bench, dumbbells hanging under the shoulders',
+  'הרם לצדדים עם מרפק מעט כפוף': 'Raise out to the sides, elbows slightly bent',
+  'עצור רגע למעלה והורד לאט': 'Pause at the top and lower slowly',
+  'מרפק צמוד לגוף, יד אחת על הידית': 'Elbow tight to the body, one hand on the handle',
+  'עלה לאט עד שהאמה מעט מעל קו המרפק': 'Come up slowly until the forearm is just above elbow height',
+  'פולי תחתון, מרפקים צמודים לגוף': 'Low pulley, elbows tight to the body',
+  'כופף עד הסוף בלי להזיז את הזרוע העליונה': 'Curl all the way without moving the upper arms',
+  'בית השחי צמוד לקצה הכרית': 'Armpits snug against the top of the pad',
+  'הורד לאט עד יישור כמעט מלא': 'Lower slowly until almost straight',
+  'כוונן את המושב כך שהציר מול אמצע הבטן': 'Set the seat so the axis is level with mid-stomach',
+  'עגל את הגב וקרב צלעות לאגן': 'Round the back and bring the ribs to the pelvis',
+  'ברך אחת על הרצפה, בניצב לכבל': 'One knee on the floor, side-on to the cable',
+  'אגן יציב, ישבן מכווץ בצד של הברך שעל הרצפה': 'Hips steady, glute tight on the side of the down knee',
+  'כפות רגליים מעט קדימה מהמוט, ברוחב כתפיים': 'Feet a little in front of the bar, shoulder-width apart',
+  'משקולת אחת צמודה לחזה, מרפקים פונים למטה': 'One dumbbell held at the chest, elbows pointing down',
+  'רד בין הברכיים עם גב זקוף': 'Sit down between the knees with a tall back',
+  'צעד ארוך לאחור, רוב המשקל על הרגל הקדמית': 'A long step back, most of the weight on the front leg',
+  'רד עד שהברך האחורית כמעט נוגעת ברצפה': 'Lower until the back knee almost touches the floor',
+  'דחוף דרך העקב הקדמי וחזור לעמידה': 'Push through the front heel and stand back up',
+  'עמידת פסיעה קבועה מתחת למוט': 'A fixed split stance under the bar',
+  'משקולות צמודות לירכיים, ברכיים מעט כפופות': 'Dumbbells close to the thighs, knees slightly bent',
+  'שלח את האגן לאחור עם גב ישר': 'Push the hips back with a flat back',
+  'רד עד מתיחה בירך האחורית ועלה בדחיפת אגן': 'Lower to a hamstring stretch, then drive the hips forward',
+  'הכרית מתחת לקפל הירך, רגליים נעולות': 'Pad just below the hip crease, feet locked in',
+  'רד עם גב ישר עד מתיחה בירך האחורית': 'Lower with a flat back to a hamstring stretch',
+  'עלה עד קו ישר, בלי קשת יתר בגב': 'Come up to a straight line, no over-arching',
+  'חגורה על קפל הירך, שכמות על המשענת': 'Belt across the hip crease, shoulder blades on the pad',
+  'דחוף אגן למעלה עד פשיטה מלאה': 'Drive the hips up to full extension',
+  'עצירה קצרה למעלה וירידה איטית': 'Short pause at the top, slow on the way down',
+  'ציר המכונה מול הברך': 'Machine axis in line with the knee',
+  'יישר רגל אחת עד הסוף וכווץ לשנייה': 'Straighten one leg fully and squeeze for a second',
+  'הורד לאט, אותו מספר חזרות לכל רגל': 'Lower slowly, same reps for each leg',
+  'כריות כף הרגל על קצה המשטח, ברכיים כמעט ישרות': 'Balls of the feet on the edge of the plate, knees almost straight',
+  'שחרר למתיחה מלאה': 'Release to a full stretch',
+  'דחוף עם הבהונות עד הסוף ועצור רגע': 'Push through the toes all the way and pause',
+};
+/* names and texts in the language of the page */
+const enOf = (he) => EN_TEXT[he] || he;
+/* a muscle inside a sentence: lower case in English */
+const muLow = (k) => say(MUSCLE[k].he, MUSCLE[k].en.toLowerCase());
+const mvMus = (k) => say(LIB[k].m, enOf(LIB[k].m));
+const mvCues = (k) => (LANG === 'en' ? LIB[k].c.map(enOf) : LIB[k].c);
 const mvName = (k) => say(LIB[k].he, EN[k]);
 const muName = (k) => say(MUSCLE[k].he, MUSCLE[k].en || MUSCLE[k].he);
 const eqName = (k) => say(EQUIP[k].he, EQUIP[k].en || EQUIP[k].he);
@@ -1081,13 +1263,15 @@ function levelOf(xp) {
   while (left >= xpStep(lvl)) { left -= xpStep(lvl); lvl++; }
   return { lvl, into: left, need: xpStep(lvl) };
 }
-const RANKS = [{ at: 1, he: 'טירון' }, { at: 5, he: 'מתמיד' }, { at: 10, he: 'ספורטאי' }, { at: 15, he: 'מכונה' }, { at: 20, he: 'חיה' }, { at: 30, he: 'אלוף' }, { at: 40, he: 'אגדה' }];
-function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he }; }
+const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 5, he: 'מתמיד', en: 'Regular' }, { at: 10, he: 'ספורטאי', en: 'Athlete' }, { at: 15, he: 'מכונה', en: 'Machine' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 30, he: 'אלוף', en: 'Champion' }, { at: 40, he: 'אגדה', en: 'Legend' }];
+function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
+/* the name of a rank, a reward or an achievement in the language of the page */
+const nm = (x) => say(x.he, x.en || x.he);
 /* what a level opens: a new rank, or gear the character wears from then on (k names the gear) */
 const REWARDS = [
-  { at: 3, k: 'band', he: 'סרט ראש' }, { at: 5, he: 'דרגת מתמיד' }, { at: 8, k: 'wraps', he: 'רצועות יד' }, { at: 10, he: 'דרגת ספורטאי' },
-  { at: 12, k: 'belt', he: 'חגורת הרמה' }, { at: 15, he: 'דרגת מכונה' }, { at: 20, k: 'tank', he: 'דרגת חיה וגופייה' },
-  { at: 30, k: 'medal', he: 'דרגת אלוף ומדליה' }, { at: 40, k: 'crown', he: 'דרגת אגדה וכתר' },
+  { at: 3, k: 'band', he: 'סרט ראש', en: 'Headband' }, { at: 5, he: 'דרגת מתמיד', en: 'Regular rank' }, { at: 8, k: 'wraps', he: 'רצועות יד', en: 'Wrist wraps' }, { at: 10, he: 'דרגת ספורטאי', en: 'Athlete rank' },
+  { at: 12, k: 'belt', he: 'חגורת הרמה', en: 'Lifting belt' }, { at: 15, he: 'דרגת מכונה', en: 'Machine rank' }, { at: 20, k: 'tank', he: 'דרגת חיה וגופייה', en: 'Beast rank and a tank top' },
+  { at: 30, k: 'medal', he: 'דרגת אלוף ומדליה', en: 'Champion rank and a medal' }, { at: 40, k: 'crown', he: 'דרגת אגדה וכתר', en: 'Legend rank and a crown' },
 ];
 const nextReward = (lvl) => REWARDS.find((r) => r.at > lvl) || null;
 const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);
@@ -1147,18 +1331,18 @@ function roundsDone(list) {
 }
 /* achievements. T: the totals, X: { lvl, streak, fullWeek, rounds }. ic names the drawing in the profile */
 const BADGES = [
-  { id: 'first', he: 'אימון ראשון', ic: 'flag', ok: (T) => T.wk >= 1 },
-  { id: 'week', he: 'שבוע מלא', ic: 'cal', ok: (T, X) => !!X.fullWeek },
-  { id: 'pr1', he: 'שיא ראשון', ic: 'bolt', ok: (T) => T.prs >= 1 },
-  { id: 'w10', he: '10 אימונים', ic: 'bell', ok: (T) => T.wk >= 10 },
-  { id: 'streak4', he: '4 שבועות ברצף', ic: 'flame', ok: (T, X) => X.streak >= 4 },
-  { id: 'pr25', he: '25 שיאים', ic: 'bolt2', ok: (T) => T.prs >= 25 },
-  { id: 'w25', he: '25 אימונים', ic: 'bell2', ok: (T) => T.wk >= 25 },
-  { id: 'round', he: 'סבב שלם', ic: 'loop', ok: (T, X) => X.rounds >= 1 },
-  { id: 'ton100', he: '100 טון', ic: 'plate', ok: (T) => T.kg >= 100000 },
-  { id: 'w50', he: '50 אימונים', ic: 'cup', ok: (T) => T.wk >= 50 },
-  { id: 'lvl20', he: 'רמה 20', ic: 'star', ok: (T, X) => X.lvl >= 20 },
-  { id: 'w100', he: '100 אימונים', ic: 'crown', ok: (T) => T.wk >= 100 },
+  { id: 'first', he: 'אימון ראשון', en: 'First workout', ic: 'flag', ok: (T) => T.wk >= 1 },
+  { id: 'week', he: 'שבוע מלא', en: 'Full week', ic: 'cal', ok: (T, X) => !!X.fullWeek },
+  { id: 'pr1', he: 'שיא ראשון', en: 'First PR', ic: 'bolt', ok: (T) => T.prs >= 1 },
+  { id: 'w10', he: '10 אימונים', en: '10 workouts', ic: 'bell', ok: (T) => T.wk >= 10 },
+  { id: 'streak4', he: '4 שבועות ברצף', en: '4 weeks in a row', ic: 'flame', ok: (T, X) => X.streak >= 4 },
+  { id: 'pr25', he: '25 שיאים', en: '25 PRs', ic: 'bolt2', ok: (T) => T.prs >= 25 },
+  { id: 'w25', he: '25 אימונים', en: '25 workouts', ic: 'bell2', ok: (T) => T.wk >= 25 },
+  { id: 'round', he: 'סבב שלם', en: 'Full round', ic: 'loop', ok: (T, X) => X.rounds >= 1 },
+  { id: 'ton100', he: '100 טון', en: '100 tons', ic: 'plate', ok: (T) => T.kg >= 100000 },
+  { id: 'w50', he: '50 אימונים', en: '50 workouts', ic: 'cup', ok: (T) => T.wk >= 50 },
+  { id: 'lvl20', he: 'רמה 20', en: 'Level 20', ic: 'star', ok: (T, X) => X.lvl >= 20 },
+  { id: 'w100', he: '100 אימונים', en: '100 workouts', ic: 'crown', ok: (T) => T.wk >= 100 },
 ];
 const earned = (T, X) => BADGES.filter((b) => b.ok(T, X)).map((b) => b.id);
 
@@ -1650,7 +1834,7 @@ def('standingCalf', {
   },
 });
 def('pallof', {
-  view: 'top', mus: ['core'], tempo: [1.3, 1.1, 1.3, 0.5], phases: ['דחיפה קדימה', 'החזק, בלי להסתובב', 'חזרה לחזה', 'ידיים על החזה'],
+  view: 'top', mus: ['core'], tempo: [1.3, 1.1, 1.3, 0.5], phases: () => [say('דחיפה קדימה', 'Press out'), say('החזק, בלי להסתובב', 'Hold, no twisting'), say('חזרה לחזה', 'Back to the chest'), say('ידיים על החזה', 'Hands at the chest')],
   draw(g, t, C, glow) {
     const c = [208, 166], hand = [c[0], lerp(c[1] - 19, c[1] - 58, t)], s0 = lerp(0.22, 1, t);
     box(g, 56, 130, 30, 84, 0, C.eq, 6); for (let i = 0; i < 9; i++) box(g, 56, 100 + i * 7.4, 20, 5.4, 0, i < 4 ? C.plate : C.eq2, 1.4);
@@ -1844,7 +2028,7 @@ function avatarSVG(look, lvl, o) {
   const legs = [-1, 1].map((d) => ln(X(d * 11.5), 170, X(d * 12.5), 231, lg, skin)).join('') +
     [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="#3A4152"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="#E7E9ED"/>'; }).join('') +
     P('M' + X(-ww - 1.5) + ' 149L' + X(ww + 1.5) + ' 149L' + X(13 + lg / 2 + 2.5) + ' 190L102.5 190L100 177L97.5 190L' + X(-13 - lg / 2 - 2.5) + ' 190Z', '#39415A', ' stroke="#39415A" stroke-width="4" stroke-linejoin="round"');
-  return '<svg class="av' + (o.flex ? ' flex' : '') + (o.still ? ' still' : '') + '" viewBox="0 -6 200 258" role="img" aria-label="הדמות שלי, רמה ' + lvl + '">' +
+  return '<svg class="av' + (o.flex ? ' flex' : '') + (o.still ? ' still' : '') + '" viewBox="0 -6 200 258" role="img" aria-label="' + say('הדמות שלי, רמה ', 'My character, level ') + lvl + '">' +
     '<circle class="av-aura r' + rankOf(lvl).i + '" cx="100" cy="116" r="90"/><ellipse class="av-shadow" cx="100" cy="247" rx="48" ry="4.6"/>' +
     '<g class="av-fig">' + backHair + legs + body + '</g></svg>';
 }
@@ -1871,8 +2055,8 @@ const ICON = {
   go: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
   swap: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg>',
   pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
-  fwd: '<svg class="i" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
-  back: '<svg class="i" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
+  fwd: '<svg class="i dir" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
+  back: '<svg class="i dir" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
   list: '<svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg>',
   chat: '<svg class="i" viewBox="0 0 24 24"><path d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5h-7l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5z"/></svg>',
   clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.3 1.8M9.5 3.5h5"/></svg>',
@@ -2042,7 +2226,7 @@ function view(pe, s, plan) {
   const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id] != null ? plan[pe.id] : pe.sets;
   let n = n0;
   if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
-  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: pe.int, lvl: pe.lvl, suf: pe.suf, cut, swapped: mv !== pe.a };
+  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: planNote(pe.int), lvl: pe.lvl, suf: planNote(pe.suf), cut, swapped: mv !== pe.a };
 }
 function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return (s ? sessSlots(s) : planSlots(w)).map((pe) => view(pe, s, plan)); }
 function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
@@ -2256,14 +2440,14 @@ function meSync() {
 /* points a workout would bring if every planned set is done */
 const xpPlan = (list) => list.reduce((n, e) => n + e.sets, 0) * XP.set + XP.done;
 
-function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + ' דק׳'; return Ltr(a === b ? a : a + '–' + b) + ' שנ׳'; }
+function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + say(' דק׳', ' min'); return Ltr(a === b ? a : a + '–' + b) + say(' שנ׳', ' sec'); }
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
-const rirText = (r) => (r == null ? '' : r >= 4 ? 'רחוק מכשל' : r === 0 ? 'עד כשל' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
+const rirText = (r) => (r == null ? '' : r >= 4 ? say('רחוק מכשל', 'Far from failure') : r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה אחת לפני כשל', '1 rep before failure') : r + say(' חזרות לפני כשל', ' reps before failure'));
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
 function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
 function prCount(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.pr) n++; return n; }
-function ago(ts) { const d = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? 'היום' : d === 1 ? 'אתמול' : 'לפני ' + d + ' ימים'; }
+function ago(ts) { const d = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : say('לפני ' + d + ' ימים', d + ' days ago'); }
 const fmtKg = (kg) => (kg == null ? '' : String(Math.round(kg * 100) / 100));
 const fmtRow = (r) => (r.kg != null ? fmtKg(r.kg) + '×' : '') + (r.reps != null ? r.reps : '–');
 const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
@@ -2272,7 +2456,8 @@ const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padSta
 const writers = new Map();
 const W = (id) => { let w = writers.get(id); if (!w) { w = { timer: 0, busy: false, again: false, fail: 0 }; writers.set(id, w); } return w; };
 function setSync(state) {
-  const t = { cloud: 'נשמר בחשבון Claude', local: 'נשמר במכשיר הזה', slow: 'אין חיבור, נשמר במכשיר', error: 'אין חיבור, נשמר במכשיר' }[state];
+  if (state) S.syncState = state;
+  const off = say('אין חיבור, נשמר במכשיר', 'Offline, saved on this device'), t = { cloud: say('נשמר בחשבון Claude', 'Saved to your Claude account'), local: say('נשמר במכשיר הזה', 'Saved on this device'), slow: off, error: off }[S.syncState];
   if (t) { S.syncT = t; $('#syncNote').textContent = t; const n = $('#syncNote2'); if (n) n.textContent = t; }
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
@@ -2451,7 +2636,7 @@ function readColors() {
   C.halo = C.stage; C._fig = hexRgb(C.fig); C._hi = hexRgb(C.figHi); C._lo = hexRgb(C.figLo); C.fx = 0;
 }
 const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, speed: 1, visible: true, phaseEl: null, btn: null, bar: null, phase: -1, lastT: 0.5, io: null, ro: null };
-const PHASES = ['מאמץ · נשיפה', 'כיווץ', 'חזרה איטית · שאיפה', 'מתיחה'];
+const PHASES = () => [say('מאמץ · נשיפה', 'Effort · breathe out'), say('כיווץ', 'Squeeze'), say('חזרה איטית · שאיפה', 'Slow return · breathe in'), say('מתיחה', 'Stretch')];
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
 function fitCanvas(cv, cssW) {
   const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cssW * dpr));
@@ -2472,13 +2657,13 @@ function frame(now) {
   const ex = ANIM[player.key], tp = ex.tempo || [1.1, 0.25, 1.8, 0.35];
   let x = (player.clock / 1000) % (tp[0] + tp[1] + tp[2] + tp[3]), t, ph;
   if (x < tp[0]) { t = ease(x / tp[0]); ph = 0; } else if ((x -= tp[0]) < tp[1]) { t = 1; ph = 1; } else if ((x -= tp[1]) < tp[2]) { t = 1 - ease(x / tp[2]); ph = 2; } else { t = 0; ph = 3; }
-  if (ph !== player.phase && player.phaseEl) { player.phase = ph; player.phaseEl.textContent = (ex.phases || PHASES)[ph]; player.phaseEl.classList.toggle('hot', ph < 2); }
+  if (ph !== player.phase && player.phaseEl) { player.phase = ph; player.phaseEl.textContent = (ex.phases ? ex.phases() : PHASES())[ph]; player.phaseEl.classList.toggle('hot', ph < 2); }
   paintStage(t);
 }
 function setPlaying(on) {
   player.playing = on; cancelAnimationFrame(player.raf);
-  if (player.btn) { player.btn.innerHTML = on ? ICON.pause : ICON.play; player.btn.setAttribute('aria-label', on ? 'השהה את ההדמיה' : 'נגן את ההדמיה'); }
-  if (on) { player.last = 0; player.phase = -1; player.raf = requestAnimationFrame(frame); } else { if (player.phaseEl) { player.phaseEl.textContent = 'מושהה'; player.phaseEl.classList.remove('hot'); } paintStage(player.lastT); }
+  if (player.btn) { player.btn.innerHTML = on ? ICON.pause : ICON.play; player.btn.setAttribute('aria-label', on ? say('השהה את ההדמיה', 'Pause the demo') : say('נגן את ההדמיה', 'Play the demo')); }
+  if (on) { player.last = 0; player.phase = -1; player.raf = requestAnimationFrame(frame); } else { if (player.phaseEl) { player.phaseEl.textContent = say('מושהה', 'Paused'); player.phaseEl.classList.remove('hot'); } paintStage(player.lastT); }
 }
 function startPlayer(cv, key, body) {
   stopPlayer();
@@ -2505,13 +2690,14 @@ function onTheme() { readColors(); drawThumbs(); if (player.cv && !player.playin
 
 
 /* ================================================================== workout UI */
-const valHTML = (r) => Ltr(r.kg != null ? Ltr(fmtKg(r.kg)) + '<small><bdi> ק״ג</bdi></small>' + Ltr(' × ' + (r.reps != null ? r.reps : '–')) : Ltr(r.reps != null ? r.reps : '–') + '<small><bdi> חז׳</bdi></small>');
+const valHTML = (r) => Ltr(r.kg != null ? Ltr(fmtKg(r.kg)) + '<small><bdi>' + say(' ק״ג', ' kg') + '</bdi></small>' + Ltr(' × ' + (r.reps != null ? r.reps : '–')) : Ltr(r.reps != null ? r.reps : '–') + '<small><bdi>' + say(' חז׳', ' reps') + '</bdi></small>');
 /* what today's set is trying to beat */
-const MODE = { reps: ['יותר חזרות', 'g-reps'], weight: ['יותר משקל', 'g-wt'], hold: ['כמו בפעם הקודמת', ''], base: ['התחלה חדשה', ''], deload: ['שבוע קל', ''], down: ['פחות משקל', 'g-down'], cal: ['משקל מעודכן', 'g-cal'] };
+const MODE = () => ({ reps: [say('יותר חזרות', 'More reps'), 'g-reps'], weight: [say('יותר משקל', 'More weight'), 'g-wt'], hold: [say('כמו בפעם הקודמת', 'Same as last time'), ''], base: [say('התחלה חדשה', 'Fresh start'), ''], deload: [say('שבוע קל', 'Easy week'), ''], down: [say('פחות משקל', 'Less weight'), 'g-down'], cal: [say('משקל מעודכן', 'New weight'), 'g-cal'] });
 function badge(T, e) {
-  if (!T || !MODE[T.mode]) return '';
-  const inv = LIB[e.mv].inv, t = inv && T.mode === 'weight' ? 'פחות סיוע' : inv && T.mode === 'down' ? 'יותר סיוע' : MODE[T.mode][0];
-  return '<span class="goal ' + MODE[T.mode][1] + '">' + t + '</span>';
+  const M = T && MODE()[T.mode];
+  if (!M) return '';
+  const inv = LIB[e.mv].inv, t = inv && T.mode === 'weight' ? say('פחות סיוע', 'Less help') : inv && T.mode === 'down' ? say('יותר סיוע', 'More help') : M[0];
+  return '<span class="goal ' + M[1] + '">' + t + '</span>';
 }
 /* the exercise on screen: the one that was opened, else the first that still has a set to do, else the first */
 function shown() {
@@ -2538,22 +2724,22 @@ function openWorkout(w, picked) {
   S.tab = w; setView('workout'); renderAll();
 }
 const minsOf = (list) => Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
-const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="סגור">' + ICON.x + '</button></div>' : '');
+const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
 /* today: the player, the workout that is next (or running), and the week as a path of four stops */
 function renderHome() {
   const nu = nextUp(), w = nu.live >= 0 ? nu.live : nu.next, s = live(w), list = exList(w, s), P = phase(w, s), M = S.cfg.meso;
   const total = list.reduce((n, e) => n + e.sets, 0), dn = s ? list.reduce((n, e) => n + doneCount(s, e), 0) : 0;
   const ended = (i) => mesoSessions(M.id).filter((x) => x.w === i && x.end).length, over = mesoDone(M), base = ended(nu.next);
-  const SAY = { live: 'באמצע', next: 'הבא', done: 'הושלם', todo: 'עוד לא' };
+  const SAY = { live: say('באמצע', 'in progress'), next: say('הבא', 'next'), done: say('הושלם', 'complete'), todo: say('עוד לא', 'not yet') };
   const week = PLAN.map((x, i) => {
     const st = live(i) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
-    return '<button class="tab ' + st + '" type="button" data-tab="' + i + '" aria-label="' + wkFull(i) + ', ' + SAY[st] + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : i + 1) + '</span><b>' + x.t.replace('גוף ', '') + '</b></button>';
+    return '<button class="tab ' + st + '" type="button" data-tab="' + i + '" aria-label="' + wkFull(i) + ', ' + SAY[st] + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : i + 1) + '</span><b>' + wkShort(i) + '</b></button>';
   }).join('');
   $('#home').innerHTML = playerHTML(meNow()) + bannerHTML() +
-    '<section class="card next" aria-label="' + (s ? 'האימון שבאמצע' : 'האימון הבא') + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="נקודות על אימון מלא">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + PLAN[w].t + '</h2>' +
-    '<p class="meta">' + (s ? dn + ' מתוך ' + total + ' סטים' : list.length + ' תרגילים · ' + minsOf(list) + ' דק׳') + '</p>' +
-    '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? 'המשך אימון' : 'התחל אימון') + '</button></section>' +
-    '<section class="card week" aria-label="האימונים של השבוע"><div class="card-h"><h2>' + (!P.m ? 'השבוע' : P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' <small>מתוך ' + S.cfg.weeks + '</small>') + '</h2>' + (!P.dl && volWarn() ? '<em class="warn-pill">לבדוק סטים</em>' : '') + '<button class="go-link" id="planBtn" type="button" aria-label="התוכנית והסבב">התוכנית' + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
+    '<section class="card next" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
+    '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
+    '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
+    '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (!P.m ? say('השבוע', 'This week') : P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + ' <small>' + say('מתוך ', 'of ') + S.cfg.weeks + '</small>') + '</h2>' + (!P.dl && volWarn() ? '<em class="warn-pill">' + say('לבדוק סטים', 'Check sets') + '</em>' : '') + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
 }
 function renderTabs() { renderHome(); }
 const totals = () => { const s = live(S.tab), l = exList(S.tab, s); return { total: l.reduce((n, e) => n + e.sets, 0), dn: l.reduce((n, e) => n + doneCount(s, e), 0) }; };
@@ -2620,22 +2806,22 @@ function trendHTML(e) {
     '<svg viewBox="0 0 118 44" role="img" aria-label="' + say('מגמת הכוח ב-' + P.length + ' האימונים האחרונים', 'Strength over the last ' + P.length + ' workouts') + '"><path d="' + line + ' L112 44 L6 44 Z" fill="var(--ink-3)" opacity=".12"/><path d="' + line + '" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + X(P.length - 1).toFixed(1) + '" cy="' + Y(last.v).toFixed(1) + '" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/></svg></div>';
 }
 /* three one-tap answers about the exercise that was just finished */
-const FB = [
-  { k: 'pain', q: 'כאב', o: ['בלי', 'קל', 'חזק'] },
-  { k: 'pump', q: 'תחושה בשריר', o: ['חלשה', 'בינונית', 'חזקה'] },
-  { k: 'load', q: 'עומס', o: ['קל מדי', 'מתאים', 'כבד מדי'] },
+const FB = () => [
+  { k: 'pain', q: say('כאב', 'Pain'), o: [say('בלי', 'None'), say('קל', 'Mild'), say('חזק', 'Strong')] },
+  { k: 'pump', q: say('תחושה בשריר', 'Feel in the muscle'), o: [say('חלשה', 'Weak'), say('בינונית', 'Medium'), say('חזקה', 'Strong')] },
+  { k: 'load', q: say('עומס', 'Load'), o: [say('קל מדי', 'Too easy'), say('מתאים', 'Right'), say('כבד מדי', 'Too heavy')] },
 ];
 function fbHTML(e, s) {
   const f = (s && s.fb && s.fb[e.id]) || {};
-  return '<div class="fbk" data-ex="' + e.id + '">' + FB.map((q) => '<div class="fb-row"><span>' + q.q + '</span><div class="seg" role="group" aria-label="' + q.q + '">' +
+  return '<div class="fbk" data-ex="' + e.id + '">' + FB().map((q) => '<div class="fb-row"><span>' + q.q + '</span><div class="seg" role="group" aria-label="' + q.q + '">' +
     q.o.map((t, v) => '<button type="button" data-fb="' + q.k + '" data-v="' + v + '" aria-pressed="' + (f[q.k] === v) + '">' + t + '</button>').join('') + '</div></div>').join('') + '</div>';
 }
 /* after a severe pain report: what was cancelled, and a movement of the same pattern to move to */
 function painNote(e, s) {
   const f = s && s.fb && s.fb[e.id]; if (!f || f.pain !== 2) return '';
   const alt = gentleAlt(e), set = alt && S.cfg.swap[e.id] === alt;
-  return '<p class="fb-warn"><b>שאר הסטים ל' + MUSCLE[LIB[e.mv].p].he + ' בוטלו להיום.</b> ' +
-    (!alt ? '' : set ? 'מהאימון הבא: ' + LIB[alt].he + '. ' : (LIB[alt].jf ? 'נוח יותר למפרקים: ' : 'חלופה: ') + LIB[alt].he + '. <button class="link" type="button" data-swapto="' + e.id + ':' + alt + '">להחליף מהאימון הבא</button> ') + 'אם הכאב נמשך, כדאי להיבדק.</p>';
+  return '<p class="fb-warn"><b>' + say('שאר הסטים ל' + MUSCLE[LIB[e.mv].p].he + ' בוטלו להיום.', 'The remaining ' + muLow(LIB[e.mv].p) + ' sets are off today.') + '</b> ' +
+    (!alt ? '' : set ? say('מהאימון הבא: ', 'From next workout: ') + mvName(alt) + '. ' : (LIB[alt].jf ? say('נוח יותר למפרקים: ', 'Easier on the joints: ') : say('חלופה: ', 'Instead: ')) + mvName(alt) + '. <button class="link" type="button" data-swapto="' + e.id + ':' + alt + '">' + say('להחליף מהאימון הבא', 'Swap from next workout') + '</button> ') + say('אם הכאב נמשך, כדאי להיבדק.', 'If the pain goes on, have it checked.') + '</p>';
 }
 /* the feedback card inside the exercise; hidden while the dock is asking the same questions */
 /* shown once the exercise is finished (or once something was answered), so the answers can be changed later */
@@ -2643,19 +2829,19 @@ const fbWrap = (e, s) => (s && S.fbFor !== e.id && rowsOf(s, e.id).some(isDone) 
 /* the three panes under the sets: how to do it, the lifter's own note, and what happened before */
 const FXT = () => [['cues', say('דגשים', 'How')], ['note', say('הערה שלי', 'My note')], ['hist', say('היסטוריה', 'History')]];
 function paneHTML(e) {
-  const k = S.fxTab || 'cues', info = LIB[e.mv], s = live(S.tab);
+  const k = S.fxTab || 'cues', s = live(S.tab);
   if (k === 'note') return '<label class="note"><span>' + ICON.pin + say('הערה שנשארת עם התרגיל', 'A note that stays with this exercise') + '</span><textarea class="note-in" rows="3" maxlength="200" placeholder="' + say('גובה מושב, קצב, דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>';
   if (k === 'hist') { const ref = refRow(e, 0, s), tr = trendHTML(e); return (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>' : '') + tr || '<p class="empty-note">' + say('עוד אין היסטוריה לתרגיל הזה.', 'No history for this exercise yet.') + '</p>'; }
-  return '<ul class="cues">' + info.c.map((c) => '<li>' + c + '</li>').join('') + '</ul>' + (LANG === 'he' ? '<p class="en-name">' + Ltr(esc(e.name)) + '</p>' : '');
+  return '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c + '</li>').join('') + '</ul>' + (LANG === 'he' ? '<p class="en-name">' + Ltr(esc(e.name)) + '</p>' : '');
 }
 function bodyHTML(e) {
-  const s = live(S.tab), info = LIB[e.mv], view = { side: say('מהצד', 'Side view'), back: say('מאחור', 'From behind'), top: say('מלמעלה', 'From above') }[ANIM[e.a].view], rir = rirOf(e, s), fw = fbWrap(e, s), tab = S.fxTab || 'cues';
+  const s = live(S.tab), view = { side: say('מהצד', 'Side view'), back: say('מאחור', 'From behind'), top: say('מלמעלה', 'From above') }[ANIM[e.a].view], rir = rirOf(e, s), fw = fbWrap(e, s), tab = S.fxTab || 'cues';
   const lvl = rir == null ? e.lvl : rir >= 4 ? 0 : rir >= 2 ? 1 : rir === 1 ? 2 : 3;
   return '<div class="ex-a"><div class="stage-wrap"><canvas class="stage" role="img" aria-label="' + say('הדמיה של ', 'Demo of ') + e.nm + '"></canvas>' +
     '<span class="stage-tag">' + view + (e.a !== e.mv ? say(' · תנועה דומה', ' · similar movement') : '') + '</span><span class="stage-phase"></span>' +
     '<div class="stage-ctl"><button class="stage-speed" type="button" aria-pressed="' + (player.speed < 1) + '" aria-label="' + say('הילוך איטי', 'Slow motion') + '">' + Ltr('½×') + '</button><button class="stage-play" type="button"></button></div>' +
     '<div class="tempo" aria-hidden="true"><i></i></div></div>' +
-    '<p class="muscles"><i></i><span>' + info.m + '</span></p></div>' +
+    '<p class="muscles"><i></i><span>' + mvMus(e.mv) + '</span></p></div>' +
     '<div class="ex-b"><div class="rx-chips"><span class="chipx ex-rx">' + Ltr(e.n0 + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span><span class="chipx">' + say('מנוחה ', 'Rest ') + restText(e) + '</span><span class="chip l' + lvl + '">' + (rir == null ? e.int : rirText(rir)) + '</span></div>' +
     (lowPump(e.mv) ? '<p class="flag-line">' + ICON.swap + '<span>' + say('פעמיים כמעט לא הרגשת את השריר. שווה להחליף.', 'Twice in a row you barely felt the muscle. Worth swapping.') + '</span></p>' : '') +
     '<div class="sets">' + setsHTML(e) + '</div><div class="fb-wrap"' + (fw ? '' : ' hidden') + '>' + fw + '</div>' +
@@ -2673,22 +2859,22 @@ function focusHTML(e, i, n) {
     '<div class="ex-body" id="body-' + e.id + '">' + bodyHTML(e) + '</div></li>';
 }
 function renderHistory() {
-  const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' });
+  const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = dateFmt();
   renderGains(); renderBackup();
   /* each finished workout is one row; a tap opens it for fixing, moving to another day or deleting */
-  $('#history').innerHTML = '<h2 class="sec">אימונים אחרונים</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + ', עריכה"><span class="h-t">' + PLAN[x.w].t + '</span><span class="h-s">' + df.format(new Date(x.ts)) + ' · ' + setsDone(x) + ' סטים' + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + '</span><span class="xp-tag">' + Ltr('+' + tally(x).xp) + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">עוד אימונים</button>' : '')
-    : '<p class="empty-note">האימונים שתסיים יופיעו כאן.</p>');
+  $('#history').innerHTML = '<h2 class="sec">' + say('אימונים אחרונים', 'Recent workouts') + '</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + say(', עריכה', ', edit') + '"><span class="h-t">' + wkName(x.w) + '</span><span class="h-s">' + df.format(new Date(x.ts)) + ' · ' + cnt(setsDone(x), 'סטים', 'סט אחד', 'sets', 'set') + (mn < 300 ? ' · ' + mn + say(' דק׳', ' min') : '') + '</span><span class="xp-tag">' + Ltr('+' + tally(x).xp) + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">' + say('עוד אימונים', 'More workouts') + '</button>' : '')
+    : '<p class="empty-note">' + say('האימונים שתסיים יופיעו כאן.', 'Workouts you finish will show up here.') + '</p>');
 }
 /* one file with every workout and the settings: saved from here, or read back in */
 function renderBackup() {
-  $('#backup').innerHTML = '<h2 class="sec">גיבוי</h2><div class="backup-act">' +
-    (S.dl ? '<button class="btn" id="backupBtn" type="button">שמירה לקובץ</button>' : '') + '<button class="btn" id="restoreBtn" type="button">שחזור מקובץ</button>' + (S.dl && sorted().some((x) => hasDone(x) && x.end) ? '<button class="btn" id="exportBtn" type="button">ייצוא CSV</button>' : '') + '</div>' +
+  $('#backup').innerHTML = '<h2 class="sec">' + say('גיבוי', 'Backup') + '</h2><div class="backup-act">' +
+    (S.dl ? '<button class="btn" id="backupBtn" type="button">' + say('שמירה לקובץ', 'Save to a file') + '</button>' : '') + '<button class="btn" id="restoreBtn" type="button">' + say('שחזור מקובץ', 'Restore') + '</button>' + (S.dl && sorted().some((x) => hasDone(x) && x.end) ? '<button class="btn" id="exportBtn" type="button">' + say('ייצוא CSV', 'Export CSV') + '</button>' : '') + '</div>' +
     (S.backupNote ? '<p class="backup-note" role="status">' + S.backupNote + '</p>' : '') + '<p class="empty-note" id="syncNote2">' + (S.syncT || '') + '</p>';
 }
 async function exportBackup() {
   if (!S.dl) return;
-  try { await S.dl.save({ filename: 'gymi-backup-' + isoDay(new Date()) + '.json', data: backupData() }); S.backupNote = 'הגיבוי נשמר.'; }
-  catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') S.backupNote = 'השמירה נכשלה.'; }
+  try { await S.dl.save({ filename: 'gymi-backup-' + isoDay(new Date()) + '.json', data: backupData() }); S.backupNote = say('הגיבוי נשמר.', 'The backup was saved.'); }
+  catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') S.backupNote = say('השמירה נכשלה.', 'Saving failed.'); }
   renderBackup();
 }
 function importBackup(file) {
@@ -2696,19 +2882,19 @@ function importBackup(file) {
   const rd = new FileReader();
   rd.onload = () => {
     const r = restoreData(String(rd.result || ''));
-    S.backupNote = !r ? 'זה לא קובץ גיבוי של gymi.' : r.n || r.cfg ? (r.n ? (r.n === 1 ? 'אימון אחד שוחזר.' : r.n + ' אימונים שוחזרו.') : 'ההגדרות שוחזרו.') : 'אין בקובץ שום דבר חדש.';
+    S.backupNote = !r ? say('זה לא קובץ גיבוי של gymi.', 'This is not a gymi backup file.') : r.n || r.cfg ? (r.n ? (r.n === 1 ? say('אימון אחד שוחזר.', '1 workout was restored.') : r.n + say(' אימונים שוחזרו.', ' workouts were restored.')) : say('ההגדרות שוחזרו.', 'The settings were restored.')) : say('אין בקובץ שום דבר חדש.', 'Nothing new in this file.');
     if (r) { sweep(); meSync(); if (!S.touched) S.tab = nextUp().next; S.open = null; }
     renderAll();
   };
-  rd.onerror = () => { S.backupNote = 'הקובץ לא נקרא.'; renderBackup(); };
+  rd.onerror = () => { S.backupNote = say('הקובץ לא נקרא.', 'The file could not be read.'); renderBackup(); };
   rd.readAsText(file);
 }
 /* progress: how the best set of each movement moved since the mesocycle began */
 function renderGains() {
   const M = S.cfg.meso, R = mesoSummary(M.id), sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
-  $('#progCap').textContent = 'סבב ' + M.n + (R.n ? ' · ' + R.n + (R.n === 1 ? ' אימון' : ' אימונים') : '');
-  $('#gains').innerHTML = '<h2 class="sec">הכוח שלך</h2>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + LIB[g.mv].he + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + ' ← ' + Ltr(fmtRow(g.best)) + '</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
-    : '<p class="empty-note">אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי.</p>') + (R.n ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום הסבב</button>' : '');
+  $('#progCap').textContent = say('סבב ', 'Round ') + M.n + (R.n ? ' · ' + R.n + (R.n === 1 ? say(' אימון', ' workout') : say(' אימונים', ' workouts')) : '');
+  $('#gains').innerHTML = '<h2 class="sec">' + say('הכוח שלך', 'Your strength') + '</h2>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + mvName(g.mv) + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + arrow() + Ltr(fmtRow(g.best)) + '</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
+    : '<p class="empty-note">' + say('אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי.', 'After two workouts of the same exercise, the change shows up here.') + '</p>') + (R.n ? '<button class="btn" type="button" data-sum="' + M.id + '">' + say('סיכום הסבב', 'Round summary') + '</button>' : '');
 }
 /* in the list of all exercises: mark the one on screen */
 function markCur() { const cur = shown(); $$('#allList .ex').forEach((li) => li.classList.toggle('cur', !!cur && cur.id === li.dataset.id)); }
@@ -2782,7 +2968,7 @@ function listSheetClick(ev, id) {
 function refreshOpenSets() { const e = S.open && findEx(S.open), li = e && $('#exList .ex.open .sets'); if (li) li.innerHTML = setsHTML(e); }
 
 /* ================================================================== dock: log a set with one tap, rest timer */
-const rest = { on: false, start: 0, min: 0, max: 0, iv: 0, minHit: false, ended: 0, label: '', last: null };
+const rest = { on: false, start: 0, min: 0, max: 0, iv: 0, minHit: false, ended: 0, label: null, last: null };
 let actx = null, wake = null, logBusy = false;
 function primeAudio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { actx = null; } }
 function beep(n) {
@@ -2817,22 +3003,22 @@ function curReps(e, i, s, T) {
   const rr = repRange(e); return Math.round((rr[0] + rr[1]) / 2);
 }
 const draftOf = (t) => (S.draft && S.draft.ex === t.e.id && S.draft.i === t.i ? S.draft : (S.draft = { ex: t.e.id, i: t.i }));
-const repsHTML = (r) => '<b>' + (r == null ? '—' : r) + '</b><small>חזרות</small>';
-const kgHTML = (kg) => (kg == null ? '<b>—</b><small>בלי משקל</small>' : '<b>' + fmtKg(kg) + '</b><small>ק״ג</small>');
+const repsHTML = (r) => '<b>' + (r == null ? '—' : r) + '</b><small>' + say('חזרות', 'reps') + '</small>';
+const kgHTML = (kg) => (kg == null ? '<b>—</b><small>' + say('בלי משקל', 'no weight') + '</small>' : '<b>' + fmtKg(kg) + '</b><small>' + say('ק״ג', 'kg') + '</small>');
 const xpChip = (n) => '<span class="xp-tag">' + Ltr('+' + n) + '</span>';
 /* weight and reps, each with its own stepper. A target is shown a shade lighter until it is confirmed or changed; a tap on a number opens typing */
 function numsHTML(kg, reps, ghostKg, ghostReps) {
-  return '<div class="dk-nums"><div class="num" role="group" aria-label="משקל"><button class="step" type="button" data-d="-1" aria-label="הפחת משקל">−</button>' +
-    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="משקל, לחיצה להקלדה">' + kgHTML(kg) + '</div>' +
-    '<button class="step" type="button" data-d="1" aria-label="הוסף משקל">+</button></div>' +
-    '<div class="num" role="group" aria-label="חזרות"><button class="rstep" type="button" data-d="-1" aria-label="הפחת חזרה">−</button>' +
-    '<div class="dk-reps' + (ghostReps ? ' ghost' : '') + '" id="dkReps" role="button" tabindex="0" aria-label="חזרות, לחיצה להקלדה">' + repsHTML(reps) + '</div>' +
-    '<button class="rstep" type="button" data-d="1" aria-label="הוסף חזרה">+</button></div></div>';
+  return '<div class="dk-nums"><div class="num" role="group" aria-label="' + say('משקל', 'Weight') + '"><button class="step" type="button" data-d="-1" aria-label="' + say('הפחת משקל', 'Less weight') + '">−</button>' +
+    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="' + say('משקל, לחיצה להקלדה', 'Weight, tap to type') + '">' + kgHTML(kg) + '</div>' +
+    '<button class="step" type="button" data-d="1" aria-label="' + say('הוסף משקל', 'More weight') + '">+</button></div>' +
+    '<div class="num" role="group" aria-label="' + say('חזרות', 'Reps') + '"><button class="rstep" type="button" data-d="-1" aria-label="' + say('הפחת חזרה', 'One rep less') + '">−</button>' +
+    '<div class="dk-reps' + (ghostReps ? ' ghost' : '') + '" id="dkReps" role="button" tabindex="0" aria-label="' + say('חזרות, לחיצה להקלדה', 'Reps, tap to type') + '">' + repsHTML(reps) + '</div>' +
+    '<button class="rstep" type="button" data-d="1" aria-label="' + say('הוסף חזרה', 'One rep more') + '">+</button></div></div>';
 }
 function fbPanel(s) {
   const e = S.fbFor && s ? exList(S.tab, s).find((x) => x.id === S.fbFor) : null;
   if (!e) { S.fbFor = null; return ''; }
-  return '<div class="fb-dock"><div class="fb-h"><b>' + say('איך היה: ', 'How was it: ') + e.nm + '</b><button class="link" id="fbSkip" type="button">' + (s.fb && s.fb[e.id] && s.fb[e.id].pain === 2 ? 'סגור' : 'דלג') + '</button></div>' + fbHTML(e, s) + painNote(e, s) + '</div>';
+  return '<div class="fb-dock"><div class="fb-h"><b>' + say('איך היה: ', 'How was it: ') + e.nm + '</b><button class="link" id="fbSkip" type="button">' + (s.fb && s.fb[e.id] && s.fb[e.id].pain === 2 ? say('סגור', 'Close') : say('דלג', 'Skip')) + '</button></div>' + fbHTML(e, s) + painNote(e, s) + '</div>';
 }
 function closeFb() { const id = S.fbFor; S.fbFor = null; renderDock(); if (id && S.open === id) refreshEx({ id }); }
 /* "swap from the next workout", offered next to a pain report */
@@ -2905,12 +3091,12 @@ function typeIn(box, id, label, mode, val, done) {
 function typeKg() {
   const t = dockTarget(); if (!t) return;
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).kg : curKg(t.e, t.i, s);
-  typeIn($('#dkKg'), 'dkKgIn', 'משקל בק״ג', 'decimal', cur == null ? '' : fmtKg(cur), (v) => setKg(num(v)));
+  typeIn($('#dkKg'), 'dkKgIn', say('משקל בק״ג', 'Weight in kg'), 'decimal', cur == null ? '' : fmtKg(cur), (v) => setKg(num(v)));
 }
 function typeReps() {
   const t = dockTarget(); if (!t) return;
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).reps : curReps(t.e, t.i, s);
-  typeIn($('#dkReps'), 'dkRepsIn', 'מספר החזרות', 'numeric', cur == null ? '' : cur, (v) => { const r = num(v, true), box = $('#dkReps'); if (r != null && r >= 1) setReps(r); else if (box) box.innerHTML = repsHTML(cur); });
+  typeIn($('#dkReps'), 'dkRepsIn', say('מספר החזרות', 'Number of reps'), 'numeric', cur == null ? '' : cur, (v) => { const r = num(v, true), box = $('#dkReps'); if (r != null && r >= 1) setReps(r); else if (box) box.innerHTML = repsHTML(cur); });
 }
 /* the one tap: log the set as it stands in the dock */
 function logSet(el) {
@@ -2944,9 +3130,9 @@ function commitSet(e, i, kg, reps) {
   if (!list.some(left)) { stopRest(); return; }
   let nxt = e, label;
   if (left(e)) {
-    const ni = firstUndone(s, e), T = targetOf(e, ni, s), inv = LIB[e.mv].inv;
-    label = say('סט ', 'Set ') + (ni + 1) + say(' מתוך ', ' of ') + e.sets + (T && T.mode === 'down' ? ' · ' + (inv ? say('מוסיפים סיוע: ', 'More help: ') : say('מורידים ל-', 'Down to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : T && T.mode === 'cal' ? ' · ' + (inv ? say('פחות סיוע: ', 'Less help: ') : say('מעלים ל-', 'Up to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : '');
-  } else { nxt = list.slice(list.indexOf(e) + 1).find(left) || list.find(left); label = nxt.nm; }
+    const ni = firstUndone(s, e), T = targetOf(e, ni, s), inv = LIB[e.mv].inv, n = e.sets;
+    label = () => say('סט ', 'Set ') + (ni + 1) + say(' מתוך ', ' of ') + n + (T && T.mode === 'down' ? ' · ' + (inv ? say('מוסיפים סיוע: ', 'More help: ') : say('מורידים ל-', 'Down to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : T && T.mode === 'cal' ? ' · ' + (inv ? say('פחות סיוע: ', 'Less help: ') : say('מעלים ל-', 'Up to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : '');
+  } else { nxt = list.slice(list.indexOf(e) + 1).find(left) || list.find(left); const id = nxt.id; label = () => { const x = findEx(id); return x ? x.nm : ''; }; }
   startRest(e.rest[0], e.rest[1], label, { ex: e.id, i, kg, reps, pr });
   /* the exercise is finished: the next one slides in while the rest runs */
   if (nxt !== e) setTimeout(() => { if (S.tab === wkOf(nxt.id) && S.open === e.id) openEx(nxt.id, true, 1); }, 750);
@@ -2977,7 +3163,7 @@ function tickRest() {
   if (rest.min < rest.max && !rest.minHit && el >= rest.min && left > 0) { rest.minHit = true; beep(1); }
   if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); buzz([180, 90, 180]); }
   d.classList.toggle('ready', rest.minHit && !rest.ended); d.classList.toggle('go', !!rest.ended);
-  $('#rtState').innerHTML = '<b>' + (rest.ended ? 'קדימה' : rest.minHit ? 'אפשר להתחיל' : 'מנוחה') + '</b> · הבא: ' + esc(rest.label);
+  $('#rtState').innerHTML = '<b>' + (rest.ended ? say('קדימה', 'Go') : rest.minHit ? say('אפשר להתחיל', 'Ready when you are') : say('מנוחה', 'Rest')) + '</b>' + say(' · הבא: ', ' · Next: ') + esc(rest.label ? rest.label() : '');
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
 }
 function stopRest() { clearInterval(rest.iv); rest.on = false; rest.last = null; renderDock(); refreshOpenSets(); }
@@ -3017,18 +3203,18 @@ function showSummary(s, R) {
   const total = exList(s.w, s).reduce((n, e) => n + e.sets, 0), mn = Math.max(1, Math.round((s.end - s.ts) / 60000)), y = R.y, up = R.to.lvl > R.from.lvl, nu = nextUp();
   const prev = sorted().find((x) => x.w === s.w && x.id !== s.id && x.end && hasDone(x)), pv = prev ? volume(prev) : 0;
   let cmp = '';
-  if (pv && y.kg && !s.dl) { const d = ((y.kg - pv) / pv) * 100; if (Math.abs(d) >= 0.5) cmp = Ltr(Math.abs(d).toFixed(0) + '%') + (d > 0 ? ' יותר' : ' פחות') + ' מהפעם הקודמת · '; }
+  if (pv && y.kg && !s.dl) { const d = ((y.kg - pv) / pv) * 100; if (Math.abs(d) >= 0.5) cmp = Ltr(Math.abs(d).toFixed(0) + '%') + (d > 0 ? say(' יותר', ' more') : say(' פחות', ' less')) + say(' מהפעם הקודמת · ', ' than last time · '); }
   const opened = up ? rewardsBetween(R.from.lvl, R.to.lvl) : [], stat = (v, k) => '<div><b>' + v + '</b><span>' + k + '</span></div>';
   const sh = $('#sheet'); S.sheet = 'sum';
-  sh.innerHTML = '<div class="sheet-in sum" role="dialog" aria-modal="true" aria-label="סיכום אימון"><canvas class="confetti" id="confetti" aria-hidden="true"></canvas>' +
-    '<p class="kicker">' + wkOrd(s.w) + ' הושלם' + (s.dl ? ' · שבוע קל' : '') + '</p><div class="sum-av">' + avatar(R.to.lvl, { flex: true }) + '</div>' +
-    '<h2 class="sum-xp"><bdi dir="ltr" id="sumXp">+' + nf(y.xp) + '</bdi><small>נקודות</small></h2>' +
-    (up ? '<p class="sum-up">' + glyph('star') + 'עלית לרמה ' + R.to.lvl + '</p>' : '') +
-    '<div class="xp"><span class="xpbar"><i id="sumBar" style="width:' + (up ? 0 : pctOf(R.from)) + '%"></i></span><div class="xp-l"><span>רמה ' + R.to.lvl + ' · ' + rankOf(R.to.lvl).he + '</span><span>' + Ltr(nf(R.to.into) + ' / ' + nf(R.to.need)) + '</span></div></div>' +
-    (opened.length || R.got.length ? '<ul class="sum-new">' + opened.map((r) => '<li>' + glyph('gift') + '<span>נפתח: ' + r.he + '</span></li>').join('') + R.got.map((id) => { const b = BADGES.find((x) => x.id === id); return '<li>' + glyph(b.ic) + '<span>הישג: ' + b.he + '</span></li>'; }).join('') + '</ul>' : '') +
-    '<div class="stats">' + stat(y.sets + '/' + total, 'סטים') + stat(y.kg ? nf(y.kg) : '–', 'ק״ג') + stat(mn, 'דקות') + stat(y.prs, 'שיאים') + '</div>' +
-    '<p class="sum-next">' + cmp + 'הבא: ' + wkFull(nu.next) + '</p>' +
-    '<button class="btn primary big" id="sheetClose" type="button">המשך</button></div>';
+  sh.innerHTML = '<div class="sheet-in sum" role="dialog" aria-modal="true" aria-label="' + say('סיכום אימון', 'Workout summary') + '"><canvas class="confetti" id="confetti" aria-hidden="true"></canvas>' +
+    '<p class="kicker">' + wkOrd(s.w) + say(' הושלם', ' complete') + (s.dl ? say(' · שבוע קל', ' · easy week') : '') + '</p><div class="sum-av">' + avatar(R.to.lvl, { flex: true }) + '</div>' +
+    '<h2 class="sum-xp"><bdi dir="ltr" id="sumXp">+' + nf(y.xp) + '</bdi><small>' + say('נקודות', 'points') + '</small></h2>' +
+    (up ? '<p class="sum-up">' + glyph('star') + say('עלית לרמה ', 'You reached level ') + R.to.lvl + '</p>' : '') +
+    '<div class="xp"><span class="xpbar"><i id="sumBar" style="width:' + (up ? 0 : pctOf(R.from)) + '%"></i></span><div class="xp-l"><span>' + say('רמה ', 'Level ') + R.to.lvl + ' · ' + nm(rankOf(R.to.lvl)) + '</span><span>' + Ltr(nf(R.to.into) + ' / ' + nf(R.to.need)) + '</span></div></div>' +
+    (opened.length || R.got.length ? '<ul class="sum-new">' + opened.map((r) => '<li>' + glyph('gift') + '<span>' + say('נפתח: ', 'Unlocked: ') + nm(r) + '</span></li>').join('') + R.got.map((id) => { const b = BADGES.find((x) => x.id === id); return '<li>' + glyph(b.ic) + '<span>' + say('הישג: ', 'Achievement: ') + nm(b) + '</span></li>'; }).join('') + '</ul>' : '') +
+    '<div class="stats">' + stat(y.sets + '/' + total, say('סטים', 'sets')) + stat(y.kg ? nf(y.kg) : '–', say('ק״ג', 'kg')) + stat(mn, say('דקות', 'minutes')) + stat(y.prs, say('שיאים', 'PRs')) + '</div>' +
+    '<p class="sum-next">' + cmp + say('הבא: ', 'Next: ') + wkFull(nu.next) + '</p>' +
+    '<button class="btn primary big" id="sheetClose" type="button">' + say('המשך', 'Continue') + '</button></div>';
   sh.hidden = false; $('#sheetClose').focus();
   countUp($('#sumXp'), y.xp); confetti($('#confetti'), up ? 110 : 50);
   requestAnimationFrame(() => requestAnimationFrame(() => { const b = $('#sumBar'); if (b) b.style.width = pctOf(R.to) + '%'; }));
@@ -3055,29 +3241,28 @@ function deleteSession(id) {
 }
 const isoDay = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 function editorActions(s) {
-  if (S.edDel) return '<span class="confirm"><span>למחוק את האימון?</span><button class="btn danger" id="edDelYes" type="button">כן, מחק</button><button class="btn" id="edDelNo" type="button">ביטול</button></span>';
-  return '<button class="btn danger" id="edDelAsk" type="button">מחק אימון</button>' + (!live(s.w) && Date.now() - s.end < 12 * HOUR ? '<button class="btn" id="edReopen" type="button">המשך את האימון</button>' : '') + '<button class="btn primary" id="edDone" type="button">סיום</button>';
+  if (S.edDel) return '<span class="confirm"><span>' + say('למחוק את האימון?', 'Delete this workout?') + '</span><button class="btn danger" id="edDelYes" type="button">' + say('כן, מחק', 'Yes, delete') + '</button><button class="btn" id="edDelNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
+  return '<button class="btn danger" id="edDelAsk" type="button">' + say('מחק אימון', 'Delete workout') + '</button>' + (!live(s.w) && Date.now() - s.end < 12 * HOUR ? '<button class="btn" id="edReopen" type="button">' + say('המשך את האימון', 'Continue this workout') + '</button>' : '') + '<button class="btn primary" id="edDone" type="button">' + say('סיום', 'Done') + '</button>';
 }
 function openEditor(id) {
   const s = S.sessions[id]; if (!s) return;
-  const wk = PLAN[s.w];
   let list = '';
   for (const e of exList(s.w, s)) {
     const r = rowsOf(s, e.id), n = Math.max(e.n0, r.length);
-    list += '<section class="ed-ex"><h3>' + e.he + '</h3>';
+    list += '<section class="ed-ex"><h3>' + e.nm + '</h3>';
     for (let i = 0; i < n; i++) {
       const row = r[i] || {}, on = isDone(row);
-      list += '<div class="ed-row' + (on ? ' on' : '') + '" data-ex="' + e.id + '" data-i="' + i + '"><span>סט ' + (i + 1) + '</span>' +
-        '<label class="ed-f"><input type="text" inputmode="decimal" autocomplete="off" data-k="kg" aria-label="משקל בסט ' + (i + 1) + '" value="' + (on && row.kg != null ? fmtKg(row.kg) : '') + '"><span>ק״ג</span></label><span aria-hidden="true">×</span>' +
-        '<label class="ed-f"><input type="text" inputmode="numeric" autocomplete="off" data-k="reps" aria-label="חזרות בסט ' + (i + 1) + '" value="' + (on && row.reps != null ? row.reps : '') + '"><span>חז׳</span></label>' +
-        '<button class="ed-clr" type="button" aria-label="נקה את סט ' + (i + 1) + '">' + ICON.x + '</button></div>';
+      list += '<div class="ed-row' + (on ? ' on' : '') + '" data-ex="' + e.id + '" data-i="' + i + '"><span>' + say('סט ', 'Set ') + (i + 1) + '</span>' +
+        '<label class="ed-f"><input type="text" inputmode="decimal" autocomplete="off" data-k="kg" aria-label="' + say('משקל בסט ', 'Weight in set ') + (i + 1) + '" value="' + (on && row.kg != null ? fmtKg(row.kg) : '') + '"><span>' + say('ק״ג', 'kg') + '</span></label><span aria-hidden="true">×</span>' +
+        '<label class="ed-f"><input type="text" inputmode="numeric" autocomplete="off" data-k="reps" aria-label="' + say('חזרות בסט ', 'Reps in set ') + (i + 1) + '" value="' + (on && row.reps != null ? row.reps : '') + '"><span>' + say('חז׳', 'reps') + '</span></label>' +
+        '<button class="ed-clr" type="button" aria-label="' + say('נקה את סט ', 'Clear set ') + (i + 1) + '">' + ICON.x + '</button></div>';
     }
     list += '</section>';
   }
   S.edSid = id; S.edDel = false; S.sheet = 'ed';
   const sh = $('#sheet');
-  sh.innerHTML = '<div class="sheet-in ed" role="dialog" aria-modal="true" aria-label="עריכת אימון"><div class="ed-h"><div><p class="kicker">' + wkOrd(s.w) + (s.dl ? ' · שבוע קל' : s.wk ? ' · שבוע ' + s.wk : '') + '</p><h2>' + wk.t + '</h2></div><button class="icon-btn" id="sheetClose" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
-    '<label class="ed-date" for="edDate"><span>תאריך</span><input type="date" id="edDate" value="' + isoDay(new Date(s.ts)) + '" max="' + isoDay(new Date()) + '"></label>' +
+  sh.innerHTML = '<div class="sheet-in ed" role="dialog" aria-modal="true" aria-label="' + say('עריכת אימון', 'Edit workout') + '"><div class="ed-h"><div><p class="kicker">' + wkOrd(s.w) + (s.dl ? say(' · שבוע קל', ' · easy week') : s.wk ? say(' · שבוע ', ' · week ') + s.wk : '') + '</p><h2>' + wkName(s.w) + '</h2></div><button class="icon-btn" id="sheetClose" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    '<label class="ed-date" for="edDate"><span>' + say('תאריך', 'Date') + '</span><input type="date" id="edDate" value="' + isoDay(new Date(s.ts)) + '" max="' + isoDay(new Date()) + '"></label>' +
     '<div class="ed-list">' + list + '</div><div class="ed-act" id="edAct">' + editorActions(s) + '</div></div>';
   sh.hidden = false;
 }
@@ -3260,7 +3445,7 @@ function wireApp() {
 }
 
 /* ================================================================== recovery check, exercise swap, mesocycle sheet */
-const SORE = ['לא נתפס', 'החלים', 'עדיין תפוס'];
+const SORE = () => [say('לא נתפס', 'Never sore'), say('החלים', 'Recovered'), say('עדיין תפוס', 'Still sore')];
 const fmtN = (v) => String(Math.round(v * 10) / 10);
 /* muscles today's workout trains directly that have been trained before */
 function preMuscles(w) { const out = []; for (const pe of planSlots(w)) { const mu = LIB[pe.a].p; if (!out.includes(mu) && lastTrained(mu)) out.push(mu); } return out; }
@@ -3270,7 +3455,7 @@ function soreEffects(w, sore) {
   if (P.dl) return out;
   const a = planned(w, {}), b = planned(w, sore), s = live(w);
   for (const pe of planSlots(w)) { const d = b[pe.id] - a[pe.id]; if (d) out.push((d > 0 ? say('סט נוסף: ', 'One more set: ') : say('סט פחות: ', 'One set less: ')) + findEx(pe.id, s).nm); }
-  for (const mu of Object.keys(sore)) if (sore[mu] === 2) out.push('חזרה פחות ל' + MUSCLE[mu].he);
+  for (const mu of Object.keys(sore)) if (sore[mu] === 2) out.push(say('חזרה פחות ל' + MUSCLE[mu].he, 'One rep less for ' + muLow(mu)));
   return out;
 }
 /* before the first set: did the muscles recover from their last workout? The question takes the screen until it is answered or skipped.
@@ -3288,7 +3473,7 @@ function renderPre() {
     return;
   }
   box.innerHTML = '<div class="pre"><div class="pre-h"><b>' + say('מה עדיין תפוס?', 'What is still sore?') + '</b><button class="link" id="preAll" type="button">' + say('הכול החלים', 'All recovered') + '</button></div>' +
-    mus.map((m) => '<div class="pre-row"><span>' + MUSCLE[m].he + '</span><div class="seg" role="group" aria-label="' + MUSCLE[m].he + '">' + SORE.map((t, v) => '<button type="button" data-mu="' + m + '" data-v="' + v + '" aria-pressed="' + (sore[m] === v) + '">' + t + '</button>').join('') + '</div></div>').join('') +
+    mus.map((m) => '<div class="pre-row"><span>' + muName(m) + '</span><div class="seg" role="group" aria-label="' + muName(m) + '">' + SORE().map((t, v) => '<button type="button" data-mu="' + m + '" data-v="' + v + '" aria-pressed="' + (sore[m] === v) + '">' + t + '</button>').join('') + '</div></div>').join('') +
     (fx.length ? '<p class="pre-fx">' + fx.join(' · ') + '</p>' : '') + '<button class="btn primary big" id="preDone" type="button">' + say('המשך', 'Continue') + '</button></div>';
 }
 function afterPre() { renderPre(); renderHero(); renderList(); updateProgress(); renderDock(); }
@@ -3332,10 +3517,10 @@ function volHTML(dl) {
   const vol = muscleVolume(weekItems()), pct = (v) => Math.min(100, (v / 30) * 100).toFixed(1);
   return Object.keys(MUSCLE).map((k) => {
     const v = vol[k], tot = v.d + v.i, M = MUSCLE[k], st = dl ? 'ok' : landmark(k, tot);
-    return '<div class="vol-row ' + st + '"><span class="vol-n">' + M.he + '</span>' +
-      '<div class="vol-bar" role="img" aria-label="' + M.he + ': ' + fmtN(tot) + ' סטים בשבוע. הטווח המומלץ: ' + M.mev + ' עד ' + M.mrv + '"><i class="band" style="inset-inline-start:' + pct(M.mev) + '%;width:' + pct(M.mrv - M.mev) + '%"></i><i class="val" style="width:' + pct(tot) + '%"></i></div>' +
+    return '<div class="vol-row ' + st + '"><span class="vol-n">' + muName(k) + '</span>' +
+      '<div class="vol-bar" role="img" aria-label="' + muName(k) + ': ' + fmtN(tot) + say(' סטים בשבוע. הטווח המומלץ: ', ' sets a week. Suggested range: ') + M.mev + say(' עד ', ' to ') + M.mrv + '"><i class="band" style="inset-inline-start:' + pct(M.mev) + '%;width:' + pct(M.mrv - M.mev) + '%"></i><i class="val" style="width:' + pct(tot) + '%"></i></div>' +
       '<span class="vol-v"><b>' + fmtN(tot) + '</b><small>' + Ltr(fmtN(v.d) + ' + ' + fmtN(v.i)) + '</small></span>' +
-      (st === 'ok' ? '' : '<span class="vol-flag">' + (st === 'under' ? '▼ מתחת למינימום (' + M.mev + ')' : '▲ מעל המקסימום (' + M.mrv + ')') + '</span>') + '</div>';
+      (st === 'ok' ? '' : '<span class="vol-flag">' + (st === 'under' ? say('▼ מתחת למינימום (', '▼ Below the minimum (') + M.mev + ')' : say('▲ מעל המקסימום (', '▲ Above the maximum (') + M.mrv + ')') + '</span>') + '</div>';
   }).join('');
 }
 /* each workout as a list: set counts by default; "reorder and remove" turns the rows into arrows and a cross; adding opens the picker */
@@ -3355,57 +3540,57 @@ function renderMeso() {
   const sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, M = S.cfg.meso, s = live(S.tab), P = phase(S.tab, s), W = S.cfg.weeks, past = (S.cfg.past || []).filter((p) => mesoSessions(p.id).length).slice(-1)[0];
   if (!P.m) P.n = M.n;
   let strip = '';
-  for (let k = 1; k <= W; k++) { const d = k === W, cur = P.dl ? d : k === P.wk; strip += '<li class="' + (cur ? 'cur' : '') + (d ? ' dl' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><small>שבוע ' + k + '</small><b>' + (d ? 'שבוע קל' : ((r) => (r === 0 ? 'עד כשל' : r === 1 ? 'חזרה 1' : r + ' חזרות'))(rirFor(k, W))) + '</b></li>'; }
+  for (let k = 1; k <= W; k++) { const d = k === W, cur = P.dl ? d : k === P.wk; strip += '<li class="' + (cur ? 'cur' : '') + (d ? ' dl' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><small>' + say('שבוע ', 'Week ') + k + '</small><b>' + (d ? say('שבוע קל', 'Easy week') : ((r) => (r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה 1', '1 rep') : r + say(' חזרות', ' reps')))(rirFor(k, W))) + '</b></li>'; }
   /* the last mesocycle is complete and the next workout opens a new one: nothing to steer until then */
   const over = mesoDone(M);
   let act;
-  if (over) act = '<span class="ms-sub">סבב ' + M.n + ' הושלם. האימון הבא פותח את סבב ' + (M.n + 1) + '.</span><button class="btn" type="button" data-sum="' + M.id + '">סיכום סבב ' + M.n + '</button>';
-  else if (S.msAsk === 'dl') act = '<span class="confirm"><span>להתחיל שבוע קל? אחריו מתחיל סבב חדש.</span><button class="btn primary" id="msDlYes" type="button">כן, שבוע קל</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
+  if (over) act = '<span class="ms-sub">' + say('סבב ', 'Round ') + M.n + say(' הושלם. האימון הבא פותח את סבב ', ' is complete. The next workout opens round ') + (M.n + 1) + '.</span><button class="btn" type="button" data-sum="' + M.id + '">' + say('סיכום סבב ', 'Summary of round ') + M.n + '</button>';
+  else if (S.msAsk === 'dl') act = '<span class="confirm"><span>' + say('להתחיל שבוע קל? אחריו מתחיל סבב חדש.', 'Start an easy week? A new round starts after it.') + '</span><button class="btn primary" id="msDlYes" type="button">' + say('כן, שבוע קל', 'Yes, easy week') + '</button><button class="btn" id="msNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
   else if (S.msAsk === 'plan') act = '<span class="confirm"><span>' + say('להחזיר את רשימת התרגילים המקורית?', 'Bring back the original list of exercises?') + '</span><button class="btn primary" id="planResetYes" type="button">' + say('כן, אפס', 'Yes, reset') + '</button><button class="btn" id="msNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
-  else if (S.msAsk === 'new') act = '<span class="confirm"><span>להתחיל סבב חדש משבוע 1?</span><button class="btn primary" id="msNewYes" type="button">כן, סבב חדש</button><button class="btn" id="msNo" type="button">ביטול</button></span>';
-  else act = (M.early ? '<button class="btn" id="msDlOff" type="button">בטל שבוע קל</button>' : P.dl ? '' : '<button class="btn" id="msDl" type="button">שבוע קל עכשיו</button>') + '<button class="btn" id="msNew" type="button">סבב חדש</button>' +
-    (mesoSessions(M.id).length ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום</button>' : '') + (past ? '<button class="btn" type="button" data-sum="' + past.id + '">סיכום סבב ' + past.n + '</button>' : '') +
+  else if (S.msAsk === 'new') act = '<span class="confirm"><span>' + say('להתחיל סבב חדש משבוע 1?', 'Start a new round from week 1?') + '</span><button class="btn primary" id="msNewYes" type="button">' + say('כן, סבב חדש', 'Yes, new round') + '</button><button class="btn" id="msNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
+  else act = (M.early ? '<button class="btn" id="msDlOff" type="button">' + say('בטל שבוע קל', 'Cancel the easy week') + '</button>' : P.dl ? '' : '<button class="btn" id="msDl" type="button">' + say('שבוע קל עכשיו', 'Easy week now') + '</button>') + '<button class="btn" id="msNew" type="button">' + say('סבב חדש', 'New round') + '</button>' +
+    (mesoSessions(M.id).length ? '<button class="btn" type="button" data-sum="' + M.id + '">' + say('סיכום', 'Summary') + '</button>' : '') + (past ? '<button class="btn" type="button" data-sum="' + past.id + '">' + say('סיכום סבב ', 'Summary of round ') + past.n + '</button>' : '') +
     (planChanged() ? '<button class="btn" id="planReset" type="button">' + say('איפוס תרגילים', 'Reset exercises') + '</button>' : '');
-  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="סבב ותוכנית"><div class="ed-h"><div><p class="kicker">סבב ' + P.n + (M.early && !over ? ' · שבוע קל מוקדם' : '') + '</p><h2>' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' <small>מתוך ' + W + '</small>') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="' + say('סבב ותוכנית', 'Round and plan') + '"><div class="ed-h"><div><p class="kicker">' + say('סבב ', 'Round ') + P.n + (M.early && !over ? say(' · שבוע קל מוקדם', ' · early easy week') : '') + '</p><h2>' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + ' <small>' + say('מתוך ', 'of ') + W + '</small>') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<ol class="wk-strip">' + strip + '</ol>' +
-    '<p>כמה חזרות משאירים לפני כשל: כל שבוע חזרה אחת פחות. השבוע האחרון קל.</p>' +
-    '<section><h3>סטים בשבוע לפי שריר</h3><p class="ms-sub">הרצועה הבהירה היא הטווח המומלץ.</p><div class="vol">' + volHTML(P.dl) + '</div></section>' +
+    '<p>' + say('כמה חזרות משאירים לפני כשל: כל שבוע חזרה אחת פחות. השבוע האחרון קל.', 'How many reps you leave before failure: one less each week. The last week is easy.') + '</p>' +
+    '<section><h3>' + say('סטים בשבוע לפי שריר', 'Sets a week by muscle') + '</h3><p class="ms-sub">' + say('הרצועה הבהירה היא הטווח המומלץ.', 'The light band is the suggested range.') + '</p><div class="vol">' + volHTML(P.dl) + '</div></section>' +
     '<section><h3>' + say('התרגילים והסטים', 'Exercises and sets') + '</h3>' + builderHTML() + '</section>' +
-    '<section><h3>קפיצת משקל</h3><div class="inc">' + Object.keys(EQUIP).map((k) => '<label class="inc-row"><span>' + EQUIP[k].he + '</span><select data-inc="' + k + '">' + INC_CHOICES.map((v) => '<option value="' + v + '"' + (v === (+S.cfg.inc[k] || EQUIP[k].inc) ? ' selected' : '') + '>' + v + ' ק״ג</option>').join('') + '</select></label>').join('') + '</div></section>' +
-    '<section><h3>אורך הסבב</h3><div class="bl-row"><span class="bl-n"><b>' + W + ' שבועות</b><small>האחרון קל</small></span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="שבוע פחות"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="שבוע נוסף"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></div></section>' +
+    '<section><h3>' + say('קפיצת משקל', 'Weight step') + '</h3><div class="inc">' + Object.keys(EQUIP).map((k) => '<label class="inc-row"><span>' + eqName(k) + '</span><select data-inc="' + k + '">' + INC_CHOICES.map((v) => '<option value="' + v + '"' + (v === (+S.cfg.inc[k] || EQUIP[k].inc) ? ' selected' : '') + '>' + v + say(' ק״ג', ' kg') + '</option>').join('') + '</select></label>').join('') + '</div></section>' +
+    '<section><h3>' + say('אורך הסבב', 'Length of a round') + '</h3><div class="bl-row"><span class="bl-n"><b>' + W + say(' שבועות', ' weeks') + '</b><small>' + say('האחרון קל', 'The last one is easy') + '</small></span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="' + say('שבוע פחות', 'One week less') + '"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="' + say('שבוע נוסף', 'One week more') + '"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></div></section>' +
     '<div class="ed-act ms-act">' + act + '</div></div>';
   $('.sheet-in', sh).scrollTop = top;
 }
 function openMeso() { S.sheet = 'meso'; S.msAsk = null; S.blEdit = null; renderMeso(); $('#sheet').hidden = false; }
 /* the end-of-mesocycle card: volume from start to peak, strength per movement, and the movements that answered best */
 /* what a finished workout brought, as one line on the sheets that take the place of the workout's own summary */
-const xpLine = (R) => (R ? '<p class="xp-line"><span class="xp-tag">' + Ltr('+' + nf(R.y.xp)) + '</span><span>רמה ' + R.to.lvl + ' · ' + rankOf(R.to.lvl).he + (R.to.lvl > R.from.lvl ? ' · עלית רמה' : '') + '</span></p>' : '');
+const xpLine = (R) => (R ? '<p class="xp-line"><span class="xp-tag">' + Ltr('+' + nf(R.y.xp)) + '</span><span>' + say('רמה ', 'Level ') + R.to.lvl + ' · ' + nm(rankOf(R.to.lvl)) + (R.to.lvl > R.from.lvl ? say(' · עלית רמה', ' · level up') : '') + '</span></p>' : '');
 function showMesoSummary(id, justDone, R) {
   const M = mesoSummary(id), n = +String(id).slice(1) || 1, sh = $('#sheet'), avg = M.gains.length ? M.gains.reduce((a, g) => a + g.pct, 0) / M.gains.length : null;
   const sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
-  let body = '<p>עוד אין אימונים בסבב הזה.</p>';
+  let body = '<p>' + say('עוד אין אימונים בסבב הזה.', 'No workouts in this round yet.') + '</p>';
   if (M.n) {
-    body = '<div class="stats"><div><b>' + (M.sets ? fmtN(M.sets.peak) : '–') + '</b><span>סטים בשבוע השיא</span></div><div><b>' + (avg == null ? '–' : sign(avg)) + '</b><span>שינוי כוח</span></div><div><b>' + M.n + '</b><span>אימונים</span></div></div>' +
-      (M.mus.length ? '<section><h3>סטים לפי שריר</h3><ul class="sum-list">' + M.mus.map((m) => '<li><span>' + MUSCLE[m.k].he + '</span><span>' + (m.weeks > 1 && m.peak !== m.start ? Ltr(fmtN(m.start) + ' ← ' + fmtN(m.peak)) + ' סטים בשבוע' : '<b>' + fmtN(m.peak) + '</b> סטים בשבוע') + '</span></li>').join('') + '</ul></section>' : '') +
-      '<section><h3>שינוי כוח לפי תרגיל</h3>' + (M.gains.length ? '<ul class="sum-list">' + M.gains.slice(0, 14).map((g) => '<li><span>' + LIB[g.mv].he + '</span><span>' + Ltr(fmtRow(g.first)) + ' ← ' + Ltr(fmtRow(g.best)) + ' · <b class="' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</b></span></li>').join('') + '</ul>' : '<p class="ms-sub">צריך שני אימונים של אותו תרגיל.</p>') + '</section>' +
-      '<section><h3>התרגילים שהגיבו הכי טוב</h3>' + (M.top.length ? '<ul class="sum-list">' + M.top.map((t) => '<li><span>' + LIB[t.mv].he + '</span><span>תחושה ' + (t.pump >= 1.5 ? 'חזקה' : 'בינונית') + ' · ' + (t.pain === 0 ? 'בלי כאב' : 'כאב קל לפעמים') + '</span></li>').join('') + '</ul>' : '<p class="ms-sub">עוד אין מספיק משוב.</p>') + '</section>';
+    body = '<div class="stats"><div><b>' + (M.sets ? fmtN(M.sets.peak) : '–') + '</b><span>' + say('סטים בשבוע השיא', 'sets in the top week') + '</span></div><div><b>' + (avg == null ? '–' : sign(avg)) + '</b><span>' + say('שינוי כוח', 'strength change') + '</span></div><div><b>' + M.n + '</b><span>' + say('אימונים', 'workouts') + '</span></div></div>' +
+      (M.mus.length ? '<section><h3>' + say('סטים לפי שריר', 'Sets by muscle') + '</h3><ul class="sum-list">' + M.mus.map((m) => '<li><span>' + muName(m.k) + '</span><span>' + (m.weeks > 1 && m.peak !== m.start ? Ltr(fmtN(m.start)) + arrow() + Ltr(fmtN(m.peak)) + say(' סטים בשבוע', ' sets a week') : '<b>' + fmtN(m.peak) + '</b>' + say(' סטים בשבוע', ' sets a week')) + '</span></li>').join('') + '</ul></section>' : '') +
+      '<section><h3>' + say('שינוי כוח לפי תרגיל', 'Strength change by exercise') + '</h3>' + (M.gains.length ? '<ul class="sum-list">' + M.gains.slice(0, 14).map((g) => '<li><span>' + mvName(g.mv) + '</span><span>' + Ltr(fmtRow(g.first)) + arrow() + Ltr(fmtRow(g.best)) + ' · <b class="' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</b></span></li>').join('') + '</ul>' : '<p class="ms-sub">' + say('צריך שני אימונים של אותו תרגיל.', 'It takes two workouts of the same exercise.') + '</p>') + '</section>' +
+      '<section><h3>' + say('התרגילים שהגיבו הכי טוב', 'The exercises that answered best') + '</h3>' + (M.top.length ? '<ul class="sum-list">' + M.top.map((t) => '<li><span>' + mvName(t.mv) + '</span><span>' + (t.pump >= 1.5 ? say('תחושה חזקה', 'Strong feel') : say('תחושה בינונית', 'Medium feel')) + ' · ' + (t.pain === 0 ? say('בלי כאב', 'no pain') : say('כאב קל לפעמים', 'mild pain at times')) + '</span></li>').join('') + '</ul>' : '<p class="ms-sub">' + say('עוד אין מספיק משוב.', 'Not enough feedback yet.') + '</p>') + '</section>';
   }
   S.sheet = 'msum';
-  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="סיכום סבב"><div class="ed-h"><div><p class="kicker">' + (justDone ? 'הסבב הושלם' : 'סיכום') + '</p><h2>סבב ' + n + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' + xpLine(R) + body +
-    (justDone ? '<p>האימון הבא פותח סבב חדש.</p>' : '') + '<button class="btn primary big" id="sheetClose" type="button">סגור</button></div>';
+  sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="' + say('סיכום סבב', 'Round summary') + '"><div class="ed-h"><div><p class="kicker">' + (justDone ? say('הסבב הושלם', 'Round complete') : say('סיכום', 'Summary')) + '</p><h2>' + say('סבב ', 'Round ') + n + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' + xpLine(R) + body +
+    (justDone ? '<p>' + say('האימון הבא פותח סבב חדש.', 'The next workout opens a new round.') + '</p>' : '') + '<button class="btn primary big" id="sheetClose" type="button">' + say('סגור', 'Close') + '</button></div>';
   sh.hidden = false;
 }
 /* two workouts in a row fell short for two muscle groups or more: offer the deload now */
 function showDeloadOffer(s, R) {
-  const mus = Array.from(missedMuscles(s)).map((k) => MUSCLE[k].he), sh = $('#sheet');
+  const mus = Array.from(missedMuscles(s)).map((k) => muLow(k)), sh = $('#sheet');
   S.sheet = 'dlo';
-  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="הצעה לשבוע קל"><p class="kicker">' + wkOrd(s.w) + ' הושלם</p><h2>סימני עייפות</h2>' + xpLine(R) +
-    '<p>פעמיים ברצף לא הגעת ליעד (היום: ' + mus.join(', ') + '). בדרך כלל זו עייפות שהצטברה.</p>' +
-    '<p><b>שבוע קל:</b> חצי מהסטים ופחות משקל. אחריו מתחיל סבב חדש.</p>' +
-    '<button class="btn primary big" id="dlYes" type="button">להתחיל שבוע קל</button><button class="btn big" data-close="1" type="button">לא עכשיו</button></div>';
+  sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="' + say('הצעה לשבוע קל', 'An easy week is suggested') + '"><p class="kicker">' + wkOrd(s.w) + say(' הושלם', ' complete') + '</p><h2>' + say('סימני עייפות', 'Signs of fatigue') + '</h2>' + xpLine(R) +
+    '<p>' + say('פעמיים ברצף לא הגעת ליעד (היום: ', 'Twice in a row you missed the target (today: ') + mus.join(', ') + say('). בדרך כלל זו עייפות שהצטברה.', '). That is usually fatigue that has built up.') + '</p>' +
+    '<p><b>' + say('שבוע קל:', 'Easy week:') + '</b>' + say(' חצי מהסטים ופחות משקל. אחריו מתחיל סבב חדש.', ' half the sets and less weight. A new round starts after it.') + '</p>' +
+    '<button class="btn primary big" id="dlYes" type="button">' + say('להתחיל שבוע קל', 'Start an easy week') + '</button><button class="btn big" data-close="1" type="button">' + say('לא עכשיו', 'Not now') + '</button></div>';
   sh.hidden = false;
 }
-function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>שבוע קל התחיל.</b> חצי מהסטים ופחות משקל בארבעת האימונים הבאים.'; }
+function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>' + say('שבוע קל התחיל.', 'The easy week has started.') + '</b>' + say(' חצי מהסטים ופחות משקל בארבעת האימונים הבאים.', ' Half the sets and less weight for the next four workouts.'); }
 /* clicks inside the sheet that belong to this file; returns true when the click was handled */
 function coachSheetClick(ev, id) {
   const b = ev.target.closest('button'), ds = b ? b.dataset : {};
@@ -3433,7 +3618,7 @@ function coachSheetClick(ev, id) {
   if (id === 'msDl' || id === 'msNew' || id === 'msNo') { S.msAsk = id === 'msDl' ? 'dl' : id === 'msNew' ? 'new' : null; renderMeso(); return true; }
   if (id === 'msDlYes') { startDeload(); S.msAsk = null; closeSheet(); return true; }
   if (id === 'msDlOff') { S.cfg.meso.early = 0; saveCfg(); renderMeso(); return true; }
-  if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>סבב ' + S.cfg.meso.n + ' התחיל.</b>'; closeSheet(); return true; }
+  if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>' + say('סבב ', 'Round ') + S.cfg.meso.n + say(' התחיל.', ' has started.') + '</b>'; closeSheet(); return true; }
   if (id === 'dlYes') { startDeload(); closeSheet(); return true; }
   return false;
 }
@@ -3491,30 +3676,30 @@ function renderMe() {
 /* the strip at the top of "today": who is training, at which level, and the run of weeks */
 function playerHTML(P) {
   const me = S.cfg.me;
-  return '<button class="player" id="playerBtn" type="button" aria-label="הפרופיל שלי: רמה ' + P.L.lvl + ', ' + P.rank.he + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
-    '<span class="p-txt"><b>' + (me.name ? 'היי, ' + esc(me.name) : 'היי!') + '</b><span class="p-rank"><span class="lv-badge">רמה ' + P.L.lvl + '</span>' + P.rank.he + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
-    (P.X.streak ? '<span class="p-streak" title="שבועות ברצף">' + glyph('flame') + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
+  return '<button class="player" id="playerBtn" type="button" aria-label="' + say('הפרופיל שלי: רמה ', 'My profile: level ') + P.L.lvl + ', ' + nm(P.rank) + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
+    '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + esc(me.name) : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
+    (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + glyph('flame') + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
-const setRow = (label, key, list, cur) => '<div class="lk-row"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
-function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + b.he + (on ? ', הושג' : ', עוד לא') + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + b.he + '</span></li>'; }
+const setRow = (label, key, list, cur) => '<div class="lk-row col"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
+function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
 function renderProfile(P) {
   P = P || meNow();
   const me = S.cfg.me, L = P.L, nx = nextReward(L.lvl), have = new Set(Object.keys(me.badges).concat(earned(P.T, P.X)));
   const stat = (v, k) => '<div><b>' + v + '</b><span>' + k + '</span></div>';
-  $('#profile').innerHTML = '<section class="pf-top">' + (me.made ? '<button class="icon-btn pf-edit" id="lookBtn" type="button" aria-label="עריכת הדמות">' + glyph('pen') + '</button>' : '') +
-    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? esc(me.name) : 'הדמות שלי') + '</h1>' +
-    '<p class="pf-rank"><span class="lv-badge">רמה ' + L.lvl + '</span>' + P.rank.he + '</p>' +
-    '<div class="xp">' + xpBar(pctOf(L)) + '<div class="xp-l"><span>עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ' + (L.lvl + 1) + '</span><span>' + Ltr(nf(L.into) + ' / ' + nf(L.need)) + '</span></div></div>' +
-    (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + 'עיצוב הדמות</button>') + '</section>' +
-    '<div class="pf-stats">' + stat(nf(P.T.wk), 'אימונים') + stat(P.X.streak, 'שבועות ברצף') + stat(nf(P.T.prs), 'שיאים') + stat(Ltr(tons(P.T.kg)), 'טון הורמו') + '</div>' +
-    (nx ? '<section class="pf-next">' + glyph('gift') + '<span><small>הפרס הבא</small><b>' + nx.he + '</b></span><em>רמה ' + nx.at + '</em></section>' : '') +
-    '<section class="pf-sec"><h2 class="sec">הישגים <small>' + have.size + '/' + BADGES.length + '</small></h2><ul class="badges">' + BADGES.map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
+  $('#profile').innerHTML = '<section class="pf-top">' + (me.made ? '<button class="icon-btn pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '') +
+    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? esc(me.name) : say('הדמות שלי', 'My character')) + '</h1>' +
+    '<p class="pf-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
+    '<div class="xp">' + xpBar(pctOf(L)) + '<div class="xp-l"><span>' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + '</span><span>' + Ltr(nf(L.into) + ' / ' + nf(L.need)) + '</span></div></div>' +
+    (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') + '</section>' +
+    '<div class="pf-stats">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</div>' +
+    (nx ? '<section class="pf-next">' + glyph('gift') + '<span><small>' + say('הפרס הבא', 'Next reward') + '</small><b>' + nm(nx) + '</b></span><em>' + say('רמה ', 'Level ') + nx.at + '</em></section>' : '') +
+    '<section class="pf-sec"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><ul class="badges">' + BADGES.map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
     '<section class="pf-sec"><h2 class="sec">' + say('הגדרות', 'Settings') + '</h2><div class="pf-set">' +
-    setRow(say('שפה', 'Language'), 'lang', [['he', 'עברית'], ['en', 'English']], LANG) +
+    setRow(say('שפה', 'Language'), 'lang', LANGS, LANG) +
     setRow(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp) +
     setRow(say('מטרה', 'Goal'), 'goal', GOALS().map((o, i) => [i, o[0]]), me.goal) +
     '<button class="link" id="obAgain" type="button">' + say('מסך הפתיחה', 'The opening screens') + '</button></div></section>' +
-    '<section class="pf-sec"><h2 class="sec">איך צוברים נקודות</h2><div class="pf-how"><span><b>' + Ltr('+' + XP.set) + '</b>סט</span><span><b>' + Ltr('+' + XP.pr) + '</b>שיא אישי</span><span><b>' + Ltr('+' + XP.done) + '</b>סיום אימון</span></div></section>';
+    '<section class="pf-sec"><h2 class="sec">' + say('איך צוברים נקודות', 'How points are earned') + '</h2><div class="pf-how"><span><b>' + Ltr('+' + XP.set) + '</b>' + say('סט', 'Set') + '</span><span><b>' + Ltr('+' + XP.pr) + '</b>' + say('שיא אישי', 'Personal best') + '</span><span><b>' + Ltr('+' + XP.done) + '</b>' + say('סיום אימון', 'Workout finished') + '</span></div></section>';
 }
 
 /* ---- the character sheet: name and looks; every choice is saved at once ---- */
@@ -3527,10 +3712,10 @@ function lookRows() {
 function openLook() {
   const me = S.cfg.me, sh = $('#sheet');
   S.sheet = 'look';
-  sh.innerHTML = '<div class="sheet-in lk" role="dialog" aria-modal="true" aria-label="הדמות שלי"><div class="ed-h"><div><h2>הדמות שלי</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+  sh.innerHTML = '<div class="sheet-in lk" role="dialog" aria-modal="true" aria-label="' + say('הדמות שלי', 'My character') + '"><div class="ed-h"><div><h2>' + say('הדמות שלי', 'My character') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div>' +
-    '<label class="lk-row" for="lkName"><span>שם</span><input id="lkName" type="text" maxlength="16" autocomplete="off" placeholder="השם שלך" value="' + esc(me.name) + '"></label>' +
-    '<div id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">סיום</button></div>';
+    '<label class="lk-row" for="lkName"><span>' + say('שם', 'Name') + '</span><input id="lkName" type="text" maxlength="16" autocomplete="off" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(me.name) + '"></label>' +
+    '<div id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
   sh.hidden = false;
 }
 function setLook(key, v) {
@@ -3560,7 +3745,7 @@ function chime() {
     });
   } catch (e) { /* no audio here */ }
 }
-function levelUp(lvl) { toast(glyph('star') + '<b>רמה ' + lvl + '!</b>'); chime(); buzz([50, 40, 50, 40, 120]); }
+function levelUp(lvl) { toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); chime(); buzz([50, 40, 50, 40, 120]); }
 /* call after a change that may have earned points, with the level from before it */
 function bump(lv0) { if (lv0 && S.lvl > lv0) levelUp(S.lvl); }
 /* paper confetti over a sheet: a short burst that falls and stops by itself */
@@ -3597,23 +3782,27 @@ function wireMe() {
 }
 
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
-const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
+const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false, limits: false };
 /* the coach has a face: the same figure as the player's, with a look of his own */
 const COACH = { skin: 2, hair: 1, hc: 0, beard: 1, shirt: 5 };
 const coachFace = () => avatarSVG(COACH, 12, { bust: true });
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
-  return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return wkFull(i) + (P.m ? ' (' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.he + ' (' + e.name + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
+  return PLAN.map((w, i) => {
+    const s = live(i), P = phase(i, s);
+    return wkFull(i) + (P.m ? ' (' + (P.dl ? say('שבוע קל', 'easy week') : say('שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב', 'week ' + P.wk + ' of ' + S.cfg.weeks + ' in the round')) + ', ' + rirText(P.rir) + ')' : '') + ':\n' +
+      exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + say(e.he + ' (' + e.name + ')', e.name) + ': ' + e.n0 + say(' סטים × ', ' sets × ') + e.reps + (e.suf ? ' ' + e.suf : '') + say(' חזרות | מנוחה ', ' reps | rest ') + restPlain(e)).join('\n');
+  }).join('\n\n');
 }
 /* what the opening screens learned about the lifter, for the coach */
 function aboutUser() {
-  const me = S.cfg.me, bits = [];
-  if (me.name) bits.push('שם: ' + me.name);
-  if (me.exp != null) bits.push('ניסיון בחדר כושר: ' + ['מתחיל (פחות מחצי שנה)', 'מתאמן קבוע (חצי שנה עד שנתיים)', 'מנוסה (יותר משנתיים)'][me.exp]);
-  if (me.goal != null) bits.push('מטרה: ' + ['לבנות שריר', 'להתחזק', 'כושר ובריאות'][me.goal]);
-  return bits.length ? 'על המשתמש: ' + bits.join(' · ') + '. התאם את הטון ואת העצות לניסיון ולמטרה.\n\n' : '';
+  const me = S.cfg.me, bits = [], exp = EXP()[me.exp], goal = GOALS()[me.goal];
+  if (me.name) bits.push(say('שם: ', 'Name: ') + me.name);
+  if (exp) bits.push(say('ניסיון בחדר כושר: ', 'Gym experience: ') + exp[0] + ' (' + exp[1] + ')');
+  if (goal) bits.push(say('מטרה: ', 'Goal: ') + goal[0]);
+  return bits.length ? say('על המשתמש: ', 'About the user: ') + bits.join(' · ') + say('. התאם את הטון ואת העצות לניסיון ולמטרה.', '. Fit your tone and your advice to the experience and the goal.') + '\n\n' : '';
 }
-const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
+const rulesHe = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
   'התוכנית של המשתמש (גוף עליון ותחתון, ארבעה אימונים שמתבצעים במחזור לפי הסדר). בסוגריים המרובעים מופיע מזהה התרגיל, ובסוגריים העגולים שמו באנגלית. באפליקציה התרגילים והאימונים מוצגים בעברית, אז השתמש בשמות העבריים:\n\n' + planText() + '\n\n' +
   aboutUser() + 'כללים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה בתשובה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה הסבר קצר (שרירי מטרה ודפוס תנועה), איך להתאים סטים, חזרות, מנוחה וקרבה לכשל, ודגש ביצוע אחד.\n' +
@@ -3624,33 +3813,64 @@ const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, א�
   '  השתמש בתרגיל שבהקשר אם לא צוין תרגיל אחר. אל תוסיף את השורה אם לא ביקשו לרשום, או אם חסר מספר החזרות (במקרה כזה שאל). אל תזכיר את השורה הזאת בטקסט.\n' +
   '- כשאין תחליף מדויק, הצע חלופה אחת או שתיים שנפוצות בחדרי כושר.\n' +
   '- שמור על כוונת התוכנית: אותה קבוצת שרירים, אותו טווח חזרות ואותה קרבה לכשל.\n' +
-  '- האפליקציה מנהלת סבב אימונים של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל) ומאפשרת להחליף תרגיל בכפתור "החלף תרגיל" לתרגיל באותו דפוס תנועה. כששואלים על יעד, משקל או עצימות, התבסס על הנתונים שבהקשר.\n' +
+  '- האפליקציה מנהלת סבב אימונים של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל) ומאפשרת להחליף כל תרגיל בכפתור "החלף תרגיל". כששואלים על יעד, משקל או עצימות, התבסס על הנתונים שבהקשר.\n' +
   '- דבר בשפה פשוטה. אל תשתמש במונחים כמו מזוציקל, דילואד או RIR: אמור "סבב", "שבוע קל" ו"חזרות לפני כשל".\n' +
   '- אין לך מידע רפואי על המשתמש. אם מוזכרים כאב או פציעה, המלץ להפסיק את התרגיל ולהתייעץ עם איש מקצוע.\n' +
   '- טקסט פשוט בלבד, בלי טבלאות ובלי כותרות. אפשר שורות קצרות שמתחילות ב-"• ".';
-const ERR = {
-  not_granted: 'לא אישרת לאילון לענות בדף הזה, ולכן הצ׳אט כבוי כרגע. אפשר לשנות את זה בהרשאות של הדף.',
-  sampling_disabled: 'Claude לא זמין בחשבון הזה, ולכן הצ׳אט כבוי.',
-  rate_limited: 'הגעת למגבלת השימוש כרגע. נסה שוב בעוד כמה דקות.',
-  session_expired: 'ההתחברות פגה. התחבר מחדש ל-Claude ונסה שוב.',
-  image_rejected: 'לא הצלחתי לשלוח את התמונה. נסה לצלם שוב או לבחור תמונה אחרת.',
-  images_unavailable: 'אי אפשר לשלוח תמונות בתצוגה הזאת. תאר את המכשיר במילים.',
-  refused: 'אילון לא ענה על השאלה הזאת. נסה לנסח אותה אחרת.',
-  empty_completion: 'לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.',
-  prompt_too_large: 'השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.',
-  upstream_error: 'התקשורת נקטעה. נסה לשלוח שוב.',
-  bad_key: 'המפתח לא התקבל אצל Anthropic. בדוק אותו בחיבור של אילון (סמל המפתח למעלה).',
-  offline: 'אין חיבור לאינטרנט כרגע.',
-};
-/* inside the phone app there is no Claude to answer yet */
-const NATIVE_OFF = 'כדי שאילון יענה באפליקציה צריך מפתח API של Anthropic. המפתח נשמר רק בטלפון הזה.';
+const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'s workout app. You are an AI assistant (built on Claude), and if you are asked about it you say so plainly. Always answer in English, at eye level, short and to the point (up to about 120 words, unless more detail was asked for).\n\n' +
+  'The user\'s plan (upper and lower body, four workouts done in a cycle, in this order). The square brackets hold the id of each exercise. Use the exercise names as they are written here:\n\n' + planText() + '\n\n' +
+  aboutUser() + 'Rules:\n' +
+  '- When asked whether an exercise or a machine can replace an exercise from the plan, the first line of the answer is exactly one of these: "Verdict: Suitable", "Verdict: Partly suitable" or "Verdict: Not recommended". After it, a short explanation (target muscles and movement pattern), how to adjust sets, reps, rest and closeness to failure, and one form cue.\n' +
+  '- For other questions (technique, starting weight, progress) answer directly, with no verdict line. When the context holds earlier results, build on them.\n' +
+  '- If a photo is attached, open the explanation by naming the machine or the exercise seen in it ("In the photo: ..."), because in the following messages the photo will no longer be available to you. If the photo is unclear, say what you do see and ask for a shot from another angle. If you are told that a photo was attached but it did not reach you, ask to attach it again.\n' +
+  '- Logging sets: when the user asks to log sets they did (for example "log 60 kg, 8 8 7" or "I did 3 sets of 12 with no weight"), confirm in one sentence what was logged, and at the end of the answer add a separate line in exactly this format:\n' +
+  '@@LOG {"ex":"<exercise id>","sets":[[<weight in kg or null>,<reps>],...]}\n' +
+  '  Use the exercise in the context if no other exercise was named. Do not add the line if you were not asked to log, or if the number of reps is missing (in that case, ask). Do not mention this line in the text.\n' +
+  '- When there is no exact substitute, suggest one or two alternatives that are common in gyms.\n' +
+  '- Keep the intent of the plan: the same muscle group, the same rep range and the same closeness to failure.\n' +
+  '- The app runs a training round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight) and lets the user swap any exercise with the "Swap exercise" button. When asked about a target, a weight or intensity, build on the data in the context.\n' +
+  '- Weights are in kilograms.\n' +
+  '- Use plain language. Do not use terms such as mesocycle, deload or RIR: say "round", "easy week" and "reps before failure".\n' +
+  '- You have no medical information about the user. If pain or an injury comes up, recommend stopping the exercise and consulting a professional.\n' +
+  '- Plain text only, no tables and no headings. Short lines that start with "• " are fine.';
+const rules = () => (LANG === 'en' ? rulesEn() : rulesHe());
+/* every fixed text of the chat by its code, in the language of the page. The codes are what is kept, so that a
+   message that is already on screen follows a change of language */
+const ERR = () => ({
+  not_granted: say('לא אישרת לאילון לענות בדף הזה, ולכן הצ׳אט כבוי כרגע. אפשר לשנות את זה בהרשאות של הדף.', 'You did not allow Eilon to answer on this page, so the chat is off for now. You can change that in the permissions of the page.'),
+  sampling_disabled: say('Claude לא זמין בחשבון הזה, ולכן הצ׳אט כבוי.', 'Claude is not available on this account, so the chat is off.'),
+  rate_limited: say('הגעת למגבלת השימוש כרגע. נסה שוב בעוד כמה דקות.', 'You have reached the usage limit for now. Try again in a few minutes.'),
+  session_expired: say('ההתחברות פגה. התחבר מחדש ל-Claude ונסה שוב.', 'Your session has expired. Sign in to Claude again and retry.'),
+  image_rejected: say('לא הצלחתי לשלוח את התמונה. נסה לצלם שוב או לבחור תמונה אחרת.', 'The photo could not be sent. Take it again or choose another one.'),
+  images_unavailable: say('אי אפשר לשלוח תמונות בתצוגה הזאת. תאר את המכשיר במילים.', 'Photos cannot be sent in this view. Describe the machine in words.'),
+  refused: say('אילון לא ענה על השאלה הזאת. נסה לנסח אותה אחרת.', 'Eilon did not answer this question. Try wording it differently.'),
+  empty_completion: say('לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.', 'No answer came back. Try a shorter question.'),
+  prompt_too_large: say('השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.', 'The conversation is too long. Start a new chat and try again.'),
+  upstream_error: say('התקשורת נקטעה. נסה לשלוח שוב.', 'The connection dropped. Try sending again.'),
+  bad_key: say('המפתח לא התקבל אצל Anthropic. בדוק אותו בחיבור של אילון (סמל המפתח למעלה).', 'Anthropic did not accept the key. Check it in Eilon\'s connection (the key icon at the top).'),
+  offline: say('אין חיבור לאינטרנט כרגע.', 'No internet connection right now.'),
+  /* why the chat is off */
+  native: say('כדי שאילון יענה באפליקציה צריך מפתח API של Anthropic. המפתח נשמר רק בטלפון הזה.', 'For Eilon to answer in the app, an Anthropic API key is needed. The key is kept only on this phone.'),
+  outside: say('הצ׳אט פועל רק כשהדף פתוח בתוך Claude.', 'The chat works only when this page is open inside Claude.'),
+  view: say('הצ׳אט לא זמין בתצוגה הזאת.', 'The chat is not available in this view.'),
+  /* notes under an answer or above the message box */
+  cut: say('התשובה נקטעה באמצע. בקש המשך או שאל שאלה קצרה יותר.', 'The answer was cut short. Ask for the rest, or ask a shorter question.'),
+  cancelled: say('עצרת את התשובה.', 'You stopped the answer.'),
+  no_image: say('לא הצלחתי לקרוא את התמונה. נסה לצלם שוב או לבחור קובץ JPG או PNG.', 'The photo could not be read. Take it again, or choose a JPG or PNG file.'),
+});
+const isErr = (c) => typeof c === 'string' && Object.prototype.hasOwnProperty.call(ERR(), c);
+/* the text of a code; anything that is not a code is shown as it is */
+const errText = (c) => (isErr(c) ? ERR()[c] : c || '');
 const HIDE = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'];
 const stripCmd = (t) => t.replace(/^[ \t]*@@.*$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
 function splitVerdict(text, final) {
-  const m = text.match(/^\s*(?:פסיקה\s*[:\-–]\s*)?(מתאים חלקית|לא מומלץ|מתאים)\s*[.!]?\s*(\n|$)/);
+  const m = text.match(/^\s*(?:(?:פסיקה|verdict)\s*[:\-–]\s*)?(מתאים חלקית|לא מומלץ|מתאים|partly suitable|not recommended|suitable)\s*[.!]?\s*(\n|$)/i);
   if (!m || (!final && !m[2])) return null;
-  return { kind: m[1] === 'מתאים' ? 'ok' : m[1] === 'מתאים חלקית' ? 'mid' : 'no', label: m[1], rest: text.slice(m[0].length) };
+  const v = m[1].toLowerCase();
+  return { kind: v === 'מתאים' || v === 'suitable' ? 'ok' : v === 'מתאים חלקית' || v === 'partly suitable' ? 'mid' : 'no', label: m[1], rest: text.slice(m[0].length) };
 }
+/* the exercise a message is about, under the name it has now */
+const ctxName = (v) => { const e = v && findEx(v); return e ? e.nm : v || ''; };
 function fmtText(text) {
   let html = '', list = false;
   for (const raw of esc(text).split('\n')) {
@@ -3662,23 +3882,24 @@ function fmtText(text) {
   return html + (list ? '</ul>' : '');
 }
 function msgHTML(m, idx) {
-  if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(m.ctx) + '</span>' : '') + '</div></div>';
+  if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(ctxName(m.ctx)) + '</span>' : '') + '</div></div>';
   const text = stripCmd(m.text || ''), face = '<span class="ava sm" aria-hidden="true">' + coachFace() + '</span>';
   if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + say('נרשם.', 'Logged.') + '</span>') + loggedHTML(m, idx) + '</div></div>';
   const v = splitVerdict(text, !m.live);
-  return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(m.note) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
+  return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(errText(m.note)) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
 }
 function loggedHTML(m, idx) {
   if (!m.logged) return '';
-  if (m.logged.undone) return '<div class="logged" style="color:var(--ink-3)">הרישום בוטל</div>';
-  return '<div class="logged"><span>' + (m.logged.idx.length === 1 ? 'נרשם סט אחד' : 'נרשמו ' + m.logged.idx.length + ' סטים') + ' · ' + esc(m.logged.name) + '</span><button class="link" type="button" data-unlog="' + idx + '">בטל</button></div>';
+  if (m.logged.undone) return '<div class="logged" style="color:var(--ink-3)">' + say('הרישום בוטל', 'The log was undone') + '</div>';
+  const n = m.logged.idx.length;
+  return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span><button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button></div>';
 }
 /* first things to ask, each with its sign */
 const SUGS = () => [[ICON.swap, say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?')], [ICON.cam, say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?')], [ICON.cues, say('דגשים לתרגיל הזה', 'Cues for this exercise')], [ICON.bell, say('כמה משקל לשים היום?', 'How much weight today?')]];
 function renderMsgs() {
   const box = $('#msgs'), face = '<span class="ava big" aria-hidden="true">' + coachFace() + '</span>';
   $('#chatNew').hidden = !chat.msgs.length;
-  if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(chat.off) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
+  if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
     box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('צלם מכשיר או שאל שאלה. אפשר גם לכתוב מה עשית, ואני ארשום.', 'Snap a machine or ask a question. You can also tell me what you did and I will log it.') + '</span><div class="sugs">' +
       SUGS().map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s[0] + '<span>' + s[1] + '</span>' + ICON.fwd + '</button>').join('') + '</div></div>';
@@ -3691,7 +3912,7 @@ function paintLast() {
   if (el) el.outerHTML = msgHTML(chat.msgs[chat.msgs.length - 1], chat.msgs.length - 1);
   if (stick) box.scrollTop = box.scrollHeight;
 }
-function setBusy(on) { chat.busy = on; const b = $('#sendBtn'); b.innerHTML = on ? ICON.stop : ICON.send; b.setAttribute('aria-label', on ? 'עצור' : 'שלח'); }
+function setBusy(on) { chat.busy = on; const b = $('#sendBtn'); b.innerHTML = on ? ICON.stop : ICON.send; b.setAttribute('aria-label', on ? say('עצור', 'Stop') : say('שלח', 'Send')); }
 function compNote(t) { const n = $('#compNote'); n.textContent = t || ''; n.hidden = !t; }
 function setAttach(blob) {
   if (chat.imgUrl && !chat.msgs.some((m) => m.imgUrl === chat.imgUrl)) URL.revokeObjectURL(chat.imgUrl);
@@ -3710,22 +3931,22 @@ async function pickImage(file) {
     const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
     if (!blob) throw new Error('encode');
     setAttach(blob); $('#chatInput').focus();
-  } catch (e) { compNote('לא הצלחתי לקרוא את התמונה. נסה לצלם שוב או לבחור קובץ JPG או PNG.'); }
+  } catch (e) { compNote(errText('no_image')); }
 }
 /* what the page knows, sent with each question: the open workout, the exercise in question and its recent log */
 function ctxLine() {
   const id = $('#chatCtx').value, e = id && findEx(id);
-  let t = '[הקשר מהאפליקציה. האימון הפתוח כרגע: ' + wkFull(S.tab) + '.';
+  let t = say('[הקשר מהאפליקציה. האימון הפתוח כרגע: ', '[Context from the app. The workout that is open now: ') + wkFull(S.tab) + '.';
   if (e) {
     const w = wkOf(id);
     const cur = live(w), rir = rirOf(e, cur), fu = firstUndone(cur, e), T = fu >= 0 ? targetOf(e, fu, cur) : null, pe = planEx(id);
-    t += ' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
-    if (T) t += ' היעד לסט הבא (סט ' + (fu + 1) + '): ' + fmtRow(T) + '.';
+    t += say(' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ', ' The question is about the exercise [' + e.id + '] "' + e.name + '" (' + wkOrd(w) + '): ') + e.n0 + say(' סטים × ', ' sets × ') + e.reps + (e.suf ? ' ' + e.suf : '') + say(' חזרות, מנוחה ', ' reps, rest ') + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
+    if (T) t += say(' היעד לסט הבא (סט ' + (fu + 1) + '): ', ' The target for the next set (set ' + (fu + 1) + '): ') + fmtRow(T) + '.';
     const hist = sorted().filter((s) => s.w === w && moveOf(pe, s) === e.mv && rowsOf(s, id).some(isDone)).slice(0, 3);
-    if (hist.length) t += ' ביצועים אחרונים (ק״ג×חזרות): ' + hist.map((s) => (s.end ? ago(s.ts) : 'באימון הנוכחי') + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
-    else t += ' עוד אין רישום קודם לתרגיל הזה.';
+    if (hist.length) t += say(' ביצועים אחרונים (ק״ג×חזרות): ', ' Recent results (kg×reps): ') + hist.map((s) => (s.end ? ago(s.ts) : say('באימון הנוכחי', 'in the current workout')) + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
+    else t += say(' עוד אין רישום קודם לתרגיל הזה.', ' Nothing was logged for this exercise before.');
   }
-  return { text: t + ']', name: e ? e.he : '' };
+  return { text: t + ']', id: e ? e.id : '' };
 }
 /* a reply may carry one "@@LOG {...}" line: sets to write into today's log */
 function applyLog(text) {
@@ -3743,7 +3964,7 @@ function applyLog(text) {
   if (!idx.length) return null;
   S.touched = true; if (w === S.tab) { S.draft = null; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
   renderAll(); bump(lv0); keepAwake();
-  return { ex: e.id, name: e.he, idx };
+  return { ex: e.id, name: e.nm, idx };
 }
 function undoLog(i) {
   const m = chat.msgs[i], e = m && m.logged && findEx(m.logged.ex); if (!e || m.logged.undone) return;
@@ -3755,23 +3976,23 @@ async function sendChat(preset) {
   if (chat.off) return;
   const inp = $('#chatInput'), typed = (preset || inp.value).trim(), img = chat.img, imgUrl = chat.imgUrl;
   if (!typed && !img) { inp.focus(); return; }
-  const text = typed || 'מה המכשיר שבתמונה, והאם הוא מתאים כתחליף?', ctx = ctxLine();
+  const text = typed || say('מה המכשיר שבתמונה, והאם הוא מתאים כתחליף?', 'What is the machine in the photo, and does it fit as a substitute?'), ctx = ctxLine();
   compNote(''); setBusy(true);
-  chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.name });
+  chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.id });
   const reply = { role: 'a', text: '', live: true }; chat.msgs.push(reply);
-  chat.turns.push({ role: 'user', content: ctx.text + '\n\n' + text + (img ? '\n\n[להודעה הזאת צורפה תמונה אחת]' : '') });
+  chat.turns.push({ role: 'user', content: ctx.text + '\n\n' + text + (img ? say('\n\n[להודעה הזאת צורפה תמונה אחת]', '\n\n[One photo is attached to this message]') : '') });
   inp.value = ''; inp.style.height = ''; chat.img = null; chat.imgUrl = ''; $('#attach').hidden = true;
   renderMsgs();
   const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); inp.value = typed; if (img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
   let sample = null;
   try { sample = await chat.sampleP; } catch (e) { sample = null; }
-  if (!sample) { undo(); chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); setBusy(false); return; }
+  if (!sample) { undo(); chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? 'native' : 'outside'; renderMsgs(); setBusy(false); return; }
   chat.ctl = new AbortController();
   try {
     const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { reply.text = u.text; paintLast(); } };
     if (img) opts.images = [img];
     const res = await sample([{ role: 'user', content: rules() }].concat(chat.turns.slice(-16)), opts);
-    reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'התשובה נקטעה באמצע. בקש המשך או שאל שאלה קצרה יותר.';
+    reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'cut';
     chat.turns.push({ role: 'assistant', content: res.text });
     const lg = res.truncated ? null : applyLog(res.text); if (lg) reply.logged = lg;
     renderMsgs();
@@ -3779,33 +4000,37 @@ async function sendChat(preset) {
     const code = (e && e.code) || 'upstream_error', part = e && e.text && stripCmd(e.text);
     if (code === 'no_key') { undo(); window.gymiCoach(false); }
     else if (code === 'api_error' && e.message) { undo(); compNote('Anthropic: ' + String(e.message).slice(0, 200)); }
-    else if (HIDE.includes(code)) { undo(); chat.off = ERR[code] || 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); }
-    else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = code === 'cancelled' ? 'עצרת את התשובה.' : ERR[code] || ERR.upstream_error; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
-    else { undo(); if (code !== 'cancelled') compNote(ERR[code] || ERR.upstream_error); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); } }
+    else if (HIDE.includes(code)) { undo(); chat.off = isErr(code) ? code : 'view'; renderMsgs(); }
+    else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = isErr(code) ? code : 'upstream_error'; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
+    else { undo(); if (code !== 'cancelled') compNote(errText(isErr(code) ? code : 'upstream_error')); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); chatText(); } }
   } finally { chat.ctl = null; setBusy(false); }
 }
 function showImgBtns() { $('#camBtn').hidden = $('#galBtn').hidden = !chat.canImg; }
 /* the exercise picker follows the plan as it stands (swapped movements show under their own name) */
 function fillCtx() {
   const sel = $('#chatCtx'), v = sel.value;
-  sel.innerHTML = '<option value="">כל התוכנית</option>' + PLAN.map((w, i) => '<optgroup label="' + wkFull(i) + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + e.he + '</option>').join('') + '</optgroup>').join('');
+  sel.innerHTML = '<option value="">' + say('כל התוכנית', 'The whole plan') + '</option>' + PLAN.map((w, i) => '<optgroup label="' + wkFull(i) + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + e.nm + '</option>').join('') + '</optgroup>').join('');
   sel.value = v;
 }
+/* the fixed texts of the message box: they depend on the language, and on whether photos can be sent */
+function chatText() {
+  $('#chatInput').placeholder = chat.canImg || !chat.limits ? say('שאל את אילון', 'Ask Eilon') : say('כתוב שם של מכשיר או תרגיל חלופי', 'Type the name of a machine or of another exercise');
+  setBusy(chat.busy);
+}
 function initChat() {
-  fillCtx();
+  fillCtx(); chatText();
   for (const el of $$('.ava')) if (!el.firstChild) el.innerHTML = coachFace();
   $('#chatKey').hidden = !window.GYMI_NATIVE;
   chat.needKey = !!window.GYMI_NATIVE && !window.GYMI_COACH;
   /* in the phone app the coach answers only once the owner has saved an API key */
-  if (chat.needKey) { chat.sampleP = Promise.resolve(null); chat.off = NATIVE_OFF; renderMsgs(); return; }
+  if (chat.needKey) { chat.sampleP = Promise.resolve(null); chat.off = 'native'; renderMsgs(); return; }
   chat.off = '';
-  if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); return; }
+  if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'outside'; renderMsgs(); return; }
   chat.sampleP = window.claude.use('sample');
   chat.sampleP.then(async (sample) => {
-    if (!sample) { chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); return; }
+    if (!sample) { chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? 'native' : 'view'; renderMsgs(); return; }
     try { const lim = await sample.limits(); chat.canImg = !!(lim && lim.images); } catch (e) { chat.canImg = false; }
-    showImgBtns();
-    if (!chat.canImg) $('#chatInput').placeholder = 'כתוב שם של מכשיר או תרגיל חלופי';
+    chat.limits = true; showImgBtns(); chatText();
   }).catch(() => {});
   renderMsgs();
 }
@@ -3842,17 +4067,52 @@ function wireChat() {
    The opening screens are shown once. The coach asks a few short questions (language, name, experience, goal), the
    player designs a character, and the app is ready. Every answer can be changed later in the profile. */
 const autoLang = () => (Object.keys(S.sessions).length || S.cfg.me.made || /^(he|iw)\b/i.test(navigator.language || '') ? 'he' : 'en');
-/* put the page in the chosen language: direction, the fixed texts of the page, and everything that is drawn from the log */
+/* the texts that are written in the page itself and not drawn by a render: [selector, attribute ('' = its text), the text] */
+const STATIC = () => [
+  ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
+  ['#topCoach', 'aria-label', say('שאל את אילון', 'Ask Eilon')],
+  ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
+  ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
+  ['#tabbar [data-view="home"] span', '', say('היום', 'Today')],
+  ['#tabbar [data-view="profile"] span', '', say('פרופיל', 'Profile')],
+  ['#tabbar [data-view="progress"] span', '', say('התקדמות', 'Progress')],
+  ['#chatOpen span', '', say('אילון', 'Eilon')],
+  ['#pre', 'aria-label', say('התאוששות מהאימון הקודם', 'Recovery since the last workout')],
+  ['.v-progress .big', '', say('התקדמות', 'Progress')],
+  ['#backup', 'aria-label', say('גיבוי', 'Backup')],
+  ['#chat', 'aria-label', say('צ׳אט עם אילון', 'Chat with Eilon')],
+  ['.chat-h h2', '', say('אילון', 'Eilon')],
+  ['.chat-h p', '', say('המאמן שלך', 'Your coach')],
+  ['#chatKey', 'aria-label', say('החיבור של אילון', 'Eilon\'s connection')],
+  ['#chatKey', 'title', say('החיבור של אילון', 'Eilon\'s connection')],
+  ['#chatNew', 'aria-label', say('שיחה חדשה', 'New chat')],
+  ['#chatNew', 'title', say('שיחה חדשה', 'New chat')],
+  ['#chatClose', 'aria-label', say('סגור את הצ׳אט', 'Close the chat')],
+  ['.chat-ctx span', '', say('על', 'About')],
+  ['#attachImg', 'alt', say('התמונה שצורפה', 'The attached photo')],
+  ['.attach span', '', say('תישלח עם ההודעה', 'Goes with your message')],
+  ['#attachX', 'aria-label', say('הסר את התמונה', 'Remove the photo')],
+  ['#camBtn', 'aria-label', say('צלם את המכשיר', 'Take a photo of the machine')],
+  ['#camBtn', 'title', say('צלם את המכשיר', 'Take a photo of the machine')],
+  ['#galBtn', 'aria-label', say('בחר תמונה מהגלריה', 'Choose a photo from the gallery')],
+  ['#galBtn', 'title', say('בחר תמונה מהגלריה', 'Choose a photo from the gallery')],
+  ['#chatInput', 'aria-label', say('הודעה לאילון', 'Message to Eilon')],
+  ['#dock', 'aria-label', say('רישום סטים וטיימר מנוחה', 'Set log and rest timer')],
+];
+function staticText() { for (const r of STATIC()) { const el = $(r[0]); if (!el) continue; if (r[1]) el.setAttribute(r[1], r[2]); else el.textContent = r[2]; } }
+/* put the page in the chosen language: direction, the fixed texts of the page, and the notes that were kept as written text */
 function applyLang() {
+  const was = LANG;
   LANG = S.cfg.lang || autoLang();
   const dir = LANG === 'he' ? 'rtl' : 'ltr', app = $('#app');
   document.documentElement.lang = LANG; document.documentElement.dir = dir; app.lang = LANG; app.dir = dir;
-  if (typeof staticText === 'function') staticText();
+  staticText();
+  if (was !== LANG) { S.banner = ''; S.bannerKind = ''; S.backupNote = ''; setSync(); fillCtx(); chatText(); compNote(''); renderMsgs(); }
 }
 function setLang(l, keep) {
   if (l !== 'he' && l !== 'en') return;
   S.cfg.lang = l; applyLang();
-  if (!keep) { saveCfg(); renderAll(); fillCtx(); renderMsgs(); }
+  if (!keep) { saveCfg(); renderAll(); }
   if (window.gymiNative && typeof window.gymiNative.lang === 'function') window.gymiNative.lang(l);
 }
 
@@ -3879,7 +4139,7 @@ function obHTML() {
     cta = say('בואו נתחיל', "Let's start");
     body = '<div class="ob-hero"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
       '<div class="ob-av">' + avatar(lvl) + '</div><h1 id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1><p>' + say('תוכנית כוח של ארבעה אימונים, שמרגישה כמו משחק.', 'A four-workout strength plan that plays like a game.') + '</p>' +
-      '<div class="seg ob-lang" role="group" aria-label="Language · שפה"><button type="button" data-lang="he" aria-pressed="' + (LANG === 'he') + '">עברית</button><button type="button" data-lang="en" aria-pressed="' + (LANG === 'en') + '">English</button></div></div>';
+      '<div class="seg ob-lang" role="group" aria-label="' + LANG_LABEL + '">' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div></div>';
   } else if (st === 1) {
     body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">';
   } else if (st === 2) {
@@ -3918,7 +4178,7 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) { me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goal = OB.goal; me.made = me.made || Date.now(); applyExp(); }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
-  closeOb(); renderAll(); fillCtx(); renderMsgs();
+  closeOb(); renderAll();
 }
 function obStep(d) { const n = OB.step + d; if (n < 0) return; if (n > OB_LAST) { obFinish(false); return; } OB.step = n; OB.dir = d; renderOb(); }
 /* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */

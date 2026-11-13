@@ -2,6 +2,8 @@
    Every text is written in both languages where it is used: say('עברית', 'English'). */
 let LANG = 'he';
 const say = (he, en) => (LANG === 'en' ? en : he);
+/* the languages, each under its own name, and the label of the choice between them (read by both kinds of reader) */
+const LANGS = [['he', 'עברית'], ['en', 'English']], LANG_LABEL = 'Language · שפה';
 
 /* ================================================================== plan */
 /* each workout: name = the short English name kept in exports, t / te = the title shown in the app in Hebrew / English */
@@ -51,3 +53,14 @@ const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי'];
 const wkName = (w) => say(PLAN[w].t, PLAN[w].te);
 const wkOrd = (w) => say('אימון ' + ORD[w], 'Workout ' + (w + 1));
 const wkFull = (w) => wkOrd(w) + ' – ' + wkName(w);
+/* the short name for the week's path: "עליון A" / "Upper A" */
+const wkShort = (w) => say(PLAN[w].t.replace('גוף ', ''), PLAN[w].name);
+/* a count with its noun: "3 סטים" / "3 sets", "סט אחד" / "1 set" */
+const cnt = (n, heN, he1, enN, en1) => (LANG === 'en' ? n + ' ' + (n === 1 ? en1 : enN) : n === 1 ? he1 : n + ' ' + heN);
+/* "from → to", in the direction the page is read */
+const arrow = () => say(' ← ', ' → ');
+/* dates in the language of the page; in English the month is written out, so that day and month cannot be confused */
+const dateFmt = () => (LANG === 'en' ? new Intl.DateTimeFormat(/^en\b/i.test(navigator.language || '') ? navigator.language : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }));
+/* the plan's own notes in English, by their Hebrew text */
+const PLAN_EN = { '1 חזרה לפני כשל': '1 rep before failure', '1–2 חזרות לפני כשל': '1–2 reps before failure', 'סט אחרון לכשל טכני': 'Last set to failure', 'חזרות קשות ומבוקרות': 'Hard, controlled reps', 'שליטה מלאה': 'Full control', 'חזרות נקיות': 'Clean reps', 'לצד': 'per side', 'לרגל': 'per leg' };
+const planNote = (he) => (he ? say(he, PLAN_EN[he] || he) : '');

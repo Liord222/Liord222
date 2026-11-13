@@ -32,30 +32,30 @@ function renderMe() {
 /* the strip at the top of "today": who is training, at which level, and the run of weeks */
 function playerHTML(P) {
   const me = S.cfg.me;
-  return '<button class="player" id="playerBtn" type="button" aria-label="הפרופיל שלי: רמה ' + P.L.lvl + ', ' + P.rank.he + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
-    '<span class="p-txt"><b>' + (me.name ? 'היי, ' + esc(me.name) : 'היי!') + '</b><span class="p-rank"><span class="lv-badge">רמה ' + P.L.lvl + '</span>' + P.rank.he + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
-    (P.X.streak ? '<span class="p-streak" title="שבועות ברצף">' + glyph('flame') + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
+  return '<button class="player" id="playerBtn" type="button" aria-label="' + say('הפרופיל שלי: רמה ', 'My profile: level ') + P.L.lvl + ', ' + nm(P.rank) + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
+    '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + esc(me.name) : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
+    (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + glyph('flame') + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
-const setRow = (label, key, list, cur) => '<div class="lk-row"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
-function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + b.he + (on ? ', הושג' : ', עוד לא') + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + b.he + '</span></li>'; }
+const setRow = (label, key, list, cur) => '<div class="lk-row col"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
+function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
 function renderProfile(P) {
   P = P || meNow();
   const me = S.cfg.me, L = P.L, nx = nextReward(L.lvl), have = new Set(Object.keys(me.badges).concat(earned(P.T, P.X)));
   const stat = (v, k) => '<div><b>' + v + '</b><span>' + k + '</span></div>';
-  $('#profile').innerHTML = '<section class="pf-top">' + (me.made ? '<button class="icon-btn pf-edit" id="lookBtn" type="button" aria-label="עריכת הדמות">' + glyph('pen') + '</button>' : '') +
-    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? esc(me.name) : 'הדמות שלי') + '</h1>' +
-    '<p class="pf-rank"><span class="lv-badge">רמה ' + L.lvl + '</span>' + P.rank.he + '</p>' +
-    '<div class="xp">' + xpBar(pctOf(L)) + '<div class="xp-l"><span>עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ' + (L.lvl + 1) + '</span><span>' + Ltr(nf(L.into) + ' / ' + nf(L.need)) + '</span></div></div>' +
-    (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + 'עיצוב הדמות</button>') + '</section>' +
-    '<div class="pf-stats">' + stat(nf(P.T.wk), 'אימונים') + stat(P.X.streak, 'שבועות ברצף') + stat(nf(P.T.prs), 'שיאים') + stat(Ltr(tons(P.T.kg)), 'טון הורמו') + '</div>' +
-    (nx ? '<section class="pf-next">' + glyph('gift') + '<span><small>הפרס הבא</small><b>' + nx.he + '</b></span><em>רמה ' + nx.at + '</em></section>' : '') +
-    '<section class="pf-sec"><h2 class="sec">הישגים <small>' + have.size + '/' + BADGES.length + '</small></h2><ul class="badges">' + BADGES.map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
+  $('#profile').innerHTML = '<section class="pf-top">' + (me.made ? '<button class="icon-btn pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '') +
+    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? esc(me.name) : say('הדמות שלי', 'My character')) + '</h1>' +
+    '<p class="pf-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
+    '<div class="xp">' + xpBar(pctOf(L)) + '<div class="xp-l"><span>' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + '</span><span>' + Ltr(nf(L.into) + ' / ' + nf(L.need)) + '</span></div></div>' +
+    (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') + '</section>' +
+    '<div class="pf-stats">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</div>' +
+    (nx ? '<section class="pf-next">' + glyph('gift') + '<span><small>' + say('הפרס הבא', 'Next reward') + '</small><b>' + nm(nx) + '</b></span><em>' + say('רמה ', 'Level ') + nx.at + '</em></section>' : '') +
+    '<section class="pf-sec"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><ul class="badges">' + BADGES.map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
     '<section class="pf-sec"><h2 class="sec">' + say('הגדרות', 'Settings') + '</h2><div class="pf-set">' +
-    setRow(say('שפה', 'Language'), 'lang', [['he', 'עברית'], ['en', 'English']], LANG) +
+    setRow(say('שפה', 'Language'), 'lang', LANGS, LANG) +
     setRow(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp) +
     setRow(say('מטרה', 'Goal'), 'goal', GOALS().map((o, i) => [i, o[0]]), me.goal) +
     '<button class="link" id="obAgain" type="button">' + say('מסך הפתיחה', 'The opening screens') + '</button></div></section>' +
-    '<section class="pf-sec"><h2 class="sec">איך צוברים נקודות</h2><div class="pf-how"><span><b>' + Ltr('+' + XP.set) + '</b>סט</span><span><b>' + Ltr('+' + XP.pr) + '</b>שיא אישי</span><span><b>' + Ltr('+' + XP.done) + '</b>סיום אימון</span></div></section>';
+    '<section class="pf-sec"><h2 class="sec">' + say('איך צוברים נקודות', 'How points are earned') + '</h2><div class="pf-how"><span><b>' + Ltr('+' + XP.set) + '</b>' + say('סט', 'Set') + '</span><span><b>' + Ltr('+' + XP.pr) + '</b>' + say('שיא אישי', 'Personal best') + '</span><span><b>' + Ltr('+' + XP.done) + '</b>' + say('סיום אימון', 'Workout finished') + '</span></div></section>';
 }
 
 /* ---- the character sheet: name and looks; every choice is saved at once ---- */
@@ -68,10 +68,10 @@ function lookRows() {
 function openLook() {
   const me = S.cfg.me, sh = $('#sheet');
   S.sheet = 'look';
-  sh.innerHTML = '<div class="sheet-in lk" role="dialog" aria-modal="true" aria-label="הדמות שלי"><div class="ed-h"><div><h2>הדמות שלי</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="סגור">' + ICON.x + '</button></div>' +
+  sh.innerHTML = '<div class="sheet-in lk" role="dialog" aria-modal="true" aria-label="' + say('הדמות שלי', 'My character') + '"><div class="ed-h"><div><h2>' + say('הדמות שלי', 'My character') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div>' +
-    '<label class="lk-row" for="lkName"><span>שם</span><input id="lkName" type="text" maxlength="16" autocomplete="off" placeholder="השם שלך" value="' + esc(me.name) + '"></label>' +
-    '<div id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">סיום</button></div>';
+    '<label class="lk-row" for="lkName"><span>' + say('שם', 'Name') + '</span><input id="lkName" type="text" maxlength="16" autocomplete="off" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(me.name) + '"></label>' +
+    '<div id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
   sh.hidden = false;
 }
 function setLook(key, v) {
@@ -101,7 +101,7 @@ function chime() {
     });
   } catch (e) { /* no audio here */ }
 }
-function levelUp(lvl) { toast(glyph('star') + '<b>רמה ' + lvl + '!</b>'); chime(); buzz([50, 40, 50, 40, 120]); }
+function levelUp(lvl) { toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); chime(); buzz([50, 40, 50, 40, 120]); }
 /* call after a change that may have earned points, with the level from before it */
 function bump(lv0) { if (lv0 && S.lvl > lv0) levelUp(S.lvl); }
 /* paper confetti over a sheet: a short burst that falls and stops by itself */

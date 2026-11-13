@@ -20,8 +20,8 @@ const ICON = {
   go: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
   swap: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg>',
   pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
-  fwd: '<svg class="i" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
-  back: '<svg class="i" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
+  fwd: '<svg class="i dir" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
+  back: '<svg class="i dir" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
   list: '<svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg>',
   chat: '<svg class="i" viewBox="0 0 24 24"><path d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5h-7l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5z"/></svg>',
   clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.3 1.8M9.5 3.5h5"/></svg>',
@@ -191,7 +191,7 @@ function view(pe, s, plan) {
   const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id] != null ? plan[pe.id] : pe.sets;
   let n = n0;
   if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
-  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: pe.int, lvl: pe.lvl, suf: pe.suf, cut, swapped: mv !== pe.a };
+  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: planNote(pe.int), lvl: pe.lvl, suf: planNote(pe.suf), cut, swapped: mv !== pe.a };
 }
 function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return (s ? sessSlots(s) : planSlots(w)).map((pe) => view(pe, s, plan)); }
 function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
@@ -405,14 +405,14 @@ function meSync() {
 /* points a workout would bring if every planned set is done */
 const xpPlan = (list) => list.reduce((n, e) => n + e.sets, 0) * XP.set + XP.done;
 
-function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + ' דק׳'; return Ltr(a === b ? a : a + '–' + b) + ' שנ׳'; }
+function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + say(' דק׳', ' min'); return Ltr(a === b ? a : a + '–' + b) + say(' שנ׳', ' sec'); }
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
-const rirText = (r) => (r == null ? '' : r >= 4 ? 'רחוק מכשל' : r === 0 ? 'עד כשל' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
+const rirText = (r) => (r == null ? '' : r >= 4 ? say('רחוק מכשל', 'Far from failure') : r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה אחת לפני כשל', '1 rep before failure') : r + say(' חזרות לפני כשל', ' reps before failure'));
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
 function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
 function prCount(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.pr) n++; return n; }
-function ago(ts) { const d = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? 'היום' : d === 1 ? 'אתמול' : 'לפני ' + d + ' ימים'; }
+function ago(ts) { const d = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : say('לפני ' + d + ' ימים', d + ' days ago'); }
 const fmtKg = (kg) => (kg == null ? '' : String(Math.round(kg * 100) / 100));
 const fmtRow = (r) => (r.kg != null ? fmtKg(r.kg) + '×' : '') + (r.reps != null ? r.reps : '–');
 const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
@@ -421,7 +421,8 @@ const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padSta
 const writers = new Map();
 const W = (id) => { let w = writers.get(id); if (!w) { w = { timer: 0, busy: false, again: false, fail: 0 }; writers.set(id, w); } return w; };
 function setSync(state) {
-  const t = { cloud: 'נשמר בחשבון Claude', local: 'נשמר במכשיר הזה', slow: 'אין חיבור, נשמר במכשיר', error: 'אין חיבור, נשמר במכשיר' }[state];
+  if (state) S.syncState = state;
+  const off = say('אין חיבור, נשמר במכשיר', 'Offline, saved on this device'), t = { cloud: say('נשמר בחשבון Claude', 'Saved to your Claude account'), local: say('נשמר במכשיר הזה', 'Saved on this device'), slow: off, error: off }[S.syncState];
   if (t) { S.syncT = t; $('#syncNote').textContent = t; const n = $('#syncNote2'); if (n) n.textContent = t; }
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }

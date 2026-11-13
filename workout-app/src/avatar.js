@@ -67,7 +67,7 @@ function avatarSVG(look, lvl, o) {
   const legs = [-1, 1].map((d) => ln(X(d * 11.5), 170, X(d * 12.5), 231, lg, skin)).join('') +
     [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="#3A4152"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="#E7E9ED"/>'; }).join('') +
     P('M' + X(-ww - 1.5) + ' 149L' + X(ww + 1.5) + ' 149L' + X(13 + lg / 2 + 2.5) + ' 190L102.5 190L100 177L97.5 190L' + X(-13 - lg / 2 - 2.5) + ' 190Z', '#39415A', ' stroke="#39415A" stroke-width="4" stroke-linejoin="round"');
-  return '<svg class="av' + (o.flex ? ' flex' : '') + (o.still ? ' still' : '') + '" viewBox="0 -6 200 258" role="img" aria-label="הדמות שלי, רמה ' + lvl + '">' +
+  return '<svg class="av' + (o.flex ? ' flex' : '') + (o.still ? ' still' : '') + '" viewBox="0 -6 200 258" role="img" aria-label="' + say('הדמות שלי, רמה ', 'My character, level ') + lvl + '">' +
     '<circle class="av-aura r' + rankOf(lvl).i + '" cx="100" cy="116" r="90"/><ellipse class="av-shadow" cx="100" cy="247" rx="48" ry="4.6"/>' +
     '<g class="av-fig">' + backHair + legs + body + '</g></svg>';
 }

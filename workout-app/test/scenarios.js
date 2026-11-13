@@ -140,7 +140,10 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   await p.click('#obNext'); await p.waitForTimeout(400);
   const beg = await p.evaluate(() => ({ lang: S.cfg.lang, exp: S.cfg.me.exp, goal: S.cfg.me.goal, sets: [planned(0, {}).ua1, planned(0, {}).ua5, planned(1, {}).la1, planned(1, {}).la6].join(), tag: document.querySelector('#home .xp-tag').textContent, hidden: document.querySelector('#ob').hidden }));
   check('a beginner starts with one set less where there were three', beg.lang === 'en' && beg.exp === 0 && beg.goal === 2 && beg.sets === '2,2,2,2' && beg.tag === '+260' && beg.hidden, beg);
-  await p.reload(); await p.waitForTimeout(700);
+  /* the next visit starts from what this one kept (a new copy with the same storage: a reload right after a save can come too early for the test browser) */
+  const keptEn = JSON.parse(await p.evaluate(() => localStorage.getItem('ul4:v1')));
+  await p.context().close();
+  p = await open(b, keptEn, true, 'en-US'); txt = T(p);
   check('the opening screens do not come back, and the language stays', (await p.isHidden('#ob')) && (await p.evaluate(() => LANG + ':' + document.documentElement.dir)) === 'en:ltr', await p.evaluate(() => LANG));
   await p.context().close();
   /* a copy that already has workouts, from before the opening screens existed: they are shown once, in Hebrew, and nothing in the plan changes */

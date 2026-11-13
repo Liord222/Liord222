@@ -1,21 +1,25 @@
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
-const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
+const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false, limits: false };
 /* the coach has a face: the same figure as the player's, with a look of his own */
 const COACH = { skin: 2, hair: 1, hc: 0, beard: 1, shirt: 5 };
 const coachFace = () => avatarSVG(COACH, 12, { bust: true });
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
-  return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return wkFull(i) + (P.m ? ' (' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.he + ' (' + e.name + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
+  return PLAN.map((w, i) => {
+    const s = live(i), P = phase(i, s);
+    return wkFull(i) + (P.m ? ' (' + (P.dl ? say('שבוע קל', 'easy week') : say('שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב', 'week ' + P.wk + ' of ' + S.cfg.weeks + ' in the round')) + ', ' + rirText(P.rir) + ')' : '') + ':\n' +
+      exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + say(e.he + ' (' + e.name + ')', e.name) + ': ' + e.n0 + say(' סטים × ', ' sets × ') + e.reps + (e.suf ? ' ' + e.suf : '') + say(' חזרות | מנוחה ', ' reps | rest ') + restPlain(e)).join('\n');
+  }).join('\n\n');
 }
 /* what the opening screens learned about the lifter, for the coach */
 function aboutUser() {
-  const me = S.cfg.me, bits = [];
-  if (me.name) bits.push('שם: ' + me.name);
-  if (me.exp != null) bits.push('ניסיון בחדר כושר: ' + ['מתחיל (פחות מחצי שנה)', 'מתאמן קבוע (חצי שנה עד שנתיים)', 'מנוסה (יותר משנתיים)'][me.exp]);
-  if (me.goal != null) bits.push('מטרה: ' + ['לבנות שריר', 'להתחזק', 'כושר ובריאות'][me.goal]);
-  return bits.length ? 'על המשתמש: ' + bits.join(' · ') + '. התאם את הטון ואת העצות לניסיון ולמטרה.\n\n' : '';
+  const me = S.cfg.me, bits = [], exp = EXP()[me.exp], goal = GOALS()[me.goal];
+  if (me.name) bits.push(say('שם: ', 'Name: ') + me.name);
+  if (exp) bits.push(say('ניסיון בחדר כושר: ', 'Gym experience: ') + exp[0] + ' (' + exp[1] + ')');
+  if (goal) bits.push(say('מטרה: ', 'Goal: ') + goal[0]);
+  return bits.length ? say('על המשתמש: ', 'About the user: ') + bits.join(' · ') + say('. התאם את הטון ואת העצות לניסיון ולמטרה.', '. Fit your tone and your advice to the experience and the goal.') + '\n\n' : '';
 }
-const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
+const rulesHe = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
   'התוכנית של המשתמש (גוף עליון ותחתון, ארבעה אימונים שמתבצעים במחזור לפי הסדר). בסוגריים המרובעים מופיע מזהה התרגיל, ובסוגריים העגולים שמו באנגלית. באפליקציה התרגילים והאימונים מוצגים בעברית, אז השתמש בשמות העבריים:\n\n' + planText() + '\n\n' +
   aboutUser() + 'כללים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה בתשובה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה הסבר קצר (שרירי מטרה ודפוס תנועה), איך להתאים סטים, חזרות, מנוחה וקרבה לכשל, ודגש ביצוע אחד.\n' +
@@ -26,33 +30,64 @@ const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, א�
   '  השתמש בתרגיל שבהקשר אם לא צוין תרגיל אחר. אל תוסיף את השורה אם לא ביקשו לרשום, או אם חסר מספר החזרות (במקרה כזה שאל). אל תזכיר את השורה הזאת בטקסט.\n' +
   '- כשאין תחליף מדויק, הצע חלופה אחת או שתיים שנפוצות בחדרי כושר.\n' +
   '- שמור על כוונת התוכנית: אותה קבוצת שרירים, אותו טווח חזרות ואותה קרבה לכשל.\n' +
-  '- האפליקציה מנהלת סבב אימונים של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל) ומאפשרת להחליף תרגיל בכפתור "החלף תרגיל" לתרגיל באותו דפוס תנועה. כששואלים על יעד, משקל או עצימות, התבסס על הנתונים שבהקשר.\n' +
+  '- האפליקציה מנהלת סבב אימונים של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל) ומאפשרת להחליף כל תרגיל בכפתור "החלף תרגיל". כששואלים על יעד, משקל או עצימות, התבסס על הנתונים שבהקשר.\n' +
   '- דבר בשפה פשוטה. אל תשתמש במונחים כמו מזוציקל, דילואד או RIR: אמור "סבב", "שבוע קל" ו"חזרות לפני כשל".\n' +
   '- אין לך מידע רפואי על המשתמש. אם מוזכרים כאב או פציעה, המלץ להפסיק את התרגיל ולהתייעץ עם איש מקצוע.\n' +
   '- טקסט פשוט בלבד, בלי טבלאות ובלי כותרות. אפשר שורות קצרות שמתחילות ב-"• ".';
-const ERR = {
-  not_granted: 'לא אישרת לאילון לענות בדף הזה, ולכן הצ׳אט כבוי כרגע. אפשר לשנות את זה בהרשאות של הדף.',
-  sampling_disabled: 'Claude לא זמין בחשבון הזה, ולכן הצ׳אט כבוי.',
-  rate_limited: 'הגעת למגבלת השימוש כרגע. נסה שוב בעוד כמה דקות.',
-  session_expired: 'ההתחברות פגה. התחבר מחדש ל-Claude ונסה שוב.',
-  image_rejected: 'לא הצלחתי לשלוח את התמונה. נסה לצלם שוב או לבחור תמונה אחרת.',
-  images_unavailable: 'אי אפשר לשלוח תמונות בתצוגה הזאת. תאר את המכשיר במילים.',
-  refused: 'אילון לא ענה על השאלה הזאת. נסה לנסח אותה אחרת.',
-  empty_completion: 'לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.',
-  prompt_too_large: 'השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.',
-  upstream_error: 'התקשורת נקטעה. נסה לשלוח שוב.',
-  bad_key: 'המפתח לא התקבל אצל Anthropic. בדוק אותו בחיבור של אילון (סמל המפתח למעלה).',
-  offline: 'אין חיבור לאינטרנט כרגע.',
-};
-/* inside the phone app there is no Claude to answer yet */
-const NATIVE_OFF = 'כדי שאילון יענה באפליקציה צריך מפתח API של Anthropic. המפתח נשמר רק בטלפון הזה.';
+const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'s workout app. You are an AI assistant (built on Claude), and if you are asked about it you say so plainly. Always answer in English, at eye level, short and to the point (up to about 120 words, unless more detail was asked for).\n\n' +
+  'The user\'s plan (upper and lower body, four workouts done in a cycle, in this order). The square brackets hold the id of each exercise. Use the exercise names as they are written here:\n\n' + planText() + '\n\n' +
+  aboutUser() + 'Rules:\n' +
+  '- When asked whether an exercise or a machine can replace an exercise from the plan, the first line of the answer is exactly one of these: "Verdict: Suitable", "Verdict: Partly suitable" or "Verdict: Not recommended". After it, a short explanation (target muscles and movement pattern), how to adjust sets, reps, rest and closeness to failure, and one form cue.\n' +
+  '- For other questions (technique, starting weight, progress) answer directly, with no verdict line. When the context holds earlier results, build on them.\n' +
+  '- If a photo is attached, open the explanation by naming the machine or the exercise seen in it ("In the photo: ..."), because in the following messages the photo will no longer be available to you. If the photo is unclear, say what you do see and ask for a shot from another angle. If you are told that a photo was attached but it did not reach you, ask to attach it again.\n' +
+  '- Logging sets: when the user asks to log sets they did (for example "log 60 kg, 8 8 7" or "I did 3 sets of 12 with no weight"), confirm in one sentence what was logged, and at the end of the answer add a separate line in exactly this format:\n' +
+  '@@LOG {"ex":"<exercise id>","sets":[[<weight in kg or null>,<reps>],...]}\n' +
+  '  Use the exercise in the context if no other exercise was named. Do not add the line if you were not asked to log, or if the number of reps is missing (in that case, ask). Do not mention this line in the text.\n' +
+  '- When there is no exact substitute, suggest one or two alternatives that are common in gyms.\n' +
+  '- Keep the intent of the plan: the same muscle group, the same rep range and the same closeness to failure.\n' +
+  '- The app runs a training round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight) and lets the user swap any exercise with the "Swap exercise" button. When asked about a target, a weight or intensity, build on the data in the context.\n' +
+  '- Weights are in kilograms.\n' +
+  '- Use plain language. Do not use terms such as mesocycle, deload or RIR: say "round", "easy week" and "reps before failure".\n' +
+  '- You have no medical information about the user. If pain or an injury comes up, recommend stopping the exercise and consulting a professional.\n' +
+  '- Plain text only, no tables and no headings. Short lines that start with "• " are fine.';
+const rules = () => (LANG === 'en' ? rulesEn() : rulesHe());
+/* every fixed text of the chat by its code, in the language of the page. The codes are what is kept, so that a
+   message that is already on screen follows a change of language */
+const ERR = () => ({
+  not_granted: say('לא אישרת לאילון לענות בדף הזה, ולכן הצ׳אט כבוי כרגע. אפשר לשנות את זה בהרשאות של הדף.', 'You did not allow Eilon to answer on this page, so the chat is off for now. You can change that in the permissions of the page.'),
+  sampling_disabled: say('Claude לא זמין בחשבון הזה, ולכן הצ׳אט כבוי.', 'Claude is not available on this account, so the chat is off.'),
+  rate_limited: say('הגעת למגבלת השימוש כרגע. נסה שוב בעוד כמה דקות.', 'You have reached the usage limit for now. Try again in a few minutes.'),
+  session_expired: say('ההתחברות פגה. התחבר מחדש ל-Claude ונסה שוב.', 'Your session has expired. Sign in to Claude again and retry.'),
+  image_rejected: say('לא הצלחתי לשלוח את התמונה. נסה לצלם שוב או לבחור תמונה אחרת.', 'The photo could not be sent. Take it again or choose another one.'),
+  images_unavailable: say('אי אפשר לשלוח תמונות בתצוגה הזאת. תאר את המכשיר במילים.', 'Photos cannot be sent in this view. Describe the machine in words.'),
+  refused: say('אילון לא ענה על השאלה הזאת. נסה לנסח אותה אחרת.', 'Eilon did not answer this question. Try wording it differently.'),
+  empty_completion: say('לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.', 'No answer came back. Try a shorter question.'),
+  prompt_too_large: say('השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.', 'The conversation is too long. Start a new chat and try again.'),
+  upstream_error: say('התקשורת נקטעה. נסה לשלוח שוב.', 'The connection dropped. Try sending again.'),
+  bad_key: say('המפתח לא התקבל אצל Anthropic. בדוק אותו בחיבור של אילון (סמל המפתח למעלה).', 'Anthropic did not accept the key. Check it in Eilon\'s connection (the key icon at the top).'),
+  offline: say('אין חיבור לאינטרנט כרגע.', 'No internet connection right now.'),
+  /* why the chat is off */
+  native: say('כדי שאילון יענה באפליקציה צריך מפתח API של Anthropic. המפתח נשמר רק בטלפון הזה.', 'For Eilon to answer in the app, an Anthropic API key is needed. The key is kept only on this phone.'),
+  outside: say('הצ׳אט פועל רק כשהדף פתוח בתוך Claude.', 'The chat works only when this page is open inside Claude.'),
+  view: say('הצ׳אט לא זמין בתצוגה הזאת.', 'The chat is not available in this view.'),
+  /* notes under an answer or above the message box */
+  cut: say('התשובה נקטעה באמצע. בקש המשך או שאל שאלה קצרה יותר.', 'The answer was cut short. Ask for the rest, or ask a shorter question.'),
+  cancelled: say('עצרת את התשובה.', 'You stopped the answer.'),
+  no_image: say('לא הצלחתי לקרוא את התמונה. נסה לצלם שוב או לבחור קובץ JPG או PNG.', 'The photo could not be read. Take it again, or choose a JPG or PNG file.'),
+});
+const isErr = (c) => typeof c === 'string' && Object.prototype.hasOwnProperty.call(ERR(), c);
+/* the text of a code; anything that is not a code is shown as it is */
+const errText = (c) => (isErr(c) ? ERR()[c] : c || '');
 const HIDE = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'];
 const stripCmd = (t) => t.replace(/^[ \t]*@@.*$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
 function splitVerdict(text, final) {
-  const m = text.match(/^\s*(?:פסיקה\s*[:\-–]\s*)?(מתאים חלקית|לא מומלץ|מתאים)\s*[.!]?\s*(\n|$)/);
+  const m = text.match(/^\s*(?:(?:פסיקה|verdict)\s*[:\-–]\s*)?(מתאים חלקית|לא מומלץ|מתאים|partly suitable|not recommended|suitable)\s*[.!]?\s*(\n|$)/i);
   if (!m || (!final && !m[2])) return null;
-  return { kind: m[1] === 'מתאים' ? 'ok' : m[1] === 'מתאים חלקית' ? 'mid' : 'no', label: m[1], rest: text.slice(m[0].length) };
+  const v = m[1].toLowerCase();
+  return { kind: v === 'מתאים' || v === 'suitable' ? 'ok' : v === 'מתאים חלקית' || v === 'partly suitable' ? 'mid' : 'no', label: m[1], rest: text.slice(m[0].length) };
 }
+/* the exercise a message is about, under the name it has now */
+const ctxName = (v) => { const e = v && findEx(v); return e ? e.nm : v || ''; };
 function fmtText(text) {
   let html = '', list = false;
   for (const raw of esc(text).split('\n')) {
@@ -64,23 +99,24 @@ function fmtText(text) {
   return html + (list ? '</ul>' : '');
 }
 function msgHTML(m, idx) {
-  if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(m.ctx) + '</span>' : '') + '</div></div>';
+  if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(ctxName(m.ctx)) + '</span>' : '') + '</div></div>';
   const text = stripCmd(m.text || ''), face = '<span class="ava sm" aria-hidden="true">' + coachFace() + '</span>';
   if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + say('נרשם.', 'Logged.') + '</span>') + loggedHTML(m, idx) + '</div></div>';
   const v = splitVerdict(text, !m.live);
-  return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(m.note) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
+  return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(errText(m.note)) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
 }
 function loggedHTML(m, idx) {
   if (!m.logged) return '';
-  if (m.logged.undone) return '<div class="logged" style="color:var(--ink-3)">הרישום בוטל</div>';
-  return '<div class="logged"><span>' + (m.logged.idx.length === 1 ? 'נרשם סט אחד' : 'נרשמו ' + m.logged.idx.length + ' סטים') + ' · ' + esc(m.logged.name) + '</span><button class="link" type="button" data-unlog="' + idx + '">בטל</button></div>';
+  if (m.logged.undone) return '<div class="logged" style="color:var(--ink-3)">' + say('הרישום בוטל', 'The log was undone') + '</div>';
+  const n = m.logged.idx.length;
+  return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span><button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button></div>';
 }
 /* first things to ask, each with its sign */
 const SUGS = () => [[ICON.swap, say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?')], [ICON.cam, say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?')], [ICON.cues, say('דגשים לתרגיל הזה', 'Cues for this exercise')], [ICON.bell, say('כמה משקל לשים היום?', 'How much weight today?')]];
 function renderMsgs() {
   const box = $('#msgs'), face = '<span class="ava big" aria-hidden="true">' + coachFace() + '</span>';
   $('#chatNew').hidden = !chat.msgs.length;
-  if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(chat.off) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
+  if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
     box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('צלם מכשיר או שאל שאלה. אפשר גם לכתוב מה עשית, ואני ארשום.', 'Snap a machine or ask a question. You can also tell me what you did and I will log it.') + '</span><div class="sugs">' +
       SUGS().map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s[0] + '<span>' + s[1] + '</span>' + ICON.fwd + '</button>').join('') + '</div></div>';
@@ -93,7 +129,7 @@ function paintLast() {
   if (el) el.outerHTML = msgHTML(chat.msgs[chat.msgs.length - 1], chat.msgs.length - 1);
   if (stick) box.scrollTop = box.scrollHeight;
 }
-function setBusy(on) { chat.busy = on; const b = $('#sendBtn'); b.innerHTML = on ? ICON.stop : ICON.send; b.setAttribute('aria-label', on ? 'עצור' : 'שלח'); }
+function setBusy(on) { chat.busy = on; const b = $('#sendBtn'); b.innerHTML = on ? ICON.stop : ICON.send; b.setAttribute('aria-label', on ? say('עצור', 'Stop') : say('שלח', 'Send')); }
 function compNote(t) { const n = $('#compNote'); n.textContent = t || ''; n.hidden = !t; }
 function setAttach(blob) {
   if (chat.imgUrl && !chat.msgs.some((m) => m.imgUrl === chat.imgUrl)) URL.revokeObjectURL(chat.imgUrl);
@@ -112,22 +148,22 @@ async function pickImage(file) {
     const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
     if (!blob) throw new Error('encode');
     setAttach(blob); $('#chatInput').focus();
-  } catch (e) { compNote('לא הצלחתי לקרוא את התמונה. נסה לצלם שוב או לבחור קובץ JPG או PNG.'); }
+  } catch (e) { compNote(errText('no_image')); }
 }
 /* what the page knows, sent with each question: the open workout, the exercise in question and its recent log */
 function ctxLine() {
   const id = $('#chatCtx').value, e = id && findEx(id);
-  let t = '[הקשר מהאפליקציה. האימון הפתוח כרגע: ' + wkFull(S.tab) + '.';
+  let t = say('[הקשר מהאפליקציה. האימון הפתוח כרגע: ', '[Context from the app. The workout that is open now: ') + wkFull(S.tab) + '.';
   if (e) {
     const w = wkOf(id);
     const cur = live(w), rir = rirOf(e, cur), fu = firstUndone(cur, e), T = fu >= 0 ? targetOf(e, fu, cur) : null, pe = planEx(id);
-    t += ' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
-    if (T) t += ' היעד לסט הבא (סט ' + (fu + 1) + '): ' + fmtRow(T) + '.';
+    t += say(' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ', ' The question is about the exercise [' + e.id + '] "' + e.name + '" (' + wkOrd(w) + '): ') + e.n0 + say(' סטים × ', ' sets × ') + e.reps + (e.suf ? ' ' + e.suf : '') + say(' חזרות, מנוחה ', ' reps, rest ') + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
+    if (T) t += say(' היעד לסט הבא (סט ' + (fu + 1) + '): ', ' The target for the next set (set ' + (fu + 1) + '): ') + fmtRow(T) + '.';
     const hist = sorted().filter((s) => s.w === w && moveOf(pe, s) === e.mv && rowsOf(s, id).some(isDone)).slice(0, 3);
-    if (hist.length) t += ' ביצועים אחרונים (ק״ג×חזרות): ' + hist.map((s) => (s.end ? ago(s.ts) : 'באימון הנוכחי') + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
-    else t += ' עוד אין רישום קודם לתרגיל הזה.';
+    if (hist.length) t += say(' ביצועים אחרונים (ק״ג×חזרות): ', ' Recent results (kg×reps): ') + hist.map((s) => (s.end ? ago(s.ts) : say('באימון הנוכחי', 'in the current workout')) + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
+    else t += say(' עוד אין רישום קודם לתרגיל הזה.', ' Nothing was logged for this exercise before.');
   }
-  return { text: t + ']', name: e ? e.he : '' };
+  return { text: t + ']', id: e ? e.id : '' };
 }
 /* a reply may carry one "@@LOG {...}" line: sets to write into today's log */
 function applyLog(text) {
@@ -145,7 +181,7 @@ function applyLog(text) {
   if (!idx.length) return null;
   S.touched = true; if (w === S.tab) { S.draft = null; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
   renderAll(); bump(lv0); keepAwake();
-  return { ex: e.id, name: e.he, idx };
+  return { ex: e.id, name: e.nm, idx };
 }
 function undoLog(i) {
   const m = chat.msgs[i], e = m && m.logged && findEx(m.logged.ex); if (!e || m.logged.undone) return;
@@ -157,23 +193,23 @@ async function sendChat(preset) {
   if (chat.off) return;
   const inp = $('#chatInput'), typed = (preset || inp.value).trim(), img = chat.img, imgUrl = chat.imgUrl;
   if (!typed && !img) { inp.focus(); return; }
-  const text = typed || 'מה המכשיר שבתמונה, והאם הוא מתאים כתחליף?', ctx = ctxLine();
+  const text = typed || say('מה המכשיר שבתמונה, והאם הוא מתאים כתחליף?', 'What is the machine in the photo, and does it fit as a substitute?'), ctx = ctxLine();
   compNote(''); setBusy(true);
-  chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.name });
+  chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.id });
   const reply = { role: 'a', text: '', live: true }; chat.msgs.push(reply);
-  chat.turns.push({ role: 'user', content: ctx.text + '\n\n' + text + (img ? '\n\n[להודעה הזאת צורפה תמונה אחת]' : '') });
+  chat.turns.push({ role: 'user', content: ctx.text + '\n\n' + text + (img ? say('\n\n[להודעה הזאת צורפה תמונה אחת]', '\n\n[One photo is attached to this message]') : '') });
   inp.value = ''; inp.style.height = ''; chat.img = null; chat.imgUrl = ''; $('#attach').hidden = true;
   renderMsgs();
   const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); inp.value = typed; if (img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
   let sample = null;
   try { sample = await chat.sampleP; } catch (e) { sample = null; }
-  if (!sample) { undo(); chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); setBusy(false); return; }
+  if (!sample) { undo(); chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? 'native' : 'outside'; renderMsgs(); setBusy(false); return; }
   chat.ctl = new AbortController();
   try {
     const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { reply.text = u.text; paintLast(); } };
     if (img) opts.images = [img];
     const res = await sample([{ role: 'user', content: rules() }].concat(chat.turns.slice(-16)), opts);
-    reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'התשובה נקטעה באמצע. בקש המשך או שאל שאלה קצרה יותר.';
+    reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'cut';
     chat.turns.push({ role: 'assistant', content: res.text });
     const lg = res.truncated ? null : applyLog(res.text); if (lg) reply.logged = lg;
     renderMsgs();
@@ -181,33 +217,37 @@ async function sendChat(preset) {
     const code = (e && e.code) || 'upstream_error', part = e && e.text && stripCmd(e.text);
     if (code === 'no_key') { undo(); window.gymiCoach(false); }
     else if (code === 'api_error' && e.message) { undo(); compNote('Anthropic: ' + String(e.message).slice(0, 200)); }
-    else if (HIDE.includes(code)) { undo(); chat.off = ERR[code] || 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); }
-    else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = code === 'cancelled' ? 'עצרת את התשובה.' : ERR[code] || ERR.upstream_error; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
-    else { undo(); if (code !== 'cancelled') compNote(ERR[code] || ERR.upstream_error); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); } }
+    else if (HIDE.includes(code)) { undo(); chat.off = isErr(code) ? code : 'view'; renderMsgs(); }
+    else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = isErr(code) ? code : 'upstream_error'; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
+    else { undo(); if (code !== 'cancelled') compNote(errText(isErr(code) ? code : 'upstream_error')); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); chatText(); } }
   } finally { chat.ctl = null; setBusy(false); }
 }
 function showImgBtns() { $('#camBtn').hidden = $('#galBtn').hidden = !chat.canImg; }
 /* the exercise picker follows the plan as it stands (swapped movements show under their own name) */
 function fillCtx() {
   const sel = $('#chatCtx'), v = sel.value;
-  sel.innerHTML = '<option value="">כל התוכנית</option>' + PLAN.map((w, i) => '<optgroup label="' + wkFull(i) + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + e.he + '</option>').join('') + '</optgroup>').join('');
+  sel.innerHTML = '<option value="">' + say('כל התוכנית', 'The whole plan') + '</option>' + PLAN.map((w, i) => '<optgroup label="' + wkFull(i) + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + e.nm + '</option>').join('') + '</optgroup>').join('');
   sel.value = v;
 }
+/* the fixed texts of the message box: they depend on the language, and on whether photos can be sent */
+function chatText() {
+  $('#chatInput').placeholder = chat.canImg || !chat.limits ? say('שאל את אילון', 'Ask Eilon') : say('כתוב שם של מכשיר או תרגיל חלופי', 'Type the name of a machine or of another exercise');
+  setBusy(chat.busy);
+}
 function initChat() {
-  fillCtx();
+  fillCtx(); chatText();
   for (const el of $$('.ava')) if (!el.firstChild) el.innerHTML = coachFace();
   $('#chatKey').hidden = !window.GYMI_NATIVE;
   chat.needKey = !!window.GYMI_NATIVE && !window.GYMI_COACH;
   /* in the phone app the coach answers only once the owner has saved an API key */
-  if (chat.needKey) { chat.sampleP = Promise.resolve(null); chat.off = NATIVE_OFF; renderMsgs(); return; }
+  if (chat.needKey) { chat.sampleP = Promise.resolve(null); chat.off = 'native'; renderMsgs(); return; }
   chat.off = '';
-  if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'הצ׳אט פועל רק כשהדף פתוח בתוך Claude.'; renderMsgs(); return; }
+  if (!window.claude || typeof window.claude.use !== 'function') { chat.sampleP = Promise.resolve(null); chat.off = 'outside'; renderMsgs(); return; }
   chat.sampleP = window.claude.use('sample');
   chat.sampleP.then(async (sample) => {
-    if (!sample) { chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? NATIVE_OFF : 'הצ׳אט לא זמין בתצוגה הזאת.'; renderMsgs(); return; }
+    if (!sample) { chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? 'native' : 'view'; renderMsgs(); return; }
     try { const lim = await sample.limits(); chat.canImg = !!(lim && lim.images); } catch (e) { chat.canImg = false; }
-    showImgBtns();
-    if (!chat.canImg) $('#chatInput').placeholder = 'כתוב שם של מכשיר או תרגיל חלופי';
+    chat.limits = true; showImgBtns(); chatText();
   }).catch(() => {});
   renderMsgs();
 }

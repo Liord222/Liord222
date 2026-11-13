@@ -20,13 +20,15 @@ function levelOf(xp) {
   while (left >= xpStep(lvl)) { left -= xpStep(lvl); lvl++; }
   return { lvl, into: left, need: xpStep(lvl) };
 }
-const RANKS = [{ at: 1, he: 'טירון' }, { at: 5, he: 'מתמיד' }, { at: 10, he: 'ספורטאי' }, { at: 15, he: 'מכונה' }, { at: 20, he: 'חיה' }, { at: 30, he: 'אלוף' }, { at: 40, he: 'אגדה' }];
-function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he }; }
+const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 5, he: 'מתמיד', en: 'Regular' }, { at: 10, he: 'ספורטאי', en: 'Athlete' }, { at: 15, he: 'מכונה', en: 'Machine' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 30, he: 'אלוף', en: 'Champion' }, { at: 40, he: 'אגדה', en: 'Legend' }];
+function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
+/* the name of a rank, a reward or an achievement in the language of the page */
+const nm = (x) => say(x.he, x.en || x.he);
 /* what a level opens: a new rank, or gear the character wears from then on (k names the gear) */
 const REWARDS = [
-  { at: 3, k: 'band', he: 'סרט ראש' }, { at: 5, he: 'דרגת מתמיד' }, { at: 8, k: 'wraps', he: 'רצועות יד' }, { at: 10, he: 'דרגת ספורטאי' },
-  { at: 12, k: 'belt', he: 'חגורת הרמה' }, { at: 15, he: 'דרגת מכונה' }, { at: 20, k: 'tank', he: 'דרגת חיה וגופייה' },
-  { at: 30, k: 'medal', he: 'דרגת אלוף ומדליה' }, { at: 40, k: 'crown', he: 'דרגת אגדה וכתר' },
+  { at: 3, k: 'band', he: 'סרט ראש', en: 'Headband' }, { at: 5, he: 'דרגת מתמיד', en: 'Regular rank' }, { at: 8, k: 'wraps', he: 'רצועות יד', en: 'Wrist wraps' }, { at: 10, he: 'דרגת ספורטאי', en: 'Athlete rank' },
+  { at: 12, k: 'belt', he: 'חגורת הרמה', en: 'Lifting belt' }, { at: 15, he: 'דרגת מכונה', en: 'Machine rank' }, { at: 20, k: 'tank', he: 'דרגת חיה וגופייה', en: 'Beast rank and a tank top' },
+  { at: 30, k: 'medal', he: 'דרגת אלוף ומדליה', en: 'Champion rank and a medal' }, { at: 40, k: 'crown', he: 'דרגת אגדה וכתר', en: 'Legend rank and a crown' },
 ];
 const nextReward = (lvl) => REWARDS.find((r) => r.at > lvl) || null;
 const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);
@@ -86,17 +88,17 @@ function roundsDone(list) {
 }
 /* achievements. T: the totals, X: { lvl, streak, fullWeek, rounds }. ic names the drawing in the profile */
 const BADGES = [
-  { id: 'first', he: 'אימון ראשון', ic: 'flag', ok: (T) => T.wk >= 1 },
-  { id: 'week', he: 'שבוע מלא', ic: 'cal', ok: (T, X) => !!X.fullWeek },
-  { id: 'pr1', he: 'שיא ראשון', ic: 'bolt', ok: (T) => T.prs >= 1 },
-  { id: 'w10', he: '10 אימונים', ic: 'bell', ok: (T) => T.wk >= 10 },
-  { id: 'streak4', he: '4 שבועות ברצף', ic: 'flame', ok: (T, X) => X.streak >= 4 },
-  { id: 'pr25', he: '25 שיאים', ic: 'bolt2', ok: (T) => T.prs >= 25 },
-  { id: 'w25', he: '25 אימונים', ic: 'bell2', ok: (T) => T.wk >= 25 },
-  { id: 'round', he: 'סבב שלם', ic: 'loop', ok: (T, X) => X.rounds >= 1 },
-  { id: 'ton100', he: '100 טון', ic: 'plate', ok: (T) => T.kg >= 100000 },
-  { id: 'w50', he: '50 אימונים', ic: 'cup', ok: (T) => T.wk >= 50 },
-  { id: 'lvl20', he: 'רמה 20', ic: 'star', ok: (T, X) => X.lvl >= 20 },
-  { id: 'w100', he: '100 אימונים', ic: 'crown', ok: (T) => T.wk >= 100 },
+  { id: 'first', he: 'אימון ראשון', en: 'First workout', ic: 'flag', ok: (T) => T.wk >= 1 },
+  { id: 'week', he: 'שבוע מלא', en: 'Full week', ic: 'cal', ok: (T, X) => !!X.fullWeek },
+  { id: 'pr1', he: 'שיא ראשון', en: 'First PR', ic: 'bolt', ok: (T) => T.prs >= 1 },
+  { id: 'w10', he: '10 אימונים', en: '10 workouts', ic: 'bell', ok: (T) => T.wk >= 10 },
+  { id: 'streak4', he: '4 שבועות ברצף', en: '4 weeks in a row', ic: 'flame', ok: (T, X) => X.streak >= 4 },
+  { id: 'pr25', he: '25 שיאים', en: '25 PRs', ic: 'bolt2', ok: (T) => T.prs >= 25 },
+  { id: 'w25', he: '25 אימונים', en: '25 workouts', ic: 'bell2', ok: (T) => T.wk >= 25 },
+  { id: 'round', he: 'סבב שלם', en: 'Full round', ic: 'loop', ok: (T, X) => X.rounds >= 1 },
+  { id: 'ton100', he: '100 טון', en: '100 tons', ic: 'plate', ok: (T) => T.kg >= 100000 },
+  { id: 'w50', he: '50 אימונים', en: '50 workouts', ic: 'cup', ok: (T) => T.wk >= 50 },
+  { id: 'lvl20', he: 'רמה 20', en: 'Level 20', ic: 'star', ok: (T, X) => X.lvl >= 20 },
+  { id: 'w100', he: '100 אימונים', en: '100 workouts', ic: 'crown', ok: (T) => T.wk >= 100 },
 ];
 const earned = (T, X) => BADGES.filter((b) => b.ok(T, X)).map((b) => b.id);

@@ -6,7 +6,7 @@ function readColors() {
   C.halo = C.stage; C._fig = hexRgb(C.fig); C._hi = hexRgb(C.figHi); C._lo = hexRgb(C.figLo); C.fx = 0;
 }
 const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, speed: 1, visible: true, phaseEl: null, btn: null, bar: null, phase: -1, lastT: 0.5, io: null, ro: null };
-const PHASES = ['מאמץ · נשיפה', 'כיווץ', 'חזרה איטית · שאיפה', 'מתיחה'];
+const PHASES = () => [say('מאמץ · נשיפה', 'Effort · breathe out'), say('כיווץ', 'Squeeze'), say('חזרה איטית · שאיפה', 'Slow return · breathe in'), say('מתיחה', 'Stretch')];
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
 function fitCanvas(cv, cssW) {
   const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cssW * dpr));
@@ -27,13 +27,13 @@ function frame(now) {
   const ex = ANIM[player.key], tp = ex.tempo || [1.1, 0.25, 1.8, 0.35];
   let x = (player.clock / 1000) % (tp[0] + tp[1] + tp[2] + tp[3]), t, ph;
   if (x < tp[0]) { t = ease(x / tp[0]); ph = 0; } else if ((x -= tp[0]) < tp[1]) { t = 1; ph = 1; } else if ((x -= tp[1]) < tp[2]) { t = 1 - ease(x / tp[2]); ph = 2; } else { t = 0; ph = 3; }
-  if (ph !== player.phase && player.phaseEl) { player.phase = ph; player.phaseEl.textContent = (ex.phases || PHASES)[ph]; player.phaseEl.classList.toggle('hot', ph < 2); }
+  if (ph !== player.phase && player.phaseEl) { player.phase = ph; player.phaseEl.textContent = (ex.phases ? ex.phases() : PHASES())[ph]; player.phaseEl.classList.toggle('hot', ph < 2); }
   paintStage(t);
 }
 function setPlaying(on) {
   player.playing = on; cancelAnimationFrame(player.raf);
-  if (player.btn) { player.btn.innerHTML = on ? ICON.pause : ICON.play; player.btn.setAttribute('aria-label', on ? 'השהה את ההדמיה' : 'נגן את ההדמיה'); }
-  if (on) { player.last = 0; player.phase = -1; player.raf = requestAnimationFrame(frame); } else { if (player.phaseEl) { player.phaseEl.textContent = 'מושהה'; player.phaseEl.classList.remove('hot'); } paintStage(player.lastT); }
+  if (player.btn) { player.btn.innerHTML = on ? ICON.pause : ICON.play; player.btn.setAttribute('aria-label', on ? say('השהה את ההדמיה', 'Pause the demo') : say('נגן את ההדמיה', 'Play the demo')); }
+  if (on) { player.last = 0; player.phase = -1; player.raf = requestAnimationFrame(frame); } else { if (player.phaseEl) { player.phaseEl.textContent = say('מושהה', 'Paused'); player.phaseEl.classList.remove('hot'); } paintStage(player.lastT); }
 }
 function startPlayer(cv, key, body) {
   stopPlayer();

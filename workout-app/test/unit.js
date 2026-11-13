@@ -167,5 +167,39 @@ t('a clean slot passes', () => G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '
 t('a slot is clamped to sane numbers', () => G.cleanSlot({ w: 2, a: 'dbCurl', sets: 99, reps: '10–15', rest: [1, 9999] }), { w: 2, a: 'dbCurl', sets: 8, reps: '10–15', rest: [15, 600] });
 t('a slot with an unknown movement, workout or rep range is refused', () => [G.cleanSlot({ w: 1, a: '<img>', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 7, a: 'legExt', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '<b>', rest: [60, 60] }), G.cleanSlot(null)], [null, null, null, null]);
 
+// ---- two languages: every text of the content has an English twin, and the helpers follow the language of the page
+const HEB = /[\u0590-\u05FF]/, L = (code) => vm.runInThisContext(code), inEn = (fn) => { L("LANG = 'en'"); try { return fn(); } finally { L("LANG = 'he'"); } };
+t('say() follows the language of the page', () => [L("say('שלום', 'Hello')"), inEn(() => L("say('שלום', 'Hello')"))], ['שלום', 'Hello']);
+t('every movement has an English name, muscle line and three cues', () => inEn(() => Object.keys(LIB).filter((k) => { const c = L('mvCues')(k), all = [L('mvName')(k), L('mvMus')(k)].concat(c); return c.length !== 3 || all.some((x) => !x || HEB.test(x)); })), []);
+t('in Hebrew the cues and the muscle line are the Hebrew ones', () => [L('mvCues')('legExt'), L('mvMus')('legExt')], [LIB.legExt.c, LIB.legExt.m]);
+t('every muscle and every kind of equipment has an English name', () => inEn(() => Object.keys(MUSCLE).map((k) => L('muName')(k)).concat(Object.keys(EQUIP).map((k) => L('eqName')(k))).filter((x) => !x || HEB.test(x))), []);
+t('a muscle inside an English sentence is in lower case', () => inEn(() => [L('muLow')('chest'), L('muLow')('quads')]), ['chest', 'quads']);
+t('every note of the plan has its English', () => inEn(() => { const out = []; for (const w of PLAN) for (const e of w.ex) for (const x of [e.int, e.suf]) if (x && HEB.test(L('planNote')(x))) out.push(x); return out; }), []);
+t('a workout is named in the language of the page', () => [G.wkFull(1), L('wkShort')(1), inEn(() => G.wkFull(1)), inEn(() => L('wkShort')(3))], ['אימון שני – גוף תחתון A', 'תחתון A', 'Workout 2 – Lower Body A', 'Lower B']);
+t('ranks, rewards and achievements have English names', () => inEn(() => G.RANKS.concat(G.REWARDS, G.BADGES).map((x) => L('nm')(x)).filter((x) => !x || HEB.test(x))), []);
+t('the rank of a level carries both names', () => [L('nm')(G.rankOf(12)), inEn(() => L('nm')(G.rankOf(12)))], ['ספורטאי', 'Athlete']);
+t('a count takes the singular for one', () => [L("cnt(1, 'סטים', 'סט אחד', 'sets', 'set')"), L("cnt(3, 'סטים', 'סט אחד', 'sets', 'set')"), inEn(() => L("cnt(1, 'סטים', 'סט אחד', 'sets', 'set')")), inEn(() => L("cnt(3, 'סטים', 'סט אחד', 'sets', 'set')"))], ['סט אחד', '3 סטים', '1 set', '3 sets']);
+t('"from, to" points the way the page is read', () => [L('arrow')(), inEn(() => L('arrow')())], [' ← ', ' → ']);
+
+// ---- a guard: in the files that draw the screens, every Hebrew text sits inside say(...) or cnt(...), so that it has an English twin.
+// The few texts that are Hebrew on purpose are listed here.
+(() => {
+  const KEEP = { 'chat.js': ['מתאים', 'מתאים חלקית'], 'avatar.js': ['קירח', 'קצר', 'בלורית', 'מתולתל', 'ארוך', 'בלי', 'זיפים', 'מלא'] };
+  const spans = (s, re, firstArgOnly) => { const out = []; let m; while ((m = re.exec(s))) { let i = re.lastIndex, depth = 0, q = null; const a = i; for (; i < s.length; i++) { const c = s[i]; if (q) { if (c === '\\') i++; else if (c === q) q = null; } else if (c === "'" || c === '"' || c === '`') q = c; else if ('([{'.includes(c)) depth++; else if (')]}'.includes(c)) { if (!depth) break; depth--; } else if (c === ',' && !depth && firstArgOnly) break; } out.push([a, i]); } return out; };
+  const open = [];
+  for (const file of ['app.js', 'coach.js', 'me.js', 'chat.js', 'store.js', 'stage.js', 'onboard.js', 'boot.js', 'moves.js', 'avatar.js', 'prog.js', 'rig.js']) {
+    let s; try { s = fs.readFileSync(path.join(src, file), 'utf8'); } catch (e) { continue; }
+    /* the Hebrew rules of the coach are one Hebrew text on purpose */
+    if (file === 'chat.js') { const a = s.indexOf('const rulesHe ='), b = s.indexOf('const rulesEn ='); if (a >= 0 && b > a) s = s.slice(0, a) + s.slice(b); }
+    const done = spans(s, /\bsay\(/g, true).concat(spans(s, /\bcnt\(/g, false)), re = /'((?:[^'\\\n]|\\.)*)'/g; let m;
+    while ((m = re.exec(s))) { if (!HEB.test(m[1]) || (KEEP[file] || []).includes(m[1]) || done.some((d) => d[0] <= m.index && m.index < d[1])) continue; open.push(file + ': ' + m[1].slice(0, 50)); }
+  }
+  t('no Hebrew text in the screens is left without an English twin', () => open, []);
+  /* and no English side that still holds Hebrew letters */
+  const mixed = [];
+  for (const file of fs.readdirSync(src).filter((x) => x.endsWith('.js'))) { const s = fs.readFileSync(path.join(src, file), 'utf8'), re = /\bsay\('((?:[^'\\\n]|\\.)*)',\s*'((?:[^'\\\n]|\\.)*)'\)/g; let m; while ((m = re.exec(s))) if (HEB.test(m[2]) || !m[2].trim() !== !m[1].trim()) mixed.push(file + ': ' + m[0].slice(0, 70)); }
+  t('the English side of a text holds no Hebrew letters', () => mixed, []);
+})();
+
 console.log('UNIT PASS ' + pass + ' FAIL ' + bad.length + (bad.length ? '\n  ' + bad.join('\n  ') : ''));
 process.exit(bad.length ? 1 : 0);

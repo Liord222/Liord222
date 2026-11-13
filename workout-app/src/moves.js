@@ -146,7 +146,7 @@ def('standingCalf', {
   },
 });
 def('pallof', {
-  view: 'top', mus: ['core'], tempo: [1.3, 1.1, 1.3, 0.5], phases: ['דחיפה קדימה', 'החזק, בלי להסתובב', 'חזרה לחזה', 'ידיים על החזה'],
+  view: 'top', mus: ['core'], tempo: [1.3, 1.1, 1.3, 0.5], phases: () => [say('דחיפה קדימה', 'Press out'), say('החזק, בלי להסתובב', 'Hold, no twisting'), say('חזרה לחזה', 'Back to the chest'), say('ידיים על החזה', 'Hands at the chest')],
   draw(g, t, C, glow) {
     const c = [208, 166], hand = [c[0], lerp(c[1] - 19, c[1] - 58, t)], s0 = lerp(0.22, 1, t);
     box(g, 56, 130, 30, 84, 0, C.eq, 6); for (let i = 0; i < 9; i++) box(g, 56, 100 + i * 7.4, 20, 5.4, 0, i < 4 ? C.plate : C.eq2, 1.4);

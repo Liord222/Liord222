@@ -64,7 +64,11 @@ const OB_ICON = { exp: [barsIcon(1), barsIcon(2), barsIcon(3)], goal: [ICON.bell
 function applyExp() {
   const me = S.cfg.me;
   if (meNow().T.sets > 0) return;
-  for (const id of Object.keys(SLOT)) { if (me.exp === 0 && SLOT[id].sets >= 3) S.cfg.base[id] = { n: SLOT[id].sets - 1, t: Date.now() }; else delete S.cfg.base[id]; }
+  /* x marks a count that was set here; a count the lifter chose in the plan has none and is left alone */
+  for (const id of Object.keys(SLOT)) {
+    const b = S.cfg.base[id]; if (b && !b.x) continue;
+    if (me.exp === 0 && SLOT[id].sets >= 3) S.cfg.base[id] = { n: SLOT[id].sets - 1, t: Date.now(), x: 1 }; else delete S.cfg.base[id];
+  }
 }
 function obHTML() {
   const st = OB.step, me = S.cfg.me, lvl = S.lvl || 1;

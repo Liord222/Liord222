@@ -156,6 +156,91 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   await p.click('#obNext'); await p.waitForTimeout(400);
   check('a plan that was already trained is left as it is', (await p.evaluate(() => [S.cfg.me.exp, planned(0, {}).ua1, Object.keys(S.cfg.base).length, S.cfg.lang].join())) === '0,3,0,he', await p.evaluate(() => JSON.stringify(S.cfg.base)));
   await p.context().close();
+
+  // ---- 7. numbers at the edges: nothing typed, pasted, restored or written by the coach may leave an absurd set in the log ----
+  p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5 } }); txt = T(p);
+  await p.click('#homeGo'); await p.waitForTimeout(350);
+  await p.click('#dkKg'); await p.fill('#dkKgIn', '100000'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
+  await p.click('#dkReps'); await p.fill('#dkRepsIn', '5000'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
+  check('the bar caps a weight and a rep count that cannot be real', (await p.evaluate(() => document.querySelector('#dkKg b').textContent + '|' + document.querySelector('#dkReps b').textContent)) === '1000|200', [await txt('#dkKg'), await txt('#dkReps')]);
+  await p.click('#dkKg'); await p.fill('#dkKgIn', '62,5'); await p.keyboard.press('Enter'); await p.click('#dkReps'); await p.fill('#dkRepsIn', '8'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
+  await p.click('#dkHit'); await p.waitForTimeout(500);
+  check('a comma is read as a decimal point', (await p.evaluate(() => { const r = live(0).sets.ua1[0]; return r.kg + 'x' + r.reps; })) === '62.5x8', await p.evaluate(() => JSON.stringify(live(0).sets.ua1)));
+  /* the coach writes sets through a line in his answer: only real numbers get in, and nothing valid means nothing happens */
+  const logged = await p.evaluate(() => {
+    const out = {}, before = Object.keys(S.sessions).length;
+    out.none = applyLog('@@LOG {"ex":"la1","sets":[["abc",8],[50,"x"],[50,0],[50,-3],[2000,5]]}');
+    out.started = Object.keys(S.sessions).length - before;
+    const r = applyLog('@@LOG {"ex":"ua2","sets":[[-5,8],[0,9],["40",8],[40.25,7.6],[40,8],[40,8]]}');
+    out.idx = r && r.idx.join(); out.rows = live(0).sets.ua2.map((x) => (x.kg == null ? '-' : x.kg) + 'x' + x.reps).join();
+    out.bad = [applyLog('@@LOG {"ex":"nope","sets":[[40,8]]}'), applyLog('@@LOG {"ex":"ua2","sets":"all"}'), applyLog('@@LOG not json'), applyLog('no line here')].join();
+    return out;
+  });
+  check('a line from the coach with nothing real in it writes nothing and starts no workout', logged.none === null && logged.started === 0, logged);
+  check('a set with a weight that is no weight is left out, zero means no weight, and the rest is written in order', logged.idx === '0,1,2' && logged.rows === '-x9,40x8,40.25x8', logged);
+  check('a line that names no exercise or holds no sets is ignored', logged.bad === ',,,', logged.bad);
+  await p.click('#listBtn'); await p.waitForTimeout(250); await p.click('#finishBtn'); await p.waitForTimeout(500); await p.click('#sheetClose'); await p.waitForTimeout(250);
+  await p.click('#tabbar [data-view="progress"]'); await p.waitForTimeout(250); await p.click('#history [data-edit]'); await p.waitForTimeout(300);
+  await p.fill('#sheet .ed-row[data-ex="ua1"][data-i="0"] [data-k="kg"]', '99999'); await p.fill('#sheet .ed-row[data-ex="ua1"][data-i="0"] [data-k="reps"]', '9999'); await p.waitForTimeout(150);
+  check('fixing a finished workout caps the numbers the same way', (await p.evaluate(() => { const r = Object.values(S.sessions)[0].sets.ua1[0]; return r.kg + 'x' + r.reps; })) === '1000x200', await p.evaluate(() => JSON.stringify(Object.values(S.sessions)[0].sets.ua1)));
+  await p.click('#sheetClose'); await p.waitForTimeout(200);
+  const rest = await p.evaluate(() => {
+    const now = Date.now(), row = (kg, reps) => ({ kg, reps, done: true, t: now - 9e7 });
+    restoreData(JSON.stringify({ app: 'gymi', v: 1, at: now, sessions: { zz1: { id: 'zz1', v: 3, w: 1, ts: now - 9e7, end: now - 8.9e7, sets: { la1: [row(1e12, 8), row(80, 1e9), row(80, 8.4), row(-4, 8), row('80', 8)] } } } }));
+    return S.sessions.zz1.sets.la1.map((x) => (x.kg == null ? '-' : x.kg) + 'x' + x.reps).join();
+  });
+  check('a restored file cannot bring absurd numbers in', rest === '1000x8,80x200,80x8,-x8,-x8', rest);
+  check('and the profile still adds up to a number', (await p.evaluate(() => { const P = meNow(); return [P.T.kg, P.T.xp, P.L.lvl].every((x) => Number.isFinite(x)); })), await p.evaluate(() => JSON.stringify(meNow().T)));
+  await p.context().close();
+
+  // ---- 8. "two days ago" stays two days when the clocks moved in between (a 23-hour day) ----
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'he-IL', timezoneId: 'America/New_York' }), q = await ctx.newPage();
+    q.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
+    await q.clock.install({ time: new Date('2026-03-09T09:00:00-04:00') });
+    await q.addInitScript((s) => { if (!localStorage.getItem('ul4:v1')) localStorage.setItem('ul4:v1', s); }, JSON.stringify({ sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, me: { ob: 1 } } }));
+    await q.goto(PREVIEW); await q.waitForTimeout(500);
+    const days = await q.evaluate(() => { const at = (iso) => new Date(iso).getTime(); const he = [ago(at('2026-03-09T01:00:00-04:00')), ago(at('2026-03-08T23:00:00-04:00')), ago(at('2026-03-07T12:00:00-05:00')), ago(at('2026-03-04T12:00:00-05:00'))]; setLang('en'); return he.concat([ago(at('2026-03-07T12:00:00-05:00')), ago(at('2026-03-08T12:00:00-04:00'))]).join(' | '); });
+    check('days are counted by the calendar, also across a clock change', days === 'היום | אתמול | לפני יומיים | לפני 5 ימים | 2 days ago | yesterday', days);
+    await ctx.close();
+  }
+
+  // ---- 10. choices made by hand are not undone by something else ----
+  p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5 } }); txt = T(p);
+  const byHand = await p.evaluate(() => {
+    const n = () => [planned(0, {}).ua1, planned(0, {}).ua2, planned(0, {}).ua5].join();
+    setBase('ua1', 5); const out = [n()];
+    for (const exp of [1, 0, 2]) { S.cfg.me.exp = exp; applyExp(); out.push(n()); }
+    return out.join(' | ');
+  });
+  check('a set count chosen by hand survives every change of experience', byHand === '5,3,2 | 5,3,2 | 5,2,2 | 5,3,2', byHand);
+  await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(250); await p.click('#lookBtn'); await p.waitForTimeout(250);
+  await p.click('#lkName'); await p.keyboard.type('נועה'); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+  check('a name typed in the character sheet is kept when the sheet is closed with Escape', (await p.evaluate(() => S.cfg.me.name)) === 'נועה' && (await txt('.pf-name')) === 'נועה' && JSON.parse(await p.evaluate(() => localStorage.getItem('ul4:v1'))).cfg.me.name === 'נועה', await p.evaluate(() => S.cfg.me.name));
+  await p.context().close();
+
+  // ---- 9. a narrow phone (320 px), in English, where the words are longest: nothing may reach past the screen ----
+  {
+    const ctx = await b.newContext({ viewport: { width: 320, height: 568 }, deviceScaleFactor: 2, locale: 'en-US' }), q = await ctx.newPage();
+    q.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
+    await q.addInitScript((s) => { if (!localStorage.getItem('ul4:v1')) localStorage.setItem('ul4:v1', s); }, JSON.stringify({ sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, lang: 'en', me: { ob: 1, name: 'Maximilian-Alex' } } }));
+    await q.goto(PREVIEW); await q.waitForTimeout(600);
+    /* everything visible inside the bar at the bottom, and the page itself, against the width of the screen */
+    const past = () => q.evaluate(() => { const out = []; if (document.documentElement.scrollWidth > innerWidth + 1) out.push('page'); for (const el of document.querySelectorAll('#dock *, #exList .ex.open *')) { const r = el.getBoundingClientRect(); if (r.width && r.height && !el.closest('canvas,svg,.tempo') && (r.right > innerWidth + 1 || r.left < -1)) out.push(el.tagName + '.' + el.className); } return out.slice(0, 5); });
+    await q.click('#homeGo'); await q.waitForTimeout(350);
+    check('narrow phone: the exercise and the bar fit the screen', (await past()).length === 0, await past());
+    await q.click('#dkHit'); await q.waitForTimeout(500);
+    check('narrow phone: the rest timer fits', (await past()).length === 0 && (await q.isVisible('#rtUndo')), await past());
+    await q.click('#rtSkip'); await q.waitForTimeout(200); await q.click('.ex.open .same'); await q.waitForTimeout(450);
+    check('narrow phone: the questions after an exercise fit, with their Skip in reach', (await past()).length === 0 && (await q.evaluate(() => { const r = document.querySelector('#fbSkip').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })), await past());
+    await q.click('#dock [data-fb="pain"][data-v="2"]'); await q.waitForTimeout(300);
+    check('narrow phone: a pain report fits too', (await past()).length === 0, await past());
+    await snap(q, 'h9-narrow-pain');
+    /* a text link is easy to hit: its tap area is larger than its letters */
+    const tapH = await q.evaluate(() => { const b = document.querySelector('#fbSkip'), a = getComputedStyle(b, '::after'), r = b.getBoundingClientRect(); return r.height - parseFloat(a.top) - parseFloat(a.bottom); });
+    check('a text link has a tap area of a finger\'s size', tapH >= 44, tapH);
+    await ctx.close();
+  }
   console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (errs.join(' | ') || 'none'));
   await b.close();
 })().catch((e) => { console.log('PASS ' + ok.length, 'FAIL', bad); console.log('CRASH', e.message.split('\n').slice(0, 5).join('\n')); process.exit(1); });

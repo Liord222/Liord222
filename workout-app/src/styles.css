@@ -71,6 +71,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .top-list svg{width:24px;height:24px}
 .wk-title{display:none;min-width:0;justify-items:center;text-align:center;line-height:1.25}
 .wk-title b{max-width:100%;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:340px){.wk-title b{font-size:14.5px}}
 .wk-title .clock{font-size:13px;font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
 .app[data-view="workout"] .wk-title{display:grid;flex:1}
 .app[data-view="workout"] .top-acts{display:flex}
@@ -91,7 +92,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .btn.danger{color:var(--muscle)}
 .btn:disabled{opacity:.4;cursor:default}
 .btn:active:not(:disabled),.step:active,.rstep:active,.setp:active,.hit:active,.seg button:active,.tab:active .dot,.player:active .p-ava{transform:scale(.97)}
-.link{background:none;border:0;padding:8px 4px;color:var(--accent);font-size:14px;font-weight:600}
+.link{position:relative;background:none;border:0;padding:8px 4px;color:var(--accent);font-size:14px;font-weight:600}
+.link::after,.lk-sw::after{content:"";position:absolute;inset:-8px}
 .icon-btn{width:44px;height:44px;flex:none;border-radius:50%;border:0;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2)}
 .icon-btn.send{background:var(--accent);color:var(--on-accent)}
 
@@ -299,7 +301,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .goal.g-cal{color:var(--rest);background:var(--rest-soft)}
 .cut-note{grid-column:1/-1;font-size:13.5px;color:var(--warn);font-weight:600}
 .same{grid-column:1/-1;justify-self:start;color:var(--accent);background:none;min-height:40px;padding:0 4px;font-size:14px}
-.fbk{display:grid;gap:8px}
+.fbk{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
 .fb-row{display:grid;grid-template-columns:minmax(0,92px) minmax(0,1fr);gap:8px;align-items:center}
 .fb-row>span{font-size:13px;font-weight:600;color:var(--ink-2);line-height:1.25}
 .fb-wrap{display:grid;gap:10px}
@@ -360,7 +362,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 
 /* dock: log a set, then rest */
 .dock{position:fixed;z-index:40;left:0;right:0;bottom:0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--surface) 96%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-radius:28px 28px 0 0;box-shadow:0 0 0 1px var(--line),0 -18px 40px -26px rgb(0 0 0 / .4)}
-.dock-in{max-width:640px;margin-inline:auto;display:grid;gap:10px}
+.dock-in{max-width:640px;margin-inline:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .dk-top{display:flex;align-items:center;gap:8px;min-height:40px}
 .dk-set{flex:1;min-width:0;font-size:14.5px;font-weight:500;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dk-set b{color:var(--ink);font-weight:800}
@@ -397,14 +399,14 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .rt-track i{position:absolute;inset:0 auto 0 0;width:0;background:var(--accent);border-radius:99px}
 .dock.ready .rt-track i,.dock.go .rt-track i{background:var(--ok)}
 .rt-log{font-size:13px;color:var(--ink-2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.rt-log .link{padding:0 4px;font-size:13px}
+.rt-log .link{padding:6px 6px;margin-block:-6px;font-size:13px}
 .rt-log .pr{margin:0}
 .rt-log .xp-tag{height:20px;font-size:12px;animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
 @keyframes pop{from{transform:scale(.4);opacity:0}}
 .rt-btns{display:flex;gap:8px}
 .rt-btns button{min-width:56px;height:50px;border-radius:16px;border:0;background:var(--surface-2);color:var(--ink);font-weight:700;font-size:14px;padding:0 10px;display:grid;place-items:center;font-variant-numeric:tabular-nums}
 .rt-btns .go{flex:1;background:var(--accent);color:var(--on-accent);font-size:16px}
-.fb-dock{display:grid;gap:10px}
+.fb-dock{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .fb-h{display:flex;align-items:center;gap:8px}
 .fb-h b{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dock.rest .fb-dock{border-top:1px solid var(--line);padding-top:10px}
@@ -451,8 +453,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .verdict.no{background:var(--muscle-soft);color:var(--muscle)}
 .composer{padding:8px 12px 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;border-top:1px solid var(--line)}
 /* what the question is about: a small pill above the field */
-.chat-ctx{position:relative;justify-self:start;display:flex;align-items:center;gap:6px;max-width:100%;min-height:36px;padding-inline:14px 34px;border-radius:99px;background:var(--surface-2);font-size:13.5px;color:var(--ink-2)}
-.chat-ctx select{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;height:36px;border:0;background:none;padding:0;font-size:14px;font-weight:600;color:var(--ink);text-overflow:ellipsis}
+.chat-ctx{position:relative;justify-self:start;display:flex;align-items:center;gap:6px;max-width:100%;min-height:40px;padding-inline:14px 34px;border-radius:99px;background:var(--surface-2);font-size:13.5px;color:var(--ink-2)}
+.chat-ctx select{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;height:40px;border:0;background:none;padding:0;font-size:14px;font-weight:600;color:var(--ink);text-overflow:ellipsis}
 .chat-ctx svg{position:absolute;inset-inline-end:10px;width:16px;height:16px;color:var(--ink-3);pointer-events:none}
 .attach{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink-2)}
 .attach img{width:48px;height:48px;object-fit:cover;border-radius:12px}
@@ -625,7 +627,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .lk-row.col>span{font-size:13px}
 .lk-row input{width:100%;min-width:0;height:48px;border-radius:14px;border:0;background:var(--surface-2);padding:0 14px;font-size:16px}
 .lk-opts{display:flex;flex-wrap:wrap;gap:9px;padding:3px}
-.lk-sw{width:34px;height:34px;border-radius:50%;border:0;padding:0;background:var(--c);box-shadow:0 0 0 1px var(--line)}
+.lk-sw{position:relative;width:34px;height:34px;border-radius:50%;border:0;padding:0;background:var(--c);box-shadow:0 0 0 1px var(--line)}
+.lk-sw::after{inset:-4px}
 .lk-sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--accent)}
 
 /* the end of a workout */
@@ -650,7 +653,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .ob{position:fixed;inset:0;z-index:90;background:var(--paper);overflow-y:auto;overscroll-behavior:contain}
 .ob-in{min-height:100%;max-width:480px;margin-inline:auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:18px;padding:calc(env(safe-area-inset-top,0px) + 10px) max(20px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(20px,env(safe-area-inset-left,0px))}
 .ob-top{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:44px}
-.ob-top .link{padding:0;justify-self:end;white-space:nowrap}
+.ob-top .link{min-height:44px;padding:0 6px;justify-self:end;white-space:nowrap}
 .ob-sp{width:44px}
 .ob-prog{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
 .ob-prog i{display:block;height:100%;min-width:8px;border-radius:99px;background:var(--accent);transition:width .35s cubic-bezier(.2,.8,.2,1)}

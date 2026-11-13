@@ -4,7 +4,10 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const Ltr = (s) => '<bdi dir="ltr">' + s + '</bdi>';
 const reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR, MAX_SETS = 8;
+const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR, MAX_SETS = 8, MAX_KG = 1000, MAX_REPS = 200;
+/* a weight and a rep count as they may be kept: no weight is null, and nothing beyond what a set can be */
+const capKg = (kg) => (typeof kg !== 'number' || !(kg > 0) ? null : Math.min(MAX_KG, Math.round(kg * 100) / 100));
+const capReps = (r) => (typeof r !== 'number' || !(r >= 0.5) ? null : Math.min(MAX_REPS, Math.max(1, Math.round(r))));
 const ICON = {
   play: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>',
   pause: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>',
@@ -380,7 +383,7 @@ function mesoSummary(id) {
   }
   const span = (m) => { const ks = Object.keys(m).map(Number).sort((a, b) => a - b); if (!ks.length) return null; const peak = ks.reduce((a, b) => (m[b] > m[a] ? b : a)); return { start: m[ks[0]], peak: m[peak], peakWk: peak, weeks: ks.length }; };
   const avg = (a) => a.reduce((x, y) => x + y, 0) / a.length;
-  const gains = Object.values(lifts).filter((o) => o.first && o.best).map((o) => ({ mv: o.mv, first: o.first.row, best: o.best.row, pct: ((o.best.v - o.first.v) / o.first.v) * 100 })).sort((a, b) => b.pct - a.pct);
+  const gains = Object.values(lifts).filter((o) => o.first && o.best).map((o) => ({ mv: o.mv, first: o.first.row, best: o.best.row, pct: o.first.v > 0 ? ((o.best.v - o.first.v) / o.first.v) * 100 : 0 })).sort((a, b) => b.pct - a.pct);
   const top = Object.values(lifts).filter((o) => o.pump.length).map((o) => ({ mv: o.mv, pump: avg(o.pump), pain: o.pain.length ? avg(o.pain) : 0 })).filter((o) => o.pump >= 1 && o.pain < 1).sort((a, b) => b.pump - 1.5 * b.pain - (a.pump - 1.5 * a.pain)).slice(0, 3);
   return { n: l.length, sets: span(wkSets), mus: Object.keys(MUSCLE).filter((k) => mus[k]).map((k) => Object.assign({ k }, span(mus[k]))), gains, top };
 }
@@ -412,7 +415,7 @@ function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', 
 function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
 function prCount(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.pr) n++; return n; }
-function ago(ts) { const d = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : say('לפני ' + d + ' ימים', d + ' days ago'); }
+function ago(ts) { const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : d === 2 ? say('לפני יומיים', '2 days ago') : say('לפני ' + d + ' ימים', d + ' days ago'); }
 const fmtKg = (kg) => (kg == null ? '' : String(Math.round(kg * 100) / 100));
 const fmtRow = (r) => (r.kg != null ? fmtKg(r.kg) + '×' : '') + (r.reps != null ? r.reps : '–');
 const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
@@ -479,9 +482,9 @@ function cleanSession(v, id) {
     const rows = v.sets && v.sets[k]; if (!Array.isArray(rows)) continue;
     s.sets[k] = rows.slice(0, MAX_SETS).map((r) => {
       r = r || {};
-      const o = { kg: numOr(r.kg, 0) > 0 ? r.kg : null, reps: numOr(r.reps, 0) > 0 ? Math.round(r.reps) : null, done: false, t: numOr(r.t, v.ts) };
+      const o = { kg: capKg(numOr(r.kg, 0)), reps: capReps(numOr(r.reps, 0)), done: false, t: numOr(r.t, v.ts) };
       o.done = !!r.done && o.reps != null; if (r.pr && o.done) o.pr = true;
-      if (typeof r.tk === 'number') o.tk = r.tk; if (typeof r.tr === 'number') o.tr = r.tr;
+      if (typeof r.tk === 'number') o.tk = capKg(numOr(r.tk, 0)); if (typeof r.tr === 'number' && capReps(numOr(r.tr, 0)) != null) o.tr = capReps(r.tr);
       return o;
     });
   }

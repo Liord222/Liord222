@@ -218,7 +218,7 @@ function renderList(dir) {
   startPlayer($('.stage', box), e.a, box);
   updateProgress(); markCur();
 }
-function renderAll() { renderMe(); renderHome(); renderHero(); renderPre(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); }
+function renderAll() { renderMe(); renderHome(); renderHero(); renderPre(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); freshLogged(); }
 /* show another exercise of this workout */
 function openEx(id, scroll, dir) {
   const e = findEx(id); if (!e || wkOf(id) !== S.tab) return;
@@ -367,7 +367,7 @@ function renderDock() {
 }
 function setKg(kg) {
   const t = dockTarget(); if (!t) return;
-  kg = kg == null || !(kg > 0) ? null : Math.round(kg * 100) / 100;
+  kg = capKg(kg);
   if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).kg = kg;
   const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); if (!$('input', box)) box.innerHTML = kgHTML(kg); }
@@ -379,7 +379,7 @@ function stepKg(d) {
 }
 function setReps(r) {
   const t = dockTarget(); if (!t || r == null || !(r >= 1)) return;
-  r = Math.min(200, Math.round(r));
+  r = capReps(r);
   if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.reps = r; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).reps = r;
   const box = $('#dkReps'); if (box) { box.classList.remove('ghost'); if (!$('input', box)) box.innerHTML = repsHTML(r); }
@@ -411,7 +411,7 @@ function typeReps() {
 function logSet(el) {
   const t = dockTarget(); if (!t || t.edit || logBusy) return;
   const s = ensure(S.tab), kg = curKg(t.e, t.i, s), r = curReps(t.e, t.i, s);
-  if (r == null || r < 1 || r > 200) return;
+  if (r == null || r < 1 || r > MAX_REPS) return;
   logBusy = true; if (el) el.classList.add('hit-on'); buzz(14); primeAudio(); keepAwake();
   setTimeout(() => { logBusy = false; commitSet(t.e, t.i, kg, r); }, el && !reduced ? 180 : 0);
 }
@@ -587,7 +587,7 @@ function editorInput(rowEl) {
   const s = S.sessions[S.edSid]; if (!s || !rowEl) return;
   const exId = rowEl.dataset.ex, i = +rowEl.dataset.i, arr = s.sets[exId] || (s.sets[exId] = []), row = arr[i] || (arr[i] = { kg: null, reps: null, done: false });
   const kg = num($('[data-k="kg"]', rowEl).value), reps = num($('[data-k="reps"]', rowEl).value, true);
-  row.kg = kg != null && kg > 0 ? kg : null; row.reps = reps != null && reps > 0 ? reps : null; row.done = row.reps != null; row.t = Date.now(); delete row.pr;
+  row.kg = capKg(kg); row.reps = capReps(reps); row.done = row.reps != null; row.t = Date.now(); delete row.pr;
   rowEl.classList.toggle('on', row.done); touch(s);
 }
 function editorDate(val) {
@@ -735,8 +735,13 @@ function wireApp() {
     const clr = ev.target.closest('.ed-clr');
     if (clr) { const rowEl = clr.closest('.ed-row'); $$('input', rowEl).forEach((x) => { x.value = ''; }); editorInput(rowEl); }
   });
-  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); });
-  sheet.addEventListener('change', (ev) => { if (ev.target.id === 'edDate') editorDate(ev.target.value); else { coachSheetChange(ev); meSheetChange(ev); } });
+  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); });
+  sheet.addEventListener('change', (ev) => {
+    if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }
+    const inp = ev.target.closest('.ed-row input');
+    if (inp) { const rowEl = inp.closest('.ed-row'), s = S.sessions[S.edSid], r = s && rowsOf(s, rowEl.dataset.ex)[+rowEl.dataset.i]; if (r) { $('[data-k="kg"]', rowEl).value = r.kg != null ? fmtKg(r.kg) : ''; $('[data-k="reps"]', rowEl).value = r.reps != null ? r.reps : ''; } return; }
+    coachSheetChange(ev); meSheetChange(ev);
+  });
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on) { if (!sheet.hidden) closeSheet(); else closeChat(); } });
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });

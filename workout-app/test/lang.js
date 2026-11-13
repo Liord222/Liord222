@@ -170,6 +170,10 @@ const hebOn = (p) => p.evaluate(() => {
   check('the end of a workout is in English', end.includes('Workout 1 complete') && end.includes('points') && end.includes('Level ') && end.includes('sets') && end.includes('minutes') && end.includes('PRs') && end.includes('Next: Workout 2 – Lower Body A') && end.includes('Continue'), end);
   await clean('the end of a workout'); await snap(p, 'en12-summary');
   await p.click('#sheetClose'); await p.waitForTimeout(300);
+  /* the workout is over: the line about the sets the coach wrote stays, without an Undo that could no longer undo anything */
+  await p.click('#chatOpen'); await p.waitForTimeout(300);
+  check('sets the coach wrote cannot be "undone" once their workout is finished', (await txt('#msgs .logged')).includes('3 sets logged') && !(await p.isVisible('#msgs .logged .link')) && (await p.evaluate(() => { undoLog(chat.msgs.findIndex((m) => m.logged)); const s = sorted().find((x) => x.end && x.sets.ua2); return s.sets.ua2.filter((r) => r && r.done).length + ':' + !!chat.msgs.find((m) => m.logged).logged.undone; })) === '3:false', await txt('#msgs .logged'));
+  await tab('home');
 
   // ---- progress
   await tab('progress');

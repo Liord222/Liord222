@@ -157,6 +157,13 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('answers come from the coach\'s face, and a new chat is on offer once there is one', (await p.$$('#msgs .row.a .ava svg')).length === 2 && (await p.$$('#msgs .row.u')).length === 2 && !(await p.isHidden('#chatNew')), await txt('#msgs'));
   check('verdict badge and hidden command line', (await txt('.verdict')) === 'מתאים חלקית' && !(await txt('#msgs')).includes('@@'), await txt('#msgs'));
   check('chat message logs sets', (await txt('.logged')).includes('3'), await txt('.logged'));
+  /* "new chat" while an answer is still streaming: the old exchange is gone for good, with no error and nothing put back in the box */
+  await p.selectOption('#chatCtx', ''); await p.fill('#chatInput', 'שאלה שנקטעת באמצע'); await p.click('#sendBtn'); await p.waitForTimeout(90);
+  await p.click('#chatNew'); await p.waitForTimeout(900);
+  const fresh = await p.evaluate(() => ({ msgs: chat.msgs.length, turns: chat.turns.length, busy: chat.busy, box: document.querySelector('#chatInput').value, note: document.querySelector('#compNote').hidden, empty: !!document.querySelector('#msgs .empty'), send: document.querySelector('#sendBtn').getAttribute('aria-label') }));
+  check('a new chat in the middle of an answer starts clean', fresh.msgs === 0 && fresh.turns === 0 && !fresh.busy && fresh.box === '' && fresh.note && fresh.empty && fresh.send === 'שלח', fresh);
+  await p.fill('#chatInput', 'זה מתאים במקום?'); await p.click('#sendBtn'); await p.waitForTimeout(900);
+  check('and the next question is answered as the first of a new conversation', (await p.evaluate(() => chat.turns.map((t) => t.role).join())) === 'user,assistant' && (await p.$$('#msgs .row.a')).length === 1 && (await txt('.verdict')) === 'מתאים חלקית', await p.evaluate(() => chat.turns.map((t) => t.role).join()));
   await p.click('#chatClose'); await p.waitForTimeout(1000);
   const c0 = sess()[0];
   check('cloud copy has both exercises and the mesocycle fields', !!c0 && c0.sets.ua2.length === 3 && c0.sets.ua1[0].reps === 10 && c0.m === 'm1' && c0.wk === 1 && c0.rir === 3 && c0.n.ua1 === 3, c0);

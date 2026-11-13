@@ -1,5 +1,5 @@
 /* ================================================================== chat with the coach ("אילון", answered by Claude) */
-const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false, limits: false };
+const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false, limits: false, gen: 0 };
 /* the coach has a face: the same figure as the player's, with a look of his own */
 const COACH = { skin: 2, hair: 1, hc: 0, beard: 1, shirt: 5 };
 const coachFace = () => avatarSVG(COACH, 12, { bust: true });
@@ -105,11 +105,15 @@ function msgHTML(m, idx) {
   const v = splitVerdict(text, !m.live);
   return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(errText(m.note)) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
 }
+function canUnlog(m) { const e = m && m.logged && !m.logged.undone && findEx(m.logged.ex), s = e && live(wkOf(e.id)); return !!s && (!m.logged.sid || m.logged.sid === s.id); }
+/* an Undo that can no longer undo anything is taken off the page, without redrawing the conversation */
+function freshLogged() { for (const b of $$('#msgs [data-unlog]')) if (!canUnlog(chat.msgs[+b.dataset.unlog])) b.hidden = true; }
 function loggedHTML(m, idx) {
   if (!m.logged) return '';
   if (m.logged.undone) return '<div class="logged" style="color:var(--ink-3)">' + say('הרישום בוטל', 'The log was undone') + '</div>';
   const n = m.logged.idx.length;
-  return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span><button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button></div>';
+  /* the sets can be taken back for as long as their workout is still running */
+  return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span>' + (canUnlog(m) ? '<button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button>' : '') + '</div>';
 }
 /* first things to ask, each with its sign */
 const SUGS = () => [[ICON.swap, say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?')], [ICON.cam, say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?')], [ICON.cues, say('דגשים לתרגיל הזה', 'Cues for this exercise')], [ICON.bell, say('כמה משקל לשים היום?', 'How much weight today?')]];
@@ -171,20 +175,24 @@ function applyLog(text) {
   let o; try { o = JSON.parse(m[1]); } catch (e) { return null; }
   const e = o && findEx(String(o.ex || '')); if (!e || !Array.isArray(o.sets)) return null;
   const w = wkOf(e.id), idx = [], lv0 = S.lvl;
-  for (const p of o.sets) {
+  for (const p of o.sets.slice(0, 40)) {
     if (!Array.isArray(p)) continue;
-    const s = ensure(w), i = firstUndone(s, e), kg = p[0] == null ? null : num(p[0]), reps = num(p[1], true);
+    /* no weight is null or zero; a weight that is not a number is a mistake, and such a set is left out */
+    const none = p[0] == null || p[0] === 0 || p[0] === '0', kg = none ? null : num(p[0]), reps = num(p[1], true);
+    if ((!none && (kg == null || !(kg > 0) || kg > MAX_KG)) || reps == null || reps < 1 || reps > MAX_REPS) continue;
+    /* the workout starts with the first set that is really written */
+    const i = firstUndone(live(w), e);
     if (i < 0) break;
-    if (reps == null || reps < 1 || reps > 200 || (kg != null && kg > 1000)) continue;
     writeRow(e, i, kg, reps); idx.push(i);
   }
   if (!idx.length) return null;
   S.touched = true; if (w === S.tab) { S.draft = null; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
   renderAll(); bump(lv0); keepAwake();
-  return { ex: e.id, name: e.nm, idx };
+  return { ex: e.id, name: e.nm, idx, sid: live(w).id };
 }
 function undoLog(i) {
   const m = chat.msgs[i], e = m && m.logged && findEx(m.logged.ex); if (!e || m.logged.undone) return;
+  if (!canUnlog(m)) { renderMsgs(); return; }
   for (const k of m.logged.idx) clearRow(e, k);
   m.logged.undone = true; S.edit = null; renderAll(); renderMsgs();
 }
@@ -193,7 +201,7 @@ async function sendChat(preset) {
   if (chat.off) return;
   const inp = $('#chatInput'), typed = (preset || inp.value).trim(), img = chat.img, imgUrl = chat.imgUrl;
   if (!typed && !img) { inp.focus(); return; }
-  const text = typed || say('מה המכשיר שבתמונה, והאם הוא מתאים כתחליף?', 'What is the machine in the photo, and does it fit as a substitute?'), ctx = ctxLine();
+  const text = typed || say('מה המכשיר שבתמונה, והאם הוא מתאים כתחליף?', 'What is the machine in the photo, and does it fit as a substitute?'), ctx = ctxLine(), gen = chat.gen, mine = () => gen === chat.gen;
   compNote(''); setBusy(true);
   chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.id });
   const reply = { role: 'a', text: '', live: true }; chat.msgs.push(reply);
@@ -203,24 +211,27 @@ async function sendChat(preset) {
   const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); inp.value = typed; if (img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
   let sample = null;
   try { sample = await chat.sampleP; } catch (e) { sample = null; }
+  if (!mine()) return;
   if (!sample) { undo(); chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? 'native' : 'outside'; renderMsgs(); setBusy(false); return; }
   chat.ctl = new AbortController();
   try {
-    const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { reply.text = u.text; paintLast(); } };
+    const opts = { cache: false, signal: chat.ctl.signal, onText: (u) => { if (!mine()) return; reply.text = u.text; paintLast(); } };
     if (img) opts.images = [img];
     const res = await sample([{ role: 'user', content: rules() }].concat(chat.turns.slice(-16)), opts);
+    if (!mine()) return;
     reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'cut';
     chat.turns.push({ role: 'assistant', content: res.text });
     const lg = res.truncated ? null : applyLog(res.text); if (lg) reply.logged = lg;
     renderMsgs();
   } catch (e) {
+    if (!mine()) return;
     const code = (e && e.code) || 'upstream_error', part = e && e.text && stripCmd(e.text);
     if (code === 'no_key') { undo(); window.gymiCoach(false); }
     else if (code === 'api_error' && e.message) { undo(); compNote('Anthropic: ' + String(e.message).slice(0, 200)); }
     else if (HIDE.includes(code)) { undo(); chat.off = isErr(code) ? code : 'view'; renderMsgs(); }
     else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = isErr(code) ? code : 'upstream_error'; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
     else { undo(); if (code !== 'cancelled') compNote(errText(isErr(code) ? code : 'upstream_error')); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); chatText(); } }
-  } finally { chat.ctl = null; setBusy(false); }
+  } finally { if (mine()) { chat.ctl = null; setBusy(false); } }
 }
 function showImgBtns() { $('#camBtn').hidden = $('#galBtn').hidden = !chat.canImg; }
 /* the exercise picker follows the plan as it stands (swapped movements show under their own name) */
@@ -264,7 +275,7 @@ function wireChat() {
   $('#chatKey').addEventListener('click', () => { if (window.gymiNative) window.gymiNative.key(); });
   /* the phone app calls this after a key was saved or removed */
   window.gymiCoach = (on) => { window.GYMI_COACH = !!on; initChat(); };
-  $('#chatNew').addEventListener('click', () => { if (chat.ctl) chat.ctl.abort(); chat.msgs = []; chat.turns = []; setAttach(null); compNote(''); renderMsgs(); });
+  $('#chatNew').addEventListener('click', () => { chat.gen++; if (chat.ctl) chat.ctl.abort(); chat.ctl = null; chat.msgs = []; chat.turns = []; setAttach(null); compNote(''); setBusy(false); renderMsgs(); });
   $('#sendBtn').addEventListener('click', () => sendChat());
   const inp = $('#chatInput');
   inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); sendChat(); } });

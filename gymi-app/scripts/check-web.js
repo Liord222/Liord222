@@ -73,7 +73,8 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   check('the character is kept in the phone\'s copy', (await txt('.pf-name')) === 'ליאור' && !!kept.cfg && kept.cfg.me.name === 'ליאור' && kept.cfg.me.look.shirt === 1, kept.cfg && kept.cfg.me);
   await f.evaluate(() => { setView('workout', true); });
   await f.click('#listBtn'); await f.waitForTimeout(300); await f.click('#finishBtn'); await f.waitForTimeout(500); await f.click('#sheetClose'); await f.waitForTimeout(300);
-  await f.click('#tabbar [data-view="progress"]'); await f.waitForTimeout(300);
+  /* the backup and the export wait in the settings, behind the profile */
+  await f.click('#tabbar [data-view="profile"]'); await f.waitForTimeout(300); await f.click('#setBtn'); await f.waitForTimeout(300);
   const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 8000 }).catch(() => null), f.click('#exportBtn')]);
   check('export hands the shell a csv file', !!dl && dl.suggestedFilename() === 'gymi-log.csv', dl && dl.suggestedFilename());
   console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (errs.join(' | ') || 'none'));

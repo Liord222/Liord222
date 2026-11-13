@@ -13,7 +13,6 @@ const STATIC = () => [
   ['#chatOpen span', '', say('אילון', 'Eilon')],
   ['#pre', 'aria-label', say('התאוששות מהאימון הקודם', 'Recovery since the last workout')],
   ['.v-progress .big', '', say('התקדמות', 'Progress')],
-  ['#backup', 'aria-label', say('גיבוי', 'Backup')],
   ['#chat', 'aria-label', say('צ׳אט עם אילון', 'Chat with Eilon')],
   ['.chat-h h2', '', say('אילון', 'Eilon')],
   ['.chat-h p', '', say('המאמן שלך', 'Your coach')],

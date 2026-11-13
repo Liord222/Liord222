@@ -36,29 +36,40 @@ function playerHTML(P) {
     '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + esc(me.name) : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
     (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + glyph('flame') + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
-const setRow = (label, key, list, cur) => '<div class="lk-row col"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
 function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
+/* the profile: the character, where it stands in the game, and the achievements. One card, one row of medals, one way to the settings */
 function renderProfile(P) {
   P = P || meNow();
   const me = S.cfg.me, L = P.L, nx = nextReward(L.lvl), have = new Set(Object.keys(me.badges).concat(earned(P.T, P.X)));
-  const stat = (v, k) => '<div><b>' + v + '</b><span>' + k + '</span></div>';
+  const stat = (v, k) => '<li><b>' + v + '</b><span>' + k + '</span></li>';
+  /* the achievements in short: the last ones that were earned, then the next to go for. All of them are a tap away */
+  const got = BADGES.filter((b) => have.has(b.id)), todo = BADGES.filter((b) => !have.has(b.id)), few = todo.length ? got.slice(-3).concat(todo).slice(0, 4) : got.slice(-4);
   $('#profile').innerHTML = '<section class="pf-top">' + (me.made ? '<button class="icon-btn pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '') +
     '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? esc(me.name) : say('הדמות שלי', 'My character')) + '</h1>' +
     '<p class="pf-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
-    '<div class="xp">' + xpBar(pctOf(L)) + '<div class="xp-l"><span>' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + '</span><span>' + Ltr(nf(L.into) + ' / ' + nf(L.need)) + '</span></div></div>' +
-    (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') + '</section>' +
-    '<div class="pf-stats">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</div>' +
-    (nx ? '<section class="pf-next">' + glyph('gift') + '<span><small>' + say('הפרס הבא', 'Next reward') + '</small><b>' + nm(nx) + '</b></span><em>' + say('רמה ', 'Level ') + nx.at + '</em></section>' : '') +
-    '<section class="pf-sec"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><ul class="badges">' + BADGES.map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
-    '<section class="pf-sec"><h2 class="sec">' + say('הגדרות', 'Settings') + '</h2><div class="pf-set">' +
-    setRow(say('שפה', 'Language'), 'lang', LANGS, LANG) +
-    setRow(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp) +
-    setRow(say('מטרה', 'Goal'), 'goal', GOALS().map((o, i) => [i, o[0]]), me.goal) +
-    setRow(say('צליל', 'Sound'), 'sound', [[1, say('פועל', 'On')], [0, say('כבוי', 'Off')]], S.sound ? 1 : 0) +
-    setRow(say('רטט', 'Vibration'), 'buzz', [[1, say('פועל', 'On')], [0, say('כבוי', 'Off')]], S.buzz !== false ? 1 : 0) +
-    '<button class="link" id="obAgain" type="button">' + say('מסך הפתיחה', 'The opening screens') + '</button></div></section>' +
-    '<section class="pf-sec"><h2 class="sec">' + say('איך צוברים נקודות', 'How points are earned') + '</h2><div class="pf-how"><span><b>' + Ltr('+' + XP.set) + '</b>' + say('סט', 'Set') + '</span><span><b>' + Ltr('+' + XP.pr) + '</b>' + say('שיא אישי', 'Personal best') + '</span><span><b>' + Ltr('+' + XP.done) + '</b>' + say('סיום אימון', 'Workout finished') + '</span></div></section>';
+    '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + (nx ? ' · ' + say('ברמה ' + nx.at + ': ', 'At level ' + nx.at + ': ') + nm(nx) : '') + '</p></div>' +
+    (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') +
+    '<ul class="pf-nums">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</ul></section>' +
+    '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
+    '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
+    '<ul class="rows"><li class="tap"><button class="row-b one" id="setBtn" type="button"><span class="h-t">' + say('הגדרות', 'Settings') + '</span>' + ICON.fwd + '</button></li></ul>' +
+    '<p class="pf-how">' + say('סט ', 'A set ') + Ltr('+' + XP.set) + ' · ' + say('שיא אישי ', 'a personal best ') + Ltr('+' + XP.pr) + ' · ' + say('סיום אימון ', 'a finished workout ') + Ltr('+' + XP.done) + '</p>';
 }
+/* ---- settings: the language, what the plan is built on, sound and vibration, and the backup. Every choice is saved at once ---- */
+function renderSettings() {
+  const me = S.cfg.me, sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0;
+  const pick = (label, key, list, cur) => '<div class="lk-row col"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
+  const tog = (label, key, on) => '<div class="set-row"><span>' + label + '</span><button class="tog" type="button" role="switch" aria-checked="' + on + '" aria-label="' + label + '" data-set="' + key + '" data-v="' + (on ? 0 : 1) + '"><i></i></button></div>';
+  sh.innerHTML = '<div class="sheet-in st" role="dialog" aria-modal="true" aria-label="' + say('הגדרות', 'Settings') + '"><div class="ed-h"><div><h2>' + say('הגדרות', 'Settings') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    pick(say('שפה', 'Language'), 'lang', LANGS, LANG) +
+    pick(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp) +
+    pick(say('מטרה', 'Goal'), 'goal', GOALS().map((o, i) => [i, o[0]]), me.goal) +
+    '<div class="set-list">' + tog(say('צליל', 'Sound'), 'sound', !!S.sound) + tog(say('רטט', 'Vibration'), 'buzz', S.buzz !== false) + '</div>' +
+    '<section class="backup" id="backup" aria-label="' + say('גיבוי', 'Backup') + '"></section>' +
+    '<button class="link" id="obAgain" type="button">' + say('מסך הפתיחה', 'The opening screens') + '</button></div>';
+  $('.sheet-in', sh).scrollTop = top; renderBackup();
+}
+function openSettings() { S.sheet = 'set'; S.backupNote = ''; renderSettings(); $('#sheet').hidden = false; }
 
 /* ---- the character sheet: name and looks; every choice is saved at once ---- */
 function lookRows() {
@@ -83,7 +94,22 @@ function setLook(key, v) {
 }
 function setName(v) { const me = S.cfg.me, n = String(v || '').trim().slice(0, 16); if (n === me.name) return; me.name = n; me.made = me.made || Date.now(); saveCfg(); }
 /* clicks and typing inside the sheet that belong to this file; returns true when the click was handled */
-function meSheetClick(ev) { const b = ev.target.closest('[data-look]'); if (!b) return false; setLook(b.dataset.look, +b.dataset.v); return true; }
+function meSheetClick(ev) {
+  const lk = ev.target.closest('[data-look]'); if (lk) { setLook(lk.dataset.look, +lk.dataset.v); return true; }
+  if (S.sheet !== 'set') return false;
+  const b = ev.target.closest('button'); if (!b) return false;
+  const k = b.dataset.set, v = b.dataset.v;
+  if (b.id === 'obAgain') { closeSheet(); openOb(); }
+  else if (b.id === 'backupBtn') exportBackup();
+  else if (b.id === 'restoreBtn') $('#restoreFile').click();
+  else if (b.id === 'exportBtn') exportCsv();
+  else if (k === 'lang') setLang(v);
+  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) { primeAudio(); beep(1); } renderSettings(); }
+  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); buzz(30); renderSettings(); }
+  else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
+  else return false;
+  return true;
+}
 function meSheetChange(ev) { if (ev.target.id === 'lkName') setName(ev.target.value); }
 
 /* ---- rewards: a short note when the level climbs mid-workout, and the celebration at the end ---- */
@@ -133,10 +159,7 @@ function wireMe() {
   $('#profile').addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
     if (b.id === 'lookBtn') openLook();
-    else if (b.id === 'obAgain') openOb();
-    else if (b.dataset.set === 'lang') setLang(b.dataset.v);
-    else if (b.dataset.set === 'sound') { S.sound = b.dataset.v === '1'; saveLocal(); if (S.sound) { primeAudio(); beep(1); } renderProfile(); }
-    else if (b.dataset.set === 'buzz') { S.buzz = b.dataset.v === '1'; saveLocal(); buzz(30); renderProfile(); }
-    else if (b.dataset.set === 'exp' || b.dataset.set === 'goal') { const me = S.cfg.me, k = b.dataset.set; me[k] = +b.dataset.v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
+    else if (b.id === 'setBtn') openSettings();
+    else if (b.id === 'bdgAll') { S.bdgAll = !S.bdgAll; renderProfile(); const again = $('#bdgAll'); if (again) again.focus({ preventScroll: true }); }
   });
 }

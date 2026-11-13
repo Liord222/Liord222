@@ -116,14 +116,14 @@ function loggedHTML(m, idx) {
   return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span>' + (canUnlog(m) ? '<button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button>' : '') + '</div>';
 }
 /* first things to ask, each with its sign */
-const SUGS = () => [[ICON.swap, say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?')], [ICON.cam, say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?')], [ICON.cues, say('דגשים לתרגיל הזה', 'Cues for this exercise')], [ICON.bell, say('כמה משקל לשים היום?', 'How much weight today?')]];
+const SUGS = () => [say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?'), say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?'), say('דגשים לתרגיל הזה', 'Cues for this exercise'), say('כמה משקל לשים היום?', 'How much weight today?')];
 function renderMsgs() {
   const box = $('#msgs'), face = '<span class="ava big" aria-hidden="true">' + coachFace() + '</span>';
   $('#chatNew').hidden = !chat.msgs.length;
   if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
     box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('צלם מכשיר או שאל שאלה. אפשר גם לכתוב מה עשית, ואני ארשום.', 'Snap a machine or ask a question. You can also tell me what you did and I will log it.') + '</span><div class="sugs">' +
-      SUGS().map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s[0] + '<span>' + s[1] + '</span>' + ICON.fwd + '</button>').join('') + '</div></div>';
+      SUGS().map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>').join('') + '</div></div>';
     return;
   }
   box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
@@ -281,7 +281,7 @@ function wireChat() {
   inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); sendChat(); } });
   inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.height = Math.min(120, inp.scrollHeight + 2) + 'px'; });
   $('#msgs').addEventListener('click', (ev) => {
-    const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS()[+b.dataset.sug][1]); return; }
+    const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS()[+b.dataset.sug]); return; }
     const u = ev.target.closest('[data-unlog]'); if (u) undoLog(+u.dataset.unlog);
     if (ev.target.closest('#coachKey') && window.gymiNative) window.gymiNative.key();
   });

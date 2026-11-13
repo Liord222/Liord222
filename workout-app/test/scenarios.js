@@ -45,15 +45,15 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: ses, cfg: { upd: 5, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, meso: { id: 'm1', n: 1, start: 0, early: 0 }, past: [] } }); txt = T(p);
   check('easy week: the running workout opens on its exercise, far from failure', (await p.evaluate(() => S.view + ':' + S.open)) === 'workout:lb1' && (await txt('.fx-rx')).includes('רחוק מכשל') && (await p.evaluate(() => findEx('lb1').sets)) === 3, [await txt('.fx-rx'), await p.evaluate(() => findEx('lb1').sets)]);
   await p.click('#listBtn'); await p.waitForTimeout(250);
-  check('easy week: the list of exercises says so', (await txt('#mesoBtn')).includes('שבוע קל') && (await p.$$('#allList .ex')).length === 7, await txt('#mesoBtn'));
+  check('easy week: the list of exercises says so', (await txt('#sheet .kicker')).includes('שבוע קל') && (await p.$$('#allList .ex')).length === 7, await txt('#sheet .kicker'));
   await p.click('#finishBtn'); await p.waitForTimeout(500);
   const sheet = await txt('#sheet');
-  check('finishing the last deload shows the mesocycle summary', sheet.includes('הסבב הושלם') && sheet.includes('שינוי כוח לפי תרגיל') && sheet.includes('לחיצת חזה בשיפוע עליון בסמית׳') && !sheet.includes('Incline') && sheet.includes('התרגילים שהגיבו הכי טוב') && sheet.includes('תחושה חזקה'), sheet.slice(0, 400));
+  check('finishing the last deload shows the mesocycle summary', sheet.includes('הסבב הושלם') && sheet.includes('שינוי כוח לפי תרגיל') && sheet.includes('לחיצת חזה בשיפוע עליון בסמית׳') && !sheet.includes('Incline') && sheet.includes('סטים בשבוע לפי שריר') && sheet.includes('20 אימונים · כוח ') && !sheet.includes('הגיבו') && !sheet.includes('תחושה'), sheet.slice(0, 400));
   check('the round summary also shows what the workout earned', (await txt('#sheet .xp-line')).includes('+110') && (await txt('#sheet .xp-line')).includes('רמה'), await txt('#sheet .xp-line'));
   check('finishing every easy workout of a round is an achievement', (await p.evaluate(() => [S.cfg.me.badges.round > 0, S.cfg.me.badges.week > 0, roundsDone(Object.values(S.sessions))].join())) === 'true,true,1', await p.evaluate(() => JSON.stringify(S.cfg.me.badges)));
   await snap(p, 'h1-mesodone');
-  const sm = await p.evaluate(() => { const r = mesoSummary('m1'); return { sets: r.sets, g: r.gains.map((x) => x.mv + ':' + x.pct.toFixed(1)), top: r.top.map((x) => x.mv) }; });
-  check('summary numbers: weekly sets, strength change, best responders', sm.sets.start === 8 && sm.sets.peak === 8 && sm.g.length === 3 && sm.g.some((x) => x.startsWith('assistedPullup:') && !x.includes('-')) && sm.top.length === 3, sm);
+  const sm = await p.evaluate(() => { const r = mesoSummary('m1'); return { sets: r.sets, g: r.gains.map((x) => x.mv + ':' + x.pct.toFixed(1)), keys: Object.keys(r).sort().join() }; });
+  check('summary numbers: weekly sets and strength change', sm.sets.start === 8 && sm.sets.peak === 8 && sm.g.length === 3 && sm.g.some((x) => x.startsWith('assistedPullup:') && !x.includes('-')) && sm.keys === 'gains,mus,n,sets', sm);
   await p.click('#sheetClose'); await p.waitForTimeout(300);
   // ---- 3. the next workout opens mesocycle 2 ----
   check('after the deload: next workout is week 1 of mesocycle 2', (await p.evaluate(() => { const P = phaseNext(0); return [P.n, P.wk, P.rir].join(); })) === '2,1,3' && (await txt('#home .week h2')).includes('שבוע 1'), await txt('#home .week'));
@@ -61,7 +61,7 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   check('new mesocycle starts further from failure, sets back to base', t1[2] === 'base' && t1[1] >= 6 && t1[1] <= 10 && t1[0] <= 62.5 && t1[3] === 3, t1);
   check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('גוף עליון A'), await txt('#home'));
   await p.click('#planBtn'); await p.waitForTimeout(300);
-  check('mesocycle sheet between cycles offers the summary only', (await txt('.ms-act')).includes('סיכום סבב 1') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('.ms-act'));
+  check('between rounds the plan says so and offers the summary, with nothing to steer', (await txt('.ms-act')).includes('סבב 1 הושלם') && (await txt('#sheet [data-sum="m1"]')).includes('סיכום הסבב') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('#sheet'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
   await p.click('#homeGo'); await p.waitForTimeout(400); await p.click('#preAll'); await p.waitForTimeout(300); await p.click('#dkHit'); await p.waitForTimeout(600);
   const m2 = await p.evaluate(() => { const s = live(S.tab); return { cfg: S.cfg.meso.id, past: S.cfg.past.map((x) => x.id), m: s.m, wk: s.wk, rir: s.rir, dl: s.dl }; });
@@ -85,8 +85,9 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   file.cfg.slots['bad id!'] = { w: 1, a: 'legExt', sets: 3, reps: '8–12', rest: [60, 60] }; file.cfg.slots.cevil0001 = { w: 1, a: '<img src=x>', sets: 3, reps: '8–12', rest: [60, 60] };
   file.cfg.order[1].push('cevil0001', '<img src=x>', 'ua1'); file.cfg.order[9] = ['la1'];
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: {} }); txt = T(p);
-  check('a fresh copy starts empty', (await p.evaluate(() => Object.keys(S.sessions).length)) === 0 && (await txt('#backup')).includes('שחזור מקובץ') && (await txt('#playerBtn')).includes('רמה 1'), await txt('#backup'));
-  await p.click('#tabbar [data-view="progress"]'); await p.waitForTimeout(200);
+  await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(200); await p.click('#setBtn'); await p.waitForTimeout(250);
+  check('a fresh copy starts empty, and the settings offer to restore', (await p.evaluate(() => Object.keys(S.sessions).length)) === 0 && (await txt('#backup')).includes('שחזור מקובץ') && (await txt('#playerBtn')).includes('רמה 1'), await txt('#backup'));
+  /* the file is read while the settings are open: what it brought is said there */
   await p.setInputFiles('#restoreFile', { name: 'gymi-backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) }); await p.waitForTimeout(500);
   const got = await p.evaluate(() => ({ n: Object.keys(S.sessions).length, weeks: S.cfg.weeks, note: S.cfg.notes.hackSquat, swap: S.cfg.swap.ua5, base: S.cfg.base, evil: S.sessions.evil && S.sessions.evil.sets.la1.map((r) => [r.kg, r.reps, r.done]), evilN: S.sessions.evil && S.sessions.evil.n, evilMv: S.sessions.evil && S.sessions.evil.mv, img: document.querySelectorAll('img[src="x"]').length, fb: S.sessions.s01.fb.ua1 }));
   const pl = await p.evaluate(() => ({ slots: Object.keys(S.cfg.slots).join(), order: JSON.stringify(S.cfg.order), plan: planSlots(1).map((x) => x.a).join(), row: S.sessions.cs1 && S.sessions.cs1.sets.cabc12345 && S.sessions.cs1.sets.cabc12345[0].kg, o: S.sessions.cs1 && S.sessions.cs1.o.join(), list: exList(1, S.sessions.cs1).map((e) => e.mv).join() }));
@@ -103,7 +104,8 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   /* a file whose player fields were tampered with: text is shown as text, unknown choices fall back to the defaults */
   const evil = { app: 'gymi', v: 1, at: now, sessions: {}, cfg: { upd: now + 1e6, weeks: 5, meso: { id: 'm1', n: 1 }, me: { name: '<img src=x onerror=alert(1)>', look: { skin: '<b>', hair: 99, hc: -1, beard: 1.5, shirt: 3 }, made: 5, arch: { until: '<i>', xp: -5, wk: 'a' }, badges: { first: '<u>', nope: 5 } } } };
   await p.setInputFiles('#restoreFile', { name: 'evil.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(evil)) }); await p.waitForTimeout(400);
-  await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(200);
+  await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
+  check('(the settings close and the profile is there)', (await p.evaluate(() => S.view + ':' + S.sheet)) === 'profile:null', await p.evaluate(() => S.view + ':' + S.sheet));
   const ev = await p.evaluate(() => ({ me: S.cfg.me, img: document.querySelectorAll('img[src="x"]').length, name: document.querySelector('.pf-name').textContent }));
   check('player fields from a file are cleaned too', ev.img === 0 && ev.name === '<img src=x onerr' && JSON.stringify(ev.me.look) === '{"skin":1,"hair":1,"hc":0,"beard":0,"shirt":3}' && ev.me.arch.xp === 1000 && ev.me.badges.nope === undefined && ev.me.badges.first === 5, ev);
   await p.context().close();
@@ -123,7 +125,7 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   const A2 = await p.evaluate(() => { const P = meNow(); return { n: Object.keys(S.sessions).length, wk: P.T.wk, xp: P.T.xp, lvl: P.L.lvl, week: !!S.cfg.me.badges.week }; });
   check('the level survives when the old workouts are gone from the device', A2.n === 40 && A2.wk === 46 && A2.xp === A.xp && A2.lvl === A.lvl && A2.week, A2);
   await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(300); await snap(p, 'h5-profile-long', true);
-  check('the profile page shows the long run', (await txt('.pf-stats')).startsWith('46 אימונים') && (await txt('#profile')).includes('רמה ' + A.lvl), await txt('.pf-stats'));
+  check('the profile page shows the long run', (await txt('.pf-nums')).replace(/\s+/g, ' ').startsWith('46 אימונים') && (await txt('#profile')).includes('רמה ' + A.lvl), await txt('.pf-nums'));
   /* a workout on the old side of the archive keeps its side when its date is edited, so it is neither counted twice nor lost */
   const moved = await p.evaluate(() => { const cut = S.cfg.me.arch.until, s = S.sessions.L6, d = new Date(Date.now() - 864e5), iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); S.edSid = 'L6'; editorDate(iso); const up = s.ts > cut; S.edSid = 'L6'; editorDate('2020-01-05'); return [up, s.ts > cut, meNow().T.wk].join(); });
   check('editing a date never crosses the archive line', moved === 'true,true,46', moved);
@@ -263,7 +265,7 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   check('Tab does not leave the sheet', (await reach()).inSheet, await reach());
   await p.keyboard.press('Escape'); await p.waitForTimeout(300);
   check('closing it gives the page back, with the focus on what opened it', (await reach()).at === 'planBtn' && (await reach()).behind === 'false,false,false', await reach());
-  await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(200); await p.click('#obAgain'); await p.waitForTimeout(300);
+  await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(200); await p.click('#setBtn'); await p.waitForTimeout(250); await p.click('#obAgain'); await p.waitForTimeout(300);
   check('the opening screens take the page the same way', (await p.evaluate(() => document.querySelector('#ob').contains(document.activeElement))) && (await reach()).behind === 'true,true,true', await reach());
   await p.click('#obSkip'); await p.waitForTimeout(300);
   check('and give it back', (await reach()).behind === 'false,false,false', await reach());

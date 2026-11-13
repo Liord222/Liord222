@@ -48,11 +48,13 @@ function stopPlayer() {
 }
 function drawThumbs() {
   const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+  C.bg = C.halo = C.surface;
   for (const cv of $$('.ex-thumb')) {
     cv.width = Math.round(68 * dpr); cv.height = Math.round(49 * dpr);
     const g = cv.getContext('2d'), z = (cv.width / SW) * 1.3;
     g.setTransform(z, 0, 0, z, cv.width / 2 - 180 * z, cv.height / 2 - 142 * z); renderAnim(g, cv.dataset.anim, 0.5, C, true);
   }
+  C.bg = ''; C.halo = C.stage;
 }
 function onTheme() { readColors(); drawThumbs(); if (player.cv && !player.playing) paintStage(player.lastT); }
 

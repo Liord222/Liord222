@@ -302,7 +302,7 @@ function def(key, o) {
 /* one frame. t: 0 = lengthened position, 1 = contracted; C.fx > 0 turns on the muscle glow */
 function renderAnim(g, key, t, C, thumb) {
   const ex = ANIM[key];
-  if (thumb) { g.fillStyle = C.stage; g.fillRect(0, 0, SW, SH); } else drawBackdrop(g, C, ex.view === 'top');
+  if (thumb) { g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, SH); } else drawBackdrop(g, C, ex.view === 'top');
   if (ex.draw) { ex.draw(g, t, C, t); return; }
   const J = solve(mixPose(ex.A, ex.B, t));
   if (!thumb && ex.view === 'side') { g.fillStyle = C.shadow; g.beginPath(); g.ellipse((J.hip[0] + J.legN.c[0]) / 2, G + 4, 46, 4.2, 0, 0, TAU); g.fill(); }

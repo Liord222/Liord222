@@ -63,6 +63,8 @@ function renderHome() {
     '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (!P.m ? say('השבוע', 'This week') : P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + ' <small>' + say('מתוך ', 'of ') + S.cfg.weeks + '</small>') + '</h2>' + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
 }
 function renderTabs() { renderHome(); }
+/* a workout that is under way is marked on "today", from wherever the lifter is looking */
+function markLive() { const b = $('#tabbar [data-view="home"]'), on = nextUp().live >= 0; b.classList.toggle('live', on); const s = $('span', b); if (s) s.title = on ? say('אימון באמצע', 'A workout is in progress') : ''; }
 const totals = () => { const s = live(S.tab), l = exList(S.tab, s); return { total: l.reduce((n, e) => n + e.sets, 0), dn: l.reduce((n, e) => n + doneCount(s, e), 0) }; };
 /* how far the workout is: one quiet bar of the sets done */
 function updateProgress() {
@@ -71,20 +73,19 @@ function updateProgress() {
 }
 /* the top of a workout: its name, and which exercise of it is on screen */
 function renderHero() {
-  const list = exList(S.tab), cur = shown(), i = cur ? list.findIndex((x) => x.id === cur.id) : -1;
+  const list = exList(S.tab), cur = $('#app').classList.contains('pre-on') ? null : shown(), i = cur ? list.findIndex((x) => x.id === cur.id) : -1;
   $('#wkTitle').innerHTML = '<b>' + wkName(S.tab) + '</b><span class="sub">' + (i >= 0 ? say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length : wkOrd(S.tab)) + '</span>';
   $('#hero').innerHTML = bannerHTML();
   updateProgress();
 }
-const pipsHTML = (e, dn) => { let p = ''; for (let k = 0; k < e.sets; k++) p += '<i' + (k < dn ? ' class="on"' : '') + '></i>'; return p; };
-const tagsOf = (e) => { const off = e.cut && e.sets === 0; return (e.cut ? '<span class="tagx warn">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + (lowPump(e.mv) ? '<span class="tagx hint">' + say('שווה להחליף', 'Worth swapping') + '</span>' : '') + (e.swapped ? '<span class="tagx">' + say('חלופה', 'Swapped') + '</span>' : ''); };
+/* one row of the list of all exercises: its place, its name and what it asks for. Once it is under way, how far it is */
 function rowHTML(e, i, s) {
-  const dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets, tags = tagsOf(e);
+  const dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets, part = dn > 0 && !full && !off;
   return '<li class="ex' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
     '<button class="ex-head" type="button">' +
-    '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span><canvas class="ex-thumb" data-anim="' + e.a + '" aria-hidden="true"></canvas>' +
-    '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (tags ? '<span class="tags">' + tags + '</span>' : '') + '</span>' +
-    '<span class="ex-side"><span class="ex-rx">' + Ltr((off ? e.n0 : e.sets) + ' × ' + e.reps) + '</span><span class="pips" aria-hidden="true">' + pipsHTML(e, dn) + '</span></span>' +
+    '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span>' +
+    '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (e.cut ? '<span class="ex-sub">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + '</span>' +
+    '<span class="ex-rx' + (part ? ' part' : '') + '">' + Ltr(part ? dn + '/' + e.sets : (off ? e.n0 : e.sets) + ' × ' + e.reps) + '</span>' +
     '</button></li>';
 }
 /* a set in short: weight × reps, or the reps alone with their unit when there is no weight */
@@ -94,7 +95,7 @@ function setsHTML(e) {
   const s = live(S.tab), r = rowsOf(s, e.id), cur = cursor(), fu = firstUndone(s, e), T0 = fu >= 0 ? targetOf(e, fu, s) : null;
   let h = '';
   for (let i = 0; i < e.sets; i++) {
-    const row = r[i], on = isDone(row), isCur = !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s), ed = on && !!S.edit && S.edit.ex === e.id && S.edit.i === i;
+    const row = r[i], on = isDone(row), isCur = !S.edit && !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s), ed = on && !!S.edit && S.edit.ex === e.id && S.edit.i === i;
     const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + fmtRow(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + fmtRow(T) : '');
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
       (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + (T ? setVal(T) : '–') + '</span>') + '</button>';
@@ -170,9 +171,11 @@ function openHow(id) {
 function renderMore() {
   const e = S.open && findEx(S.open), sh = $('#sheet'); if (!e) { closeSheet(); return; }
   const s = live(S.tab), ref = refRow(e, 0, s), tr = trendHTML(e), fu = firstUndone(s, e), fill = fu >= 0 && e.sets - fu > 0 && !!targetOf(e, fu, s), rated = !!s && rowsOf(s, e.id).some(isDone);
+  const dn = rowsOf(s, e.id).filter(isDone).length, dl = phase(S.tab, s).dl, inPlan = planIds(S.tab).includes(e.id);
   const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>' : '') + tr;
   sh.innerHTML = '<div class="sheet-in mr" role="dialog" aria-modal="true" aria-label="' + say('עוד', 'More') + '"><div class="ed-h"><div><p class="kicker">' + say('עוד', 'More') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<label class="note"><span>' + say('הערה שנשארת עם התרגיל', 'A note that stays with this exercise') + '</span><textarea class="note-in" rows="2" maxlength="200" placeholder="' + say('גובה מושב, קצב, דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>' +
+    (e.cut || dl || !inPlan ? '' : '<div class="m-row"><span>' + say('סטים בתרגיל', 'Sets in this exercise') + '</span><div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (e.n0 <= Math.max(1, dn) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>') +
     '<section><h3>' + say('היסטוריה', 'History') + '</h3>' + (hist || '<p class="empty-note">' + say('עוד אין היסטוריה לתרגיל הזה.', 'No history for this exercise yet.') + '</p>') + '</section>' +
     (rated ? '<section><h3>' + say('איך היה?', 'How was it?') + '</h3>' + fbHTML(e, s) + painNote(e, s) + '</section>' : '') +
     '<div class="mr-acts">' + (fill ? '<button class="btn" id="moreSame" type="button">' + say('רשום את כל הסטים לפי היעד', 'Log every set at its target') + '</button>' : '') + '<button class="btn ask" id="moreAsk" type="button">' + say('שאל את אילון', 'Ask Eilon') + '</button></div></div>';
@@ -191,6 +194,8 @@ function exSheetClick(ev, id) {
   if (fb) { onFb(fb.closest('.fbk').dataset.ex, fb.dataset.fb, +fb.dataset.v); if (S.sheet === 'more') renderMore(); return true; }
   if (ask) { S.fbPain = ask.dataset.painask; renderMore(); return true; }
   if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); renderMore(); return true; }
+  const st = S.sheet === 'more' && ev.target.closest('[data-base]');
+  if (st) { const e = findEx(st.dataset.base); if (e) { S.touched = true; S.draft = null; setBase(e.id, +st.dataset.n); refreshEx(e); renderDock(); renderMore(); const again = $('#sheet [data-base][data-n="' + (+st.dataset.n > e.n0 ? e.n0 + 2 : e.n0 - 2) + '"]') || $('#sheet .stp button:not(:disabled)'); if (again) again.focus({ preventScroll: true }); } return true; }
   if (id === 'moreSame') { const e = findEx(S.open); closeSheet(); if (e) { S.touched = true; fillTargets(e); } return true; }
   if (id === 'moreAsk') { const x = S.open; closeSheet(); openChat(x); return true; }
   return false;
@@ -199,14 +204,15 @@ function renderHistory() {
   const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = dateFmt();
   renderGains(); renderBackup();
   /* each finished workout is one row; a tap opens it for fixing, moving to another day or deleting */
-  $('#history').innerHTML = '<h2 class="sec">' + say('אימונים אחרונים', 'Recent workouts') + '</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + say(', עריכה', ', edit') + '"><span class="h-t">' + wkName(x.w) + '</span><span class="h-s">' + df.format(new Date(x.ts)) + ' · ' + cnt(setsDone(x), 'סטים', 'סט אחד', 'sets', 'set') + (mn < 300 ? ' · ' + mn + say(' דק׳', ' min') : '') + '</span><span class="xp-tag">' + Ltr('+' + tally(x).xp) + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">' + say('עוד אימונים', 'More workouts') + '</button>' : '')
+  $('#history').innerHTML = '<h2 class="sec">' + say('אימונים אחרונים', 'Recent workouts') + '</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + say(', עריכה', ', edit') + '"><span class="h-t">' + wkName(x.w) + '</span><span class="h-s">' + df.format(new Date(x.ts)) + ' · ' + cnt(setsDone(x), 'סטים', 'סט אחד', 'sets', 'set') + (mn < 300 ? ' · ' + mn + say(' דק׳', ' min') : '') + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">' + say('עוד אימונים', 'More workouts') + '</button>' : '')
     : '<p class="empty-note">' + say('האימונים שתסיים יופיעו כאן.', 'Workouts you finish will show up here.') + '</p>');
 }
 /* one file with every workout and the settings: saved from here, or read back in */
 function renderBackup() {
-  $('#backup').innerHTML = '<h2 class="sec">' + say('גיבוי', 'Backup') + '</h2><div class="backup-act">' +
+  const box = $('#backup'); if (!box) return;
+  box.innerHTML = '<h3>' + say('גיבוי', 'Backup') + '</h3><div class="backup-act">' +
     (S.dl ? '<button class="btn" id="backupBtn" type="button">' + say('שמירה לקובץ', 'Save to a file') + '</button>' : '') + '<button class="btn" id="restoreBtn" type="button">' + say('שחזור מקובץ', 'Restore') + '</button>' + (S.dl && sorted().some((x) => hasDone(x) && x.end) ? '<button class="btn" id="exportBtn" type="button">' + say('ייצוא CSV', 'Export CSV') + '</button>' : '') + '</div>' +
-    (S.backupNote ? '<p class="backup-note" role="status">' + S.backupNote + '</p>' : '') + '<p class="empty-note" id="syncNote2">' + (S.syncT || '') + '</p>';
+    (S.backupNote ? '<p class="backup-note" role="status">' + S.backupNote + '</p>' : '') + '<p class="ms-sub" id="syncNote2">' + (S.syncT || '') + '</p>';
 }
 async function exportBackup() {
   if (!S.dl) return;
@@ -230,8 +236,8 @@ function importBackup(file) {
 function renderGains() {
   const M = S.cfg.meso, R = mesoSummary(M.id), sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
   $('#progCap').textContent = say('סבב ', 'Round ') + M.n + (R.n ? ' · ' + R.n + (R.n === 1 ? say(' אימון', ' workout') : say(' אימונים', ' workouts')) : '');
-  $('#gains').innerHTML = '<h2 class="sec">' + say('הכוח שלך', 'Your strength') + '</h2>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + mvName(g.mv) + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + arrow() + Ltr(fmtRow(g.best)) + '</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
-    : '<p class="empty-note">' + say('אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי.', 'After two workouts of the same exercise, the change shows up here.') + '</p>') + (R.n ? '<button class="btn" type="button" data-sum="' + M.id + '">' + say('סיכום הסבב', 'Round summary') + '</button>' : '');
+  $('#gains').innerHTML = '<div class="sec-h"><h2 class="sec">' + say('הכוח שלך', 'Your strength') + '</h2>' + (R.n ? '<button class="go-link" type="button" data-sum="' + M.id + '">' + say('סיכום הסבב', 'Round summary') + ICON.fwd + '</button>' : '') + '</div>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + mvName(g.mv) + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + arrow() + Ltr(fmtRow(g.best)) + '</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
+    : '<p class="empty-note">' + say('אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי.', 'After two workouts of the same exercise, the change shows up here.') + '</p>');
 }
 /* in the list of all exercises: mark the one on screen */
 function markCur() { const cur = shown(); $$('#allList .ex').forEach((li) => li.classList.toggle('cur', !!cur && cur.id === li.dataset.id)); }
@@ -246,7 +252,7 @@ function renderList(dir) {
   startPlayer($('.stage', box), e.a, box);
   renderHero(); markCur();
 }
-function renderAll() { renderMe(); renderHome(); renderHero(); renderPre(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); freshLogged(); }
+function renderAll() { renderMe(); renderHome(); renderPre(); renderHero(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); else if (S.sheet === 'set') renderSettings(); freshLogged(); markLive(); }
 /* show another exercise of this workout */
 function openEx(id, scroll, dir) {
   const e = findEx(id); if (!e || wkOf(id) !== S.tab) return;
@@ -275,13 +281,12 @@ function refreshEx(e) {
 /* ---- every exercise of this workout in one list: jump to one, see the week, finish or clear the workout ---- */
 function renderListSheet() {
   const sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, s = live(S.tab), list = exList(S.tab, s), t = totals(), P = phase(S.tab, s);
-  sh.innerHTML = '<div class="sheet-in ls" role="dialog" aria-modal="true" aria-label="' + say('כל התרגילים', 'All exercises') + '"><div class="ed-h"><div><p class="kicker">' + wkOrd(S.tab) + ' · ' + t.dn + '/' + t.total + say(' סטים', ' sets') + '</p><h2>' + wkName(S.tab) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    (P.m ? '<button class="meso' + (P.dl ? ' dl' : '') + '" id="mesoBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '"><span>' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks, 'Week ' + P.wk + ' of ' + S.cfg.weeks)) + '</span><b>' + rirText(P.rir) + '</b>' + ICON.fwd + '</button>' : '') +
+  sh.innerHTML = '<div class="sheet-in ls" role="dialog" aria-modal="true" aria-label="' + say('כל התרגילים', 'All exercises') + '"><div class="ed-h"><div><p class="kicker">' + (P.dl ? say('שבוע קל', 'Easy week') : wkOrd(S.tab)) + ' · ' + t.dn + '/' + t.total + say(' סטים', ' sets') + '</p><h2>' + wkName(S.tab) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<ol class="ex-list" id="allList">' + list.map((e, i) => rowHTML(e, i, s)).join('') + '</ol>' +
-    ((!s || !hasDone(s)) && !P.dl && preMuscles(S.tab).length ? '<button class="link" id="preAgain" type="button">' + say('שאלת ההתאוששות', 'Recovery check') + '</button>' : '') +
+    '<div class="ls-links"><button class="link" id="editWk" type="button">' + say('עריכת האימון', 'Edit this workout') + '</button>' + ((!s || !hasDone(s)) && !P.dl && preMuscles(S.tab).length ? '<button class="link" id="preAgain" type="button">' + say('שאלת ההתאוששות', 'Recovery check') + '</button>' : '') + '</div>' +
     (s ? '<div class="ls-act"><button class="btn big" id="finishBtn" type="button"' + (hasDone(s) ? '' : ' disabled') + '>' + say('סיים אימון', 'Finish workout') + '</button>' +
       (S.resetAsk ? '<span class="confirm"><span>' + say('למחוק את הרישום של האימון?', 'Clear what was logged in this workout?') + '</span><button class="btn danger" id="resetYes" type="button">' + say('כן, נקה', 'Yes, clear') + '</button><button class="btn" id="resetNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>' : '<button class="link" id="resetBtn" type="button">' + say('נקה רישום', 'Clear the log') + '</button>') + '</div>' : '') + '</div>';
-  $('.sheet-in', sh).scrollTop = top; drawThumbs(); markCur();
+  $('.sheet-in', sh).scrollTop = top; markCur();
 }
 function openList() { S.sheet = 'list'; S.resetAsk = false; renderListSheet(); $('#sheet').hidden = false; }
 /* clicks inside that list; returns true when the click was handled */
@@ -289,7 +294,7 @@ function listSheetClick(ev, id) {
   if (S.sheet !== 'list') return false;
   const li = ev.target.closest('#allList .ex');
   if (li) { const d = li.dataset.id; S.touched = true; S.draft = null; S.edit = null; closeSheet(); openEx(d, true); renderDock(); return true; }
-  if (id === 'mesoBtn') { openMeso(); return true; }
+  if (id === 'editWk') { openMeso('ex', S.tab); return true; }
   if (id === 'preAgain') { S.preSkip = null; S.preOpen = true; closeSheet(); afterPre(); return true; }
   if (id === 'finishBtn') { closeSheet(); finishWorkout(); return true; }
   if (id === 'resetBtn' || id === 'resetNo') { S.resetAsk = id === 'resetBtn'; renderListSheet(); return true; }
@@ -581,11 +586,12 @@ function editorActions(s) {
   if (S.edDel) return '<span class="confirm"><span>' + say('למחוק את האימון?', 'Delete this workout?') + '</span><button class="btn danger" id="edDelYes" type="button">' + say('כן, מחק', 'Yes, delete') + '</button><button class="btn" id="edDelNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
   return '<button class="btn danger" id="edDelAsk" type="button">' + say('מחק אימון', 'Delete workout') + '</button>' + (!live(s.w) && Date.now() - s.end < 12 * HOUR ? '<button class="btn" id="edReopen" type="button">' + say('המשך את האימון', 'Continue this workout') + '</button>' : '') + '<button class="btn primary" id="edDone" type="button">' + say('סיום', 'Done') + '</button>';
 }
-function openEditor(id) {
+function openEditor(id, all) {
   const s = S.sessions[id]; if (!s) return;
-  let list = '';
+  let list = '', skipped = 0;
   for (const e of exList(s.w, s)) {
     const r = rowsOf(s, e.id), n = Math.max(e.n0, r.length);
+    if (!all && !r.some(isDone)) { skipped++; continue; }
     list += '<section class="ed-ex"><h3>' + e.nm + '</h3>';
     for (let i = 0; i < n; i++) {
       const row = r[i] || {}, on = isDone(row);
@@ -597,18 +603,19 @@ function openEditor(id) {
     list += '</section>';
   }
   S.edSid = id; S.edDel = false; S.sheet = 'ed';
-  const sh = $('#sheet');
+  const sh = $('#sheet'), old = all ? $('.sheet-in', sh) : null, top = old ? old.scrollTop : 0;
   sh.innerHTML = '<div class="sheet-in ed" role="dialog" aria-modal="true" aria-label="' + say('עריכת אימון', 'Edit workout') + '"><div class="ed-h"><div><p class="kicker">' + wkOrd(s.w) + (s.dl ? say(' · שבוע קל', ' · easy week') : s.wk ? say(' · שבוע ', ' · week ') + s.wk : '') + '</p><h2>' + wkName(s.w) + '</h2></div><button class="icon-btn" id="sheetClose" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<label class="ed-date" for="edDate"><span>' + say('תאריך', 'Date') + '</span><input type="date" id="edDate" value="' + isoDay(new Date(s.ts)) + '" max="' + isoDay(new Date()) + '"></label>' +
-    '<div class="ed-list">' + list + '</div><div class="ed-act" id="edAct">' + editorActions(s) + '</div></div>';
-  sh.hidden = false;
+    '<div class="ed-list">' + list + '</div>' + (skipped ? '<button class="link" id="edAll" type="button">' + say('עוד ', 'Also ') + cnt(skipped, 'תרגילים שלא נרשמו', 'תרגיל אחד שלא נרשם', 'exercises that were not logged', 'exercise that was not logged') + '</button>' : '') +
+    '<div class="ed-act" id="edAct">' + editorActions(s) + '</div></div>';
+  $('.sheet-in', sh).scrollTop = top; sh.hidden = false;
 }
 function closeSheet() {
   const sh = $('#sheet'); if (sh.hidden) return;
   const kind = S.sheet;
   /* the picker for adding an exercise was opened from the plan: closing it goes back there */
   if (kind === 'swap' && S.pick && S.pick.mode === 'add') { S.pick = null; S.sheet = 'meso'; renderMeso(); return; }
-  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.pick = null; S.blEdit = null;
+  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.pick = null; S.blEdit = null; S.msPage = null;
   if (kind && kind !== 'sum' && kind !== 'list') renderAll();
 }
 function editorInput(rowEl) {
@@ -639,7 +646,7 @@ async function exportCsv() {
   if (!S.dl) return;
   const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', lines = ['date,workout,exercise,set,kg,reps,week,deload,rir,target_kg,target_reps'];
   for (const s of sorted().reverse()) for (const e of exList(s.w, s)) rowsOf(s, e.id).forEach((r, i) => { if (isDone(r)) lines.push([new Date(s.ts).toISOString().slice(0, 10), q(PLAN[s.w].name), q(e.name), i + 1, r.kg == null ? '' : r.kg, r.reps == null ? '' : r.reps, s.wk || '', s.dl ? 1 : '', s.rir == null ? '' : s.rir, r.tk == null ? '' : r.tk, r.tr == null ? '' : r.tr].join(',')); });
-  try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') { S.dl = null; renderHistory(); } }
+  try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') { S.dl = null; renderBackup(); } }
 }
 function onRemoteChange() {
   const a = document.activeElement;
@@ -731,17 +738,13 @@ function wireApp() {
     if (ev.target.id === 'dkReps' && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); typeReps(); }
   });
   const logClick = (ev) => {
-    const id = (ev.target.closest('button') || {}).id;
-    if (id === 'exportBtn') exportCsv();
-    const b = ev.target.closest('button'), ds = b ? b.dataset : {};
+    const b = ev.target.closest('button'), id = b ? b.id : '', ds = b ? b.dataset : {};
     if (ds.edit) openEditor(ds.edit);
     else if (id === 'histMore') { S.histN = (S.histN || 6) + 10; renderHistory(); }
     else if (ds.sum) showMesoSummary(ds.sum, false);
-    else if (id === 'backupBtn') exportBackup();
-    else if (id === 'restoreBtn') $('#restoreFile').click();
   };
   $('#restoreFile').addEventListener('change', (ev) => { const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; importBackup(f); });
-  for (const box of ['#history', '#gains', '#backup']) $(box).addEventListener('click', logClick);
+  for (const box of ['#history', '#gains']) $(box).addEventListener('click', logClick);
   $('#hero').addEventListener('click', (ev) => { if (ev.target.closest('.banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); } });
   const sheet = $('#sheet');
   sheet.addEventListener('click', (ev) => {
@@ -751,6 +754,7 @@ function wireApp() {
     if (id === 'edDelAsk' || id === 'edDelNo') { S.edDel = id === 'edDelAsk'; $('#edAct').innerHTML = editorActions(S.sessions[S.edSid]); }
     else if (id === 'edDelYes') { deleteSession(S.edSid); if (!S.touched) S.tab = nextUp().next; closeSheet(); }
     else if (id === 'edReopen') editorReopen();
+    else if (id === 'edAll') openEditor(S.edSid, true);
     const clr = ev.target.closest('.ed-clr');
     if (clr) { const rowEl = clr.closest('.ed-row'); $$('input', rowEl).forEach((x) => { x.value = ''; }); editorInput(rowEl); }
   });
@@ -784,7 +788,7 @@ function wireApp() {
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (rest.on) tickRest(); if (live(S.tab)) keepAwake(); });
   /* the phone's back button, when gymi runs inside its native shell: close what is open, else go back to today */
   window.gymiBack = () => {
-    if (!sheet.hidden) { closeSheet(); return true; }
+    if (!sheet.hidden) { if (S.sheet === 'meso' && S.msPage) { S.msPage = null; S.blEdit = null; renderMeso(); } else closeSheet(); return true; }
     if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }
     if (OB.on) { if (OB.step > 0) { obStep(-1); return true; } return false; }
     if (S.view !== 'home') { renderHome(); setView('home'); return true; }

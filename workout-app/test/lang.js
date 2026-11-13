@@ -91,7 +91,7 @@ const hebOn = (p) => p.evaluate(() => {
   await clean('how to do it'); await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('.ex.open .more'); await p.waitForTimeout(250);
   const more = await txt('#sheet');
-  check('"more" holds the note, the history and the rarer actions', more.includes('A note that stays with this exercise') && (await p.getAttribute('.note-in', 'placeholder')) === 'Seat height, tempo, a cue' && more.includes('History') && more.includes('Last time (') && more.includes('days ago') && more.includes('Your strength · 3 workouts') && more.includes('Log every set at its target') && more.includes('Ask Eilon'), more);
+  check('"more" holds the note, the history and the rarer actions', more.includes('A note that stays with this exercise') && (await p.getAttribute('.note-in', 'placeholder')) === 'Seat height, tempo, a cue' && more.includes('History') && more.includes('Last time (') && more.includes('days ago') && more.includes('Your strength · 3 workouts') && more.includes('Log every set at its target') && more.includes('Ask Eilon') && more.includes('Sets in this exercise') && (await p.getAttribute('#sheet .mr .stp button', 'aria-label')) === 'One set less', more);
   await clean('more'); await snap(p, 'en3b-more'); await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#dkHit'); await p.waitForTimeout(600);
   const rt = await txt('#dock');
@@ -119,7 +119,8 @@ const hebOn = (p) => p.evaluate(() => {
   // ---- the list of all exercises, the swap, the plan
   await p.click('#listBtn'); await p.waitForTimeout(300);
   const ls = await txt('#sheet');
-  check('the list of exercises is in English', ls.includes('Workout 1') && ls.includes('sets') && ls.includes('Assisted Pull-ups') && ls.includes('Week 4 of 5') && ls.includes('Finish workout') && ls.includes('Clear the log'), ls.slice(0, 300));
+  check('the list of exercises is in English', ls.includes('Workout 1') && ls.includes('sets') && ls.includes('Assisted Pull-ups') && ls.includes('Edit this workout') && ls.includes('Finish workout') && ls.includes('Clear the log'), ls.slice(0, 300));
+  check('the list is plain: a number, a name and what is asked of each exercise', (await p.$$('#allList .ex')).length === 8 && (await p.$$('#allList .ex-head > *')).length === 24 && !(await p.$('#allList canvas, #allList .pips, #allList .tagx')), (await p.$$('#allList .ex-head > *')).length);
   await clean('the list of exercises'); await snap(p, 'en6-list', true);
   await p.click('#resetBtn'); await p.waitForTimeout(200);
   check('clearing asks in English', (await txt('#sheet .confirm')).includes('Clear what was logged in this workout?') && (await txt('#resetYes')) === 'Yes, clear', await txt('#sheet .confirm'));
@@ -127,28 +128,46 @@ const hebOn = (p) => p.evaluate(() => {
   check('the next exercise has come up by itself', (await txt('#exList .ex-name')) === 'Assisted Pull-ups', await txt('#exList .ex-name'));
   await p.click('.ex.open .swap'); await p.waitForTimeout(350);
   const sw = await txt('#sheet');
-  check('the swap sheet is in English', sw.includes('Swap exercise') && sw.includes('Suggested') && sw.includes('Chest') && sw.includes('Same muscle, same movement. Sets and history are kept.') && sw.includes('Lat Pulldown') && sw.includes('Cable') && sw.includes('Easy on the joints') && sw.includes('Today only') && sw.includes('For good') && sw.includes('Another machine? Ask Eilon'), sw.slice(0, 400));
+  check('the swap sheet is in English', sw.includes('Assisted Pull-ups') && sw.includes('Swap it for what?') && sw.includes('Same muscle, same movement. Sets and history are kept.') && sw.includes('Lat Pulldown') && sw.includes('Cable') && sw.includes('easy on the joints') && sw.includes('Other exercises') && sw.includes('Another machine? Ask Eilon') && !sw.includes('Today only'), sw.slice(0, 400));
   await clean('the swap sheet'); await snap(p, 'en7-swap', true);
+  await p.click('#sheet .sw-row'); await p.waitForTimeout(250);
+  check('the one question of a swap is in English', (await txt('#sheet .sw-b')).replace(/\s+/g, ' ').trim() === 'Today only For good', await txt('#sheet .sw-b'));
+  await clean('the swap sheet, an exercise chosen'); await snap(p, 'en7b-swap-chosen', true);
+  await p.click('#sheet .sw-more [data-pick]'); await p.waitForTimeout(250);
+  check('the muscles of the picker are in English', (await txt('#sheet .mu-row')).includes('Suggested') && (await txt('#sheet .mu-row')).includes('Chest') && (await txt('#sheet')).includes('A different kind of exercise gets sets and reps that suit it.'), await txt('#sheet .mu-row'));
   await p.click('#sheet [data-pick="quads"]'); await p.waitForTimeout(250); await clean('the swap sheet, another muscle');
+  await p.click('#sheet .sw-row'); await p.waitForTimeout(200);
+  check('an exercise of another kind is swapped with one word', (await txt('#sheet .sw-b')).trim() === 'Swap', await txt('#sheet .sw-b'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
-  await p.click('#listBtn'); await p.waitForTimeout(250); await p.click('#mesoBtn'); await p.waitForTimeout(350);
-  const ms = await txt('#sheet');
-  check('the plan sheet is in English', ms.includes('Round 1') && ms.includes('Week 4 of 5') && ms.includes('To failure') && ms.includes('Easy week') && ms.includes('Sets a week by muscle') && ms.includes('Exercises and sets') && ms.includes('Weight step') && ms.includes('Smith machine') && ms.includes('Length of a round') && ms.includes('5 weeks') && ms.includes('New round') && ms.includes('+ Add exercise') && ms.includes('Reorder and remove'), ms.slice(0, 500));
-  check('the volume bars are read out in English', /^[A-Z][a-z ]+: [\d.]+ sets a week\. Suggested range: \d+ to \d+$/.test(await p.getAttribute('#sheet .vol-bar', 'aria-label')), await p.getAttribute('#sheet .vol-bar', 'aria-label'));
-  await clean('the plan sheet'); await snap(p, 'en8-plan', true);
-  await p.click('#sheet [data-bled="0"]'); await p.waitForTimeout(250); await clean('the plan sheet, reordering');
+  await p.click('#listBtn'); await p.waitForTimeout(250); await p.click('#editWk'); await p.waitForTimeout(350);
+  const wkp = await txt('#sheet');
+  check('the page of a workout in the plan is in English', wkp.includes('Upper Body A') && wkp.includes('+ Add exercise') && wkp.includes('Reorder and remove') && (await p.getAttribute('#sheet [data-msp=""]', 'aria-label')) === 'Back to the plan' && (await p.getAttribute('#sheet [data-base]', 'aria-label')) === 'One set less', wkp.slice(0, 300));
+  await clean('the plan, one workout'); await snap(p, 'en8b-plan-workout', true);
+  await p.click('#sheet [data-bled="0"]'); await p.waitForTimeout(250); await clean('the plan, reordering');
   await p.click('#sheet [data-bled="0"]'); await p.waitForTimeout(200);
-  await p.click('#sheet [data-addw="1"]'); await p.waitForTimeout(350);
-  check('adding an exercise is in English', (await txt('#sheet')).includes('Add exercise · Lower Body A') && (await txt('#sheet')).includes('What to add?') && (await txt('#sheet [data-add]')) === 'Add', (await txt('#sheet')).slice(0, 200));
+  await p.click('#sheet [data-addw="0"]'); await p.waitForTimeout(350);
+  check('adding an exercise is in English', (await txt('#sheet')).includes('Add exercise · Upper Body A') && (await txt('#sheet')).includes('What to add?') && (await txt('#sheet .mu-row')).includes('Chest') && !(await p.$('#sheet .sw-b')), (await txt('#sheet')).slice(0, 200));
   await clean('adding an exercise');
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
+  await p.click('#sheet [data-msp=""]'); await p.waitForTimeout(250);
+  const ms = await txt('#sheet');
+  check('the plan is in English', ms.includes('Round 1') && ms.includes('Week 4 of 5') && ms.includes('To failure') && ms.includes('Easy week') && ms.includes('Lower Body B') && /\d exercises/.test(ms) && ms.includes('Sets a week by muscle') && ms.includes('muscle out of range') && ms.includes('Weight step') && ms.includes('Weeks in a round') && ms.includes('Summary of this round') && ms.includes('Easy week now') && ms.includes('New round'), ms.slice(0, 500));
+  check('the plan opens as one short screen', (await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); return el.scrollHeight <= el.clientHeight + 1; })) && (await p.$$('#sheet .m-row')).length === 8 && !(await p.$('#sheet select, #sheet .vol-row, #sheet .bl-row')), (await p.$$('#sheet .m-row')).length);
+  await clean('the plan'); await snap(p, 'en8-plan', true);
+  await p.click('#sheet [data-msp="vol"]'); await p.waitForTimeout(250);
+  check('the volume bars are read out in English', /^[A-Z][a-z ]+: [\d.]+ sets a week\. Suggested range: \d+ to \d+$/.test(await p.getAttribute('#sheet .vol-bar', 'aria-label')) && (await txt('#sheet')).includes('The light band is the suggested range.') && (await txt('#sheet')).includes('Below the minimum'), await p.getAttribute('#sheet .vol-bar', 'aria-label'));
+  await clean('the plan, sets by muscle'); await snap(p, 'en8c-plan-vol', true);
+  await p.click('#sheet [data-msp=""]'); await p.waitForTimeout(200); await p.click('#sheet [data-msp="inc"]'); await p.waitForTimeout(250);
+  check('the weight steps are in English', (await txt('#sheet h2')) === 'Weight step' && (await txt('#sheet')).includes('How much the weight goes up each time, by equipment.') && (await txt('#sheet')).includes('Smith machine') && (await txt('#sheet select')).includes('kg'), await txt('#sheet'));
+  await clean('the plan, weight steps');
+  await p.click('#sheet [data-msp=""]'); await p.waitForTimeout(200);
   await p.click('#msDl'); await p.waitForTimeout(250);
   check('the questions of the plan sheet are in English', (await txt('#sheet .confirm')).includes('Start an easy week? A new round starts after it.') && (await txt('#msDlYes')) === 'Yes, easy week', await txt('#sheet .confirm'));
   await p.click('#msNo'); await p.waitForTimeout(150);
   await p.click('#sheet [data-sum="m1"]'); await p.waitForTimeout(350);
   const sum = await txt('#sheet');
-  check('the round summary is in English', sum.includes('Summary') && sum.includes('Round 1') && sum.includes('sets in the top week') && sum.includes('strength change') && sum.includes('Sets by muscle') && sum.includes('Strength change by exercise') && sum.includes('The exercises that answered best') && sum.includes('Strong feel · no pain') && sum.includes('Close'), sum.slice(0, 500));
-  check('changes read from left to right', sum.includes(' → ') && !sum.includes('←'), sum.slice(0, 300));
+  check('the round summary is in English', sum.includes('Summary') && sum.includes('Round 1') && /\d+ workouts · strength [+−][\d.]+% · up to [\d.]+ sets a week/.test(sum) && sum.includes('Sets a week by muscle') && sum.includes('Strength change by exercise') && !sum.includes('answered best') && sum.includes('Close'), sum.slice(0, 500));
+  check('the round summary says each thing once, as a row of two', !sum.includes('←') && !(await p.$('#sheet .stats')) && (await p.$$eval('#sheet .sum-list li', (l) => l.length > 10 && l.every((x) => x.children.length === 2))), sum.slice(0, 300));
   await clean('the round summary'); await snap(p, 'en9-round', true);
   await p.click('#sheetClose'); await p.waitForTimeout(250);
 
@@ -185,12 +204,12 @@ const hebOn = (p) => p.evaluate(() => {
   // ---- progress
   await tab('progress');
   const pr = await txt('.v-progress');
-  check('progress is in English', pr.includes('Progress') && /Round 1 · 13 workouts/.test(pr) && pr.includes('Your strength') && pr.includes(' → ') && pr.includes('Round summary') && pr.includes('Recent workouts') && pr.includes('More workouts') && pr.includes('Backup') && pr.includes('Save to a file') && pr.includes('Restore') && pr.includes('Export CSV') && pr.includes('Saved on this device'), pr.slice(0, 500));
+  check('progress is in English', pr.includes('Progress') && /Round 1 · 13 workouts/.test(pr) && pr.includes('Your strength') && pr.includes(' → ') && pr.includes('Round summary') && pr.includes('Recent workouts') && pr.includes('More workouts') && !pr.includes('Backup') && !(await p.$('.v-progress .xp-tag')), pr.slice(0, 500));
   check('dates are written in English, with the month in letters', /[A-Z][a-z]{2},? \d{1,2} [A-Z][a-z]{2} · \d+ sets · \d+ min/.test(await txt('#history .h-s')), await txt('#history .h-s'));
   await clean('progress'); await snap(p, 'en13-progress', true);
   await p.click('#history [data-edit]'); await p.waitForTimeout(350);
   const ed = await txt('#sheet');
-  check('fixing a finished workout is in English', ed.includes('Workout 1') && ed.includes('Upper Body A') && ed.includes('Date') && ed.includes('Set 1') && ed.includes('kg') && ed.includes('reps') && ed.includes('Delete workout') && ed.includes('Continue this workout') && ed.includes('Done') && (await p.getAttribute('#sheet .ed-row input', 'aria-label')) === 'Weight in set 1', ed.slice(0, 300));
+  check('fixing a finished workout is in English', ed.includes('Workout 1') && ed.includes('Upper Body A') && ed.includes('Date') && ed.includes('Set 1') && ed.includes('kg') && ed.includes('reps') && ed.includes('Delete workout') && ed.includes('Continue this workout') && ed.includes('Done') && /\d exercises that were not logged/.test(ed) && (await p.getAttribute('#sheet .ed-row input', 'aria-label')) === 'Weight in set 1', ed.slice(0, 300));
   await clean('fixing a finished workout'); await snap(p, 'en14-editor', true);
   await p.click('#edDelAsk'); await p.waitForTimeout(200);
   check('deleting asks in English', (await txt('#edAct')).includes('Delete this workout?') && (await txt('#edDelYes')) === 'Yes, delete', await txt('#edAct'));
@@ -199,9 +218,17 @@ const hebOn = (p) => p.evaluate(() => {
   // ---- the profile and the character
   await tab('profile');
   const pf = await txt('#profile');
-  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('week streak') && pf.includes('PRs') && pf.includes('tons lifted') && pf.includes('Next reward') && pf.includes('Achievements') && pf.includes('First workout') && pf.includes('Settings') && pf.includes('Language') && pf.includes('Experience') && pf.includes('Regular') && pf.includes('Goal') && pf.includes('Build muscle') && pf.includes('How points are earned') && pf.includes('Personal best'), pf.slice(0, 600));
+  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('week streak') && pf.includes('PRs') && pf.includes('tons lifted') && /At level \d+: [A-Z]/.test(pf) && pf.includes('Achievements') && pf.includes('All of them') && pf.includes('Settings') && pf.includes('A set +10 · a personal best +30 · a finished workout +100') && !pf.includes('Language'), pf.slice(0, 600));
   check('an achievement is read out in English', /^[A-Za-z0-9 ]+, (earned|not yet)$/.test(await p.getAttribute('#profile .bdg', 'aria-label')), await p.getAttribute('#profile .bdg', 'aria-label'));
   await clean('the profile'); await snap(p, 'en15-profile', true);
+  await p.click('#bdgAll'); await p.waitForTimeout(200);
+  check('every achievement has an English name', (await p.$$('#profile .bdg')).length === 12 && (await txt('#bdgAll')) === 'Fewer' && (await txt('#profile .badges')).includes('First workout'), await txt('#profile .badges'));
+  await clean('the profile, all achievements'); await p.click('#bdgAll'); await p.waitForTimeout(200);
+  await p.click('#setBtn'); await p.waitForTimeout(300);
+  const st = await txt('#sheet');
+  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Build muscle') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
+  await clean('the settings'); await snap(p, 'en15b-settings', true);
+  await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#lookBtn'); await p.waitForTimeout(300);
   const lk = await txt('#sheet');
   check('the character sheet is in English', lk.includes('My character') && lk.includes('Name') && lk.includes('Skin') && lk.includes('Hair') && lk.includes('Curly') && lk.includes('Beard') && lk.includes('Stubble') && lk.includes('Shirt') && lk.includes('Done') && (await p.getAttribute('#lkName', 'placeholder')) === 'Your name' && (await p.getAttribute('#lkStage svg', 'aria-label')).startsWith('My character, level '), lk);
@@ -232,12 +259,14 @@ const hebOn = (p) => p.evaluate(() => {
   await p.evaluate(() => { S.cfg.meso.early = 0; setLang('en'); }); await p.waitForTimeout(250);
 
   // ---- the language setting itself
-  await tab('profile');
-  await p.click('#profile [data-set="lang"][data-v="he"]'); await p.waitForTimeout(350);
-  check('the setting turns the whole page to Hebrew', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'he,rtl,he' && (await txt('#profile')).includes('הגדרות') && (await txt('#tabbar')).includes('פרופיל') && (await p.getAttribute('#profile [data-set="lang"][data-v="he"]', 'aria-pressed')) === 'true', await txt('#tabbar'));
+  await tab('profile'); await p.click('#setBtn'); await p.waitForTimeout(300);
+  await p.click('#sheet [data-set="lang"][data-v="he"]'); await p.waitForTimeout(350);
+  check('the setting turns the whole page to Hebrew, the open sheet included', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'he,rtl,he' && (await txt('#sheet h2')) === 'הגדרות' && (await txt('#sheet')).includes('גיבוי') && (await txt('#profile')).includes('הישגים') && (await txt('#tabbar')).includes('פרופיל') && (await p.getAttribute('#sheet [data-set="lang"][data-v="he"]', 'aria-pressed')) === 'true', await txt('#tabbar'));
   check('and it is kept', JSON.parse(await p.evaluate(() => localStorage.getItem('ul4:v1'))).cfg.lang === 'he', 'ls');
-  await p.click('#profile [data-set="lang"][data-v="en"]'); await p.waitForTimeout(350);
-  check('and back to English', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'en,ltr,en' && (await txt('#profile')).includes('Settings'), await txt('#tabbar'));
+  await p.click('#sheet [data-set="lang"][data-v="en"]'); await p.waitForTimeout(350);
+  check('and back to English', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'en,ltr,en' && (await txt('#sheet h2')) === 'Settings' && (await txt('#profile')).includes('Achievements'), await txt('#tabbar'));
+  await clean('the settings, after two changes of language');
+  await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await clean('the profile, after two changes of language');
   await p.context().close();
 

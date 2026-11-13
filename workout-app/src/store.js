@@ -9,27 +9,17 @@ const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR, MAX_SETS = 8, MAX_KG =
 const capKg = (kg) => (typeof kg !== 'number' || !(kg > 0) ? null : Math.min(MAX_KG, Math.round(kg * 100) / 100));
 const capReps = (r) => (typeof r !== 'number' || !(r >= 0.5) ? null : Math.min(MAX_REPS, Math.max(1, Math.round(r))));
 const ICON = {
-  play: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>',
-  pause: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>',
   check: '<svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-  cam: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>',
   x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   send: '<svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
   stop: '<svg class="i" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>',
-  snd: '<svg class="i" viewBox="0 0 24 24"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>',
-  mute: '<svg class="i" viewBox="0 0 24 24"><path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>',
   down: '<svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
   up: '<svg class="i" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
   go: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
-  swap: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg>',
   pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
   fwd: '<svg class="i dir" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
   back: '<svg class="i dir" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
-  list: '<svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg>',
-  chat: '<svg class="i" viewBox="0 0 24 24"><path d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5h-7l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5z"/></svg>',
-  clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.3 1.8M9.5 3.5h5"/></svg>',
   bell: '<svg class="i" viewBox="0 0 24 24"><path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/></svg>',
-  cues: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></svg>',
 };
 /* S.sessions: id -> one workout:
    { id, v, w (workout 0-3), ts (start), end, mt, upd, sets: { slotId: [ { kg, reps, done, t, pr, tk, tr } ] },
@@ -261,15 +251,6 @@ function setSore(w, mu, v) {
   if (s) { if (hasDone(s)) return; s.sore = Object.assign({}, s.sore, { [mu]: v }); s.n = planned(w, s.sore); s.ft = Date.now(); touch(s); }
   else { S.pre[w] = { t: Date.now(), v: Object.assign({}, preOf(w), { [mu]: v }) }; saveLocal(); }
 }
-/* a movement that gave a weak pump the last two times it was rated is worth replacing */
-function lowPump(mv) {
-  let n = 0;
-  for (const x of sorted()) for (const pe of sessSlots(x)) {
-    const f = x.fb && x.fb[pe.id]; if (!f || f.pump == null || moveOf(pe, x) !== mv) continue;
-    if (f.pump !== 0) return false; if (++n >= 2) return true;
-  }
-  return false;
-}
 /* muscles whose first set fell short of its target in a workout */
 function missedMuscles(s) {
   const out = new Set();
@@ -366,14 +347,13 @@ function setBase(exId, n) {
 function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
 /* how many muscles sit under their minimum or over their maximum weekly volume as the week is planned now */
 function volWarn() { const v = muscleVolume(weekItems()); return Object.keys(MUSCLE).filter((k) => landmark(k, v[k].d + v[k].i) !== 'ok').length; }
-/* what one mesocycle did: sets per week (start and peak), strength change per movement, and the movements that answered best */
+/* what one mesocycle did: sets per week (start and peak), and the strength change of each movement */
 function mesoSummary(id) {
   const l = mesoSessions(id).sort((a, b) => a.ts - b.ts), wkSets = {}, mus = {}, lifts = {};
   for (const x of l) for (const pe of sessSlots(x)) {
-    const mv = moveOf(pe, x), L = LIB[mv], rows = rowsOf(x, pe.id).filter((r) => isDone(r) && r.reps != null), f = x.fb && x.fb[pe.id];
+    const mv = moveOf(pe, x), L = LIB[mv], rows = rowsOf(x, pe.id).filter((r) => isDone(r) && r.reps != null);
     if (!rows.length) continue;
-    const o = lifts[mv] || (lifts[mv] = { mv, first: null, best: null, pump: [], pain: [] });
-    if (f) { if (f.pump != null) o.pump.push(f.pump); if (f.pain != null) o.pain.push(f.pain); }
+    const o = lifts[mv] || (lifts[mv] = { mv, first: null, best: null });
     if (x.dl) continue;
     wkSets[x.wk] = (wkSets[x.wk] || 0) + rows.length;
     const add = (k, v) => { const m = mus[k] || (mus[k] = {}); m[x.wk] = (m[x.wk] || 0) + v; };
@@ -382,10 +362,8 @@ function mesoSummary(id) {
     if (!o.first) o.first = { v, row: top, wk: x.wk }; else if (!o.best || v > o.best.v) o.best = { v, row: top, wk: x.wk };
   }
   const span = (m) => { const ks = Object.keys(m).map(Number).sort((a, b) => a - b); if (!ks.length) return null; const peak = ks.reduce((a, b) => (m[b] > m[a] ? b : a)); return { start: m[ks[0]], peak: m[peak], peakWk: peak, weeks: ks.length }; };
-  const avg = (a) => a.reduce((x, y) => x + y, 0) / a.length;
   const gains = Object.values(lifts).filter((o) => o.first && o.best).map((o) => ({ mv: o.mv, first: o.first.row, best: o.best.row, pct: o.first.v > 0 ? ((o.best.v - o.first.v) / o.first.v) * 100 : 0 })).sort((a, b) => b.pct - a.pct);
-  const top = Object.values(lifts).filter((o) => o.pump.length).map((o) => ({ mv: o.mv, pump: avg(o.pump), pain: o.pain.length ? avg(o.pain) : 0 })).filter((o) => o.pump >= 1 && o.pain < 1).sort((a, b) => b.pump - 1.5 * b.pain - (a.pump - 1.5 * a.pain)).slice(0, 3);
-  return { n: l.length, sets: span(wkSets), mus: Object.keys(MUSCLE).filter((k) => mus[k]).map((k) => Object.assign({ k }, span(mus[k]))), gains, top };
+  return { n: l.length, sets: span(wkSets), mus: Object.keys(MUSCLE).filter((k) => mus[k]).map((k) => Object.assign({ k }, span(mus[k]))), gains };
 }
 
 /* ---- the player: totals, level and achievements, counted from the log (the rules are in game.js) ---- */
@@ -426,7 +404,7 @@ const W = (id) => { let w = writers.get(id); if (!w) { w = { timer: 0, busy: fal
 function setSync(state) {
   if (state) S.syncState = state;
   const off = say('אין חיבור, נשמר במכשיר', 'Offline, saved on this device'), t = { cloud: say('נשמר בחשבון Claude', 'Saved to your Claude account'), local: say('נשמר במכשיר הזה', 'Saved on this device'), slow: off, error: off }[S.syncState];
-  if (t) { S.syncT = t; $('#syncNote').textContent = t; const n = $('#syncNote2'); if (n) n.textContent = t; }
+  if (t) { S.syncT = t; $('#syncNote').textContent = t; const n = $('#syncNote2'); if (n) n.textContent = t; $('#app').dataset.sync = S.syncState === 'slow' || S.syncState === 'error' ? 'off' : 'on'; }
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
 function schedule(id, ms) { const w = W(id); clearTimeout(w.timer); w.timer = setTimeout(() => flush(id), ms == null ? 800 : ms); }

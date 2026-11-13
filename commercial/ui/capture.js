@@ -7,6 +7,7 @@ const { chromium } = require('playwright'), fs = require('fs'), path = require('
 const OUT = process.env.OUT || path.join(process.env.CM || path.join(__dirname, '..', 'work'), 'ui');
 const SCALE = +(process.env.SCALE || 2);
 const APP = fs.readFileSync(path.join(__dirname, '../../workout-app/index.html'), 'utf8');
+const UILANG = process.env.UILANG || 'he', NAME = UILANG === 'he' ? 'ליאור' : 'Sam';
 const LOOK = { skin: 1, hair: 2, hc: 1, beard: 1, shirt: 0 };
 
 /* a finger: a soft disc where the tap lands, then the click */
@@ -23,7 +24,7 @@ function history(now) {
   const day = 864e5, ses = {}; let k = 0;
   return { ses, k };
 }
-const fresh = { sound: false, buzz: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 1, lang: 'en', weeks: 5 } };
+const fresh = { sound: false, buzz: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 1, lang: UILANG, weeks: 5 } };
 
 const TAKES = {
   /* the app opening: the black curtain, the scene, the character falling in, Eilon; a tap levels the character up */
@@ -31,11 +32,11 @@ const TAKES = {
   /* the character designer, answered choice by choice, ending on the hero's look */
   character: {
     frames: 66, store: fresh, pre: 24,
-    setup: `OB.name='Sam'; OB.exp=1; OB.goal=0; S.cfg.me.look={skin:3,hair:1,hc:0,beard:0,shirt:0}; OB.step=4; renderOb();`,
+    setup: `OB.name='${NAME}'; OB.exp=1; OB.goal=0; S.cfg.me.look={skin:3,hair:1,hc:0,beard:0,shirt:0}; OB.step=4; renderOb();`,
     at: { 6: ['tap', '#ob [data-look="hair"][data-v="2"]'], 19: ['tap', '#ob [data-look="skin"][data-v="1"]'], 32: ['tap', '#ob [data-look="hc"][data-v="1"]'], 45: ['tap', '#ob [data-look="beard"][data-v="1"]'] },
   },
   /* Eilon offers the plan, line after line */
-  plan: { frames: 84, store: fresh, setup: `OB.name='Sam'; OB.exp=1; OB.goal=0; S.cfg.me.look=${JSON.stringify(LOOK)}; OB.step=5; renderOb();` },
+  plan: { frames: 84, store: fresh, setup: `OB.name='${NAME}'; OB.exp=1; OB.goal=0; S.cfg.me.look=${JSON.stringify(LOOK)}; OB.step=5; renderOb();` },
   /* the workout: the character on the incline press; Swap; the alternatives; one tap */
   swap: { frames: 104, store: 'lifter', workout: true, xp: 2150, at: { 34: ['tap', '.ex.open .swap'], 58: ['tap', '#sheet .sw-row[data-sel]'], 74: ['tapAny', ['#sheet .sw-b [data-mode="today"]', '#sheet .sw-b [data-mode="always"]']] } },
   /* the game: a set is done, points fly, the level goes up */
@@ -56,7 +57,7 @@ async function lifterStore(p0) {
       for (const e of PLAN[w].ex) { const kg = 40 + wk * 2.5; sets[e.id] = Array.from({ length: e.sets }, (_, i) => ({ kg, reps: 8 + (i ? 0 : 1), done: true, t: ts + i * 6e4, tk: kg, tr: 8 })); fb[e.id] = { pain: 0, pump: 2, load: 1 }; }
       ses[id] = { id, v: 3, w, ts, end: ts + 3e6, mt: ts, upd: ts, ft: ts, m: 'm1', wk, dl: 0, rir: rirFor(wk, 5), n: {}, mv: {}, sore: {}, cut: {}, fb, sets };
     }
-    return { sound: false, buzz: false, dirty: [], gone: [], sessions: ses, cfg: { upd: 5, lang: 'en', weeks: 5, notes: {}, meso: { id: 'm1', n: 1, start: 0, early: 0 }, past: [], me: { name: 'Sam', made: 1, ob: Date.now(), exp: 1, goal: 0, look } } };
+    return { sound: false, buzz: false, dirty: [], gone: [], sessions: ses, cfg: { upd: 5, lang: UILANG, weeks: 5, notes: {}, meso: { id: 'm1', n: 1, start: 0, early: 0 }, past: [], me: { name: NAME, made: 1, ob: Date.now(), exp: 1, goal: 0, look } } };
   }, [LOOK]);
 }
 
@@ -72,7 +73,7 @@ async function lifterStore(p0) {
     const T = TAKES[name]; if (!T) { console.log('no take', name); continue; }
     const dir = path.join(OUT, name); fs.mkdirSync(dir, { recursive: true });
     for (const f of fs.readdirSync(dir)) fs.unlinkSync(path.join(dir, f));
-    const ctx = await b.newContext({ viewport: { width: 402, height: 874 }, deviceScaleFactor: SCALE, locale: 'en-US', colorScheme: 'light', hasTouch: false });
+    const ctx = await b.newContext({ viewport: { width: 402, height: 874 }, deviceScaleFactor: SCALE, locale: UILANG === 'he' ? 'he-IL' : 'en-US', colorScheme: 'light', hasTouch: false });
     const p = await ctx.newPage(), errs = []; p.on('pageerror', (e) => errs.push(e.message));
     const store = T.store === 'lifter' ? lifter : T.store;
     await p.addInitScript((s) => { localStorage.setItem('ul4:v1', JSON.stringify(s)); }, store);

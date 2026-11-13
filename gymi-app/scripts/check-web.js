@@ -22,7 +22,7 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   check('the page boots inside the shell', (await txt('#home .next')).includes('גוף עליון A') && (await txt('#playerBtn')).includes('רמה 1') && (await f.evaluate(() => window.GYMI_NATIVE)) === 'web', await txt('#home'));
   check('the shell passes the phone\'s dark mode to the page', (await f.evaluate(() => document.documentElement.getAttribute('data-theme'))) === 'dark', 'theme');
   check('the page says it is saved on this device', (await txt('#syncNote')).includes('במכשיר'), await txt('#syncNote'));
-  await f.click('#homeGo'); await f.waitForTimeout(400); await f.click('#dkStart'); await f.waitForTimeout(600);
+  await f.click('#homeGo'); await f.waitForTimeout(600);
   await f.click('#dkKg'); await f.fill('#dkKgIn', '60'); await p.keyboard.press('Enter'); await f.waitForTimeout(150);
   await f.click('#dkHit'); await f.waitForTimeout(1400);
   const copy = await p.evaluate(() => localStorage.getItem('gymi:log:v1'));
@@ -60,12 +60,12 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   await p.evaluate(() => localStorage.removeItem('ul4:v1')); await p.reload(); f = await inner(); await p.waitForTimeout(600);
   const back = await f.evaluate(() => { const s = Object.values(S.sessions)[0]; return s ? [Object.keys(S.sessions).length, s.sets.ua1[0].kg, s.sets.ua1[0].done, S.view].join() : 'none'; });
   check('the log comes back from the phone\'s copy after the page storage is emptied', back === '1,60,true,workout', back);
-  await f.click('#lvlChip'); await f.waitForTimeout(300); await f.click('#lookBtn'); await f.waitForTimeout(200);
+  await f.evaluate(() => setView('profile')); await f.waitForTimeout(300); await f.click('#lookBtn'); await f.waitForTimeout(200);
   await f.fill('#lkName', 'ליאור'); await f.dispatchEvent('#lkName', 'change'); await f.click('#sheet [data-look="shirt"][data-v="1"]'); await f.click('#sheet [data-close]'); await p.waitForTimeout(700);
   const kept = JSON.parse(await p.evaluate(() => localStorage.getItem('gymi:log:v1')) || '{}');
   check('the character is kept in the phone\'s copy', (await txt('.pf-name')) === 'ליאור' && !!kept.cfg && kept.cfg.me.name === 'ליאור' && kept.cfg.me.look.shirt === 1, kept.cfg && kept.cfg.me);
   await f.evaluate(() => { setView('workout', true); });
-  await f.click('#finishBtn'); await f.waitForTimeout(500); await f.click('#sheetClose'); await f.waitForTimeout(300);
+  await f.click('#listBtn'); await f.waitForTimeout(300); await f.click('#finishBtn'); await f.waitForTimeout(500); await f.click('#sheetClose'); await f.waitForTimeout(300);
   await f.click('#tabbar [data-view="progress"]'); await f.waitForTimeout(300);
   const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 8000 }).catch(() => null), f.click('#exportBtn')]);
   check('export hands the shell a csv file', !!dl && dl.suggestedFilename() === 'gymi-log.csv', dl && dl.suggestedFilename());

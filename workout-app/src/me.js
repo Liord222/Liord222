@@ -22,11 +22,9 @@ const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '
 const tons = (kg) => { const t = kg / 1000; return t >= 100 ? nf(t) : (Math.round(t * 10) / 10).toLocaleString('en-US'); };
 const avatar = (lvl, o) => avatarSVG(S.cfg.me.look, lvl, o);
 
-/* the small level meter in the top row of a workout, and the level remembered for spotting a level-up */
+/* refresh the player's side after the log changed, and remember the level so that a level-up can be spotted */
 function renderMe() {
-  const P = meNow(), chip = $('#lvlChip');
-  chip.innerHTML = '<span class="lv-badge">רמה ' + P.L.lvl + '</span>' + xpBar(pctOf(P.L));
-  chip.setAttribute('aria-label', 'רמה ' + P.L.lvl + ', הפרופיל שלי');
+  const P = meNow();
   S.lvl = P.L.lvl;
   if (S.view === 'profile') renderProfile(P);
   return P;
@@ -124,6 +122,5 @@ function countUp(el, to) {
   requestAnimationFrame(step);
 }
 function wireMe() {
-  $('#lvlChip').addEventListener('click', () => { closeChat(); setView('profile'); });
   $('#profile').addEventListener('click', (ev) => { if (ev.target.closest('#lookBtn')) openLook(); });
 }

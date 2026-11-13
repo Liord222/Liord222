@@ -12,21 +12,23 @@ function soreEffects(w, sore) {
   for (const mu of Object.keys(sore)) if (sore[mu] === 2) out.push('חזרה פחות ל' + MUSCLE[mu].he);
   return out;
 }
-/* before the first set: did the muscles recover from their last workout? One tap says yes. "Not quite" opens the muscles one by one:
-   still sore takes a set off and stops a rep earlier; never sore after easy work adds a set */
+/* before the first set: did the muscles recover from their last workout? The question takes the screen until it is answered or skipped.
+   One tap says yes. "Not quite" opens the muscles one by one: still sore takes a set off and stops a rep earlier; never sore after easy work adds a set */
 function renderPre() {
   const box = $('#pre'), w = S.tab, s = live(w), mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
-  if (!mus.length) { box.hidden = true; box.innerHTML = ''; return; }
-  const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore);
-  box.hidden = false;
+  const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore), on = mus.length > 0 && S.preSkip !== w && (left > 0 || !!S.preOpen);
+  $('#app').classList.toggle('pre-on', on);
+  box.hidden = !on;
+  if (!on) { box.innerHTML = ''; S.preOpen = false; return; }
   if (!S.preOpen) {
-    box.innerHTML = left ? '<div class="pre one"><b>השרירים התאוששו?</b><div class="pre-q"><button class="btn primary" id="preAll" type="button">כן</button><button class="btn" id="preEdit" type="button">לא לגמרי</button></div></div>'
-      : '<div class="pre done"><p>' + ICON.check + '<span>' + (fx.length ? fx.join(' · ') : 'התאוששות נרשמה') + '</span></p><button class="link" id="preEdit" type="button">שנה</button></div>';
+    box.innerHTML = '<div class="pre gate"><span class="pre-ic" aria-hidden="true">' + ICON.check + '</span><h2>' + say('השרירים התאוששו?', 'Have your muscles recovered?') + '</h2><p>' + say('מהאימון הקודם שלהם', 'Since they were last trained') + '</p>' +
+      '<div class="pre-q"><button class="btn primary big" id="preAll" type="button">' + say('כן, הכול טוב', 'Yes, all good') + '</button><button class="btn big" id="preEdit" type="button">' + say('לא לגמרי', 'Not quite') + '</button></div>' +
+      '<button class="link" id="preSkip" type="button">' + say('דלג', 'Skip') + '</button></div>';
     return;
   }
-  box.innerHTML = '<div class="pre"><div class="pre-h"><b>מה עדיין תפוס?</b><button class="link" id="preAll" type="button">הכול החלים</button></div>' +
+  box.innerHTML = '<div class="pre"><div class="pre-h"><b>' + say('מה עדיין תפוס?', 'What is still sore?') + '</b><button class="link" id="preAll" type="button">' + say('הכול החלים', 'All recovered') + '</button></div>' +
     mus.map((m) => '<div class="pre-row"><span>' + MUSCLE[m].he + '</span><div class="seg" role="group" aria-label="' + MUSCLE[m].he + '">' + SORE.map((t, v) => '<button type="button" data-mu="' + m + '" data-v="' + v + '" aria-pressed="' + (sore[m] === v) + '">' + t + '</button>').join('') + '</div></div>').join('') +
-    (fx.length ? '<p class="pre-fx">' + fx.join(' · ') + '</p>' : '') + (left ? '' : '<button class="btn" id="preDone" type="button">סיום</button>') + '</div>';
+    (fx.length ? '<p class="pre-fx">' + fx.join(' · ') + '</p>' : '') + '<button class="btn primary big" id="preDone" type="button">' + say('המשך', 'Continue') + '</button></div>';
 }
 function afterPre() { renderPre(); renderHero(); renderList(); updateProgress(); renderDock(); }
 
@@ -154,7 +156,8 @@ function wireCoach() {
     if (b.dataset.mu) setSore(S.tab, b.dataset.mu, +b.dataset.v);
     else if (b.id === 'preAll') { const s = live(S.tab), sore = soreOf(S.tab, s); for (const m of preMuscles(S.tab)) if (sore[m] == null) setSore(S.tab, m, 1); S.preOpen = false; }
     else if (b.id === 'preEdit') S.preOpen = true;
-    else if (b.id === 'preDone') S.preOpen = false;
+    else if (b.id === 'preDone') { S.preOpen = false; S.preSkip = S.tab; }
+    else if (b.id === 'preSkip') S.preSkip = S.tab;
     afterPre();
   });
 }

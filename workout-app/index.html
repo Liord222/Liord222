@@ -70,7 +70,15 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .logo-i{color:var(--accent)}
 .logo small{font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding-top:4px}
 .sync{flex:1;min-width:0;font-size:12px;color:var(--ink-3);text-align:end;line-height:1.3}
-.back,.top-coach{display:none;width:44px;height:44px;flex:none;border:0;border-radius:50%;background:none;place-items:center;color:var(--ink);padding:0}
+.back,.top-coach,.top-list{display:none;width:44px;height:44px;flex:none;border:0;border-radius:50%;background:none;place-items:center;color:var(--ink);padding:0}
+.top-acts{display:none;gap:0;justify-content:flex-end}
+.top-list svg{width:24px;height:24px}
+.wk-title{display:none;min-width:0;justify-items:center;text-align:center;line-height:1.25}
+.wk-title b{max-width:100%;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-title .clock{font-size:13px;font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.app[data-view="workout"] .wk-title{display:grid;flex:1}
+.app[data-view="workout"] .top-acts{display:flex}
+.app[data-view="workout"] .top-list{display:grid}
 .back{margin-inline-start:-10px}
 .back svg{width:26px;height:26px;stroke-width:2.2}
 .app[data-view="workout"] .back{display:grid}
@@ -124,9 +132,6 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .xpbar i{display:block;height:100%;min-width:8px;border-radius:99px;background:var(--xp-fill);transition:width .9s cubic-bezier(.2,.8,.2,1)}
 .xp-tag{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:99px;background:var(--xp-soft);color:var(--xp);font-size:13px;font-weight:800;line-height:1;white-space:nowrap}
 .hit .xp-tag,.btn.primary .xp-tag{background:color-mix(in srgb,var(--on-accent) 20%,transparent);color:var(--on-accent)}
-.lvl-chip{display:none;flex:1;min-width:0;height:44px;align-items:center;justify-content:center;gap:8px;border:0;background:none;padding:0 4px}
-.lvl-chip .xpbar{width:min(120px,42%)}
-.app[data-view="workout"] .lvl-chip{display:flex}
 .app[data-view="workout"] .sync{display:none}
 .toast{position:fixed;z-index:80;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:99px;background:var(--ink);color:var(--paper);font-size:17px;font-weight:700;white-space:nowrap;box-shadow:0 12px 30px -14px rgb(0 0 0 / .55)}
 .toast svg{color:var(--xp-fill);fill:var(--xp-fill)}
@@ -166,23 +171,21 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .tab b{font-size:13.5px;font-weight:600;line-height:1.3;white-space:nowrap;color:var(--ink-2)}
 .tab.next b,.tab.live b{color:var(--accent-ink);font-weight:700}
 
-/* one workout */
+/* one workout: a progress strip, then one exercise at a time */
 .hero{display:grid;gap:10px}
-.hero-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--surface);border-radius:var(--r);padding:20px 22px}
-.hero h1{font-size:36px;font-weight:800;line-height:1.12;letter-spacing:-.02em}
-.clock{display:inline-flex;align-items:center;gap:6px;font-size:16px}
-.clock svg{width:18px;height:18px;color:var(--ink-3)}
+.hero:empty{display:none}
 .meta{color:var(--ink-2);font-size:14px;padding-top:6px}
 .meta b{color:var(--ink);font-variant-numeric:tabular-nums}
-.ring{position:relative;width:84px;height:84px;flex:none}
-.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.ring circle{fill:none;stroke-width:7}
-.ring .tr{stroke:var(--surface-3)}
-.ring .pr{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.2,.8,.2,1)}
-.ring div{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;line-height:1.1}
-.ring b{font-size:19px;font-weight:800;direction:ltr;letter-spacing:-.02em}
-.ring span{font-size:11px;color:var(--ink-3);font-weight:600}
-.meso{display:flex;align-items:center;gap:8px;min-height:52px;padding:8px 18px 8px 12px;border-radius:18px;border:0;background:var(--surface);text-align:start;font-size:14px;color:var(--ink-2)}
+.clock{display:inline-flex;align-items:center;gap:5px}
+.clock svg{width:15px;height:15px;color:var(--ink-3)}
+.clock b{font-weight:600}
+.wk-bar{padding:0 2px}
+.segs{display:flex;gap:4px}
+.segs i{flex:1;height:5px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.segs i b{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .4s cubic-bezier(.2,.8,.2,1)}
+.segs i.cur{background:color-mix(in srgb,var(--accent) 28%,var(--surface-3))}
+.segs i.off{opacity:.45}
+.meso{display:flex;align-items:center;gap:8px;min-height:52px;padding:8px 14px;border-radius:18px;border:0;background:var(--surface-2);text-align:start;font-size:14px;color:var(--ink-2)}
 .meso span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:var(--ink)}
 .meso b{font-size:13px;font-weight:600;color:var(--accent-ink);white-space:nowrap}
 .meso.dl b{color:var(--ok)}
@@ -193,47 +196,66 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .pre-h{display:flex;gap:10px;align-items:center}
 .pre-h b{flex:1;min-width:0;font-size:16px;line-height:1.3}
 .pre-h .link{flex:none;padding:2px 0;white-space:nowrap}
-.pre.one{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px;padding-inline-start:18px}
-.pre.one b{font-size:15.5px;line-height:1.3}
-.pre-q{display:flex;gap:6px}
-.pre-q .btn{min-height:44px;padding:0 16px;border-radius:14px}
+.pre.gate{justify-items:center;text-align:center;gap:8px;padding:34px 22px 18px;margin-top:12vh}
+.pre-ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);margin-bottom:6px}
+.pre-ic svg{width:30px;height:30px;stroke-width:2.4}
+.pre.gate h2{font-size:28px;font-weight:800;line-height:1.15;letter-spacing:-.02em;text-wrap:balance}
+.pre.gate p{font-size:15px;color:var(--ink-2)}
+.pre-q{display:grid;gap:8px;width:100%;padding-top:14px}
+.pre>.btn{margin-top:4px}
+.app.pre-on .fx,.app.pre-on .dock,.app.pre-on .wk-bar{display:none}
 .pre-row{display:grid;gap:6px}
 .pre-row>span{font-size:14px;font-weight:700}
 .pre-fx{font-size:13.5px;color:var(--ink-2);background:var(--accent-soft);border-radius:14px;padding:10px 12px}
-.pre.done{grid-template-columns:minmax(0,1fr) auto;align-items:center;padding:12px 18px}
-.pre.done p{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--ink-2)}
-.pre.done svg{color:var(--accent);width:18px;height:18px;margin-top:2px}
-.pre.done b{color:var(--ink)}
 
-/* exercise list */
-.ex-list{list-style:none;margin:0;padding:0;background:var(--surface);border-radius:var(--r);overflow:hidden}
-.ex{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 10px)}
-.ex+.ex{border-top:1px solid var(--line)}
-.ex-head{display:grid;grid-template-columns:28px 64px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;min-height:76px;padding:12px 14px;background:none;border:0;text-align:start}
-.ex-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;line-height:1;color:var(--ink-2);background:var(--surface-2)}
+/* the list of all exercises (in its sheet) */
+.ex-list{list-style:none;margin:0;padding:0;background:var(--surface-2);border-radius:20px;overflow:hidden}
+.ex-list .ex+.ex{border-top:1px solid var(--line)}
+.ex-head{display:grid;grid-template-columns:28px 56px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;min-height:68px;padding:10px 12px;background:none;border:0;text-align:start}
+.ex-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;line-height:1;color:var(--ink-2);background:var(--surface)}
 .ex.cur .ex-n{background:var(--accent);color:var(--on-accent)}
 .ex.done .ex-n{background:var(--accent-soft);color:var(--accent-ink)}
 .ex.done .ex-n svg{width:15px;height:15px;stroke-width:3}
-.ex-thumb{width:64px;height:46px;border-radius:12px;background:var(--stage);display:block}
+.ex-thumb{width:56px;height:40px;border-radius:10px;background:var(--stage);display:block}
 .ex-title{min-width:0;display:grid}
-.ex-name{font-weight:600;font-size:16px;line-height:1.3}
+.ex-name{font-weight:600;font-size:15.5px;line-height:1.3}
 .ex-side{display:grid;justify-items:end;gap:6px}
 .ex-rx{font-size:15px;font-weight:700;line-height:1.1;white-space:nowrap;font-variant-numeric:tabular-nums}
 .pips{display:flex;gap:3px;direction:ltr}
 .pips i{width:12px;height:5px;border-radius:99px;background:var(--surface-3)}
 .pips i.on{background:var(--accent)}
 .ex.off .ex-n{color:var(--ink-3)}
-.ex.off .ex-rx{color:var(--ink-3);text-decoration:line-through}
+.ex-list .ex.off .ex-rx{color:var(--ink-3);text-decoration:line-through}
 .tags{display:flex;flex-wrap:wrap;gap:4px;padding-top:4px}
 .tagx{font-size:11.5px;font-weight:600;line-height:1.6;padding:0 8px;border-radius:99px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.ex-list .tagx{background:var(--surface)}
 .tagx.warn{color:var(--warn);background:var(--warn-soft)}
 .tagx.hint{color:var(--rest);background:var(--rest-soft)}
 .tagx.ok{color:var(--ok);background:var(--ok-soft)}
+.ls-act{display:grid;gap:4px;justify-items:center}
+.ls-act .btn{color:var(--accent)}
+.ls>.link{justify-self:start;padding-block:0}
 
-/* an open exercise: the demo, how to do it, the numbers, the sets */
-.ex-body{padding:2px 14px 18px;display:grid;gap:16px}
-.ex-a,.ex-b{display:contents}
-.stage-wrap{order:1;position:relative;border-radius:20px;overflow:hidden;background:var(--stage)}
+/* the exercise on screen: its name, the demo, the numbers, the sets, then how-to / note / history */
+.fx{list-style:none;margin:0;padding:0}
+.fx .ex{display:grid;gap:12px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 10px)}
+.fx .ex.in-next{animation:fx-next .28s cubic-bezier(.2,.8,.2,1)}
+.fx .ex.in-prev{animation:fx-prev .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes fx-next{from{opacity:0;transform:translateX(-28px)}}
+@keyframes fx-prev{from{opacity:0;transform:translateX(28px)}}
+[dir="ltr"] .fx .ex.in-next{animation-name:fx-prev}
+[dir="ltr"] .fx .ex.in-prev{animation-name:fx-next}
+.fx-head{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:6px;padding-top:6px}
+.fx-nav{width:44px;height:44px;border-radius:50%;border:0;background:var(--surface);display:grid;place-items:center;color:var(--ink);padding:0}
+.fx-nav svg{width:22px;height:22px;stroke-width:2.2}
+.fx-nav:disabled{opacity:.3;cursor:default}
+.fx-t{display:grid;justify-items:center;text-align:center;gap:2px;min-width:0}
+.fx-t .tags{justify-content:center}
+.fx-k{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.fx .ex-name{font-size:25px;font-weight:800;line-height:1.18;letter-spacing:-.02em;text-wrap:balance}
+.ex-body{background:var(--surface);border-radius:var(--r);padding:12px 12px 16px;display:grid;gap:14px}
+.ex-a,.ex-b{display:grid;gap:12px;min-width:0}
+.stage-wrap{position:relative;border-radius:18px;overflow:hidden;background:var(--stage)}
 .stage{display:block;width:100%;max-width:100%;aspect-ratio:360/260}
 .stage-tag,.stage-phase{position:absolute;inset-inline-start:10px;font-size:12px;font-weight:600;line-height:1.8;padding:0 10px;border-radius:99px;background:color-mix(in srgb,var(--surface) 90%,transparent);color:var(--ink-2)}
 .stage-tag{top:10px}
@@ -244,74 +266,74 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .stage-ctl button[aria-pressed="true"]{color:var(--on-accent);background:var(--accent)}
 .tempo{position:absolute;left:0;right:0;bottom:0;height:3px;direction:ltr}
 .tempo i{display:block;height:100%;background:var(--muscle);transform-origin:left;transform:scaleX(0)}
-.how{order:2;display:grid;gap:10px}
-.muscles{font-size:14px;font-weight:600;display:flex;gap:8px;align-items:baseline}
+.muscles{font-size:14px;font-weight:600;display:flex;gap:8px;align-items:baseline;justify-content:center;padding-inline:4px}
 .muscles i{width:9px;height:9px;border-radius:50%;background:var(--muscle);flex:none;transform:translateY(-1px)}
-.cues{list-style:none;margin:0;padding:0;display:grid;gap:6px;color:var(--ink-2);font-size:14.5px}
-.cues li{padding-inline-start:16px;position:relative}
-.cues li::before{content:"";position:absolute;inset-inline-start:2px;top:.66em;width:7px;height:2px;background:var(--ink-4);border-radius:2px}
-.note{display:grid;gap:6px}
-.note>span{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-3);font-weight:600}
-.note>span svg{width:14px;height:14px}
-.note-in{display:block;width:100%;min-height:48px;resize:vertical;border-radius:16px;border:0;background:var(--surface-2);padding:12px 14px;font-size:16px;line-height:1.4}
-.note-in:not(:placeholder-shown){background:var(--accent-soft)}
-.en-name{font-size:12.5px;color:var(--ink-3);direction:ltr;text-align:right}
-.rx-row{order:3;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:10px 24px;align-items:start}
-.rx-k{display:block;font-size:12.5px;color:var(--ink-3);font-weight:600}
-.rx-v{font-size:22px;font-weight:800;line-height:1.2;letter-spacing:-.02em;display:block;padding-top:1px;white-space:nowrap}
-.rx-v small{font-size:13px;font-weight:600;color:var(--ink-2);letter-spacing:0}
-.chip{display:inline-flex;align-items:center;font-size:13px;font-weight:600;line-height:1.3;padding:5px 11px;border-radius:99px;background:var(--surface-2);color:var(--ink-2);margin-top:4px}
+.rx-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chipx,.chip{display:inline-flex;align-items:center;gap:4px;min-height:30px;font-size:13.5px;font-weight:700;line-height:1.2;padding:4px 12px;border-radius:99px;background:var(--surface-2);color:var(--ink);white-space:nowrap}
+.chipx small{font-size:12px;font-weight:600;color:var(--ink-2)}
+.chip{font-weight:600;color:var(--ink-2)}
 .chip.l1{color:var(--rest);background:var(--rest-soft)}
 .chip.l2{color:var(--warn);background:var(--warn-soft)}
 .chip.l3{color:var(--muscle);background:var(--muscle-soft)}
-.flag-line{order:4;display:flex;gap:8px;align-items:flex-start;font-size:13.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);border-radius:14px;padding:10px 12px}
+.flag-line{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);border-radius:14px;padding:10px 12px}
 .flag-line svg{width:18px;height:18px;margin-top:1px}
-.sets{order:4;display:grid;gap:6px}
-.prev-line{font-size:13px;color:var(--ink-2)}
-.setp{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;min-height:52px;padding:6px 14px;border-radius:16px;border:0;background:var(--surface-2);text-align:start}
-.setp .n{font-size:13px;font-weight:600;color:var(--ink-2);min-width:38px}
-.setp .v{font-size:19px;font-weight:800;line-height:1.1;letter-spacing:-.02em;direction:ltr;text-align:right}
-.setp .v small{font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:0}
-.setp .hint{font-size:13.5px;color:var(--ink-3);font-weight:500}
-.setp .hint em{font-style:normal;color:var(--muscle);font-weight:700}
-.setp .tg{font-weight:700;color:var(--ink-2)}
-.setp .st{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--ink-4);color:transparent}
-.setp .st svg{width:15px;height:15px;stroke-width:3}
+.sets{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.setp{display:grid;align-content:center;gap:1px;min-height:60px;padding:8px 12px;border-radius:16px;border:0;background:var(--surface-2);text-align:start;min-width:0}
+.setp .n{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.setp .st{margin-inline-start:auto;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--ink-4);color:transparent}
+.setp .st svg{width:11px;height:11px;stroke-width:3.4}
+.setp .v{font-size:17px;font-weight:800;line-height:1.25;letter-spacing:-.02em;direction:ltr;text-align:right;white-space:nowrap}
+[dir="ltr"] .setp .v{text-align:left}
+.setp small{font-size:11.5px;font-weight:600;color:var(--ink-3);letter-spacing:0}
+.setp .hint{font-size:15px;line-height:1.25;color:var(--ink-3);font-weight:600;white-space:nowrap}
+.setp .hint em{font-style:normal;font-size:12px;color:var(--muscle);font-weight:700}
+.setp .tg+em{margin-inline-start:5px}
 .setp.done .st{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .setp.cur{box-shadow:inset 0 0 0 2px var(--accent);background:var(--surface)}
 .setp.cur .st{border-color:var(--accent)}
-.setp .pr,.rt-log .pr{font-size:11.5px;font-weight:700;color:var(--rest);background:var(--rest-soft);border-radius:99px;padding:1px 8px;margin-inline-start:6px;letter-spacing:0}
+.setp .pr,.rt-log .pr{font-size:11px;font-weight:700;color:var(--rest);background:var(--rest-soft);border-radius:99px;padding:0 7px;line-height:1.6;letter-spacing:0}
 .goal{display:inline-block;font-size:11.5px;font-weight:700;line-height:1.6;padding:0 8px;border-radius:99px;background:var(--surface-3);color:var(--ink-2);margin-inline-start:6px;white-space:nowrap}
 .goal.g-reps{color:var(--accent-ink);background:var(--accent-soft)}
 .goal.g-wt{color:var(--ok);background:var(--ok-soft)}
 .goal.g-down{color:var(--warn);background:var(--warn-soft)}
 .goal.g-cal{color:var(--rest);background:var(--rest-soft)}
-.cut-note{font-size:13.5px;color:var(--warn);font-weight:600}
-.same{justify-self:start;color:var(--accent);background:none;min-height:44px;padding:0 4px;font-size:14px}
+.cut-note{grid-column:1/-1;font-size:13.5px;color:var(--warn);font-weight:600}
+.same{grid-column:1/-1;justify-self:start;color:var(--accent);background:none;min-height:40px;padding:0 4px;font-size:14px}
 .fbk{display:grid;gap:8px}
 .fb-row{display:grid;grid-template-columns:minmax(0,92px) minmax(0,1fr);gap:8px;align-items:center}
 .fb-row>span{font-size:13px;font-weight:600;color:var(--ink-2);line-height:1.25}
-.fb-wrap{order:5;display:grid;gap:10px}
+.fb-wrap{display:grid;gap:10px}
+.rx-k{display:block;font-size:12.5px;color:var(--ink-3);font-weight:600}
 .fb-warn{font-size:13.5px;line-height:1.5;color:var(--ink-2);background:var(--warn-soft);border-radius:14px;padding:10px 12px}
 .fb-warn b{color:var(--warn)}
 .fb-warn .link{padding:0;font-size:inherit;font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
-.trend{order:6;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 14px;align-items:center;padding:14px 16px;border-radius:18px;background:var(--surface-2)}
+.fx-tabs button{position:relative}
+.fx-tabs .dot{position:absolute;top:8px;inset-inline-end:10px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.fx-tabs button[aria-pressed="true"] .dot{background:var(--on-accent)}
+.fx-pane{display:grid;gap:10px;min-height:92px;align-content:start}
+.cues{list-style:none;margin:0;padding:0;display:grid;gap:7px;color:var(--ink-2);font-size:15px}
+.cues li{padding-inline-start:16px;position:relative}
+.cues li::before{content:"";position:absolute;inset-inline-start:2px;top:.66em;width:7px;height:2px;background:var(--ink-4);border-radius:2px}
+.en-name{font-size:12.5px;color:var(--ink-3);direction:ltr;text-align:right}
+.note{display:grid;gap:6px}
+.note>span{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-3);font-weight:600}
+.note>span svg{width:14px;height:14px}
+.note-in{display:block;width:100%;min-height:64px;resize:vertical;border-radius:16px;border:0;background:var(--surface-2);padding:12px 14px;font-size:16px;line-height:1.4}
+.note-in:not(:placeholder-shown){background:var(--accent-soft)}
+.prev-line{font-size:13.5px;color:var(--ink-2)}
+.trend{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 14px;align-items:center;padding:14px 16px;border-radius:18px;background:var(--surface-2)}
 .trend .k{font-size:12.5px;color:var(--ink-3);font-weight:600}
 .trend .val{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.02em;direction:ltr;text-align:right}
+[dir="ltr"] .trend .val{text-align:left}
 .trend .val small{font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:0}
 .trend .d{font-size:13px;font-weight:600;color:var(--ink-2)}
 .trend .d.up{color:var(--ok)}
 .trend .d.dn{color:var(--warn)}
 .trend svg{grid-row:1/4;grid-column:2;width:118px;height:44px;overflow:visible;direction:ltr}
-.trend p{grid-column:1/-1;font-size:13.5px;color:var(--ink-2)}
-.ex-acts{order:7;display:grid;gap:8px}
-.ex-acts .btn{min-width:0}
+.ex-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ex-acts .btn{min-width:0;padding:0 10px}
 .ask{color:var(--accent)}
-@media (min-width:420px){.ex-acts{grid-template-columns:auto minmax(0,1fr)}}
-.wk-act{display:grid;gap:4px;justify-items:center}
-.wk-act:empty{display:none}
-.wk-act .btn,.gains>.btn{background:var(--surface)}
-#finishBtn{color:var(--accent)}
+.gains>.btn{background:var(--surface)}
 
 /* progress */
 .gains,.history{display:grid;gap:8px}
@@ -340,13 +362,11 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 /* dock: log a set, then rest */
 .dock{position:fixed;z-index:40;left:0;right:0;bottom:0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--surface) 96%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-radius:28px 28px 0 0;box-shadow:0 0 0 1px var(--line),0 -18px 40px -26px rgb(0 0 0 / .4)}
 .dock-in{max-width:640px;margin-inline:auto;display:grid;gap:10px}
-.dk-top{display:flex;align-items:center;gap:8px}
-.dk-go{flex:1;min-width:0;display:grid;background:none;border:0;padding:0;text-align:start}
-.dk-name{font-weight:700;font-size:16.5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dk-set{font-size:13px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dk-set b{color:var(--ink)}
+.dk-top{display:flex;align-items:center;gap:8px;min-height:40px}
+.dk-set{flex:1;min-width:0;font-size:14.5px;font-weight:500;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk-set b{color:var(--ink);font-weight:800}
 .dk-ic{width:40px;height:40px;flex:none;border-radius:50%;border:0;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2)}
-.dk-ic.coach{background:none}
+.dk-top .btn{min-height:44px;padding:0 14px}
 .dk-note{display:flex;gap:6px;align-items:flex-start;font-size:13px;color:var(--ink-2);line-height:1.35}
 .dk-note svg{width:14px;height:14px;margin-top:2px;color:var(--accent)}
 .dk-note span{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -364,7 +384,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .dk-row{display:flex;gap:10px;align-items:center}
 .dk-msg{flex:1;min-width:0;font-size:16px;font-weight:700}
 .dk-msg small{display:block;font-size:13px;font-weight:500;color:var(--ink-2)}
-.dk-row .btn{min-height:54px;border-radius:18px;padding:0 22px;font-size:16px}
+.dk-row .btn{min-height:54px;border-radius:18px;padding:0 20px;font-size:16px}
+.dk-row .btn svg{width:18px;height:18px}
 .dock.mini .dk-nums,.dock.mini .hit,.dock.mini .dk-note{display:none}
 .rt{display:flex;align-items:center;gap:14px}
 .rt-time{font-size:46px;font-weight:800;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;direction:ltr;min-width:106px;text-align:center}
@@ -598,14 +619,14 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
   .app[data-view="workout"] .tabbar{display:none}
   .app[data-view="workout"] .logo{display:none}
   .app[data-view="workout"] .top-coach{display:grid}
+  .app[data-view="workout"] .brand{display:grid;grid-template-columns:88px minmax(0,1fr) 88px}
   .app.chat-on .tabbar button[aria-current="page"]{color:var(--ink-3);font-weight:500}
   .app.chat-on #chatOpen{color:var(--accent);font-weight:700}
   .app.chat-on:not([data-view="workout"]) .chat-close{display:none}
 }
-@media (max-width:420px){.sync{display:none}.app[data-view="workout"] .brand{justify-content:space-between}}
+@media (max-width:420px){.sync{display:none}}
 @media (min-width:700px){
-  .ex-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;padding:4px 18px 22px}
-  .ex-a,.ex-b{display:grid;gap:16px;min-width:0}
+  .ex-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;padding:16px}
   .sheet{place-items:center;padding:24px}
   .sheet-in{border-radius:28px;padding-top:26px}
   .sheet-in::before{display:none}
@@ -629,9 +650,12 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
       <span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span>
       <small aria-hidden="true">by Lior Dahan</small>
     </div>
+    <div class="wk-title" id="wkTitle"></div>
     <span class="sync" id="syncNote"></span>
-    <button class="lvl-chip" id="lvlChip" type="button" aria-label="הפרופיל שלי"></button>
-    <button class="top-coach" id="topCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true">א</span></button>
+    <div class="top-acts">
+      <button class="top-coach" id="topCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true">א</span></button>
+      <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
+    </div>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
       <button type="button" data-view="home" aria-current="page"><svg class="i" viewBox="0 0 24 24"><path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/></svg><span>היום</span></button>
       <button type="button" data-view="profile"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1-3.6 3.8-5.4 7-5.4s6 1.8 7 5.4"/></svg><span>פרופיל</span></button>
@@ -645,10 +669,10 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
       <div class="view v-home" id="home"></div>
 
       <div class="view v-workout">
+        <div class="wk-bar" id="wkBar"></div>
         <section class="hero" id="hero"></section>
         <section id="pre" aria-label="התאוששות מהאימון הקודם" hidden></section>
-        <ol class="ex-list" id="exList"></ol>
-        <section class="wk-act" id="wkAct"></section>
+        <ol class="fx" id="exList"></ol>
       </div>
 
       <div class="view v-profile" id="profile"></div>
@@ -696,11 +720,16 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 
 <script>
 'use strict';
+/* ================================================================== language
+   Every text is written in both languages where it is used: say('עברית', 'English'). */
+let LANG = 'he';
+const say = (he, en) => (LANG === 'en' ? en : he);
+
 /* ================================================================== plan */
-/* each workout: name = the English name kept in exports, t = the Hebrew title shown in the app */
+/* each workout: name = the short English name kept in exports, t / te = the title shown in the app in Hebrew / English */
 const E = (id, a, name, sets, reps, rest, int, lvl, suf) => ({ id, a, name, sets, reps, rest, int, lvl, suf: suf || '' });
 const PLAN = [
-  { name: 'Upper A', t: 'גוף עליון A', ex: [
+  { name: 'Upper A', t: 'גוף עליון A', te: 'Upper Body A', ex: [
     E('ua1', 'inclineSmith', 'Incline Smith Machine Press', 3, '6–10', [120, 180], '1 חזרה לפני כשל', 2),
     E('ua2', 'assistedPullup', 'Assisted Pull-ups', 3, '6–10', [120, 120], '1 חזרה לפני כשל', 2),
     E('ua3', 'chestRow', 'Chest Supported Row', 3, '8–12', [120, 120], '1 חזרה לפני כשל', 2),
@@ -710,7 +739,7 @@ const PLAN = [
     E('ua7', 'dbCurl', 'Dumbbell Curl', 2, '10–15', [60, 60], 'סט אחרון לכשל טכני', 3),
     E('ua8', 'cableCrunch', 'Cable Crunch', 3, '10–15', [60, 60], 'חזרות קשות ומבוקרות', 0),
   ] },
-  { name: 'Lower A', t: 'גוף תחתון A', ex: [
+  { name: 'Lower A', t: 'גוף תחתון A', te: 'Lower Body A', ex: [
     E('la1', 'hackSquat', 'Hack Squat', 3, '6–10', [120, 180], '1–2 חזרות לפני כשל', 1),
     E('la2', 'rdl', 'Romanian Deadlift', 3, '8–10', [120, 180], '1–2 חזרות לפני כשל', 1),
     E('la3', 'legPress', 'Leg Press', 3, '10–15', [120, 120], '1 חזרה לפני כשל', 2),
@@ -718,7 +747,7 @@ const PLAN = [
     E('la5', 'standingCalf', 'Standing Calf Raises', 3, '12–18', [60, 60], 'סט אחרון לכשל טכני', 3),
     E('la6', 'pallof', 'Pallof Press', 2, '12', [60, 60], 'שליטה מלאה', 0, 'לצד'),
   ] },
-  { name: 'Upper B', t: 'גוף עליון B', ex: [
+  { name: 'Upper B', t: 'גוף עליון B', te: 'Upper Body B', ex: [
     E('ub1', 'assistedPullup', 'Assisted Pull-ups', 3, '6–10', [120, 120], '1 חזרה לפני כשל', 2),
     E('ub2', 'inclineSmith', 'Incline Smith Machine Press', 3, '8–12', [120, 120], '1 חזרה לפני כשל', 2),
     E('ub3', 'cableRow', 'Seated Cable Row', 3, '8–12', [90, 90], '1 חזרה לפני כשל', 2),
@@ -729,7 +758,7 @@ const PLAN = [
     E('ub8', 'ohTriceps', 'Overhead Triceps Extension', 2, '10–15', [60, 60], 'סט אחרון לכשל טכני', 3),
     E('ub9', 'kneeRaise', 'Hanging Knee Raises', 3, '8–15', [60, 60], 'חזרות נקיות', 0),
   ] },
-  { name: 'Lower B', t: 'גוף תחתון B', ex: [
+  { name: 'Lower B', t: 'גוף תחתון B', te: 'Lower Body B', ex: [
     E('lb1', 'hackSquat', 'Hack Squat / Smith Squat', 3, '8–12', [120, 180], '1–2 חזרות לפני כשל', 1),
     E('lb2', 'bulgarian', 'Bulgarian Split Squat', 2, '8–10', [120, 120], '1–2 חזרות לפני כשל', 1, 'לרגל'),
     E('lb3', 'hipThrust', 'Hip Thrust', 3, '8–12', [120, 120], '1 חזרה לפני כשל', 2),
@@ -741,8 +770,9 @@ const PLAN = [
 ];
 /* how a workout is called in the app: "אימון ראשון – גוף עליון A" */
 const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי'];
-const wkOrd = (w) => 'אימון ' + ORD[w];
-const wkFull = (w) => wkOrd(w) + ' – ' + PLAN[w].t;
+const wkName = (w) => say(PLAN[w].t, PLAN[w].te);
+const wkOrd = (w) => say('אימון ' + ORD[w], 'Workout ' + (w + 1));
+const wkFull = (w) => wkOrd(w) + ' – ' + wkName(w);
 
 /* ================================================================== movement library */
 /* muscle groups with weekly set landmarks (direct sets + half sets for helpers): below mev is too little to grow, above mrv is more than most people recover from */
@@ -1732,6 +1762,9 @@ const ICON = {
   swap: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg>',
   pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
   fwd: '<svg class="i" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
+  back: '<svg class="i" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
+  list: '<svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg>',
+  chat: '<svg class="i" viewBox="0 0 24 24"><path d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5h-7l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5z"/></svg>',
   clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.3 1.8M9.5 3.5h5"/></svg>',
 };
 /* S.sessions: id -> one workout:
@@ -1871,7 +1904,7 @@ function view(pe, s, plan) {
   const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id];
   let n = n0;
   if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
-  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: pe.int, lvl: pe.lvl, suf: pe.suf, cut, swapped: mv !== pe.a };
+  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: pe.int, lvl: pe.lvl, suf: pe.suf, cut, swapped: mv !== pe.a };
 }
 function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return PLAN[w].ex.map((pe) => view(pe, s, plan)); }
 function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
@@ -2275,13 +2308,17 @@ function badge(T, e) {
   const inv = LIB[e.mv].inv, t = inv && T.mode === 'weight' ? 'פחות סיוע' : inv && T.mode === 'down' ? 'יותר סיוע' : MODE[T.mode][0];
   return '<span class="goal ' + MODE[T.mode][1] + '">' + t + '</span>';
 }
-function cursor() {
+/* the exercise on screen: the one that was opened, else the first that still has a set to do, else the first */
+function shown() {
   const s = live(S.tab), list = exList(S.tab, s);
-  let e = S.open && list.find((x) => x.id === S.open);
-  if (e && firstUndone(s, e) >= 0) return { e, i: firstUndone(s, e) };
-  e = list.find((x) => firstUndone(s, x) >= 0);
-  return e ? { e, i: firstUndone(s, e) } : null;
+  return (S.open && list.find((x) => x.id === S.open)) || list.find((x) => firstUndone(s, x) >= 0) || list[0] || null;
 }
+/* the set the dock is about: the next one of the exercise on screen. null once that exercise is finished */
+function cursor() {
+  const s = live(S.tab), e = shown(), i = e ? firstUndone(s, e) : -1;
+  return i >= 0 ? { e, i } : null;
+}
+const anyLeft = (s) => exList(S.tab, s).some((x) => firstUndone(s, x) >= 0);
 /* ---- four places: today, one workout, the profile, progress ---- */
 function setView(v, keep) {
   S.view = v; $('#app').dataset.view = v;
@@ -2293,7 +2330,7 @@ function setView(v, keep) {
 function openWorkout(w, picked) {
   if (picked) S.touched = true;
   if (w !== S.tab) { S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.fbFor = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
-  S.tab = w; setView('workout'); renderAll(); if (!S.open) startTab();
+  S.tab = w; setView('workout'); renderAll();
 }
 const minsOf = (list) => Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="סגור">' + ICON.x + '</button></div>' : '');
@@ -2315,47 +2352,48 @@ function renderHome() {
 }
 function renderTabs() { renderHome(); }
 const totals = () => { const s = live(S.tab), l = exList(S.tab, s); return { total: l.reduce((n, e) => n + e.sets, 0), dn: l.reduce((n, e) => n + doneCount(s, e), 0) }; };
+/* one segment per exercise, filled by the sets done in it */
 function updateProgress() {
-  const { dn, total } = totals(), arc = $('#ringArc'), txt = $('#ringTxt');
-  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - (total ? dn / total : 0)));
-  if (txt) txt.textContent = dn + '/' + total;
-  const f = $('#finishBtn'); if (f) f.disabled = dn === 0;
+  const s = live(S.tab), list = exList(S.tab, s), cur = shown(), i = cur ? list.findIndex((x) => x.id === cur.id) : -1;
+  $('#wkBar').innerHTML = '<div class="segs" role="img" aria-label="' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '">' +
+    list.map((e, k) => { const n = e.sets || 1, d = e.sets ? Math.min(doneCount(s, e), n) : 0; return '<i class="' + (k === i ? 'cur' : '') + (e.cut && !e.sets ? ' off' : '') + '"><b style="width:' + Math.round((d / n) * 100) + '%"></b></i>'; }).join('') + '</div>';
 }
 function tickElapsed() {
   const el = $('#elapsed'), s = live(S.tab);
   if (el && s) el.innerHTML = '<b>' + Ltr(mmss(Math.max(0, (Date.now() - s.ts) / 1000))) + '</b>';
 }
+/* the top of a workout: its name, the clock once it runs, and the progress strip */
 function renderHero() {
-  const wk = PLAN[S.tab], s = live(S.tab), list = exList(S.tab, s), total = list.reduce((n, e) => n + e.sets, 0), P = phase(S.tab, s);
-  const meso = P.m ? '<button class="meso' + (P.dl ? ' dl' : '') + '" id="mesoBtn" type="button" aria-label="התוכנית והסבב"><span>' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks) + '</span><b>' + rirText(P.rir) + '</b>' + ICON.fwd + '</button>' : '';
-  $('#hero').innerHTML = bannerHTML() +
-    '<div class="hero-card"><div><p class="kicker">' + wkOrd(S.tab) + '</p><h1>' + wk.t + '</h1><p class="meta">' + (s ? '<span class="clock">' + ICON.clock + '<span id="elapsed"></span></span>' : list.length + ' תרגילים · ' + minsOf(list) + ' דק׳') + '</p></div>' +
-    '<div class="ring" role="img" aria-label="התקדמות באימון"><svg viewBox="0 0 86 86" aria-hidden="true"><circle class="tr" cx="43" cy="43" r="36"/><circle class="pr" id="ringArc" cx="43" cy="43" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><div><b id="ringTxt">0/' + total + '</b><span>סטים</span></div></div></div>' + meso;
-  tickElapsed();
+  const s = live(S.tab);
+  $('#wkTitle').innerHTML = '<b>' + wkName(S.tab) + '</b><span class="clock">' + (s ? ICON.clock + '<span id="elapsed"></span>' : wkOrd(S.tab)) + '</span>';
+  $('#hero').innerHTML = bannerHTML();
+  tickElapsed(); updateProgress();
 }
 const pipsHTML = (e, dn) => { let p = ''; for (let k = 0; k < e.sets; k++) p += '<i' + (k < dn ? ' class="on"' : '') + '></i>'; return p; };
+const tagsOf = (e) => { const off = e.cut && e.sets === 0; return (e.cut ? '<span class="tagx warn">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + (lowPump(e.mv) ? '<span class="tagx hint">' + say('שווה להחליף', 'Worth swapping') + '</span>' : '') + (e.swapped ? '<span class="tagx">' + say('חלופה', 'Swapped') + '</span>' : ''); };
 function rowHTML(e, i, s) {
-  const dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets;
-  const tags = (e.cut ? '<span class="tagx warn">' + (off ? 'בוטל היום' : 'קוצר היום') + '</span>' : '') + (lowPump(e.mv) ? '<span class="tagx hint">שווה להחליף</span>' : '') + (e.swapped ? '<span class="tagx">חלופה</span>' : '');
+  const dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets, tags = tagsOf(e);
   return '<li class="ex' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
-    '<button class="ex-head" type="button" aria-expanded="false" aria-controls="body-' + e.id + '">' +
+    '<button class="ex-head" type="button">' +
     '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span><canvas class="ex-thumb" data-anim="' + e.a + '" aria-hidden="true"></canvas>' +
-    '<span class="ex-title"><span class="ex-name">' + e.he + '</span>' + (tags ? '<span class="tags">' + tags + '</span>' : '') + '</span>' +
+    '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (tags ? '<span class="tags">' + tags + '</span>' : '') + '</span>' +
     '<span class="ex-side"><span class="ex-rx">' + Ltr((off ? e.n0 : e.sets) + ' × ' + e.reps) + '</span><span class="pips" aria-hidden="true">' + pipsHTML(e, dn) + '</span></span>' +
-    '</button><div class="ex-body" id="body-' + e.id + '" hidden></div></li>';
+    '</button></li>';
 }
+/* a set in short: weight × reps, or the reps alone with their unit when there is no weight */
+const setVal = (r) => Ltr(fmtRow(r)) + (r.kg == null ? '<small> ' + say('חז׳', 'reps') + '</small>' : '');
+/* the sets of the exercise on screen, one chip each: done ones show what was lifted, the rest show the target */
 function setsHTML(e) {
-  const s = live(S.tab), r = rowsOf(s, e.id), cur = s ? cursor() : null, rir = rirOf(e, s), fu = firstUndone(s, e), T0 = fu >= 0 ? targetOf(e, fu, s) : null, ref = refRow(e, 0, s);
-  let h = ref && !ref.other ? '<p class="prev-line">פעם קודמת: ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>' : '';
+  const s = live(S.tab), r = rowsOf(s, e.id), cur = cursor(), rir = rirOf(e, s), fu = firstUndone(s, e), T0 = fu >= 0 ? targetOf(e, fu, s) : null;
+  let h = '';
   for (let i = 0; i < e.sets; i++) {
-    const row = r[i], on = isDone(row), isCur = !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s);
-    const fail = rir === 0 && i === e.sets - 1 ? '<em>עד כשל</em>' : '';
-    const mid = on ? '<span class="v">' + valHTML(row) + (row.pr ? '<span class="pr">שיא</span>' : '') + '</span>'
-      : '<span class="hint">' + (T ? '<span class="tg">' + Ltr(fmtRow(T)) + '</span>' : '') + (fail ? (T ? ' · ' : '') + fail : '') + '</span>';
-    h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + '" type="button" data-i="' + i + '"><span class="n">סט ' + (i + 1) + '</span>' + mid + '<span class="st">' + ICON.check + '</span></button>';
+    const row = r[i], on = isDone(row), isCur = !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s), ed = on && !!S.edit && S.edit.ex === e.id && S.edit.i === i;
+    const fail = rir === 0 && i === e.sets - 1 && !on ? '<em>' + say('עד כשל', 'To failure') + '</em>' : '';
+    h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + '" type="button" data-i="' + i + '"' + (on ? ' aria-label="' + say('סט ', 'Set ') + (i + 1) + ': ' + fmtRow(row) + say(', עריכה', ', edit') + '"' : '') + '><span class="n">' + say('סט ', 'Set ') + (i + 1) + (on && row.pr ? '<span class="pr">' + say('שיא', 'PR') + '</span>' : '') + '<span class="st">' + ICON.check + '</span></span>' +
+      (on ? '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + (T ? '<span class="tg">' + setVal(T) + '</span>' : fail ? '' : '–') + fail + '</span>') + '</button>';
   }
-  if (e.cut) h += '<p class="cut-note">' + (e.sets ? 'שאר הסטים בוטלו' : 'בוטל') + ' היום בגלל כאב.</p>';
-  if (T0 && e.sets - fu > 1) h += '<button class="btn same" type="button">רשום הכול לפי היעד</button>';
+  if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב.', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב.', 'Off today because of pain.')) + '</p>';
+  if (T0 && e.sets - fu > 1) h += '<button class="btn same" type="button">' + say('רשום הכול לפי היעד', 'Log all at target') + '</button>';
   return h;
 }
 /* strength trend for one movement in its slot: the best set of each past workout */
@@ -2368,13 +2406,13 @@ function trendHTML(e) {
     pts.push({ v: score(L, top.kg, top.reps), row: top, ts: s.ts });
   }
   const P = pts.slice(-12);
-  if (P.length < 2) return '<div class="trend" hidden></div>';
+  if (P.length < 2) return '';
   const lo = Math.min.apply(null, P.map((p) => p.v)), hi = Math.max.apply(null, P.map((p) => p.v)), X = (i) => 6 + (i * 106) / (P.length - 1), Y = (v) => 38 - ((v - lo) / (hi - lo || 1)) * 32;
   const line = P.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.v).toFixed(1)).join(' '), last = P[P.length - 1], prevP = P[P.length - 2];
   const d = prevP.v ? ((last.v - prevP.v) / prevP.v) * 100 : 0, cls = d > 0.4 ? 'up' : d < -0.4 ? 'dn' : '';
-  return '<div class="trend"><span class="k">הכוח שלך · ' + P.length + ' אימונים</span><span class="val">' + valHTML(last.row) + '</span>' +
-    '<span class="d ' + cls + '">' + (cls === 'up' ? '▲ ' : cls === 'dn' ? '▼ ' : 'בלי שינוי') + (cls ? Ltr(Math.abs(d).toFixed(1) + '%') : '') + '</span>' +
-    '<svg viewBox="0 0 118 44" role="img" aria-label="מגמת הכוח ב-' + P.length + ' האימונים האחרונים"><path d="' + line + ' L112 44 L6 44 Z" fill="var(--ink-3)" opacity=".12"/><path d="' + line + '" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + X(P.length - 1).toFixed(1) + '" cy="' + Y(last.v).toFixed(1) + '" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/></svg></div>';
+  return '<div class="trend"><span class="k">' + say('הכוח שלך · ' + P.length + ' אימונים', 'Your strength · ' + P.length + ' workouts') + '</span><span class="val">' + valHTML(last.row) + '</span>' +
+    '<span class="d ' + cls + '">' + (cls === 'up' ? '▲ ' : cls === 'dn' ? '▼ ' : say('בלי שינוי', 'No change')) + (cls ? Ltr(Math.abs(d).toFixed(1) + '%') : '') + '</span>' +
+    '<svg viewBox="0 0 118 44" role="img" aria-label="' + say('מגמת הכוח ב-' + P.length + ' האימונים האחרונים', 'Strength over the last ' + P.length + ' workouts') + '"><path d="' + line + ' L112 44 L6 44 Z" fill="var(--ink-3)" opacity=".12"/><path d="' + line + '" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + X(P.length - 1).toFixed(1) + '" cy="' + Y(last.v).toFixed(1) + '" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/></svg></div>';
 }
 /* three one-tap answers about the exercise that was just finished */
 const FB = [
@@ -2395,32 +2433,46 @@ function painNote(e, s) {
     (!alt ? '' : set ? 'מהאימון הבא: ' + LIB[alt].he + '. ' : (LIB[alt].jf ? 'נוח יותר למפרקים: ' : 'חלופה: ') + LIB[alt].he + '. <button class="link" type="button" data-swapto="' + e.id + ':' + alt + '">להחליף מהאימון הבא</button> ') + 'אם הכאב נמשך, כדאי להיבדק.</p>';
 }
 /* the feedback card inside the exercise; hidden while the dock is asking the same questions */
-const fbWrap = (e, s) => (s && S.fbFor !== e.id && rowsOf(s, e.id).some(isDone) ? '<span class="rx-k">איך היה?</span>' + fbHTML(e, s) + painNote(e, s) : '');
+/* shown once the exercise is finished (or once something was answered), so the answers can be changed later */
+const fbWrap = (e, s) => (s && S.fbFor !== e.id && rowsOf(s, e.id).some(isDone) && (firstUndone(s, e) < 0 || (s.fb && s.fb[e.id])) ? '<span class="rx-k">' + say('איך היה?', 'How was it?') + '</span>' + fbHTML(e, s) + painNote(e, s) : '');
+/* the three panes under the sets: how to do it, the lifter's own note, and what happened before */
+const FXT = () => [['cues', say('דגשים', 'How')], ['note', say('הערה שלי', 'My note')], ['hist', say('היסטוריה', 'History')]];
+function paneHTML(e) {
+  const k = S.fxTab || 'cues', info = LIB[e.mv], s = live(S.tab);
+  if (k === 'note') return '<label class="note"><span>' + ICON.pin + say('הערה שנשארת עם התרגיל', 'A note that stays with this exercise') + '</span><textarea class="note-in" rows="3" maxlength="200" placeholder="' + say('גובה מושב, קצב, דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>';
+  if (k === 'hist') { const ref = refRow(e, 0, s), tr = trendHTML(e); return (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>' : '') + tr || '<p class="empty-note">' + say('עוד אין היסטוריה לתרגיל הזה.', 'No history for this exercise yet.') + '</p>'; }
+  return '<ul class="cues">' + info.c.map((c) => '<li>' + c + '</li>').join('') + '</ul>' + (LANG === 'he' ? '<p class="en-name">' + Ltr(esc(e.name)) + '</p>' : '');
+}
 function bodyHTML(e) {
-  const s = live(S.tab), info = LIB[e.mv], view = { side: 'מהצד', back: 'מאחור', top: 'מלמעלה' }[ANIM[e.a].view], rir = rirOf(e, s), fw = fbWrap(e, s);
+  const s = live(S.tab), info = LIB[e.mv], view = { side: say('מהצד', 'Side view'), back: say('מאחור', 'From behind'), top: say('מלמעלה', 'From above') }[ANIM[e.a].view], rir = rirOf(e, s), fw = fbWrap(e, s), tab = S.fxTab || 'cues';
   const lvl = rir == null ? e.lvl : rir >= 4 ? 0 : rir >= 2 ? 1 : rir === 1 ? 2 : 3;
-  return '<div class="ex-a"><div class="stage-wrap"><canvas class="stage" role="img" aria-label="הדמיה של ' + e.he + '"></canvas>' +
-    '<span class="stage-tag">' + view + (e.a !== e.mv ? ' · תנועה דומה' : '') + '</span><span class="stage-phase"></span>' +
-    '<div class="stage-ctl"><button class="stage-speed" type="button" aria-pressed="' + (player.speed < 1) + '" aria-label="הילוך איטי">' + Ltr('½×') + '</button><button class="stage-play" type="button"></button></div>' +
+  return '<div class="ex-a"><div class="stage-wrap"><canvas class="stage" role="img" aria-label="' + say('הדמיה של ', 'Demo of ') + e.nm + '"></canvas>' +
+    '<span class="stage-tag">' + view + (e.a !== e.mv ? say(' · תנועה דומה', ' · similar movement') : '') + '</span><span class="stage-phase"></span>' +
+    '<div class="stage-ctl"><button class="stage-speed" type="button" aria-pressed="' + (player.speed < 1) + '" aria-label="' + say('הילוך איטי', 'Slow motion') + '">' + Ltr('½×') + '</button><button class="stage-play" type="button"></button></div>' +
     '<div class="tempo" aria-hidden="true"><i></i></div></div>' +
-    '<div class="how"><p class="muscles"><i></i><span>' + info.m + '</span></p><ul class="cues">' + info.c.map((c) => '<li>' + c + '</li>').join('') + '</ul><p class="en-name">' + Ltr(esc(e.name)) + '</p>' +
-    '<label class="note"><span>' + ICON.pin + 'הערה שלי</span><textarea class="note-in" rows="2" maxlength="200" placeholder="גובה מושב, קצב, דגש">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label></div></div>' +
-    '<div class="ex-b"><div class="rx-row">' +
-    '<div><span class="rx-k">סטים × חזרות</span><span class="rx-v">' + Ltr(e.n0 + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span></div>' +
-    '<div><span class="rx-k">מנוחה</span><span class="rx-v">' + restText(e).replace(/ (דק׳|שנ׳)/, ' <small>$1</small>') + '</span></div>' +
-    '<div><span class="rx-k">עצימות</span><span class="chip l' + lvl + '">' + (rir == null ? e.int : rirText(rir)) + '</span></div></div>' +
-    (lowPump(e.mv) ? '<p class="flag-line">' + ICON.swap + '<span>פעמיים כמעט לא הרגשת את השריר. שווה להחליף.</span></p>' : '') +
-    '<div class="sets">' + setsHTML(e) + '</div><div class="fb-wrap"' + (fw ? '' : ' hidden') + '>' + fw + '</div>' + trendHTML(e) +
-    '<div class="ex-acts"><button class="btn swap" type="button">' + ICON.swap + 'החלף תרגיל</button><button class="btn ask" type="button">' + ICON.cam + 'שאל את אילון</button></div></div>';
+    '<p class="muscles"><i></i><span>' + info.m + '</span></p></div>' +
+    '<div class="ex-b"><div class="rx-chips"><span class="chipx ex-rx">' + Ltr(e.n0 + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span><span class="chipx">' + say('מנוחה ', 'Rest ') + restText(e) + '</span><span class="chip l' + lvl + '">' + (rir == null ? e.int : rirText(rir)) + '</span></div>' +
+    (lowPump(e.mv) ? '<p class="flag-line">' + ICON.swap + '<span>' + say('פעמיים כמעט לא הרגשת את השריר. שווה להחליף.', 'Twice in a row you barely felt the muscle. Worth swapping.') + '</span></p>' : '') +
+    '<div class="sets">' + setsHTML(e) + '</div><div class="fb-wrap"' + (fw ? '' : ' hidden') + '>' + fw + '</div>' +
+    '<div class="seg fx-tabs" role="tablist">' + FXT().map((t) => '<button type="button" role="tab" data-fx="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" aria-pressed="' + (t[0] === tab) + '">' + t[1] + (t[0] === 'note' && S.cfg.notes[e.mv] ? '<i class="dot" aria-hidden="true"></i>' : '') + '</button>').join('') + '</div>' +
+    '<div class="fx-pane" id="fxPane" role="tabpanel">' + paneHTML(e) + '</div>' +
+    '<div class="ex-acts"><button class="btn swap" type="button">' + ICON.swap + say('החלף תרגיל', 'Swap exercise') + '</button><button class="btn ask" type="button">' + ICON.chat + say('שאל את אילון', 'Ask Eilon') + '</button></div></div>';
+}
+/* the exercise on screen */
+function focusHTML(e, i, n) {
+  const off = e.cut && e.sets === 0, full = !off && doneCount(live(S.tab), e) >= e.sets, tags = tagsOf(e);
+  return '<li class="ex open' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
+    '<div class="fx-head"><button class="fx-nav" id="exPrev" type="button" aria-label="' + say('התרגיל הקודם', 'Previous exercise') + '"' + (i > 0 ? '' : ' disabled') + '>' + ICON.back + '</button>' +
+    '<div class="fx-t"><span class="fx-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + n + '</span><h1 class="ex-name">' + e.nm + '</h1>' + (tags ? '<span class="tags">' + tags + '</span>' : '') + '</div>' +
+    '<button class="fx-nav" id="exNext" type="button" aria-label="' + say('התרגיל הבא', 'Next exercise') + '"' + (i < n - 1 ? '' : ' disabled') + '>' + ICON.fwd + '</button></div>' +
+    '<div class="ex-body" id="body-' + e.id + '">' + bodyHTML(e) + '</div></li>';
 }
 function renderHistory() {
-  const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' }), s = live(S.tab);
-  $('#wkAct').innerHTML = !s ? '' : '<button class="btn big" id="finishBtn" type="button">סיים אימון</button>' + (S.resetAsk ? '<span class="confirm"><span>למחוק את הרישום של האימון?</span><button class="btn danger" id="resetYes" type="button">כן, נקה</button><button class="btn" id="resetNo" type="button">ביטול</button></span>' : '<button class="link" id="resetBtn" type="button">נקה רישום</button>');
+  const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = new Intl.DateTimeFormat('he-IL', { weekday: 'short', day: 'numeric', month: 'numeric' });
   renderGains(); renderBackup();
   /* each finished workout is one row; a tap opens it for fixing, moving to another day or deleting */
   $('#history').innerHTML = '<h2 class="sec">אימונים אחרונים</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + ', עריכה"><span class="h-t">' + PLAN[x.w].t + '</span><span class="h-s">' + df.format(new Date(x.ts)) + ' · ' + setsDone(x) + ' סטים' + (mn < 300 ? ' · ' + mn + ' דק׳' : '') + '</span><span class="xp-tag">' + Ltr('+' + tally(x).xp) + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">עוד אימונים</button>' : '')
     : '<p class="empty-note">האימונים שתסיים יופיעו כאן.</p>');
-  updateProgress();
 }
 /* one file with every workout and the settings: saved from here, or read back in */
 function renderBackup() {
@@ -2453,46 +2505,76 @@ function renderGains() {
   $('#gains').innerHTML = '<h2 class="sec">הכוח שלך</h2>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + LIB[g.mv].he + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + ' ← ' + Ltr(fmtRow(g.best)) + '</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
     : '<p class="empty-note">אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי.</p>') + (R.n ? '<button class="btn" type="button" data-sum="' + M.id + '">סיכום הסבב</button>' : '');
 }
-function markCur() {
-  const cur = live(S.tab) ? cursor() : null;
-  $$('.ex').forEach((li) => li.classList.toggle('cur', !!cur && cur.e.id === li.dataset.id));
-}
-function renderList() {
+/* in the list of all exercises: mark the one on screen */
+function markCur() { const cur = shown(); $$('#allList .ex').forEach((li) => li.classList.toggle('cur', !!cur && cur.id === li.dataset.id)); }
+/* draw the exercise on screen. dir: 1 / -1 when it was reached by stepping forward / back, for the slide */
+function renderList(dir) {
   stopPlayer();
-  const s = live(S.tab), list = exList(S.tab, s);
-  $('#exList').innerHTML = list.map((e, i) => rowHTML(e, i, s)).join('');
-  drawThumbs();
-  const keep = S.open && list.some((e) => e.id === S.open) ? S.open : null;
-  S.open = null; if (keep) openEx(keep, false); else markCur();
+  const s = live(S.tab), list = exList(S.tab, s), e = shown(), box = $('#exList');
+  if (!e) { S.open = null; box.innerHTML = ''; updateProgress(); return; }
+  S.open = e.id;
+  box.innerHTML = focusHTML(e, list.findIndex((x) => x.id === e.id), list.length);
+  if (dir && !reduced) box.firstElementChild.classList.add(dir > 0 ? 'in-next' : 'in-prev');
+  startPlayer($('.stage', box), e.a, box);
+  updateProgress(); markCur();
 }
-function renderAll() { renderMe(); renderHome(); renderHero(); renderPre(); renderList(); renderHistory(); renderDock(); }
-function closeEx() {
-  const li = $('.ex.open');
-  if (li) { li.classList.remove('open'); const b = $('.ex-body', li); b.hidden = true; b.innerHTML = ''; $('.ex-head', li).setAttribute('aria-expanded', 'false'); }
-  stopPlayer(); S.open = null;
+function renderAll() { renderMe(); renderHome(); renderHero(); renderPre(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); }
+/* show another exercise of this workout */
+function openEx(id, scroll, dir) {
+  const e = findEx(id); if (!e || wkOf(id) !== S.tab) return;
+  S.open = id; renderList(dir);
+  if (scroll) window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
 }
-function openEx(id, scroll) {
-  const li = $('.ex[data-id="' + id + '"]'), e = findEx(id);
-  if (!li || !e) return;
-  closeEx();
-  const body = $('.ex-body', li);
-  body.innerHTML = bodyHTML(e); body.hidden = false;
-  li.classList.add('open'); $('.ex-head', li).setAttribute('aria-expanded', 'true'); S.open = id;
-  startPlayer($('.stage', body), e.a, body); markCur();
-  if (scroll) li.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+/* step to the exercise before or after the one on screen */
+function stepEx(d) {
+  const list = exList(S.tab), i = list.findIndex((x) => x.id === S.open), n = list[i + d];
+  if (!n) return;
+  S.touched = true; S.draft = null; S.edit = null; openEx(n.id, true, d); renderDock();
 }
-/* refresh one exercise after its sets changed, without rebuilding the stage */
+/* the next exercise that still has a set to do, after the one on screen */
+function nextOpen() { const s = live(S.tab), list = exList(S.tab, s), i = list.findIndex((x) => x.id === S.open), left = (x) => firstUndone(s, x) >= 0; return list.slice(i + 1).find(left) || list.find(left) || null; }
+/* refresh the exercise on screen after its sets changed, without rebuilding the stage */
 function refreshEx(e) {
-  const li = $('.ex[data-id="' + e.id + '"]'); e = findEx(e.id); if (!li || !e) return;
-  const s = live(S.tab), dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets;
-  li.classList.toggle('done', full); $('.ex-n', li).innerHTML = off ? '–' : full ? ICON.check : String(PLAN[S.tab].ex.findIndex((x) => x.id === e.id) + 1);
-  $('.pips', li).innerHTML = pipsHTML(e, dn);
-  const sets = $('.sets', li); if (sets) sets.innerHTML = setsHTML(e);
-  const fw = $('.fb-wrap', li); if (fw) { const h = fbWrap(e, s); fw.innerHTML = h; fw.hidden = !h; }
-  const tr = $('.trend', li); if (tr) tr.outerHTML = trendHTML(e);
+  e = e && findEx(e.id);
+  const li = e && $('#exList .ex[data-id="' + e.id + '"]');
+  if (li) {
+    const s = live(S.tab), off = e.cut && e.sets === 0;
+    li.classList.toggle('done', !off && doneCount(s, e) >= e.sets); li.classList.toggle('off', off);
+    $('.sets', li).innerHTML = setsHTML(e);
+    const fw = $('.fb-wrap', li), h = fbWrap(e, s); fw.innerHTML = h; fw.hidden = !h;
+    if ((S.fxTab || 'cues') === 'hist') $('#fxPane').innerHTML = paneHTML(e);
+  }
   markCur(); updateProgress();
 }
-function refreshOpenSets() { const e = S.open && findEx(S.open), li = e && $('.ex.open .sets'); if (li) li.innerHTML = setsHTML(e); markCur(); }
+/* ---- every exercise of this workout in one list: jump to one, see the week, finish or clear the workout ---- */
+function renderListSheet() {
+  const sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, s = live(S.tab), list = exList(S.tab, s), t = totals(), P = phase(S.tab, s);
+  sh.innerHTML = '<div class="sheet-in ls" role="dialog" aria-modal="true" aria-label="' + say('כל התרגילים', 'All exercises') + '"><div class="ed-h"><div><p class="kicker">' + wkOrd(S.tab) + ' · ' + t.dn + '/' + t.total + say(' סטים', ' sets') + '</p><h2>' + wkName(S.tab) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    (P.m ? '<button class="meso' + (P.dl ? ' dl' : '') + '" id="mesoBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '"><span>' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks, 'Week ' + P.wk + ' of ' + S.cfg.weeks)) + '</span><b>' + rirText(P.rir) + '</b>' + ICON.fwd + '</button>' : '') +
+    '<ol class="ex-list" id="allList">' + list.map((e, i) => rowHTML(e, i, s)).join('') + '</ol>' +
+    ((!s || !hasDone(s)) && !P.dl && preMuscles(S.tab).length ? '<button class="link" id="preAgain" type="button">' + say('שאלת ההתאוששות', 'Recovery check') + '</button>' : '') +
+    (s ? '<div class="ls-act"><button class="btn big" id="finishBtn" type="button"' + (hasDone(s) ? '' : ' disabled') + '>' + say('סיים אימון', 'Finish workout') + '</button>' +
+      (S.resetAsk ? '<span class="confirm"><span>' + say('למחוק את הרישום של האימון?', 'Clear what was logged in this workout?') + '</span><button class="btn danger" id="resetYes" type="button">' + say('כן, נקה', 'Yes, clear') + '</button><button class="btn" id="resetNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>' : '<button class="link" id="resetBtn" type="button">' + say('נקה רישום', 'Clear the log') + '</button>') + '</div>' : '') + '</div>';
+  $('.sheet-in', sh).scrollTop = top; drawThumbs(); markCur();
+}
+function openList() { S.sheet = 'list'; S.resetAsk = false; renderListSheet(); $('#sheet').hidden = false; }
+/* clicks inside that list; returns true when the click was handled */
+function listSheetClick(ev, id) {
+  if (S.sheet !== 'list') return false;
+  const li = ev.target.closest('#allList .ex');
+  if (li) { const d = li.dataset.id; S.touched = true; S.draft = null; S.edit = null; closeSheet(); openEx(d, true); renderDock(); return true; }
+  if (id === 'mesoBtn') { openMeso(); return true; }
+  if (id === 'preAgain') { S.preSkip = null; S.preOpen = true; closeSheet(); afterPre(); return true; }
+  if (id === 'finishBtn') { closeSheet(); finishWorkout(); return true; }
+  if (id === 'resetBtn' || id === 'resetNo') { S.resetAsk = id === 'resetBtn'; renderListSheet(); return true; }
+  if (id === 'resetYes') {
+    const s = live(S.tab); if (s) { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); saveLocal(); schedule(s.id, 100); }
+    clearInterval(rest.iv); rest.on = false; rest.last = null; S.resetAsk = false; S.edit = null; S.draft = null; S.fbFor = null; S.open = null; S.banner = ''; S.bannerKind = ''; letSleep();
+    closeSheet(); renderAll(); return true;
+  }
+  return false;
+}
+function refreshOpenSets() { const e = S.open && findEx(S.open), li = e && $('#exList .ex.open .sets'); if (li) li.innerHTML = setsHTML(e); }
 
 /* ================================================================== dock: log a set with one tap, rest timer */
 const rest = { on: false, start: 0, min: 0, max: 0, iv: 0, minHit: false, ended: 0, label: '', last: null };
@@ -2545,45 +2627,40 @@ function numsHTML(kg, reps, ghostKg, ghostReps) {
 function fbPanel(s) {
   const e = S.fbFor && s ? exList(S.tab, s).find((x) => x.id === S.fbFor) : null;
   if (!e) { S.fbFor = null; return ''; }
-  return '<div class="fb-dock"><div class="fb-h"><b>איך היה: ' + e.he + '</b><button class="link" id="fbSkip" type="button">' + (s.fb && s.fb[e.id] && s.fb[e.id].pain === 2 ? 'סגור' : 'דלג') + '</button></div>' + fbHTML(e, s) + painNote(e, s) + '</div>';
+  return '<div class="fb-dock"><div class="fb-h"><b>' + say('איך היה: ', 'How was it: ') + e.nm + '</b><button class="link" id="fbSkip" type="button">' + (s.fb && s.fb[e.id] && s.fb[e.id].pain === 2 ? 'סגור' : 'דלג') + '</button></div>' + fbHTML(e, s) + painNote(e, s) + '</div>';
 }
 function closeFb() { const id = S.fbFor; S.fbFor = null; renderDock(); if (id && S.open === id) refreshEx({ id }); }
 /* "swap from the next workout", offered next to a pain report */
 function swapNext(exId, mv) { swapTo(exId, mv, true); renderDock(); if (S.open) refreshEx({ id: S.open }); }
 function renderDock() {
-  const dock = $('#dock'), wk = PLAN[S.tab], s = live(S.tab), fbp = fbPanel(s);
+  const dock = $('#dock'), s = live(S.tab), fbp = fbPanel(s), done = say('כל הסטים בוצעו', 'Every set is done'), fin = '<button class="btn primary" id="dkFinish" type="button">' + say('סיים אימון', 'Finish workout') + xpChip(XP.done) + '</button>';
   let cls = 'dock', h;
   if (rest.on) {
     const L = rest.last; cls += ' rest';
     h = '<div class="rt"><div class="rt-time" id="rtTime">0:00</div><div class="rt-mid"><div class="rt-state" id="rtState"></div><div class="rt-track"><i id="rtFill"></i></div>' +
-      (L ? '<div class="rt-log"><span>נרשם ' + Ltr(fmtRow(L)) + '</span>' + xpChip(XP.set + (L.pr ? XP.pr : 0)) + (L.pr ? '<span class="pr">שיא</span>' : '') + '<button class="link" id="rtUndo" type="button">בטל</button></div>' : '') + '</div></div>' +
-      '<div class="rt-btns"><button type="button" id="rtMinus" aria-label="הפחת 15 שניות">' + Ltr('−15') + '</button><button type="button" id="rtPlus" aria-label="הוסף 15 שניות">' + Ltr('+15') + '</button>' +
-      '<button type="button" id="rtSound" aria-label="' + (S.sound ? 'השתק צליל' : 'הפעל צליל') + '">' + (S.sound ? ICON.snd : ICON.mute) + '</button><button type="button" id="rtSkip" class="go">המשך</button></div>' + fbp;
+      (L ? '<div class="rt-log"><span>' + say('נרשם ', 'Logged ') + Ltr(fmtRow(L)) + '</span>' + xpChip(XP.set + (L.pr ? XP.pr : 0)) + (L.pr ? '<span class="pr">' + say('שיא', 'PR') + '</span>' : '') + '<button class="link" id="rtUndo" type="button">' + say('בטל', 'Undo') + '</button></div>' : '') + '</div></div>' +
+      '<div class="rt-btns"><button type="button" id="rtMinus" aria-label="' + say('הפחת 15 שניות', '15 seconds less') + '">' + Ltr('−15') + '</button><button type="button" id="rtPlus" aria-label="' + say('הוסף 15 שניות', '15 seconds more') + '">' + Ltr('+15') + '</button>' +
+      '<button type="button" id="rtSound" aria-label="' + (S.sound ? say('השתק צליל', 'Mute the sound') : say('הפעל צליל', 'Turn the sound on')) + '">' + (S.sound ? ICON.snd : ICON.mute) + '</button><button type="button" id="rtSkip" class="go">' + say('המשך', 'Continue') + '</button></div>' + fbp;
   } else if (fbp) {
     S.edit = null;
-    h = fbp + (cursor() ? '' : '<div class="dk-row"><div class="dk-msg">כל הסטים בוצעו</div><button class="btn primary" id="dkFinish" type="button">סיים אימון' + xpChip(XP.done) + '</button></div>');
+    h = fbp + (anyLeft(s) ? '' : '<div class="dk-row"><div class="dk-msg">' + done + '</div>' + fin + '</div>');
   } else if (S.edit && findEx(S.edit.ex) && isDone(rowsOf(s, S.edit.ex)[S.edit.i])) {
     const e = findEx(S.edit.ex), row = rowsOf(s, e.id)[S.edit.i];
-    h = '<div class="dk-top"><div class="dk-go"><span class="dk-name">' + e.he + '</span><span class="dk-set">עריכת סט <b>' + (S.edit.i + 1) + '</b></span></div>' +
-      '<button class="btn danger" id="edDel" type="button">מחק סט</button><button class="btn primary" id="edClose" type="button">סיום</button></div>' + numsHTML(row.kg, row.reps, false, false);
-  } else if (!s) {
-    S.edit = null;
-    const P = phase(S.tab, null);
-    h = '<div class="dk-row"><div class="dk-msg">' + wk.t + '<small>' + (P.dl ? 'שבוע קל: חצי מהסטים' : 'שבוע ' + P.wk + ' · ' + rirText(P.rir)) + '</small></div><button class="btn primary" id="dkStart" type="button">' + ICON.go + 'התחל</button></div>';
+    h = '<div class="dk-top"><span class="dk-set">' + say('עריכת סט ', 'Editing set ') + '<b>' + (S.edit.i + 1) + '</b></span>' +
+      '<button class="btn danger" id="edDel" type="button">' + say('מחק סט', 'Delete set') + '</button><button class="btn primary" id="edClose" type="button">' + say('סיום', 'Done') + '</button></div>' + numsHTML(row.kg, row.reps, false, false);
   } else {
     S.edit = null;
     const cur = cursor();
-    if (!cur) h = '<div class="dk-row"><div class="dk-msg">כל הסטים בוצעו</div><button class="btn primary" id="dkFinish" type="button">סיים אימון' + xpChip(XP.done) + '</button></div>';
-    else {
+    if (cur) {
       const e = cur.e, i = cur.i, T = targetOf(e, i, s), d = S.draft && S.draft.ex === e.id && S.draft.i === i ? S.draft : null, note = S.cfg.notes[e.mv];
       if (S.mini) cls += ' mini';
-      h = '<div class="dk-top"><button class="dk-go" type="button" id="dkGo"><span class="dk-name">' + e.he + '</span><span class="dk-set">סט <b>' + (i + 1) + '</b> מתוך ' + e.sets + (T ? ' · יעד ' + Ltr(fmtRow(T)) : e.suf ? ' · ' + e.reps + ' ' + e.suf : '') + (T ? badge(T, e) : '') + '</span></button>' +
-        '<button class="dk-ic coach" id="dkCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true">א</span></button>' +
-        '<button class="dk-ic" id="dkMini" type="button" aria-label="' + (S.mini ? 'הרחב את הסרגל' : 'מזער את הסרגל') + '">' + (S.mini ? ICON.up : ICON.down) + '</button></div>' +
+      h = '<div class="dk-top"><span class="dk-set">' + say('סט ', 'Set ') + '<b>' + (i + 1) + '</b>' + say(' מתוך ', ' of ') + e.sets + (T ? say(' · יעד ', ' · target ') + Ltr(fmtRow(T)) : e.suf ? ' · ' + e.reps + ' ' + e.suf : '') + (T ? badge(T, e) : '') + '</span>' +
+        '<button class="dk-ic" id="dkMini" type="button" aria-label="' + (S.mini ? say('הרחב את הסרגל', 'Expand the bar') : say('מזער את הסרגל', 'Shrink the bar')) + '">' + (S.mini ? ICON.up : ICON.down) + '</button></div>' +
         (note ? '<p class="dk-note">' + ICON.pin + '<span>' + esc(note) + '</span></p>' : '') +
         numsHTML(curKg(e, i, s, T), curReps(e, i, s, T), !!T && !(d && d.kg !== undefined), !!T && !(d && d.reps != null)) +
-        '<button class="hit" id="dkHit" type="button">' + ICON.check + '<span>סיימתי סט</span>' + xpChip(XP.set) + '</button>';
-    }
+        '<button class="hit" id="dkHit" type="button">' + ICON.check + '<span>' + say('סיימתי סט', 'Set done') + '</span>' + xpChip(XP.set) + '</button>';
+    } else if (anyLeft(s)) h = '<div class="dk-row"><div class="dk-msg">' + say('התרגיל הושלם', 'Exercise done') + '</div><button class="btn primary" id="dkNext" type="button">' + say('לתרגיל הבא', 'Next exercise') + ICON.fwd + '</button></div>';
+    else h = '<div class="dk-row"><div class="dk-msg">' + done + '</div>' + (s && hasDone(s) ? fin : '') + '</div>';
   }
   dock.className = cls; dock.innerHTML = '<div class="dock-in">' + h + '</div>';
   if (rest.on) tickRest();
@@ -2663,10 +2740,11 @@ function commitSet(e, i, kg, reps) {
   let nxt = e, label;
   if (left(e)) {
     const ni = firstUndone(s, e), T = targetOf(e, ni, s), inv = LIB[e.mv].inv;
-    label = 'סט ' + (ni + 1) + ' מתוך ' + e.sets + (T && T.mode === 'down' ? ' · ' + (inv ? 'מוסיפים סיוע: ' : 'מורידים ל-') + fmtKg(T.kg) + ' ק״ג' : T && T.mode === 'cal' ? ' · ' + (inv ? 'פחות סיוע: ' : 'מעלים ל-') + fmtKg(T.kg) + ' ק״ג' : '');
-  } else { nxt = list.slice(list.indexOf(e) + 1).find(left) || list.find(left); label = nxt.he; }
+    label = say('סט ', 'Set ') + (ni + 1) + say(' מתוך ', ' of ') + e.sets + (T && T.mode === 'down' ? ' · ' + (inv ? say('מוסיפים סיוע: ', 'More help: ') : say('מורידים ל-', 'Down to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : T && T.mode === 'cal' ? ' · ' + (inv ? say('פחות סיוע: ', 'Less help: ') : say('מעלים ל-', 'Up to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : '');
+  } else { nxt = list.slice(list.indexOf(e) + 1).find(left) || list.find(left); label = nxt.nm; }
   startRest(e.rest[0], e.rest[1], label, { ex: e.id, i, kg, reps, pr });
-  if (nxt !== e) setTimeout(() => { if (S.tab === wkOf(nxt.id) && S.open === e.id) openEx(nxt.id, true); }, 750);
+  /* the exercise is finished: the next one slides in while the rest runs */
+  if (nxt !== e) setTimeout(() => { if (S.tab === wkOf(nxt.id) && S.open === e.id) openEx(nxt.id, true, 1); }, 750);
 }
 function clearRow(e, i) { const s = live(wkOf(e.id)); if (!s) return; const arr = s.sets[e.id] || (s.sets[e.id] = []); arr[i] = { kg: null, reps: null, done: false, t: Date.now() }; touch(s); }
 function afterEdit(e) { refreshEx(e); renderMe(); renderTabs(); renderHistory(); renderDock(); }
@@ -2679,7 +2757,7 @@ function fillTargets(e) {
   afterEdit(e); renderPre(); bump(lv0);
   if (!$('#elapsed')) renderHero(), updateProgress();
   const list = exList(S.tab, s), nxt = list.slice(list.findIndex((x) => x.id === e.id) + 1).find((x) => firstUndone(s, x) >= 0);
-  if (firstUndone(s, e) < 0 && nxt) setTimeout(() => { if (S.open === e.id) openEx(nxt.id, true), renderDock(); }, 500);
+  if (firstUndone(s, e) < 0 && nxt) setTimeout(() => { if (S.open === e.id) openEx(nxt.id, true, 1), renderDock(); }, 500);
 }
 function startRest(min, max, label, last) {
   clearInterval(rest.iv);
@@ -2721,7 +2799,7 @@ function onFb(exId, key, v) {
     renderList(); renderHistory(); renderTabs(); renderDock();
   } else for (const el of $$('.fbk[data-ex="' + exId + '"]')) el.outerHTML = fbHTML(e, s);
   if (S.fbFor === exId && f.pump != null && f.load != null && f.pain !== 2) setTimeout(() => { if (S.fbFor === exId) closeFb(); }, 320);
-  if (key === 'pump' && lowPump(e.mv) && !$('.ex[data-id="' + exId + '"] .tagx.hint')) renderList();
+  if (key === 'pump' && lowPump(e.mv) && S.open === exId && !$('#exList .tagx.hint')) renderList();
 }
 function skipFb() {
   const s = live(S.tab), f = s && s.fb && s.fb[S.fbFor];
@@ -2755,7 +2833,7 @@ function finishWorkout() {
   const s = live(S.tab); if (!s || !hasDone(s)) return;
   clearInterval(rest.iv); rest.on = false; rest.last = null;
   s.end = Date.now(); s.mt = s.end; touch(s); letSleep();
-  S.edit = null; S.draft = null; S.resetAsk = false; S.open = null; S.fbFor = null; S.banner = ''; S.bannerKind = ''; S.tab = nextUp().next;
+  S.edit = null; S.draft = null; S.resetAsk = false; S.open = null; S.fbFor = null; S.preSkip = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; S.tab = nextUp().next;
   /* the level this workout started from: everything counted so far, without its own points */
   const y = tally(s), got = meSync(), P = meNow(), R = { y, from: levelOf(P.T.xp - y.xp), to: P.L, got };
   setView('home', true); renderAll();
@@ -2802,7 +2880,7 @@ function closeSheet() {
   const sh = $('#sheet'); if (sh.hidden) return;
   const kind = S.sheet;
   sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null;
-  if (kind && kind !== 'sum') renderAll();
+  if (kind && kind !== 'sum' && kind !== 'list') renderAll();
 }
 function editorInput(rowEl) {
   const s = S.sessions[S.edSid]; if (!s || !rowEl) return;
@@ -2826,7 +2904,6 @@ function editorReopen() {
   S.tab = s.w; S.touched = true; S.open = null; S.edSid = null; S.edDel = false; S.sheet = null; setView('workout', true);
   const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = '';
   renderAll();
-  const first = exList(S.tab, s).find((e) => firstUndone(s, e) >= 0); if (first) { openEx(first.id, false); renderDock(); }
   window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
 }
 async function exportCsv() {
@@ -2841,9 +2918,7 @@ function onRemoteChange() {
   sweep(); meSync(); if (!S.touched) S.tab = nextUp().next;
   if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap' && S.sheet !== 'look' && S.sheet !== 'sum') renderAll();
 }
-function startTab() {
-  const first = exList(S.tab).find((e) => firstUndone(live(S.tab), e) >= 0); if (first) { openEx(first.id, false); renderDock(); }
-}
+function startTab() { S.open = null; renderList(); renderDock(); }
 
 /* ================================================================== wiring */
 function wireApp() {
@@ -2853,9 +2928,10 @@ function wireApp() {
   });
   $('#backBtn').addEventListener('click', () => { renderHome(); setView('home'); });
   $('#topCoach').addEventListener('click', () => openChat(S.open));
+  $('#listBtn').addEventListener('click', openList);
   $('#home').addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
-    if (b.classList.contains('banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); updateProgress(); }
+    if (b.classList.contains('banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); }
     else if (b.id === 'homeGo') openWorkout(+b.dataset.w, false);
     else if (b.id === 'playerBtn') setView('profile');
     else if (b.id === 'planBtn') openMeso();
@@ -2864,10 +2940,11 @@ function wireApp() {
   const list = $('#exList');
   list.addEventListener('click', (ev) => {
     const li = ev.target.closest('.ex'); if (!li) return;
-    const e = findEx(li.dataset.id), fbBtn = ev.target.closest('[data-fb]');
+    const e = findEx(li.dataset.id), fbBtn = ev.target.closest('[data-fb]'), nav = ev.target.closest('.fx-nav'), fx = ev.target.closest('[data-fx]');
+    if (nav) { stepEx(nav.id === 'exNext' ? 1 : -1); return; }
+    if (fx) { S.fxTab = fx.dataset.fx; for (const b of $$('.fx-tabs [data-fx]', li)) { const on = b === fx; b.setAttribute('aria-selected', String(on)); b.setAttribute('aria-pressed', String(on)); } $('#fxPane').innerHTML = paneHTML(e); return; }
     if (fbBtn) { S.touched = true; onFb(e.id, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const sn = ev.target.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
-    if (ev.target.closest('.ex-head')) { S.touched = true; S.draft = null; if (S.open === e.id) closeEx(), markCur(); else openEx(e.id, false); if (!rest.on && !S.edit) renderDock(); return; }
     if (ev.target.closest('.stage-play')) { setPlaying(!player.playing); return; }
     const sp = ev.target.closest('.stage-speed'); if (sp) { player.speed = player.speed < 1 ? 1 : 0.5; sp.setAttribute('aria-pressed', String(player.speed < 1)); return; }
     if (ev.target.closest('.ask')) { openChat(e.id); return; }
@@ -2875,12 +2952,20 @@ function wireApp() {
     if (ev.target.closest('.same')) { S.touched = true; fillTargets(e); return; }
     const p = ev.target.closest('.setp');
     if (p) {
-      S.touched = true; const i = +p.dataset.i, s = ensure(S.tab);
+      /* a done set opens for editing; the others only bring the dock back to the next set */
+      S.touched = true; const i = +p.dataset.i, s = live(S.tab), on = isDone(rowsOf(s, e.id)[i]);
       if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; }
-      S.edit = isDone(rowsOf(s, e.id)[i]) ? { ex: e.id, i } : null; S.mini = false; S.draft = null; S.fbFor = null;
-      renderHero(); renderHistory(); refreshEx(e); renderDock(); keepAwake();
+      S.edit = on ? { ex: e.id, i } : null; S.mini = false; S.draft = null; S.fbFor = null;
+      refreshEx(e); renderDock(); if (on) keepAwake();
     }
   });
+  /* a sideways swipe on the exercise steps to the one before or after it */
+  let sw = null;
+  list.addEventListener('touchstart', (ev) => { const t = ev.touches[0]; sw = ev.touches.length === 1 && !ev.target.closest('.stage-ctl,textarea,input,.seg') ? { x: t.clientX, y: t.clientY } : null; }, { passive: true });
+  list.addEventListener('touchend', (ev) => {
+    if (!sw) return; const t = ev.changedTouches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y; sw = null;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 45) stepEx((dx > 0) === (document.documentElement.dir !== 'ltr') ? 1 : -1);
+  }, { passive: true });
   list.addEventListener('change', (ev) => {
     const ta = ev.target.closest('.note-in'), li = ta && ta.closest('.ex'); if (!li) return;
     const e = findEx(li.dataset.id), v = ta.value.trim().slice(0, 200);
@@ -2905,20 +2990,18 @@ function wireApp() {
     const fbBtn = t.closest('[data-fb]'); if (fbBtn) { onFb(fbBtn.closest('.fbk').dataset.ex, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const sn = t.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
     if (id === 'dkHit') { S.touched = true; logSet(t.closest('#dkHit')); }
+    else if (id === 'dkNext') { const n = nextOpen(); if (n) { S.touched = true; S.draft = null; openEx(n.id, true, 1); renderDock(); } }
     else if (id === 'dkReps') typeReps();
     else if (id === 'fbSkip') skipFb();
     else if (id === 'dkKg') typeKg();
-    else if (id === 'dkStart') { S.touched = true; ensure(S.tab); primeAudio(); keepAwake(); S.mini = false; saveLocal(); renderHero(); renderPre(); renderList(); renderHistory(); renderTabs(); const c = cursor(); if (c && S.open !== c.e.id) openEx(c.e.id, true); else refreshOpenSets(); renderDock(); }
     else if (id === 'dkFinish') finishWorkout();
     else if (id === 'dkMini') { S.mini = !S.mini; renderDock(); }
-    else if (id === 'dkCoach') { const c = cursor(); openChat(c ? c.e.id : S.open); }
-    else if (id === 'dkGo') { const c = cursor(); if (c) { if (S.open !== c.e.id) openEx(c.e.id, true); else $('.ex.open').scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' }); } }
     else if (id === 'rtSkip') stopRest();
     else if (id === 'rtPlus') nudgeRest(15);
     else if (id === 'rtMinus') nudgeRest(-15);
     else if (id === 'rtUndo') undoLast();
     else if (id === 'rtSound') { S.sound = !S.sound; saveLocal(); if (S.sound) { primeAudio(); beep(1); } renderDock(); }
-    else if (id === 'edClose') { S.edit = null; renderDock(); }
+    else if (id === 'edClose') { S.edit = null; renderDock(); refreshOpenSets(); }
     else if (id === 'edDel') { const e = findEx(S.edit.ex); clearRow(e, S.edit.i); S.edit = null; afterEdit(e); }
   });
   dock.addEventListener('keydown', (ev) => {
@@ -2927,11 +3010,7 @@ function wireApp() {
   });
   const logClick = (ev) => {
     const id = (ev.target.closest('button') || {}).id;
-    if (id === 'finishBtn') finishWorkout();
-    else if (id === 'resetBtn') { S.resetAsk = true; renderHistory(); }
-    else if (id === 'resetNo') { S.resetAsk = false; renderHistory(); }
-    else if (id === 'resetYes') { const s = live(S.tab); if (s) { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); saveLocal(); schedule(s.id, 100); } clearInterval(rest.iv); rest.on = false; S.resetAsk = false; S.edit = null; S.draft = null; S.fbFor = null; S.banner = ''; S.bannerKind = ''; letSleep(); renderAll(); }
-    else if (id === 'exportBtn') exportCsv();
+    if (id === 'exportBtn') exportCsv();
     const b = ev.target.closest('button'), ds = b ? b.dataset : {};
     if (ds.edit) openEditor(ds.edit);
     else if (id === 'histMore') { S.histN = (S.histN || 6) + 10; renderHistory(); }
@@ -2940,16 +3019,13 @@ function wireApp() {
     else if (id === 'restoreBtn') $('#restoreFile').click();
   };
   $('#restoreFile').addEventListener('change', (ev) => { const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; importBackup(f); });
-  for (const box of ['#wkAct', '#history', '#gains', '#backup']) $(box).addEventListener('click', logClick);
-  $('#hero').addEventListener('click', (ev) => {
-    if (ev.target.closest('.banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); updateProgress(); }
-    else if (ev.target.closest('#mesoBtn')) openMeso();
-  });
+  for (const box of ['#history', '#gains', '#backup']) $(box).addEventListener('click', logClick);
+  $('#hero').addEventListener('click', (ev) => { if (ev.target.closest('.banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); } });
   const sheet = $('#sheet');
   sheet.addEventListener('click', (ev) => {
     const id = (ev.target.closest('button') || {}).id;
     if (ev.target === sheet || id === 'sheetClose' || id === 'edDone' || ev.target.closest('[data-close]')) { closeSheet(); return; }
-    if (coachSheetClick(ev, id) || meSheetClick(ev)) return;
+    if (listSheetClick(ev, id) || coachSheetClick(ev, id) || meSheetClick(ev)) return;
     if (id === 'edDelAsk' || id === 'edDelNo') { S.edDel = id === 'edDelAsk'; $('#edAct').innerHTML = editorActions(S.sessions[S.edSid]); }
     else if (id === 'edDelYes') { deleteSession(S.edSid); if (!S.touched) S.tab = nextUp().next; closeSheet(); }
     else if (id === 'edReopen') editorReopen();
@@ -2987,21 +3063,23 @@ function soreEffects(w, sore) {
   for (const mu of Object.keys(sore)) if (sore[mu] === 2) out.push('חזרה פחות ל' + MUSCLE[mu].he);
   return out;
 }
-/* before the first set: did the muscles recover from their last workout? One tap says yes. "Not quite" opens the muscles one by one:
-   still sore takes a set off and stops a rep earlier; never sore after easy work adds a set */
+/* before the first set: did the muscles recover from their last workout? The question takes the screen until it is answered or skipped.
+   One tap says yes. "Not quite" opens the muscles one by one: still sore takes a set off and stops a rep earlier; never sore after easy work adds a set */
 function renderPre() {
   const box = $('#pre'), w = S.tab, s = live(w), mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
-  if (!mus.length) { box.hidden = true; box.innerHTML = ''; return; }
-  const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore);
-  box.hidden = false;
+  const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore), on = mus.length > 0 && S.preSkip !== w && (left > 0 || !!S.preOpen);
+  $('#app').classList.toggle('pre-on', on);
+  box.hidden = !on;
+  if (!on) { box.innerHTML = ''; S.preOpen = false; return; }
   if (!S.preOpen) {
-    box.innerHTML = left ? '<div class="pre one"><b>השרירים התאוששו?</b><div class="pre-q"><button class="btn primary" id="preAll" type="button">כן</button><button class="btn" id="preEdit" type="button">לא לגמרי</button></div></div>'
-      : '<div class="pre done"><p>' + ICON.check + '<span>' + (fx.length ? fx.join(' · ') : 'התאוששות נרשמה') + '</span></p><button class="link" id="preEdit" type="button">שנה</button></div>';
+    box.innerHTML = '<div class="pre gate"><span class="pre-ic" aria-hidden="true">' + ICON.check + '</span><h2>' + say('השרירים התאוששו?', 'Have your muscles recovered?') + '</h2><p>' + say('מהאימון הקודם שלהם', 'Since they were last trained') + '</p>' +
+      '<div class="pre-q"><button class="btn primary big" id="preAll" type="button">' + say('כן, הכול טוב', 'Yes, all good') + '</button><button class="btn big" id="preEdit" type="button">' + say('לא לגמרי', 'Not quite') + '</button></div>' +
+      '<button class="link" id="preSkip" type="button">' + say('דלג', 'Skip') + '</button></div>';
     return;
   }
-  box.innerHTML = '<div class="pre"><div class="pre-h"><b>מה עדיין תפוס?</b><button class="link" id="preAll" type="button">הכול החלים</button></div>' +
+  box.innerHTML = '<div class="pre"><div class="pre-h"><b>' + say('מה עדיין תפוס?', 'What is still sore?') + '</b><button class="link" id="preAll" type="button">' + say('הכול החלים', 'All recovered') + '</button></div>' +
     mus.map((m) => '<div class="pre-row"><span>' + MUSCLE[m].he + '</span><div class="seg" role="group" aria-label="' + MUSCLE[m].he + '">' + SORE.map((t, v) => '<button type="button" data-mu="' + m + '" data-v="' + v + '" aria-pressed="' + (sore[m] === v) + '">' + t + '</button>').join('') + '</div></div>').join('') +
-    (fx.length ? '<p class="pre-fx">' + fx.join(' · ') + '</p>' : '') + (left ? '' : '<button class="btn" id="preDone" type="button">סיום</button>') + '</div>';
+    (fx.length ? '<p class="pre-fx">' + fx.join(' · ') + '</p>' : '') + '<button class="btn primary big" id="preDone" type="button">' + say('המשך', 'Continue') + '</button></div>';
 }
 function afterPre() { renderPre(); renderHero(); renderList(); updateProgress(); renderDock(); }
 
@@ -3129,7 +3207,8 @@ function wireCoach() {
     if (b.dataset.mu) setSore(S.tab, b.dataset.mu, +b.dataset.v);
     else if (b.id === 'preAll') { const s = live(S.tab), sore = soreOf(S.tab, s); for (const m of preMuscles(S.tab)) if (sore[m] == null) setSore(S.tab, m, 1); S.preOpen = false; }
     else if (b.id === 'preEdit') S.preOpen = true;
-    else if (b.id === 'preDone') S.preOpen = false;
+    else if (b.id === 'preDone') { S.preOpen = false; S.preSkip = S.tab; }
+    else if (b.id === 'preSkip') S.preSkip = S.tab;
     afterPre();
   });
 }
@@ -3158,11 +3237,9 @@ const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '
 const tons = (kg) => { const t = kg / 1000; return t >= 100 ? nf(t) : (Math.round(t * 10) / 10).toLocaleString('en-US'); };
 const avatar = (lvl, o) => avatarSVG(S.cfg.me.look, lvl, o);
 
-/* the small level meter in the top row of a workout, and the level remembered for spotting a level-up */
+/* refresh the player's side after the log changed, and remember the level so that a level-up can be spotted */
 function renderMe() {
-  const P = meNow(), chip = $('#lvlChip');
-  chip.innerHTML = '<span class="lv-badge">רמה ' + P.L.lvl + '</span>' + xpBar(pctOf(P.L));
-  chip.setAttribute('aria-label', 'רמה ' + P.L.lvl + ', הפרופיל שלי');
+  const P = meNow();
   S.lvl = P.L.lvl;
   if (S.view === 'profile') renderProfile(P);
   return P;
@@ -3260,7 +3337,6 @@ function countUp(el, to) {
   requestAnimationFrame(step);
 }
 function wireMe() {
-  $('#lvlChip').addEventListener('click', () => { closeChat(); setView('profile'); });
   $('#profile').addEventListener('click', (ev) => { if (ev.target.closest('#lookBtn')) openLook(); });
 }
 
@@ -3513,9 +3589,8 @@ function boot(data) {
   if (Array.isArray(data.turns)) chat.turns = data.turns;
   readColors(); wireApp(); wireCoach(); wireChat(); wireMe();
   setView(['workout', 'progress', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
+  S.open = typeof data.open === 'string' ? data.open : null;
   renderAll(); initChat();
-  const s = live(S.tab), list = exList(S.tab, s), first = (data.open && list.find((e) => e.id === data.open)) || list.find((e) => firstUndone(s, e) >= 0) || list[0];
-  if (first) { openEx(first.id, false); renderDock(); }
   initCloud(onRemoteChange);
   if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then((dl) => { if (dl) { S.dl = dl; renderHistory(); } }).catch(() => {});
 }

@@ -19,9 +19,8 @@ function boot(data) {
   if (Array.isArray(data.turns)) chat.turns = data.turns;
   readColors(); wireApp(); wireCoach(); wireChat(); wireMe();
   setView(['workout', 'progress', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
+  S.open = typeof data.open === 'string' ? data.open : null;
   renderAll(); initChat();
-  const s = live(S.tab), list = exList(S.tab, s), first = (data.open && list.find((e) => e.id === data.open)) || list.find((e) => firstUndone(s, e) >= 0) || list[0];
-  if (first) { openEx(first.id, false); renderDock(); }
   initCloud(onRemoteChange);
   if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then((dl) => { if (dl) { S.dl = dl; renderHistory(); } }).catch(() => {});
 }

@@ -18,7 +18,6 @@ const GLYPH = {
 /* the streak's flame: drawn in two tones, not a line icon */
 const flameSVG = () => '<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.4 1.6c.5 3.6 6 6 6 12a6.4 6.4 0 0 1-12.8 0c0-2.5 1.1-4.4 2.6-5.7.3 1.8 1 2.9 2.1 3.5-.4-3.6.4-7 2.1-9.8z" fill="var(--flame)"/><path d="M12.1 11.6c.5 1.7 2.7 2.7 2.7 5.2a2.8 2.8 0 0 1-5.6 0c0-2.1 1.9-3 2.9-5.2z" fill="var(--flame-2)"/></svg>';
 /* the colours a medal can have: fill and darker edge */
-const MEDAL = [['#2152E0', '#1A40B4'], ['#0B8A57', '#066B43'], ['#7446E0', '#5530B5'], ['#D04509', '#A63405'], ['#D6246E', '#A81853'], ['#0B7E8C', '#075F6A']];
 const glyph = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + GLYPH[k] + '</svg>';
 const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
@@ -41,7 +40,7 @@ function playerHTML(P) {
     '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + esc(me.name) : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
     (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + flameSVG() + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
-function badgeHTML(b, on) { const m = MEDAL[BADGES.indexOf(b) % MEDAL.length]; return '<li class="bdg' + (on ? ' on' : '') + '" style="--bc:' + m[0] + ';--bl:' + m[1] + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
+function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
 /* the profile: the character, where it stands in the game, and the achievements. One card, one row of medals, one way to the settings */
 function renderProfile(P) {
   P = P || meNow();
@@ -110,8 +109,8 @@ function meSheetClick(ev) {
   else if (b.id === 'restoreBtn') $('#restoreFile').click();
   else if (b.id === 'exportBtn') exportCsv();
   else if (k === 'lang') setLang(v);
-  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) sfx('coin'); renderSettings(); }
-  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); haptic('success'); renderSettings(); }
+  else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) sfx('set'); renderSettings(); }
+  else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); if (HX.on) document.documentElement.dataset.hx = S.buzz ? 'on' : 'off'; haptic('success'); renderSettings(); }
   else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
   else return false;
   return true;
@@ -143,7 +142,7 @@ function confetti(cv, n) {
   if (!cv || reduced) return;
   const g = cv.getContext('2d'), dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight, cs = getComputedStyle(document.documentElement);
   cv.width = W * dpr; cv.height = H * dpr; g.scale(dpr, dpr);
-  const cols = ['--w0', '--w1', '--w2', '--w3', '--xp-fill', '--go'].map((v) => cs.getPropertyValue(v).trim()), t0 = performance.now();
+  const cols = ['--w0', '--w1', '--w2', '--accent-soft', '--gold', '--flame-2'].map((v) => cs.getPropertyValue(v).trim()), t0 = performance.now();
   const ps = Array.from({ length: n }, (_, i) => ({ x: W / 2 + (Math.random() - 0.5) * 60, y: H * 0.34, vx: (Math.random() - 0.5) * 9, vy: -5 - Math.random() * 7, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, w: 5 + Math.random() * 5, c: cols[i % cols.length] }));
   const step = (now) => {
     const t = now - t0; g.clearRect(0, 0, W, H);

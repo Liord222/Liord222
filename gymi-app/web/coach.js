@@ -28,14 +28,16 @@ window.gymiAsk = async function ({ key, system, messages, images, signal, onText
   try {
     const body = {
       model: MODEL,
-      max_tokens: 16000,
-      output_config: { effort: 'medium' },
+      // the coach answers in a line or two: a low effort and a tight ceiling keep each question cheap
+      max_tokens: 4000,
+      output_config: { effort: 'low' },
       // if a safety classifier declines the request, the API re-runs it on a fallback model inside the same call
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
       messages: msgs,
     };
-    if (system) body.system = system;
+    // his rules and the plan are the same from one question to the next, so they are cached and billed at a fraction
+    if (system) body.system = [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }];
     const stream = client.beta.messages.stream(body, { signal });
     for await (const event of stream) {
       if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {

@@ -11,7 +11,7 @@
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
       <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="10.5" width="3.6" height="7" rx="1.5" fill="#1C43BF"/><rect x="5.6" y="7" width="4.6" height="14" rx="1.9" fill="#2152E0"/><rect x="10.2" y="12.2" width="7.6" height="3.6" rx="1.2" fill="#8FA9F5"/><rect x="17.8" y="7" width="4.6" height="14" rx="1.9" fill="#2152E0"/><rect x="22.9" y="10.5" width="3.6" height="7" rx="1.5" fill="#1C43BF"/></svg></span><span class="tb-l">היום</span></button>
       <button type="button" data-view="profile"><span class="tb-ic tb-face" id="tbMe" aria-hidden="true"></span><span class="tb-l">פרופיל</span></button>
-      <button type="button" data-view="progress"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="3.5" y="15" width="5.6" height="9.5" rx="2" fill="#8ED8B7"/><rect x="11.2" y="9.5" width="5.6" height="15" rx="2" fill="#17A567"/><rect x="18.9" y="3.5" width="5.6" height="21" rx="2" fill="#0B8A57"/></svg></span><span class="tb-l">התקדמות</span></button>
+      <button type="button" data-view="progress"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="3.5" y="15" width="5.6" height="9.5" rx="2" fill="#8FA9F5"/><rect x="11.2" y="9.5" width="5.6" height="15" rx="2" fill="#2152E0"/><rect x="18.9" y="3.5" width="5.6" height="21" rx="2" fill="#F2B02E"/></svg></span><span class="tb-l">התקדמות</span></button>
       <button type="button" id="chatOpen"><span class="tb-ic tb-face" id="tbCoach" aria-hidden="true"></span><span class="tb-l">אילון</span></button>
     </nav>
   </header>
@@ -53,7 +53,7 @@
         <div class="comp-row">
           <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg></button>
           <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M5 17l5-5 4 4 2-2 3 3"/></svg></button>
-          <textarea id="chatInput" rows="1" placeholder="שאל את אילון" enterkeyhint="send" aria-label="הודעה לאילון"></textarea>
+          <textarea id="chatInput" rows="1" maxlength="500" placeholder="שאל את אילון" enterkeyhint="send" aria-label="הודעה לאילון"></textarea>
           <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
         </div>
         <input type="file" id="camFile" accept="image/*" capture="environment" hidden>
@@ -67,4 +67,5 @@
   <input type="file" id="restoreFile" accept=".json,application/json" hidden>
   <div class="toast" id="toast" role="status" hidden></div>
   <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden></div>
+  <div class="splash" id="splash" hidden><div class="splash-in" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div></div>
 </div>

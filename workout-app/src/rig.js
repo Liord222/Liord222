@@ -90,13 +90,17 @@ function blob(g, P) {
 const hexRgb = (h) => { const s = (h || '#888888').replace('#', ''); const v = s.length === 3 ? s.replace(/./g, '$&$&') : s; return [parseInt(v.slice(0, 2), 16) || 0, parseInt(v.slice(2, 4), 16) || 0, parseInt(v.slice(4, 6), 16) || 0]; };
 const mixRgb = (a, b, t) => 'rgb(' + Math.round(lerp(a[0], b[0], t)) + ',' + Math.round(lerp(a[1], b[1], t)) + ',' + Math.round(lerp(a[2], b[2], t)) + ')';
 /* light comes from the upper front: a gradient across the limb gives it volume and fades out when the limb points at the light */
-function lit(g, a, b, r, C) {
+function litK(g, a, b, r, f, _f, _h, _l) {
   const n = nrm(a, b), k = n[0] * 0.55 - n[1] * 0.83, s = k >= 0 ? 1 : -1, m = Math.min(1, Math.abs(k) * 1.25);
   const cx = (a[0] + b[0]) / 2, cy = (a[1] + b[1]) / 2;
   const gr = g.createLinearGradient(cx + n[0] * r * s, cy + n[1] * r * s, cx - n[0] * r * s, cy - n[1] * r * s);
-  gr.addColorStop(0, mixRgb(C._fig, C._hi, m)); gr.addColorStop(0.5, C.fig); gr.addColorStop(1, mixRgb(C._fig, C._lo, m));
+  gr.addColorStop(0, mixRgb(_f, _h, m)); gr.addColorStop(0.5, f); gr.addColorStop(1, mixRgb(_f, _l, m));
   return gr;
 }
+const lit = (g, a, b, r, C) => litK(g, a, b, r, C.fig, C._fig, C._hi, C._lo);
+/* the shirt, lit the same way; a figure with no character of its own (C.av) keeps a bare chest */
+const worn = (C) => !!(C.av && C.shirt);
+const shirtLit = (g, a, b, r, C) => (worn(C) ? litK(g, a, b, r, C.shirt, C._shirt, C._shirtHi, C._shirtLo) : lit(g, a, b, r, C));
 
 /* ---- body outlines. Limbs: [fraction along the bone, offset across it]. For a limb hanging down, + is the back of the body. ---- */
 const OUT = {
@@ -136,6 +140,16 @@ const MUS = {
 };
 const MGROUP = { chest: 't', abs: 't', lats: 't', upback: 't', lowback: 't', glutes: 'l', quads: 'l', hams: 'l', calves: 'l', delts: 'a', biceps: 'a', triceps: 'a', forearm: 'a' };
 
+const WEAR = {
+  sleeve: [[-0.18, 0], [-0.06, 6.7], [0.26, 7.0], [0.5, 6.3], [0.53, 0], [0.5, -6.5], [0.24, -6.8], [-0.06, -6.7]],
+  sleeveB: [[-0.16, 0], [-0.05, 6.9], [0.3, 6.7], [0.5, 5.9], [0.53, 0], [0.5, -5.9], [0.3, -6.7], [-0.05, -6.9]],
+  quiff: [[5.2, 6.4], [4.6, 10.4], [8.4, 13.2], [12.6, 12.4], [11.4, 9.4], [9.4, 7.0]],
+  curls: [[7.6, 9.6], [3.6, 12.2], [-1.6, 12.8], [-6.6, 10.6], [-10, 6.4], [-11.2, 1], [-9.8, -4]],
+  fall: [[-3.4, 9], [-10.4, 6], [-12.8, -3], [-12.4, -15], [-8, -19.5], [-3.8, -15.5], [-5.2, -6], [-2.6, 2]],
+  beard: [[9.3, -3.8], [9.4, -7.6], [6.6, -11.6], [1.4, -12.2], [-4.6, -10.2], [-8.2, -5.6], [-6.4, -1.8], [-3.4, -4.6], [1.6, -6.4], [6, -5.2]],
+  band: [[9.7, 6.7], [9.9, 4.0], [3, 4.7], [-4, 4.7], [-10.5, 2.3], [-10.3, 5.1], [-3.6, 7.5], [3.2, 7.5]],
+  knot: [[-10.2, 4.0], [-15.6, 6.6], [-13.8, 3.2], [-15.8, -0.2], [-10.4, 2.2]],
+};
 function bonePts(a, b, out) {
   const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
   return out.map((p) => [a[0] + dx * p[0] - uy * p[1], a[1] + dy * p[0] + ux * p[1]]);
@@ -173,19 +187,36 @@ function muscleSet(g, J, C, ex, grp, glow, sp) {
   if (any) glowOff(g);
 }
 function headSide(g, J, C) {
-  const up = unit(J.sh, J.head), fw = [-up[1], up[0]], c = J.head, P = (p) => [c[0] + fw[0] * p[0] + up[0] * p[1], c[1] + fw[1] * p[0] + up[1] * p[1]];
+  const A = C.av, k = A ? 1.1 : 1, hair = A ? A.hair : 1, up = unit(J.sh, J.head), fw = [-up[1], up[0]], c = J.head;
+  const P = (p) => [c[0] + (fw[0] * p[0] + up[0] * p[1]) * k, c[1] + (fw[1] * p[0] + up[1] * p[1]) * k], rot = Math.atan2(up[0], -up[1]);
+  const oval = (p, rx, ry, col) => { const o = P(p); g.beginPath(); g.ellipse(o[0], o[1], rx * k, ry * k, rot, 0, TAU); g.fillStyle = col; g.fill(); };
   capsule(g, add(J.sh, up, -2), add(c, up, -6), 9.6, C.fig);
+  /* long hair falls behind the neck, so it comes first */
+  if (hair === 4) { blob(g, WEAR.fall.map(P)); g.fillStyle = C.hair; g.fill(); }
   blob(g, OUT.head.map(P)); g.strokeStyle = C.halo; g.lineWidth = 3; g.lineJoin = 'round'; g.stroke(); g.fillStyle = C.fig; g.fill();
-  blob(g, OUT.hair.map(P)); g.fillStyle = C.hair; g.fill();
-  const e = P([-1.4, -1.2]); g.beginPath(); g.ellipse(e[0], e[1], 1.7, 2.6, 0, 0, TAU); g.fillStyle = C.eye || C.figLo; g.fill();
+  if (A && A.beard) { blob(g, WEAR.beard.map(P)); g.globalAlpha = A.beard === 1 ? 0.28 : 1; g.fillStyle = A.beardC; g.fill(); g.globalAlpha = 1; }
+  if (hair) {
+    blob(g, OUT.hair.map(P)); g.fillStyle = C.hair; g.fill();
+    if (hair === 2 || hair === 5) { blob(g, WEAR.quiff.map(P)); g.fill(); }
+    if (hair === 3) for (const q of WEAR.curls) { const o = P(q); g.beginPath(); g.arc(o[0], o[1], 3.7 * k, 0, TAU); g.fill(); }
+  }
+  oval([-1.2, -0.8], 2, 2.9, C.figLo);
+  if (!A) return;
+  if (A.band) { blob(g, WEAR.band.map(P)); g.fillStyle = A.bandC; g.fill(); const K = WEAR.knot.map(P); g.beginPath(); g.moveTo(K[0][0], K[0][1]); for (const q of K.slice(1)) g.lineTo(q[0], q[1]); g.closePath(); g.fill(); }
+  /* the face: an eye, a brow and the smile of the character */
+  oval([5.9, 1.3], 1.25, 1.75, '#1B1F27');
+  g.lineCap = 'round'; g.strokeStyle = A.browC; g.lineWidth = 1.3 * k; const b0 = P([4.3, 4.0]), b1 = P([7.5, 4.3]); g.beginPath(); g.moveTo(b0[0], b0[1]); g.lineTo(b1[0], b1[1]); g.stroke();
+  g.strokeStyle = '#1B1F27'; g.lineWidth = 1.2 * k; const m0 = P([6.1, -4.9]), m1 = P([7.5, -6.3]), m2 = P([9, -4.7]); g.beginPath(); g.moveTo(m0[0], m0[1]); g.quadraticCurveTo(m1[0], m1[1], m2[0], m2[1]); g.stroke();
 }
 function drawSide(g, J, C, ex, glow) {
   const sp = spineFn(J), nf = J.p.nofeet;
+  const sleeves = worn(C) && !C.av.tank;
   part(g, J.armF.a, J.armF.b, OUT.uarm, C.far); part(g, J.armF.b, J.armF.c, OUT.farm, C.far);
+  if (sleeves) part(g, J.armF.a, J.armF.b, WEAR.sleeve, C.shirtFar);
   part(g, J.legF.a, J.legF.b, OUT.thigh, C.far); part(g, J.legF.b, J.legF.c, OUT.shank, C.far);
   if (!nf) shoe(g, J.footF, C.shoeFar, null);
   part(g, J.legF.a, J.legF.b, OUT.shortsLeg, C.clothFar);
-  blob(g, OUT.torso.map((p) => sp(p[0], p[1]))); g.strokeStyle = C.halo; g.lineWidth = 3; g.lineJoin = 'round'; g.stroke(); g.fillStyle = lit(g, J.hip, J.sh, 11, C); g.fill();
+  blob(g, OUT.torso.map((p) => sp(p[0], p[1]))); g.strokeStyle = C.halo; g.lineWidth = 3; g.lineJoin = 'round'; g.stroke(); g.fillStyle = shirtLit(g, J.hip, J.sh, 11, C); g.fill();
   headSide(g, J, C);
   blob(g, OUT.shorts.map((p) => sp(p[0], p[1]))); g.fillStyle = C.cloth; g.fill();
   muscleSet(g, J, C, ex, 't', glow, sp);
@@ -198,7 +229,24 @@ function drawSide(g, J, C, ex, glow) {
   blob(g, bonePts(J.armN.a, J.armN.b, OUT.uarm)); g.strokeStyle = C.halo; g.lineWidth = 3; g.stroke();
   blob(g, bonePts(J.armN.b, J.armN.c, OUT.farm)); g.stroke();
   part(g, J.armN.a, J.armN.b, OUT.uarm, lit(g, J.armN.a, J.armN.b, 6, C)); part(g, J.armN.b, J.armN.c, OUT.farm, lit(g, J.armN.b, J.armN.c, 5, C));
+  if (sleeves) part(g, J.armN.a, J.armN.b, WEAR.sleeve, shirtLit(g, J.armN.a, J.armN.b, 7, C));
   muscleSet(g, J, C, ex, 'a', glow, sp);
+}
+/* the back of the head: the hairstyle of the character, and the knot of its band */
+function backHair(g, C, cx, hy, sy) {
+  const A = C.av, hair = A ? A.hair : 1;
+  if (hair) {
+    g.fillStyle = C.hair;
+    if (hair === 4) { rr(g, cx - 10.4, hy - 6, 20.8, Math.max(14, sy - hy - 1), 8); g.fill(); }
+    g.beginPath(); g.ellipse(cx, hy - 2, 9.3, 9.8, 0, 0, TAU); g.fill();
+    if (hair === 3) for (let i = 0; i < 9; i++) { const a = Math.PI * (1.02 + (0.96 * i) / 8) + Math.PI, x = cx + Math.cos(a) * 9.6, y = hy - 2 + Math.sin(a) * 9.6; g.beginPath(); g.arc(x, y, 3.5, 0, TAU); g.fill(); }
+    if (hair === 2 || hair === 5) { g.beginPath(); g.ellipse(cx, hy - 11.6, 6.4, 3.4, 0, 0, TAU); g.fill(); }
+  }
+  if (A && A.band) {
+    g.fillStyle = A.bandC; rr(g, cx - 9.6, hy - 5.6, 19.2, 3.6, 1.6); g.fill();
+    g.beginPath(); g.moveTo(cx, hy - 3.8); g.lineTo(cx + 5.6, hy + 2.6); g.lineTo(cx + 1.8, hy + 1.2); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(cx, hy - 3.8); g.lineTo(cx - 4.4, hy + 3.4); g.lineTo(cx - 1, hy + 1); g.closePath(); g.fill();
+  }
 }
 /* the same person seen from behind: upright torso, both sides visible */
 function drawBack(g, J, C, ex, glow) {
@@ -209,14 +257,14 @@ function drawBack(g, J, C, ex, glow) {
   }
   const R = [[5.4, sy - 9.5], [13, sy - 6.6], [22.4, sy - 3.4], [23.6, sy + 5], [21, sy + 14], [18.6, sy + 24], [14.8, sy + 35], [16.6, hy - 3], [17.4, hy + 6], [9, hy + 11.5]];
   const T = R.map((p) => [cx + p[0], p[1]]).concat(R.slice().reverse().map((p) => [cx - p[0], p[1]]));
-  blob(g, T); g.strokeStyle = C.halo; g.lineWidth = 3; g.lineJoin = 'round'; g.stroke(); g.fillStyle = C.fig; g.fill();
+  blob(g, T); g.strokeStyle = C.halo; g.lineWidth = 3; g.lineJoin = 'round'; g.stroke(); g.fillStyle = worn(C) ? C.shirt : C.fig; g.fill();
   const W = [[15.2, hy - 12], [16.8, hy - 3], [17.6, hy + 6], [9, hy + 12], [0, hy + 10.5]];
   blob(g, W.map((p) => [cx + p[0], p[1]]).concat(W.slice(0, 4).reverse().map((p) => [cx - p[0], p[1]]))); g.fillStyle = C.cloth; g.fill();
   for (const lg of [J.legF, J.legN]) part(g, lg.a, lg.b, [[-0.1, 0], [0, 9.6], [0.36, 9.4], [0.42, 0], [0.36, -9.4], [0, -9.6]], C.cloth);
   capsule(g, [cx, sy - 7], [cx, J.head[1] + 6], 10, C.fig);
   g.beginPath(); g.ellipse(cx, J.head[1], 8.8, 11.4, 0, 0, TAU); g.strokeStyle = C.halo; g.lineWidth = 3; g.stroke(); g.fillStyle = C.fig; g.fill();
   for (const s of [-1, 1]) { g.beginPath(); g.ellipse(cx + s * 9, J.head[1] + 1.5, 1.7, 2.7, 0, 0, TAU); g.fill(); }
-  g.beginPath(); g.ellipse(cx, J.head[1] - 2, 9.3, 9.8, 0, 0, TAU); g.fillStyle = C.hair; g.fill();
+  backHair(g, C, cx, J.head[1], sy);
   if (ex.mus.includes('lats')) {
     glowOn(g, C, glow); g.fillStyle = C.muscle;
     for (const s of [-1, 1]) { blob(g, [[19.4, sy + 9], [20, sy + 19], [15.4, sy + 32], [7.5, sy + 30], [8.5, sy + 13]].map((p) => [cx + s * p[0], p[1]])); g.fill(); }
@@ -225,6 +273,7 @@ function drawBack(g, J, C, ex, glow) {
   for (const arm of [J.armF, J.armN]) {
     blob(g, bonePts(arm.a, arm.b, OUT.uarmB)); g.strokeStyle = C.halo; g.lineWidth = 3; g.stroke(); blob(g, bonePts(arm.b, arm.c, OUT.farm)); g.stroke();
     part(g, arm.a, arm.b, OUT.uarmB, C.fig); part(g, arm.b, arm.c, OUT.farm, C.fig);
+    if (worn(C) && !C.av.tank) part(g, arm.a, arm.b, WEAR.sleeveB, C.shirt);
   }
   glowOn(g, C, glow); g.fillStyle = C.muscle;
   for (const arm of [J.armF, J.armN]) {
@@ -238,16 +287,21 @@ function drawTop(g, C, c, arms, o) {
   if (o.feet) for (const s of [-1, 1]) { g.beginPath(); g.ellipse(c[0] + s * 11.5, c[1] - 13, 5.2, 12, s * 0.12, 0, TAU); g.fillStyle = C.shoe; g.fill(); }
   if (o.thighs) for (const s of [-1, 1]) { capsule(g, [c[0] + s * 11, c[1] - 2], [c[0] + s * 17, c[1] - 44], 16, C.far); capsule(g, [c[0] + s * 11, c[1] - 2], [c[0] + s * 13.6, c[1] - 20], 17, C.clothFar); }
   if (o.mid) o.mid();
-  g.beginPath(); g.ellipse(c[0], c[1], 26, o.ry || 12.5, 0, 0, TAU); g.strokeStyle = C.halo; g.lineWidth = 3; g.stroke(); g.fillStyle = C.fig; g.fill();
+  g.beginPath(); g.ellipse(c[0], c[1], 26, o.ry || 12.5, 0, 0, TAU); g.strokeStyle = C.halo; g.lineWidth = 3; g.stroke(); g.fillStyle = worn(C) ? C.shirt : C.fig; g.fill();
   if (o.mus) { glowOn(g, C, o.glow); g.fillStyle = C.muscle; o.mus(); glowOff(g); }
   for (const arm of arms) {
     blob(g, bonePts(arm.a, arm.b, OUT.uarmB)); g.strokeStyle = C.halo; g.lineWidth = 3; g.lineJoin = 'round'; g.stroke(); blob(g, bonePts(arm.b, arm.c, OUT.farm)); g.stroke();
     part(g, arm.a, arm.b, OUT.uarmB, C.fig); part(g, arm.b, arm.c, OUT.farm, C.fig);
+    if (worn(C) && !C.av.tank) part(g, arm.a, arm.b, WEAR.sleeveB, C.shirt);
   }
   const hy = c[1] + (o.headDy || 0);
   g.beginPath(); g.moveTo(c[0] - 2.6, hy - 9); g.lineTo(c[0], hy - 13.4); g.lineTo(c[0] + 2.6, hy - 9); g.closePath(); g.fillStyle = C.fig; g.fill();
   for (const s of [-1, 1]) { g.beginPath(); g.ellipse(c[0] + s * 8.6, hy, 1.8, 2.8, 0, 0, TAU); g.fill(); }
-  g.beginPath(); g.ellipse(c[0], hy, 8.6, 10.2, 0, 0, TAU); g.strokeStyle = C.halo; g.lineWidth = 2.5; g.stroke(); g.fillStyle = C.hair; g.fill();
+  const A = C.av, hair = A ? A.hair : 1;
+  g.beginPath(); g.ellipse(c[0], hy, 8.6, 10.2, 0, 0, TAU); g.strokeStyle = C.halo; g.lineWidth = 2.5; g.stroke(); g.fillStyle = hair ? C.hair : C.fig; g.fill();
+  if (hair === 3) for (let i = 0; i < 10; i++) { const a = (TAU * i) / 10; g.beginPath(); g.arc(c[0] + Math.cos(a) * 8.2, hy + Math.sin(a) * 9.6, 3.1, 0, TAU); g.fill(); }
+  if (hair === 4) { g.beginPath(); g.ellipse(c[0], hy + 5, 8.2, 8.6, 0, 0, TAU); g.fill(); }
+  if (A && A.band) { g.beginPath(); g.ellipse(c[0], hy, 8.8, 10.4, 0, 0, TAU); g.strokeStyle = A.bandC; g.lineWidth = 2.6; g.stroke(); }
 }
 
 /* ---- gym equipment kit ---- */

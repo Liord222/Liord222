@@ -76,7 +76,7 @@ const hebOn = (p) => p.evaluate(() => {
   await clean('the muscles one by one'); await snap(p, 'en2-pre');
   await p.click('#pre [data-mu="chest"][data-v="1"]'); await p.waitForTimeout(200); await p.click('#preDone'); await p.waitForTimeout(350);
   const ex = await txt('#exList .ex.open');
-  check('the exercise is in English', (await txt('#exList .ex-name')) === 'Incline Smith Machine Press' && (await txt('.fx-rx')) === '6–10 reps · To failure' && ex.includes('Upper chest · front delts · triceps') && (await txt('.ex-acts')).replace(/\s+/g, ' ').trim() === 'Swap How to More' && (await p.getAttribute('.stage-wrap', 'aria-label')) === 'Pause the demo', ex.slice(0, 300));
+  check('the exercise is in English', (await txt('#exList .ex-name')) === 'Incline Smith Machine Press' && (await txt('.fx-rx')) === '6–10 reps · To failure' && ex.includes('Upper chest · front delts · triceps') && (await txt('.ex-acts')).replace(/\s+/g, ' ').trim() === 'Swap How More' && (await p.getAttribute('.stage-wrap', 'aria-label')) === 'Pause the demo', ex.slice(0, 300));
   /* the screen during a set: two arrows, the demo, one cell per set and three quiet actions. Nothing else to press, and no labels pasted over the demo */
   check('the exercise screen holds only what a set needs', (await p.$$('#exList .ex.open button')).length === 9 && (await p.$$('#exList .ex.open .setp')).length === 3 && (await p.$$('#exList .ex.open .stage-wrap *')).length <= 4 && !(await p.$('#exList .chip, #exList .chipx, #exList .tagx, #exList .seg, #exList textarea')), (await p.$$('#exList .ex.open button')).length);
   check('the header says where in the workout the screen stands', (await txt('#wkTitle')).replace(/\s+/g, ' ').includes('Upper Body A Exercise 1 of 8') && (await p.getAttribute('#backBtn', 'aria-label')) === 'Back to the main screen' && (await p.getAttribute('#listBtn', 'aria-label')) === 'All exercises' && (await p.getAttribute('#wkBar .bar', 'aria-label')) === '0 of 21 sets', [await txt('#wkTitle'), await p.getAttribute('#wkBar .bar', 'aria-label')]);
@@ -128,7 +128,7 @@ const hebOn = (p) => p.evaluate(() => {
   check('the next exercise has come up by itself', (await txt('#exList .ex-name')) === 'Assisted Pull-ups', await txt('#exList .ex-name'));
   await p.click('.ex.open .swap'); await p.waitForTimeout(350);
   const sw = await txt('#sheet');
-  check('the swap sheet is in English', sw.includes('Assisted Pull-ups') && sw.includes('Swap it for what?') && sw.includes('Same muscle, same movement. Sets and history are kept.') && sw.includes('Lat Pulldown') && sw.includes('Cable') && sw.includes('easy on the joints') && sw.includes('Other exercises') && sw.includes('Another machine? Ask Eilon') && !sw.includes('Today only'), sw.slice(0, 400));
+  check('the swap sheet is in English', sw.includes('Assisted Pull-ups') && sw.includes('Swap it for what?') && sw.includes('Same muscle, same movement. History is kept.') && sw.includes('Lat Pulldown') && sw.includes('Cable') && sw.includes('easy on the joints') && sw.includes('Other exercises') && sw.includes('Another machine? Ask Eilon') && !sw.includes('Today only'), sw.slice(0, 400));
   await clean('the swap sheet'); await snap(p, 'en7-swap', true);
   await p.click('#sheet .sw-row'); await p.waitForTimeout(250);
   check('the one question of a swap is in English', (await txt('#sheet .sw-b')).replace(/\s+/g, ' ').trim() === 'Today only For good', await txt('#sheet .sw-b'));
@@ -283,7 +283,7 @@ const hebOn = (p) => p.evaluate(() => {
   // ---- a first visit in English: the opening screens, then an app with nothing Hebrew in it
   p = await open(b, null, { locale: 'en-GB' });
   check('a first visit on an English phone opens in English', (await p.isVisible('#ob')) && (await p.evaluate(() => LANG)) === 'en' && (await hebOn(p)).length === 0, await hebOn(p));
-  for (let i = 0; i < 6; i++) { if (i === 1) await p.fill('#obName', 'Ann'); if (i === 2 || i === 3) await p.click('.ob-opt[data-v="1"]'); if ((await hebOn(p)).length) bad.push('Hebrew on opening screen ' + i + ' -> ' + JSON.stringify(await hebOn(p))); await p.click('#obNext'); await p.waitForTimeout(350); }
+  for (let i = 0; i < 7; i++) { if (i === 1) await p.fill('#obName', 'Ann'); if (i === 2 || i === 3) await p.click('.ob-opt[data-v="1"]'); if ((await hebOn(p)).length) bad.push('Hebrew on opening screen ' + i + ' -> ' + JSON.stringify(await hebOn(p))); await p.click('#obNext'); await p.waitForTimeout(350); }
   check('after the opening screens the app is in English', (await p.isHidden('#ob')) && (await p.evaluate(() => (document.querySelector('#home').innerText || '').includes('Hi, Ann'))) && (await hebOn(p)).length === 0, await hebOn(p));
   await p.context().close();
 

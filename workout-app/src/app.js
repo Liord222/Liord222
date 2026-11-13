@@ -14,7 +14,7 @@ function whyText(T, e) {
   if (T.mode === 'reps') return last ? say('בפעם הקודמת עשית ' + last + '. היום מנסים יותר חזרות.', 'Last time you did ' + last + '. Today, more reps.') : say('היום מנסים יותר חזרות.', 'Today, more reps.');
   if (T.mode === 'weight') return inv ? say('הגעת לראש טווח החזרות, אז הסיוע יורד.', 'You reached the top of the rep range, so the help comes down.') : say('הגעת לראש טווח החזרות, אז המשקל עולה.', 'You reached the top of the rep range, so the weight goes up.');
   if (T.mode === 'hold') return last ? say('חוזרים על מה שעשית בפעם הקודמת: ' + last + '.', 'Repeat what you did last time: ' + last + '.') : say('חוזרים על הפעם הקודמת.', 'Repeat last time.');
-  if (T.mode === 'base') return say('סבב חדש מתחיל רחוק יותר מכשל, אז היעד נמוך יותר.', 'A new round starts further from failure, so the target is lower.');
+  if (T.mode === 'base') return say('סבב חדש מתחיל קל יותר, אז היעד נמוך.', 'A new round starts easier, so the target is lower.');
   if (T.mode === 'deload') return say('שבוע קל: פחות עומס, כדי להתאושש.', 'Easy week: less load, to recover.');
   if (T.mode === 'down') return inv ? say('הסט הקודם ירד מתחת לטווח, אז מוסיפים סיוע.', 'The last set fell under the range, so the help goes up.') : say('הסט הקודם ירד מתחת לטווח, אז מורידים משקל.', 'The last set fell under the range, so the weight comes down.');
   if (T.mode === 'cal') return say('עשית הרבה יותר מהיעד, אז המשקל מתעדכן.', 'You did far more than the target, so the weight is updated.');
@@ -149,7 +149,7 @@ function bodyHTML(e) {
   return '<button class="stage-wrap" type="button" aria-pressed="' + !player.playing + '"><canvas class="stage" aria-hidden="true"></canvas><span class="stage-play" aria-hidden="true">' + ICON.go + '</span></button>' +
     '<p class="muscles"><i></i><span>' + mvMus(e.mv) + '</span></p>' +
     '<div class="sets">' + setsHTML(e) + '</div>' +
-    '<div class="ex-acts"><button class="act swap" type="button">' + say('החלף תרגיל', 'Swap') + '</button><button class="act how" type="button">' + say('איך עושים?', 'How to') + '</button><button class="act more" type="button">' + say('עוד', 'More') + '</button></div>';
+    '<div class="ex-acts"><button class="act swap" type="button" aria-label="' + say('החלף תרגיל', 'Swap exercise') + '">' + ICON.swap + say('החלף', 'Swap') + '</button><button class="act how" type="button" aria-label="' + say('איך עושים את התרגיל', 'How to do the exercise') + '">' + ICON.go + say('איך?', 'How') + '</button><button class="act more" type="button">' + ICON.dots + say('עוד', 'More') + '</button></div>';
 }
 /* the exercise on screen: its name and what is asked, the demo, the sets, and three quiet actions */
 function focusHTML(e, i, n) {
@@ -239,7 +239,7 @@ function renderGains() {
   const M = S.cfg.meso, R = mesoSummary(M.id), sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
   $('#progCap').textContent = say('סבב ', 'Round ') + M.n + (R.n ? ' · ' + R.n + (R.n === 1 ? say(' אימון', ' workout') : say(' אימונים', ' workouts')) : '');
   $('#gains').innerHTML = '<div class="sec-h"><h2 class="sec">' + say('הכוח שלך', 'Your strength') + '</h2>' + (R.n ? '<button class="go-link" type="button" data-sum="' + M.id + '">' + say('סיכום הסבב', 'Round summary') + ICON.fwd + '</button>' : '') + '</div>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + mvName(g.mv) + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + arrow() + Ltr(fmtRow(g.best)) + '</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
-    : '<p class="empty-note">' + say('אחרי שני אימונים של אותו תרגיל יופיע כאן השינוי.', 'After two workouts of the same exercise, the change shows up here.') + '</p>');
+    : '<p class="empty-note">' + say('השינוי יופיע אחרי שני אימונים.', 'The change shows after two workouts.') + '</p>');
 }
 /* in the list of all exercises: mark the one on screen */
 function markCur() { const cur = shown(); $$('#allList .ex').forEach((li) => li.classList.toggle('cur', !!cur && cur.id === li.dataset.id)); }
@@ -403,7 +403,7 @@ function setKg(kg) {
   kg = capKg(kg);
   if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).kg = kg;
-  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); if (!$('input', box)) box.innerHTML = kgHTML(kg); }
+  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); if (!$('input:not([switch])', box)) box.innerHTML = kgHTML(kg); }
 }
 function stepKg(d) {
   const t = dockTarget(); if (!t) return;
@@ -415,7 +415,7 @@ function setReps(r) {
   r = capReps(r);
   if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.reps = r; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).reps = r;
-  const box = $('#dkReps'); if (box) { box.classList.remove('ghost'); if (!$('input', box)) box.innerHTML = repsHTML(r); }
+  const box = $('#dkReps'); if (box) { box.classList.remove('ghost'); if (!$('input:not([switch])', box)) box.innerHTML = repsHTML(r); }
 }
 function stepReps(d) {
   const t = dockTarget(); if (!t) return;
@@ -424,7 +424,7 @@ function stepReps(d) {
 }
 /* a tap on a number turns it into a field; leaving the field or Enter keeps the value */
 function typeIn(box, id, label, mode, val, done) {
-  if (!box || $('input', box)) return;
+  if (!box || $('input:not([switch])', box)) return;
   box.innerHTML = '<input id="' + id + '" type="text" inputmode="' + mode + '" autocomplete="off" aria-label="' + label + '" value="' + val + '">';
   const inp = $('#' + id); inp.focus(); inp.select();
   inp.addEventListener('blur', () => { const v = inp.value; box.innerHTML = ''; done(v); }, { once: true });
@@ -759,7 +759,7 @@ function wireApp() {
     else if (id === 'edReopen') editorReopen();
     else if (id === 'edAll') openEditor(S.edSid, true);
     const clr = ev.target.closest('.ed-clr');
-    if (clr) { const rowEl = clr.closest('.ed-row'); $$('input', rowEl).forEach((x) => { x.value = ''; }); editorInput(rowEl); }
+    if (clr) { const rowEl = clr.closest('.ed-row'); $$('input:not([switch])', rowEl).forEach((x) => { x.value = ''; }); editorInput(rowEl); }
   });
   /* a sheet or the opening screens, while open, are the only thing in reach: the focus moves in, the page behind is out of reach
      (for the keyboard and for a screen reader), and on closing the focus goes back to what opened it */

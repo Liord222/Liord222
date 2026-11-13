@@ -136,7 +136,9 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   check('an English phone is met in English', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'Welcome to gymi' && (await p.evaluate(() => document.documentElement.dir)) === 'ltr' && (await p.getAttribute('#ob [data-lang="en"]', 'aria-pressed')) === 'true', await txt('#ob'));
   await p.click('#obNext'); await p.waitForTimeout(350); await p.fill('#obName', 'Sam'); await p.click('#obNext'); await p.waitForTimeout(350);
   await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(350);
-  await p.click('.ob-opt[data-v="2"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(500);
+  await p.click('.ob-opt[data-v="2"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(350);
+  check('the plan is offered in English, with the lighter start a beginner gets', (await txt('#obTitle')) === 'I think this plan will suit you' && (await txt('.ob-lines')).includes('2 sets an exercise') && (await txt('.ob-lines')).includes('By your experience: Beginner') && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
+  await p.click('#obNext'); await p.waitForTimeout(500);
   await snap(p, 'h6-ready-en');
   check('the last screen is in English too', (await txt('#obTitle')) === 'Sam, you are all set!' && (await txt('#obNext')) === 'To the first workout' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
   await p.click('#obNext'); await p.waitForTimeout(400);
@@ -153,7 +155,7 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   check('an existing player sees the opening screens once, in the language the app always had', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'ברוכים הבאים ל-gymi', await txt('#obTitle'));
   await p.click('#obNext'); await p.waitForTimeout(350);
   check('with the name already there', (await p.inputValue('#obName')) === 'ליאור', await p.inputValue('#obName'));
-  await p.click('#obNext'); await p.waitForTimeout(350); await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(450);
+  await p.click('#obNext'); await p.waitForTimeout(350); await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(450);
   check('and is sent on, not to a "first" workout', (await txt('#obNext')) === 'קדימה', await txt('#obNext'));
   await p.click('#obNext'); await p.waitForTimeout(400);
   check('a plan that was already trained is left as it is', (await p.evaluate(() => [S.cfg.me.exp, planned(0, {}).ua1, Object.keys(S.cfg.base).length, S.cfg.lang].join())) === '0,3,0,he', await p.evaluate(() => JSON.stringify(S.cfg.base)));

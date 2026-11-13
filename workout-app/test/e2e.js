@@ -298,6 +298,12 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await q.evaluate((id) => { deleteSession(id.split('/').pop()); renderAll(); }, doneId); await q.waitForTimeout(700);
   check('deleting a finished workout removes it here and in the cloud', sess().length === before - 1, [before, sess().length]);
   await p.waitForTimeout(300);
+  // ---------- a copy of the page from before the profile existed saves the settings: the player must survive ----------
+  const oldCfg = Object.assign({}, cloud['data/users/u_test/cfg'], { upd: Date.now() + 1000, weeks: 6 }); delete oldCfg.me;
+  cloud['data/users/u_test/cfg'] = oldCfg;
+  await p.evaluate((j) => window.__remote('data/users/u_test/cfg', j), JSON.stringify(oldCfg)); await p.waitForTimeout(1600);
+  const kept = await p.evaluate(() => [S.cfg.weeks, S.cfg.me.name, S.cfg.me.look.shirt, !!S.cfg.me.badges.first].join()), back = cloud['data/users/u_test/cfg'].me;
+  check('settings saved by an older copy of the page do not erase the player', kept === '6,ליאור,2,true' && !!back && back.name === 'ליאור' && back.badges.first > 0, [kept, back]);
   await snap(p, 'g11-end', true);
   report();
   await b.close();

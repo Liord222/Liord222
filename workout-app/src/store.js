@@ -481,7 +481,12 @@ async function initCloud(onChange) {
     /* settings and the mesocycle live in one document: the copy that was changed last wins */
     col.doc('cfg').onSnapshot((d) => {
       const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0;
-      if (up > S.cfg.upd) { S.cfg = normCfg(v); S.dirty.delete('cfg'); saveLocal(); onChange(); }
+      if (up > S.cfg.upd) {
+        const mine = S.cfg.me; S.cfg = normCfg(v); S.dirty.delete('cfg');
+        /* a copy of the page from before the profile existed saves the settings without the player: keep ours and send it back */
+        if (!v.me && (mine.made || mine.arch.until || Object.keys(mine.badges).length)) { S.cfg.me = mine; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
+        saveLocal(); onChange();
+      }
       else if (up < S.cfg.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }
       known();
     }, () => known());

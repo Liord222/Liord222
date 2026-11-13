@@ -166,6 +166,7 @@ t('a saved order that is not a list is ignored', () => G.orderOf(['a', 'b'], { 0
 t('a clean slot passes', () => G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '12–15', rest: [75, 75] }), { w: 1, a: 'legExt', sets: 3, reps: '12–15', rest: [75, 75] });
 t('a slot is clamped to sane numbers', () => G.cleanSlot({ w: 2, a: 'dbCurl', sets: 99, reps: '10–15', rest: [1, 9999] }), { w: 2, a: 'dbCurl', sets: 8, reps: '10–15', rest: [15, 600] });
 t('a slot with an unknown movement, workout or rep range is refused', () => [G.cleanSlot({ w: 1, a: '<img>', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 7, a: 'legExt', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '<b>', rest: [60, 60] }), G.cleanSlot(null)], [null, null, null, null]);
+t('a slot whose rep range is empty or upside down is refused', () => [G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '0–0', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '12–8', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '0', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '12', rest: [60, 60] }).reps], [null, null, null, '12']);
 
 // ---- two languages: every text of the content has an English twin, and the helpers follow the language of the page
 const HEB = /[\u0590-\u05FF]/, L = (code) => vm.runInThisContext(code), inEn = (fn) => { L("LANG = 'en'"); try { return fn(); } finally { L("LANG = 'he'"); } };
@@ -200,6 +201,23 @@ t('"from, to" points the way the page is read', () => [L('arrow')(), inEn(() => 
   for (const file of fs.readdirSync(src).filter((x) => x.endsWith('.js'))) { const s = fs.readFileSync(path.join(src, file), 'utf8'), re = /\bsay\('((?:[^'\\\n]|\\.)*)',\s*'((?:[^'\\\n]|\\.)*)'\)/g; let m; while ((m = re.exec(s))) if (HEB.test(m[2]) || !m[2].trim() !== !m[1].trim()) mixed.push(file + ': ' + m[0].slice(0, 70)); }
   t('the English side of a text holds no Hebrew letters', () => mixed, []);
 })();
+
+// ---- the library holds together: nothing a screen looks up can be missing
+t('every movement has what the screens look up', () => {
+  const out = [], KIND = L('RX_KIND');
+  for (const k of Object.keys(LIB)) {
+    const M = LIB[k];
+    if (!EN[k]) out.push(k + ': no English name'); if (!M.he) out.push(k + ': no Hebrew name');
+    if (!MUSCLE[M.p]) out.push(k + ': muscle'); for (const s of M.s || []) if (!MUSCLE[s]) out.push(k + ': helper ' + s);
+    if (!EQUIP[M.eq]) out.push(k + ': equipment'); if (!KIND[M.pat]) out.push(k + ': no prescription for the pattern ' + M.pat);
+    if (!M.m || !Array.isArray(M.c) || M.c.length !== 3) out.push(k + ': muscle line or cues');
+    if (M.an && !LIB[M.an] && !/^[a-zA-Z]+$/.test(M.an)) out.push(k + ': stand-in animation');
+    const rx = G.rxOf(k); if (!(rx.sets >= 1) || !/^\d+–\d+$/.test(rx.reps) || rx.rest.length !== 2) out.push(k + ': prescription');
+  }
+  for (const w of PLAN) for (const e of w.ex) { if (!LIB[e.a]) out.push(e.id + ': movement'); if (!(e.sets >= 1 && e.sets <= 8)) out.push(e.id + ': sets'); if (!/^\d+(–\d+)?$/.test(e.reps)) out.push(e.id + ': reps'); }
+  const ids = PLAN.flatMap((w) => w.ex.map((e) => e.id)); if (new Set(ids).size !== ids.length) out.push('a slot id is used twice');
+  return out;
+}, []);
 
 console.log('UNIT PASS ' + pass + ' FAIL ' + bad.length + (bad.length ? '\n  ' + bad.join('\n  ') : ''));
 process.exit(bad.length ? 1 : 0);

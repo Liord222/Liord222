@@ -57,6 +57,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sheet-in:focus,.ob:focus{outline:none}
 h1,h2,h3,h4,p{margin:0}
 bdi{unicode-bidi:isolate;white-space:nowrap}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
@@ -126,7 +127,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .warn-pill{font-style:normal;font-size:11.5px;font-weight:700;line-height:1.6;padding:0 8px;border-radius:99px;color:var(--warn);background:var(--warn-soft);white-space:nowrap}
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:3px;padding:3px;border-radius:14px;background:var(--surface-2)}
 .seg button{min-height:40px;padding:4px 6px;border-radius:11px;border:0;background:none;font-size:13px;font-weight:600;line-height:1.2;color:var(--ink-2)}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.seg button[aria-pressed="true"],.seg button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
 
 /* the game layer: level, points */
@@ -315,7 +316,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .fb-warn .link{padding:0;font-size:inherit;font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .fx-tabs button{position:relative}
 .fx-tabs .dot{position:absolute;top:8px;inset-inline-end:10px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
-.fx-tabs button[aria-pressed="true"] .dot{background:var(--on-accent)}
+.fx-tabs button[aria-selected="true"] .dot{background:var(--on-accent)}
 .fx-pane{display:grid;gap:10px;min-height:92px;align-content:start}
 .cues{list-style:none;margin:0;padding:0;display:grid;gap:7px;color:var(--ink-2);font-size:15px}
 .cues li{padding-inline-start:16px;position:relative}
@@ -1240,6 +1241,7 @@ function orderOf(dflt, saved, known) {
 /* a slot the lifter added, read from a file or from the account: rebuilt field by field, null when it makes no sense */
 function cleanSlot(v) {
   if (!v || typeof v !== 'object' || !PLAN[v.w] || typeof v.a !== 'string' || !LIB[v.a] || typeof v.reps !== 'string' || !/^\d{1,2}(–\d{1,2})?$/.test(v.reps) || !Array.isArray(v.rest)) return null;
+  const rr = repRange(v); if (!(rr[0] >= 1) || rr[1] < rr[0]) return null;
   const sec = (x) => clamp(Math.round(+x) || 60, 15, 600);
   return { w: v.w, a: v.a, sets: clamp(Math.round(+v.sets) || 1, 1, 8), reps: v.reps, rest: [sec(v.rest[0]), sec(v.rest[1])] };
 }
@@ -2589,16 +2591,18 @@ async function initCloud(onChange) {
     const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
     const uid = db && user ? await user.id() : null;
     if (!uid) { setSync('local'); known(); return; }
-    const col = db.collection('data/users/' + uid), seen = new Set();
+    const col = db.collection('data/users/' + uid), seen = new Set(), NEWEST = 60;
     slow = setTimeout(() => setSync('slow'), 10000);
-    col.orderBy('ts', 'desc').limit(60).onSnapshot((snap) => {
+    col.orderBy('ts', 'desc').limit(NEWEST).onSnapshot((snap) => {
       clearTimeout(slow); S.col = col;
-      let changed = false;
+      let changed = false, got = 0, oldest = Infinity;
       for (const ch of snap.docChanges()) {
         const id = ch.doc.id;
         if (ch.type === 'removed') { if (seen.has(id) && !S.dirty.has(id) && S.sessions[id]) { delete S.sessions[id]; changed = true; } continue; }
         const v = ch.doc.data();
-        if (!v || typeof v.w !== 'number' || S.gone.has(id)) continue;
+        if (!v || typeof v.w !== 'number') continue;
+        got++; if (v.ts < oldest) oldest = v.ts;
+        if (S.gone.has(id)) continue;
         seen.add(id);
         const before = sig(S.sessions[id]), r = { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, ft: v.ft || 0, sets: clone(v.sets || {}) };
         for (const k of XK) if (v[k] != null) r[k] = clone(v[k]);
@@ -2609,7 +2613,10 @@ async function initCloud(onChange) {
       }
       if (first) {
         first = false;
-        for (const s of Object.values(S.sessions)) if (!seen.has(s.id) && hasDone(s)) S.dirty.add(s.id);
+        /* a workout the account did not send is new to it and goes up — unless the answer was full and the workout is older than all of it:
+           then it is simply past the newest ones the page asked for, and the account has it already */
+        const past = (s) => got >= NEWEST && s.ts < oldest;
+        for (const s of Object.values(S.sessions)) if (!seen.has(s.id) && hasDone(s) && !past(s)) S.dirty.add(s.id);
         for (const id of S.dirty) schedule(id, 200);
       }
       saveLocal(); setSync('cloud');
@@ -2655,10 +2662,10 @@ function paintStage(t) {
   if (player.bar) player.bar.style.transform = 'scaleX(' + t.toFixed(3) + ')';
 }
 function frame(now) {
-  if (!player.cv || !player.playing) return;
+  /* out of sight (another tab of the app, scrolled away): no more frames are asked for until it is seen again */
+  if (!player.cv || !player.playing || !player.visible) { player.raf = 0; return; }
   player.raf = requestAnimationFrame(frame);
   const dt = Math.min(80, now - (player.last || now)); player.last = now;
-  if (!player.visible) return;
   player.clock += dt * player.speed;
   const ex = ANIM[player.key], tp = ex.tempo || [1.1, 0.25, 1.8, 0.35];
   let x = (player.clock / 1000) % (tp[0] + tp[1] + tp[2] + tp[3]), t, ph;
@@ -2676,11 +2683,11 @@ function startPlayer(cv, key, body) {
   Object.assign(player, { cv, key, g: cv.getContext('2d'), phaseEl: $('.stage-phase', body), btn: $('.stage-play', body), bar: $('.tempo i', body), phase: -1, lastT: 0.5, clock: 0, visible: true });
   fitCanvas(cv, cv.getBoundingClientRect().width || 340);
   if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); if (!player.playing) paintStage(player.lastT); }); player.ro.observe(cv); }
-  if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; }); player.io.observe(cv); }
+  if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; if (player.visible && player.playing && player.cv && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }); player.io.observe(cv); }
   setPlaying(player.playing);
 }
 function stopPlayer() {
-  cancelAnimationFrame(player.raf);
+  cancelAnimationFrame(player.raf); player.raf = 0;
   if (player.ro) player.ro.disconnect(); if (player.io) player.io.disconnect();
   player.cv = null; player.ro = player.io = null;
 }
@@ -2851,8 +2858,8 @@ function bodyHTML(e) {
     '<div class="ex-b"><div class="rx-chips"><span class="chipx ex-rx">' + Ltr(e.n0 + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span><span class="chipx">' + say('מנוחה ', 'Rest ') + restText(e) + '</span><span class="chip l' + lvl + '">' + (rir == null ? e.int : rirText(rir)) + '</span></div>' +
     (lowPump(e.mv) ? '<p class="flag-line">' + ICON.swap + '<span>' + say('פעמיים כמעט לא הרגשת את השריר. שווה להחליף.', 'Twice in a row you barely felt the muscle. Worth swapping.') + '</span></p>' : '') +
     '<div class="sets">' + setsHTML(e) + '</div><div class="fb-wrap"' + (fw ? '' : ' hidden') + '>' + fw + '</div>' +
-    '<div class="seg fx-tabs" role="tablist">' + FXT().map((t) => '<button type="button" role="tab" data-fx="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" aria-pressed="' + (t[0] === tab) + '">' + t[1] + (t[0] === 'note' && S.cfg.notes[e.mv] ? '<i class="dot" aria-hidden="true"></i>' : '') + '</button>').join('') + '</div>' +
-    '<div class="fx-pane" id="fxPane" role="tabpanel">' + paneHTML(e) + '</div>' +
+    '<div class="seg fx-tabs" role="tablist">' + FXT().map((t) => '<button type="button" role="tab" id="fxt-' + t[0] + '" aria-controls="fxPane" data-fx="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + t[1] + (t[0] === 'note' && S.cfg.notes[e.mv] ? '<i class="dot" aria-hidden="true"></i>' : '') + '</button>').join('') + '</div>' +
+    '<div class="fx-pane" id="fxPane" role="tabpanel" aria-labelledby="fxt-' + tab + '">' + paneHTML(e) + '</div>' +
     '<div class="ex-acts"><button class="btn swap" type="button">' + ICON.swap + say('החלף תרגיל', 'Swap exercise') + '</button><button class="btn ask" type="button">' + ICON.chat + say('שאל את אילון', 'Ask Eilon') + '</button></div></div>';
 }
 /* the exercise on screen */
@@ -3113,6 +3120,7 @@ function logSet(el) {
   setTimeout(() => { logBusy = false; commitSet(t.e, t.i, kg, r); }, el && !reduced ? 180 : 0);
 }
 function writeRow(e, i, kg, reps) {
+  kg = capKg(kg); reps = capReps(reps) || 1;
   const s = ensure(wkOf(e.id)), L = LIB[e.mv], T = targetOf(e, i, s), before = bestFor(e.mv, { notS: s.id }), today = bestFor(e.mv, { onlyS: s.id, skipEx: e.id, skipI: i }), arr = s.sets[e.id] || (s.sets[e.id] = []);
   const v = kg != null && kg > 0 ? score(L, kg, reps) : 0, pr = !s.dl && !!(before && v > before.v + 0.01 && (!today || v > today.v + 0.01));
   arr[i] = { kg: kg == null ? null : kg, reps, done: true, t: Date.now() }; if (pr) arr[i].pr = true;
@@ -3342,7 +3350,7 @@ function wireApp() {
     const li = ev.target.closest('.ex'); if (!li) return;
     const e = findEx(li.dataset.id), fbBtn = ev.target.closest('[data-fb]'), nav = ev.target.closest('.fx-nav'), fx = ev.target.closest('[data-fx]');
     if (nav) { stepEx(nav.id === 'exNext' ? 1 : -1); return; }
-    if (fx) { S.fxTab = fx.dataset.fx; for (const b of $$('.fx-tabs [data-fx]', li)) { const on = b === fx; b.setAttribute('aria-selected', String(on)); b.setAttribute('aria-pressed', String(on)); } $('#fxPane').innerHTML = paneHTML(e); return; }
+    if (fx) { S.fxTab = fx.dataset.fx; for (const b of $$('.fx-tabs [data-fx]', li)) b.setAttribute('aria-selected', String(b === fx)); $('#fxPane').setAttribute('aria-labelledby', fx.id); $('#fxPane').innerHTML = paneHTML(e); return; }
     if (fbBtn) { S.touched = true; onFb(e.id, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const sn = ev.target.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
     if (ev.target.closest('.stage-play')) { setPlaying(!player.playing); return; }
@@ -3386,6 +3394,8 @@ function wireApp() {
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
   dock.addEventListener('click', (ev) => {
     const t = ev.target, id = (t.closest('button,[role="button"]') || {}).id;
+    /* the second tap of a double tap on "set done" lands on the timer's buttons, which have just appeared in its place: it is not a wish to skip the rest */
+    if (rest.on && id && /^rt/.test(id) && Date.now() - rest.start < 250) return;
     const st = t.closest('.step,.rstep'); if (st) { if (ev.detail === 0) (st.classList.contains('rstep') ? stepReps : stepKg)(+st.dataset.d); return; }
     const fbBtn = t.closest('[data-fb]'); if (fbBtn) { onFb(fbBtn.closest('.fbk').dataset.ex, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const sn = t.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
@@ -3432,6 +3442,22 @@ function wireApp() {
     const clr = ev.target.closest('.ed-clr');
     if (clr) { const rowEl = clr.closest('.ed-row'); $$('input', rowEl).forEach((x) => { x.value = ''; }); editorInput(rowEl); }
   });
+  /* a sheet or the opening screens, while open, are the only thing in reach: the focus moves in, the page behind is out of reach
+     (for the keyboard and for a screen reader), and on closing the focus goes back to what opened it */
+  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'); let opener = null;
+  const modal = () => {
+    const box = !ob.hidden ? ob : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    for (const el of behind) el.inert = !!box;
+    if (box) {
+      if (!opener) { const a = document.activeElement; opener = a && a !== document.body ? { el: a, id: a.id } : {}; }
+      if (!box.contains(document.activeElement)) { box.tabIndex = -1; box.focus({ preventScroll: true }); }
+    } else if (opener) {
+      const o = opener, el = o.el && o.el.isConnected ? o.el : o.id ? document.getElementById(o.id) : null; opener = null;
+      if (el && el.focus) el.focus({ preventScroll: true });
+    }
+  };
+  const watch = new MutationObserver(modal);
+  watch.observe(sheet, { attributes: true, attributeFilter: ['hidden'] }); watch.observe(ob, { attributes: true, attributeFilter: ['hidden'] });
   sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); });
   sheet.addEventListener('change', (ev) => {
     if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }

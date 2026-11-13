@@ -19,10 +19,10 @@ function paintStage(t) {
   if (player.bar) player.bar.style.transform = 'scaleX(' + t.toFixed(3) + ')';
 }
 function frame(now) {
-  if (!player.cv || !player.playing) return;
+  /* out of sight (another tab of the app, scrolled away): no more frames are asked for until it is seen again */
+  if (!player.cv || !player.playing || !player.visible) { player.raf = 0; return; }
   player.raf = requestAnimationFrame(frame);
   const dt = Math.min(80, now - (player.last || now)); player.last = now;
-  if (!player.visible) return;
   player.clock += dt * player.speed;
   const ex = ANIM[player.key], tp = ex.tempo || [1.1, 0.25, 1.8, 0.35];
   let x = (player.clock / 1000) % (tp[0] + tp[1] + tp[2] + tp[3]), t, ph;
@@ -40,11 +40,11 @@ function startPlayer(cv, key, body) {
   Object.assign(player, { cv, key, g: cv.getContext('2d'), phaseEl: $('.stage-phase', body), btn: $('.stage-play', body), bar: $('.tempo i', body), phase: -1, lastT: 0.5, clock: 0, visible: true });
   fitCanvas(cv, cv.getBoundingClientRect().width || 340);
   if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); if (!player.playing) paintStage(player.lastT); }); player.ro.observe(cv); }
-  if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; }); player.io.observe(cv); }
+  if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; if (player.visible && player.playing && player.cv && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }); player.io.observe(cv); }
   setPlaying(player.playing);
 }
 function stopPlayer() {
-  cancelAnimationFrame(player.raf);
+  cancelAnimationFrame(player.raf); player.raf = 0;
   if (player.ro) player.ro.disconnect(); if (player.io) player.io.disconnect();
   player.cv = null; player.ro = player.io = null;
 }

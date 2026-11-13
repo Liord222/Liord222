@@ -69,6 +69,8 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   const list = async (pg) => { await pg.click('#listBtn'); await pg.waitForTimeout(250); };
   const go = async (pg, id) => { await list(pg); await pg.click('#allList .ex[data-id="' + id + '"] .ex-head'); await pg.waitForTimeout(350); };
   const finish = async (pg) => { await list(pg); await pg.click('#finishBtn'); };
+/* "continue" in the rest timer; a tap in the first moment after the timer appears is taken for the tail of a double tap and ignored */
+const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSkip'); };
   const pane = async (pg, k) => { await pg.click('.fx-tabs [data-fx="' + k + '"]'); await pg.waitForTimeout(150); };
   const tally2 = (pg) => pg.evaluate(() => { const t = totals(); return t.dn + '/' + t.total; });
   // the dock: type the reps, then one tap logs the set
@@ -125,7 +127,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('one tap logs the set and starts rest', (await txt('.rt-log')).includes('60×8'), await txt('#dock'));
   check('a logged set earns 10 points, shown next to it', (await txt('.rt-log .xp-tag')) === '+10' && (await p.evaluate(() => meNow().T.xp)) === 10, await txt('.rt-log'));
   check('the first set starts the workout and its clock', (await p.evaluate(() => !!live(0))) && !!(await p.$('#elapsed')) && (await p.evaluate(() => document.querySelector('#wkBar .segs i.cur b').style.width)) === '33%', await txt('#wkTitle'));
-  await p.click('#rtSkip'); await p.waitForTimeout(200);
+  await skip(p); await p.waitForTimeout(200);
   check('weight carries to the next set, with a one-tap target', (await txt('#dkKg')).startsWith('60') && (await txt('.dk-set')).includes('2') && (await txt('#dkReps')).startsWith('8') && !!(await p.$('#dkReps.ghost')), [await txt('#dkKg'), await txt('.dk-set'), await txt('#dkReps')]);
   check('target is greyed until confirmed', !!(await p.$('#dkKg.ghost')), 'ghost');
   await p.dispatchEvent('.step[data-d="1"]', 'pointerdown'); await p.dispatchEvent('.step[data-d="1"]', 'pointerup');
@@ -133,7 +135,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await log(p, 7); await p.waitForTimeout(450);
   await p.click('#rtUndo'); await p.waitForTimeout(250);
   check('undo returns to the same set and takes its points back', (await txt('.dk-set')).includes('2') && (await p.$$('.ex.open .setp.done')).length === 1 && (await p.evaluate(() => meNow().T.xp)) === 10, await txt('.dk-set'));
-  await log(p, 9); await p.waitForTimeout(450); await p.click('#rtSkip'); await p.waitForTimeout(150);
+  await log(p, 9); await p.waitForTimeout(450); await skip(p); await p.waitForTimeout(150);
   await p.click('.ex.open .setp[data-i="0"]'); await p.waitForTimeout(200);
   await reps(p, 10); await p.click('#edClose'); await p.waitForTimeout(200);
   const sets = await p.evaluate(() => [...document.querySelectorAll('.ex.open .setp')].map((x) => x.innerText.replace(/\n/g, ' ')));
@@ -235,7 +237,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('one tap on the check logs exactly the target', !!cB && cB.sets.ua1[0].kg === 62.5 && cB.sets.ua1[0].reps === 9 && cB.sets.ua1[0].tk === 62.5 && cB.sets.ua1[0].tr === 9 && cB.wk === 2 && cB.rir === 2, cB && cB.sets.ua1);
   check('live sync back to the first device', !!(await p.$('.tab.live')) && (await cur(p)).endsWith('באמצע'), await cur(p));
   check('a personal best is worth 30 more', (await t2('.rt-log .xp-tag')) === '+40' && (await t2('.rt-log .pr')) === 'שיא' && (await q.evaluate(() => meNow().T.xp)) === 190, await t2('.rt-log'));
-  await q.click('#rtSkip'); await q.waitForTimeout(100);
+  await skip(q); await q.waitForTimeout(100);
   await q.click('.ex.open .same'); await q.waitForTimeout(400);
   check('"log the rest at target" fills the remaining sets', (await q.evaluate(() => doneCount(live(0), findEx('ua1')))) === 3, await q.evaluate(() => doneCount(live(0), findEx('ua1'))));
   check('crossing 200 points is a level-up, said at once', (await q.evaluate(() => [meNow().T.xp, S.lvl, document.querySelector('#toast').hidden].join())) === '210,2,false' && (await t2('#toast')) === 'רמה 2!', [await q.evaluate(() => meNow().T.xp), await t2('#toast')]);
@@ -335,10 +337,10 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('sore muscle holds the target', (await txt('.dk-set')).includes('יעד 100×8') && (await txt('.dk-set .goal')) === 'כמו בפעם הקודמת', await txt('.dk-set'));
   await log(p, 12); await p.waitForTimeout(500);
   check('calibration: far more reps than predicted re-aims the next set', (await txt('.rt-state')).includes('מעלים ל-') && (await p.evaluate(() => { const T = targetOf(findEx('la1'), 1, live(1)); return T.mode + ':' + T.kg; })).startsWith('cal:1'), [await txt('.rt-state'), await p.evaluate(() => JSON.stringify(targetOf(findEx('la1'), 1, live(1))))]);
-  await p.click('#rtSkip'); await p.waitForTimeout(200); await shot('g7-cal');
+  await skip(p); await p.waitForTimeout(200); await shot('g7-cal');
   const calKg = await p.evaluate(() => targetOf(findEx('la1'), 1, live(1)).kg);
   check('calibrated weight is rounded to the equipment step', calKg % 5 === 0 && calKg > 100 && (await txt('#dkKg')).startsWith(String(calKg)) && (await txt('.dk-set .goal')) === 'משקל מעודכן', [calKg, await txt('#dkKg'), await txt('.dk-set')]);
-  await log(p, 4); await p.waitForTimeout(500); await p.click('#rtSkip'); await p.waitForTimeout(200);
+  await log(p, 4); await p.waitForTimeout(500); await skip(p); await p.waitForTimeout(200);
   const dn = await p.evaluate(() => targetOf(findEx('la1'), 2, live(1)));
   check('down-set: under the range drops the load 10%', dn.mode === 'down' && dn.kg <= calKg * 0.9 && dn.kg % 5 === 0 && dn.reps >= 6 && dn.reps <= 10 && (await txt('.dk-set .goal')) === 'פחות משקל', dn);
   await p.click('#dkHit'); await p.waitForTimeout(500);

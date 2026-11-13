@@ -154,8 +154,8 @@ function bodyHTML(e) {
     '<div class="ex-b"><div class="rx-chips"><span class="chipx ex-rx">' + Ltr(e.n0 + ' × ' + e.reps) + (e.suf ? ' <small>' + e.suf + '</small>' : '') + '</span><span class="chipx">' + say('מנוחה ', 'Rest ') + restText(e) + '</span><span class="chip l' + lvl + '">' + (rir == null ? e.int : rirText(rir)) + '</span></div>' +
     (lowPump(e.mv) ? '<p class="flag-line">' + ICON.swap + '<span>' + say('פעמיים כמעט לא הרגשת את השריר. שווה להחליף.', 'Twice in a row you barely felt the muscle. Worth swapping.') + '</span></p>' : '') +
     '<div class="sets">' + setsHTML(e) + '</div><div class="fb-wrap"' + (fw ? '' : ' hidden') + '>' + fw + '</div>' +
-    '<div class="seg fx-tabs" role="tablist">' + FXT().map((t) => '<button type="button" role="tab" data-fx="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" aria-pressed="' + (t[0] === tab) + '">' + t[1] + (t[0] === 'note' && S.cfg.notes[e.mv] ? '<i class="dot" aria-hidden="true"></i>' : '') + '</button>').join('') + '</div>' +
-    '<div class="fx-pane" id="fxPane" role="tabpanel">' + paneHTML(e) + '</div>' +
+    '<div class="seg fx-tabs" role="tablist">' + FXT().map((t) => '<button type="button" role="tab" id="fxt-' + t[0] + '" aria-controls="fxPane" data-fx="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + t[1] + (t[0] === 'note' && S.cfg.notes[e.mv] ? '<i class="dot" aria-hidden="true"></i>' : '') + '</button>').join('') + '</div>' +
+    '<div class="fx-pane" id="fxPane" role="tabpanel" aria-labelledby="fxt-' + tab + '">' + paneHTML(e) + '</div>' +
     '<div class="ex-acts"><button class="btn swap" type="button">' + ICON.swap + say('החלף תרגיל', 'Swap exercise') + '</button><button class="btn ask" type="button">' + ICON.chat + say('שאל את אילון', 'Ask Eilon') + '</button></div></div>';
 }
 /* the exercise on screen */
@@ -416,6 +416,7 @@ function logSet(el) {
   setTimeout(() => { logBusy = false; commitSet(t.e, t.i, kg, r); }, el && !reduced ? 180 : 0);
 }
 function writeRow(e, i, kg, reps) {
+  kg = capKg(kg); reps = capReps(reps) || 1;
   const s = ensure(wkOf(e.id)), L = LIB[e.mv], T = targetOf(e, i, s), before = bestFor(e.mv, { notS: s.id }), today = bestFor(e.mv, { onlyS: s.id, skipEx: e.id, skipI: i }), arr = s.sets[e.id] || (s.sets[e.id] = []);
   const v = kg != null && kg > 0 ? score(L, kg, reps) : 0, pr = !s.dl && !!(before && v > before.v + 0.01 && (!today || v > today.v + 0.01));
   arr[i] = { kg: kg == null ? null : kg, reps, done: true, t: Date.now() }; if (pr) arr[i].pr = true;
@@ -645,7 +646,7 @@ function wireApp() {
     const li = ev.target.closest('.ex'); if (!li) return;
     const e = findEx(li.dataset.id), fbBtn = ev.target.closest('[data-fb]'), nav = ev.target.closest('.fx-nav'), fx = ev.target.closest('[data-fx]');
     if (nav) { stepEx(nav.id === 'exNext' ? 1 : -1); return; }
-    if (fx) { S.fxTab = fx.dataset.fx; for (const b of $$('.fx-tabs [data-fx]', li)) { const on = b === fx; b.setAttribute('aria-selected', String(on)); b.setAttribute('aria-pressed', String(on)); } $('#fxPane').innerHTML = paneHTML(e); return; }
+    if (fx) { S.fxTab = fx.dataset.fx; for (const b of $$('.fx-tabs [data-fx]', li)) b.setAttribute('aria-selected', String(b === fx)); $('#fxPane').setAttribute('aria-labelledby', fx.id); $('#fxPane').innerHTML = paneHTML(e); return; }
     if (fbBtn) { S.touched = true; onFb(e.id, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const sn = ev.target.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
     if (ev.target.closest('.stage-play')) { setPlaying(!player.playing); return; }
@@ -689,6 +690,8 @@ function wireApp() {
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
   dock.addEventListener('click', (ev) => {
     const t = ev.target, id = (t.closest('button,[role="button"]') || {}).id;
+    /* the second tap of a double tap on "set done" lands on the timer's buttons, which have just appeared in its place: it is not a wish to skip the rest */
+    if (rest.on && id && /^rt/.test(id) && Date.now() - rest.start < 250) return;
     const st = t.closest('.step,.rstep'); if (st) { if (ev.detail === 0) (st.classList.contains('rstep') ? stepReps : stepKg)(+st.dataset.d); return; }
     const fbBtn = t.closest('[data-fb]'); if (fbBtn) { onFb(fbBtn.closest('.fbk').dataset.ex, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const sn = t.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
@@ -735,6 +738,22 @@ function wireApp() {
     const clr = ev.target.closest('.ed-clr');
     if (clr) { const rowEl = clr.closest('.ed-row'); $$('input', rowEl).forEach((x) => { x.value = ''; }); editorInput(rowEl); }
   });
+  /* a sheet or the opening screens, while open, are the only thing in reach: the focus moves in, the page behind is out of reach
+     (for the keyboard and for a screen reader), and on closing the focus goes back to what opened it */
+  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'); let opener = null;
+  const modal = () => {
+    const box = !ob.hidden ? ob : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    for (const el of behind) el.inert = !!box;
+    if (box) {
+      if (!opener) { const a = document.activeElement; opener = a && a !== document.body ? { el: a, id: a.id } : {}; }
+      if (!box.contains(document.activeElement)) { box.tabIndex = -1; box.focus({ preventScroll: true }); }
+    } else if (opener) {
+      const o = opener, el = o.el && o.el.isConnected ? o.el : o.id ? document.getElementById(o.id) : null; opener = null;
+      if (el && el.focus) el.focus({ preventScroll: true });
+    }
+  };
+  const watch = new MutationObserver(modal);
+  watch.observe(sheet, { attributes: true, attributeFilter: ['hidden'] }); watch.observe(ob, { attributes: true, attributeFilter: ['hidden'] });
   sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); });
   sheet.addEventListener('change', (ev) => {
     if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }

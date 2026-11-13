@@ -551,16 +551,18 @@ async function initCloud(onChange) {
     const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
     const uid = db && user ? await user.id() : null;
     if (!uid) { setSync('local'); known(); return; }
-    const col = db.collection('data/users/' + uid), seen = new Set();
+    const col = db.collection('data/users/' + uid), seen = new Set(), NEWEST = 60;
     slow = setTimeout(() => setSync('slow'), 10000);
-    col.orderBy('ts', 'desc').limit(60).onSnapshot((snap) => {
+    col.orderBy('ts', 'desc').limit(NEWEST).onSnapshot((snap) => {
       clearTimeout(slow); S.col = col;
-      let changed = false;
+      let changed = false, got = 0, oldest = Infinity;
       for (const ch of snap.docChanges()) {
         const id = ch.doc.id;
         if (ch.type === 'removed') { if (seen.has(id) && !S.dirty.has(id) && S.sessions[id]) { delete S.sessions[id]; changed = true; } continue; }
         const v = ch.doc.data();
-        if (!v || typeof v.w !== 'number' || S.gone.has(id)) continue;
+        if (!v || typeof v.w !== 'number') continue;
+        got++; if (v.ts < oldest) oldest = v.ts;
+        if (S.gone.has(id)) continue;
         seen.add(id);
         const before = sig(S.sessions[id]), r = { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, ft: v.ft || 0, sets: clone(v.sets || {}) };
         for (const k of XK) if (v[k] != null) r[k] = clone(v[k]);
@@ -571,7 +573,10 @@ async function initCloud(onChange) {
       }
       if (first) {
         first = false;
-        for (const s of Object.values(S.sessions)) if (!seen.has(s.id) && hasDone(s)) S.dirty.add(s.id);
+        /* a workout the account did not send is new to it and goes up — unless the answer was full and the workout is older than all of it:
+           then it is simply past the newest ones the page asked for, and the account has it already */
+        const past = (s) => got >= NEWEST && s.ts < oldest;
+        for (const s of Object.values(S.sessions)) if (!seen.has(s.id) && hasDone(s) && !past(s)) S.dirty.add(s.id);
         for (const id of S.dirty) schedule(id, 200);
       }
       saveLocal(); setSync('cloud');

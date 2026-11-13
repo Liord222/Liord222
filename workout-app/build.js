@@ -5,5 +5,7 @@ const js = ['plan.js', 'lib.js', 'prog.js', 'game.js', 'rig.js', 'moves.js', 'av
 const html = '<title>gymi</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n' +
   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap">\n' +
   '<style>\n' + read('styles.css') + '</style>\n' + read('body.html') + '\n<script>\n\'use strict\';\n' + js + '</script>\n';
-fs.writeFileSync(path.join(__dirname, 'index.html'), html);
+/* written under another name and moved into place, so that nothing ever reads half a page */
+const out = path.join(__dirname, 'index.html'), tmp = out + '.' + process.pid + '.tmp';
+fs.writeFileSync(tmp, html); fs.renameSync(tmp, out);
 console.log('built index.html', (html.length / 1024).toFixed(1) + ' KB');

@@ -95,6 +95,7 @@ export default function App() {
   const shell = useRef(null);
   const [html, setHtml] = useState(null);
   const [hasKey, setHasKey] = useState(false);
+  const keyNow = useRef(false);
   const [keyOpen, setKeyOpen] = useState(false);
   const [lang, setLang] = useState('he');
 
@@ -103,7 +104,7 @@ export default function App() {
     let on = true;
     Promise.all([AsyncStorage.getItem(STORE).catch(() => null), keyStore.get().catch(() => null)]).then(([saved, key]) => {
       if (!on) return;
-      setHasKey(!!key); setHtml(buildDocument(saved, first.current, Platform.OS, !!key));
+      keyNow.current = !!key; setHasKey(!!key); setHtml(buildDocument(saved, first.current, Platform.OS, !!key));
     });
     return () => { on = false; };
   }, []);
@@ -124,7 +125,7 @@ export default function App() {
   }, []);
 
   const run = (js) => { if (shell.current) shell.current.run(js); };
-  const coachState = (on) => { setHasKey(on); setKeyOpen(false); run('window.gymiCoach&&window.gymiCoach(' + (on ? 'true' : 'false') + ')'); };
+  const coachState = (on) => { keyNow.current = on; setHasKey(on); setKeyOpen(false); run('window.gymiCoach&&window.gymiCoach(' + (on ? 'true' : 'false') + ')'); };
 
   const onMessage = useCallback((m) => {
     if (!m || typeof m !== 'object') return;
@@ -134,7 +135,11 @@ export default function App() {
     else if (m.type === 'export') exportFile(m.filename, String(m.data || '')).catch(() => {});
     else if (m.type === 'key-get' && typeof m.id === 'string') keyStore.get().catch(() => null).then((key) => { if (shell.current) shell.current.run('window.__gymiReply(' + JSON.stringify(m.id) + ',' + JSON.stringify(key || null) + ')'); });
     else if (m.type === 'key-edit') setKeyOpen(true);
-    else if (m.type === 'lang') setLang(m.lang === 'en' ? 'en' : 'he');
+    else if (m.type === 'lang') {
+      setLang(m.lang === 'en' ? 'en' : 'he');
+      /* the page says its language every time it starts, also after the system reloaded it: tell it whether a key is saved now */
+      if (shell.current) shell.current.run('if(window.gymiCoach&&window.GYMI_COACH!==' + keyNow.current + ')window.gymiCoach(' + keyNow.current + ')');
+    }
     else if (m.type === 'back' && !m.handled) BackHandler.exitApp();
   }, []);
 

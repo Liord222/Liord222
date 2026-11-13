@@ -98,6 +98,7 @@ function orderOf(dflt, saved, known) {
 /* a slot the lifter added, read from a file or from the account: rebuilt field by field, null when it makes no sense */
 function cleanSlot(v) {
   if (!v || typeof v !== 'object' || !PLAN[v.w] || typeof v.a !== 'string' || !LIB[v.a] || typeof v.reps !== 'string' || !/^\d{1,2}(–\d{1,2})?$/.test(v.reps) || !Array.isArray(v.rest)) return null;
+  const rr = repRange(v); if (!(rr[0] >= 1) || rr[1] < rr[0]) return null;
   const sec = (x) => clamp(Math.round(+x) || 60, 15, 600);
   return { w: v.w, a: v.a, sets: clamp(Math.round(+v.sets) || 1, 1, 8), reps: v.reps, rest: [sec(v.rest[0]), sec(v.rest[1])] };
 }

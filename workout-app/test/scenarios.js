@@ -219,6 +219,56 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   check('a name typed in the character sheet is kept when the sheet is closed with Escape', (await p.evaluate(() => S.cfg.me.name)) === 'נועה' && (await txt('.pf-name')) === 'נועה' && JSON.parse(await p.evaluate(() => localStorage.getItem('ul4:v1'))).cfg.me.name === 'נועה', await p.evaluate(() => S.cfg.me.name));
   await p.context().close();
 
+  // ---- 11. the second tap of a double tap on "set done" lands where the timer's buttons have just appeared ----
+  p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5 } }); txt = T(p);
+  await p.click('#homeGo'); await p.waitForTimeout(350);
+  await p.click('#dkHit'); await p.waitForSelector('#rtSkip'); await p.click('#rtSkip'); await p.waitForTimeout(100);
+  check('a double tap on "set done" logs one set and does not skip the rest', (await p.evaluate(() => rest.on + ':' + live(0).sets.ua1.filter((r) => r && r.done).length)) === 'true:1', await p.evaluate(() => rest.on));
+  await p.waitForTimeout(500); await p.click('#rtSkip'); await p.waitForTimeout(150);
+  check('a tap a moment later does skip it', (await p.evaluate(() => rest.on)) === false, 'rest');
+  await p.context().close();
+
+  // ---- 12. a long log: the account keeps every workout, the page asks only for the newest 60. Older ones are not sent again on every visit ----
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'he-IL' }), q = await ctx.newPage();
+    q.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
+    const all = {};
+    for (let i = 1; i <= 70; i++) { const ts = now - (80 - i) * day; all['K' + i] = { id: 'K' + i, v: 3, w: i % 4, ts, end: ts + 3e6, mt: ts, upd: ts, ft: ts, m: 'm1', wk: 1, dl: 0, rir: 3, n: {}, mv: {}, sore: {}, cut: {}, fb: {}, sets: { [['ua1', 'la1', 'ub1', 'lb1'][i % 4]]: [{ kg: 50, reps: 8, done: true, t: ts }] } }; }
+    /* one more workout that only this device has (it was never sent), newer than anything in the account */
+    const local = Object.assign({}, all, { Knew: Object.assign({}, all.K70, { id: 'Knew', ts: now - 3e7, end: now - 2.7e7, upd: now - 2.7e7 }) });
+    await q.addInitScript(([store, cloud]) => {
+      if (!localStorage.getItem('ul4:v1')) localStorage.setItem('ul4:v1', store);
+      window.__sets = [];
+      const docs = JSON.parse(cloud).sort((a, b2) => b2.ts - a.ts);
+      const col = { orderBy() { return col; }, limit() { return col; },
+        doc: (id) => ({ async set() { window.__sets.push(id); }, async delete() { window.__sets.push('del:' + id); }, onSnapshot(next) { setTimeout(() => next({ id, exists: false, data: () => undefined }), 5); return () => {}; } }),
+        onSnapshot(next) { setTimeout(() => next({ docChanges: () => docs.slice(0, 60).map((d) => ({ type: 'added', doc: { id: d.id, data: () => d } })) }), 5); return () => {}; } };
+      window.claude = { use: async (n) => (n === 'user' ? { id: async () => 'u1' } : n === 'db' ? { collection: () => col } : null) };
+    }, [JSON.stringify({ sound: false, dirty: [], gone: [], sessions: local, cfg: { upd: 3, me: { ob: 1 } } }), JSON.stringify(Object.values(all))]);
+    await q.goto(PREVIEW); await q.waitForTimeout(2500);
+    const sent = (await q.evaluate(() => window.__sets)).filter((x) => x !== 'cfg');
+    check('workouts older than what the account sent are not written to it again on every visit', sent.filter((x) => x !== 'Knew').length === 0, sent);
+    check('a workout the account has not seen is still sent', sent.includes('Knew'), sent);
+    check('and the whole log is still on the device', (await q.evaluate(() => Object.keys(S.sessions).length)) === 71, await q.evaluate(() => Object.keys(S.sessions).length));
+    await ctx.close();
+  }
+
+  // ---- 13. while a sheet is open it is the only thing in reach, for the keyboard and for a screen reader ----
+  p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5 } }); txt = T(p);
+  const reach = () => p.evaluate(() => ({ inSheet: document.querySelector('#sheet').contains(document.activeElement), at: document.activeElement && document.activeElement.id, behind: [document.querySelector('.brand').inert, document.querySelector('.cols').inert, document.querySelector('#dock').inert].join() }));
+  check('with nothing open the page is in reach', (await reach()).behind === 'false,false,false', await reach());
+  await p.focus('#planBtn'); await p.keyboard.press('Enter'); await p.waitForTimeout(300);
+  check('an open sheet takes the focus, and the page behind it is out of reach', (await reach()).inSheet && (await reach()).behind === 'true,true,true', await reach());
+  for (let i = 0; i < 40; i++) await p.keyboard.press('Tab');
+  check('Tab does not leave the sheet', (await reach()).inSheet, await reach());
+  await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+  check('closing it gives the page back, with the focus on what opened it', (await reach()).at === 'planBtn' && (await reach()).behind === 'false,false,false', await reach());
+  await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(200); await p.click('#obAgain'); await p.waitForTimeout(300);
+  check('the opening screens take the page the same way', (await p.evaluate(() => document.querySelector('#ob').contains(document.activeElement))) && (await reach()).behind === 'true,true,true', await reach());
+  await p.click('#obSkip'); await p.waitForTimeout(300);
+  check('and give it back', (await reach()).behind === 'false,false,false', await reach());
+  await p.context().close();
+
   // ---- 9. a narrow phone (320 px), in English, where the words are longest: nothing may reach past the screen ----
   {
     const ctx = await b.newContext({ viewport: { width: 320, height: 568 }, deviceScaleFactor: 2, locale: 'en-US' }), q = await ctx.newPage();

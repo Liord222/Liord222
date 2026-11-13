@@ -94,7 +94,7 @@ def screen_seq(tex_dir, n, strength=1.0):
     return PH.screen_material('screen', seq_first=first, frames=n, strength=strength)
 
 
-def gym_scene(rows_on=None, power=1.0, spot=2.2):
+def gym_scene(rows_on=None, power=1.0, spot=3.4):
     import gym
     world_color((0.0, 0.0, 0.0))
     M, rows, wash, sm = gym.build()
@@ -160,33 +160,39 @@ def S1(a):
 
 
 def S2a(a):
-    """His phone on the end of the bench, a search on its screen; a plate slams down; the bench jolts; it slides off."""
+    """His phone on the end of the bench, a search on its screen. It buzzes, twice; each buzz walks it nearer the
+    edge; the second one takes it over."""
     n = 48
     gym_scene()
-    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S2a'), n, 0.75))
+    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S2a'), n, 0.6))
     yaw = R(-32)                                                 # as it was put down: askew, its foot at the edge of the pad
-    edge = Vector((0.0, -0.062, 0.0))
+    edge = Vector((0.0, -1.0, 0.0))
+    buzz = ((12, 21), (27, 41))                                  # the two buzzes, in frames
+
+    def crept(f):
+        """how far it has walked toward the edge by frame f (metres)"""
+        d = 0.0
+        for a0, b0 in buzz:
+            d += (0.02 if a0 == 12 else 0.05) * span(f, a0, b0)
+        return d
 
     def ph(f):
-        if f <= 36:
-            return PH_BENCH.copy(), (0, 0, yaw)
-        t = (f - 36) / 12.0
-        # the jolt lifts it a few millimetres and walks it over the edge; then it tips, foot first
-        hop = 0.006 * math.sin(min(1.0, t * 3.0) * math.pi)
-        slide = edge * ease_in(t, 1.6) * 1.9
-        tip = R(78) * ease_in(span(f, 40, 49), 2.0)
-        drop = 0.09 * ease_in(span(f, 42, 49), 2.0)
-        return PH_BENCH + slide + Vector((0, 0, hop - drop)), (tip, R(6) * t, yaw + R(-9) * t)
+        on = any(a0 <= f <= b0 for a0, b0 in buzz)
+        j = math.sin(f * 2.9) * R(0.5) if on else 0.0             # the shiver of a phone that is ringing
+        jz = (0.0006 * (1 + math.sin(f * 4.3))) if on else 0.0
+        tip = R(82) * ease_in(span(f, 39, 49), 2.0)
+        drop = 0.1 * ease_in(span(f, 41, 49), 2.0)
+        over = 0.05 * ease_in(span(f, 39, 49), 1.5)
+        return PH_BENCH + edge * (crept(f) + over) + Vector((0, 0, jz - drop)), (tip, j * 0.6, yaw + j + R(-7) * span(f, 27, 48))
     bake_obj(root, n, ph)
     cam = camera(lens=50, fstop=2.0, focus=0.42)
 
     def fn(f):
         t = f / n
         base = PH_BENCH + Vector((-0.27 + 0.03 * t, -0.25 + 0.02 * t, 0.13 - 0.015 * t))
-        jolt = math.exp(-max(0, f - 36) / 3.5) * math.sin((f - 36) * 2.4) * 0.012 if f >= 36 else 0.0
-        loc = base + wobble(f, 2.0, 0.0025) + Vector((jolt * 0.4, 0, jolt))
-        tgt = PH_BENCH + Vector((0.0, 0.01, 0.0)) + (Vector((0, -0.05, -0.04)) * ease_in(span(f, 40, 48), 2))
-        return dict(loc=loc, target=tgt, roll=R(3) + jolt * 1.5, focus=(tgt - loc).length)
+        loc = base + wobble(f, 2.0, 0.0025)
+        tgt = PH_BENCH + edge * crept(f) * 0.7 + Vector((0.0, 0.01, 0.0)) + (Vector((0, -0.05, -0.05)) * ease_in(span(f, 40, 48), 2))
+        return dict(loc=loc, target=tgt, roll=R(3), focus=(tgt - loc).length)
     bake_cam(cam, n, fn)
     return n, 2.39
 
@@ -195,7 +201,7 @@ def S2c(a):
     """Slow motion: the phone turns over as it falls; the camera falls with it; the room's lights slide over its glass."""
     n = 72
     gym_scene()
-    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S2c'), n, 0.75))
+    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S2c'), n, 0.6))
     top, bot = 0.92, 0.11          # slow motion takes its time: the fall is longer than the bench is high
     start = Vector((PH_BENCH.x, PH_BENCH.y - 0.14, top))
     end = Vector((PH_FLOOR.x, PH_FLOOR.y, bot))
@@ -229,7 +235,7 @@ def S2d(a):
     """It lands. One hard bounce, a small one, and it lies still, face up. Silence. The screen wakes."""
     n = 24
     gym_scene()
-    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S2d'), n, 0.75))
+    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S2d'), n, 0.62))
 
     def ph(f):
         # down for 3 frames, a bounce of 4 cm tilting, a bounce of 8 mm, rest
@@ -252,8 +258,8 @@ def S2d(a):
     def fn(f):
         hit = math.exp(-max(0, f - 3) / 2.2) * math.sin((f - 3) * 2.8) * 0.006 if f >= 3 else 0.0
         push = ease(span(f, 10, 24))
-        loc = rest + Vector((0.2 - 0.02 * push, -0.36 + 0.03 * push, 0.05 + 0.05 * push + hit))
-        return dict(loc=loc, target=rest + Vector((0, 0.012, 0.012)), roll=R(-4) + hit * 2.0, focus=(rest - loc).length)
+        loc = rest + Vector((0.2 - 0.07 * push, -0.36 + 0.13 * push, 0.05 + 0.09 * push + hit))
+        return dict(loc=loc, target=rest + Vector((0, 0.012 + 0.012 * push, 0.012 * (1 - push))), roll=R(-4) + hit * 2.0, focus=(rest - loc).length)
     bake_cam(cam, n, fn)
     return n, 2.39
 
@@ -262,7 +268,7 @@ def S3a(a):
     """The camera rushes down into the screen, through gymi's icon. (The last third of the shot is made in the edit.)"""
     n = 24
     gym_scene()
-    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S3a'), 36, 0.8))
+    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S3a'), 36, 0.7))
     rest = PH_FLOOR + Vector((0, -0.006, 0))
     root.location = rest
     root.rotation_euler = (0, 0, YAW_FLOOR + R(-4))
@@ -271,7 +277,7 @@ def S3a(a):
     yaw = YAW_FLOOR + R(-4)
     icon = rest + Vector((u * math.cos(yaw) - v * math.sin(yaw), u * math.sin(yaw) + v * math.cos(yaw), PH.T / 2))
     cam = camera(lens=40, fstop=2.4, focus=0.36)
-    c0 = rest + Vector((0.18, -0.33, 0.1))
+    c0 = rest + Vector((0.13, -0.23, 0.14))
 
     def fn(f):
         t = ease_in(span(f, 0, 22), 2.4)
@@ -289,7 +295,7 @@ def S5(a):
     """Out of the screen and back in the gym: the phone on the floor shows the exercise; up there, lit, is the machine."""
     n = 72
     gym_scene()
-    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S5'), n, 0.8))
+    root, scr = PH.build(screen_mat=screen_seq(os.path.join(a.tex, 'S5'), n, 0.7))
     rest = PH_FLOOR + Vector((0, -0.006, 0))
     yaw = R(159)                                                  # it lies with its top toward the Smith machine
     root.location = rest
@@ -310,8 +316,8 @@ def S5(a):
         loc = p0.lerp(p1, out).lerp(p2, rise) + d * 1.5 * walk
         loc += wobble(f, 6.0, 0.006 * rise) + Vector((0, 0, 0.012 * math.sin(f / 24.0 * math.tau * 1.7) * walk))
         tgt = vlerp(demo, rest + Vector((0, 0, 0.0)), out)
-        tgt = vlerp(tgt, SMITH, ease(span(f, 22, 48)))
-        focus = lerp((rest - loc).length, (SMITH - loc).length, ease(span(f, 30, 46)))
+        tgt = vlerp(tgt, SMITH, ease(span(f, 26, 42)))
+        focus = lerp((rest - loc).length, (SMITH - loc).length, ease(span(f, 28, 40)))
         roll = lerp(-(yaw - R(180)) * 0 + R(0), 0, 1)
         return dict(loc=loc, target=tgt, roll=roll, focus=max(0.03, focus), lens=lerp(30, 35, rise), fstop=lerp(2.0, 2.8, rise))
     bake_cam(cam, n, fn)
@@ -474,6 +480,8 @@ def main():
                     bounces=((4, 2, 3, 4) if studio_shot else (5, 2, 3, 4)))
     if a.device != 'cpu':
         use_gpu(s)
+    if os.environ.get('NODENOISE'):
+        s.cycles.use_denoising = False
     n, aspect = SHOTS[a.shot](a)
     if aspect:
         s.render.resolution_y = int(round(a.res / aspect / 2) * 2)
@@ -492,7 +500,14 @@ def main():
         s.frame_set(f)
         s.render.filepath = dst
         t = time.time()
-        bpy.ops.render.render(write_still=True)
+        try:
+            bpy.ops.render.render(write_still=True)
+        except RuntimeError as e:
+            if 'enois' not in str(e):
+                raise
+            # a Blender built without the denoiser: render without it (more samples will be wanted)
+            s.cycles.use_denoising = False
+            bpy.ops.render.render(write_still=True)
         print('FRAME', a.shot, f, round(time.time() - t, 1), 's', flush=True)
     print('DONE', a.shot, len(list(fr)), 'frames', round(time.time() - t0), 's', flush=True)
 

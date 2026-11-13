@@ -223,22 +223,31 @@ def build():
         clack = (hp(noise(n), 1800) * env(n, 0.0005, 0.012, 5) * 0.9 + sine(190, n) * env(n, 0.001, 0.05, 5) * 0.7)
         buzz = bp(noise(n), 90, 240) * env(n, 0.02, 0.4, 3) * 0.5
         place(mix, reverb(clack + buzz, 1.8, 0.35), f * F, 0.5 - i * 0.05, pan=-0.3 + i * 0.12)
-    # far away: a plate goes down, someone racks a bar, voices that are only a murmur
-    place(mix, reverb(add(thud(60, 0.5, 0.5), metal(640, 1.0, 0.5)), 2.6, 0.75), 2.85, 0.5, pan=0.6)
-    place(mix, reverb(add(metal(1250, 0.7, 0.6), tick(1.0, 900)), 2.2, 0.7), 4.1, 0.3, pan=-0.6)
-    place(mix, reverb(metal(980, 0.6, 0.5), 2.2, 0.7), 5.55, 0.25, pan=0.4)
-    n = int(6.5 * SR)
-    mur = bp(noise(n), 180, 900) * (0.5 + 0.5 * np.abs(lp(noise(n), 3.5) * 40).clip(0, 1))
-    place(mix, reverb(mur * 0.02, 2.5, 0.8), 0.4, 1.0)
+    # he is the first one in: the room is empty, and large. Far off, the building ticks as it warms
+    place(mix, reverb(add(metal(1250, 0.7, 0.6), tick(1.0, 900)), 2.6, 0.8), 2.95, 0.22, pan=0.6)
+    place(mix, reverb(metal(980, 0.6, 0.5), 2.6, 0.8), 4.6, 0.16, pan=-0.5)
+    # his steps on the rubber floor
+    for i, at in enumerate((0.55, 1.12, 1.7, 2.28, 2.86, 3.5, 4.2)):
+        st = lp(thud(80, 0.16, 0.6, 0.5), 650)
+        place(mix, reverb(st, 1.2, 0.35), at, 0.3, pan=-0.12 if i % 2 else 0.12)
     # him: a breath in, a breath out
     for at, dur, g in ((3.35, 0.75, 0.05), (4.3, 0.95, 0.04)):
         n = int(dur * SR)
         b = bp(noise(n), 500, 2600) * np.sin(np.linspace(0, math.pi, n)) ** 1.5
         place(mix, b, at, g)
 
-    # ---- 0:06.5, the plate that jolts the bench
-    slam = add(thud(52, 0.9, 1.0, 0.6), metal(540, 1.6, 1.1), metal(1310, 0.9, 0.5))
-    place(mix, reverb(slam, 2.4, 0.45), 6.5, 0.9, pan=0.25)
+    # ---- 0:05.5 and 0:06.1, the phone buzzes on the bench: a motor against vinyl, and the bench answering
+    def buzz(dur, g=1.0):
+        n = int(dur * SR)
+        t = t_(n)
+        b = (signal.square(2 * np.pi * 172 * t) * 0.5 + sine(344, n) * 0.3) * (0.6 + 0.4 * np.sign(sine(23, n)))
+        rattle = bp(noise(n), 900, 3200) * (0.5 + 0.5 * np.sign(sine(172, n))) * 0.35
+        e = np.minimum(1, t / 0.01) * np.minimum(1, (dur - t) / 0.02).clip(0)
+        return lp(b, 1400) * e * 0.2 * g + rattle * e * 0.2 * g
+
+    place(mix, reverb(buzz(0.4), 0.5, 0.15), 5.0 + 12 * F, 0.8, pan=-0.1)
+    place(mix, reverb(buzz(0.6, 1.15), 0.5, 0.15), 5.0 + 27 * F, 0.9, pan=-0.1)
+    place(mix, whoosh(0.3, 300, 2500, 0.5), 6.72, 0.5)
 
     # ---- 0:07 to 0:10, slow motion: the room sinks an octave; a low tone climbs; a heart
     n = int(3.0 * SR)

@@ -28,9 +28,9 @@ plates (see the end of this file), they drop into the same cuts.
 
 | # | Time | Frames | Shot | Sound |
 |---|---|---|---|---|
-| **1** | 0:00–0:05 | 0–119 | **The gym.** Black. Ceiling panels bang on one row at a time, revealing a big gym. POV push past the dumbbell rack, a hesitant look left and right; the Smith machine and racks loom. | Light switches, deep room tone, a plate drops far away, murmurs, his breath. |
-| **2A** | 0:05–0:06.5 | 120–155 | **The phone.** Close-up: his phone on the edge of a bench, screen on a search for "gym workout for beginners". Among the results: gymi. | Room tone, distant clanks. |
-| **2B** | 0:06.5–0:07 | 156–167 | A heavy plate slams the floor nearby; the bench jolts; the phone slides off. | BOOM, metal ring. |
+| **1** | 0:00–0:05 | 0–119 | **The gym.** Black: he is the first one in. Ceiling lights bang on one row at a time, revealing a big, empty gym. POV push past the dumbbell rack, a hesitant look left and right; the Smith machine and racks loom. | Light switches, the hum of a large empty room, his steps, his breath. |
+| **2A** | 0:05–0:05.5 | 120–131 | **The phone.** Close-up: his phone on the edge of a bench, screen on a search for "gym workout for beginners". Among the results: gymi. | Room tone. |
+| **2B** | 0:05.5–0:07 | 132–167 | The phone buzzes, twice; each buzz walks it nearer the edge; the second takes it over. | The buzz of a phone on a bench. |
 | **2C** | 0:07–0:10 | 168–239 | **Slow motion.** The camera falls with the phone; it turns over; gym lights streak across the glass. | Everything drops an octave and stretches; a low rising tone; heartbeat. |
 | **2D** | 0:10–0:10.5 | 240–251 | It hits the rubber floor, face up. | Sharp, precise impact. |
 | **2E** | 0:10.5–0:11 | 252–263 | Silence. The screen wakes; gymi is right there. | Nothing, then one soft tone. |

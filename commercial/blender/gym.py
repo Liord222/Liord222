@@ -100,7 +100,7 @@ def mats():
     M['warm'] = emission('warmled', (1.0, 0.82, 0.6), 0.0)
     M['sign'] = emission('exit', (0.1, 1.0, 0.35), 3.0)
     M['door'] = principled('doorframe', (0.04, 0.04, 0.045), 0.35, 1.0)
-    M['outside'] = emission('daylight', (0.8, 0.88, 1.0), 1.2)
+    M['outside'] = emission('daylight', (0.8, 0.88, 1.0), 0.5)
     M['accent'] = emission('accent', (0.13, 0.32, 1.0), 0.0)
     return M
 
@@ -140,7 +140,7 @@ def lights(M, C):
         em = emission('led_row%d' % i, (1.0, 0.965, 0.92), 0.0)
         objs = []
         for x in (-7.0, -3.5, 0.0, 3.5, 7.0):
-            objs.append(box('ledbar', (2.4, 0.07, 0.035), (x, y, ZC - 0.6), mat=em, bev=0.004, coll=C))
+            box('ledbar', (2.4, 0.07, 0.035), (x, y, ZC - 0.6), mat=em, bev=0.004, coll=C)
             for sx in (-1, 1):
                 tube('wire', (x + sx * 1.0, y, ZC - 0.58), (x + sx * 1.0, y, ZC), 0.0015, mat=M['steel'], verts=6, coll=C)
             # the light it gives: a long thin area light just under the bar, invisible to the camera
@@ -381,10 +381,27 @@ def build(with_lights=True):
     plate('loose1', 0.225, 0.055, (2.3, -3.4, 0.0285), (0, 0, 0.3), M['rubber'], M, C)
     plate('loose2', 0.2, 0.045, (2.32, -3.38, 0.075), (0, 0, 0.9), M['blue'], M, C)
     dumbbell('floordb', -2.0, -2.9, 0.06, 12, M, C)
+    merge(C)
     return M, rows, wash, sm
 
 
-def set_rows(rows, wash, frame_on, power=1.0, bar=40.0, light=10.0, washw=120.0, accent=6.0, spot=2.2):
+def merge(C):
+    """the whole room as one mesh (its modifiers applied): a thousand small objects cost far more to hand to the
+    renderer on every frame than their triangles cost to draw"""
+    dg = bpy.context.evaluated_depsgraph_get()
+    objs = [o for o in C.objects if o.type == 'MESH']
+    for o in objs:
+        me = bpy.data.meshes.new_from_object(o.evaluated_get(dg))
+        o.modifiers.clear()
+        o.data = me
+    bpy.context.view_layer.update()
+    with bpy.context.temp_override(active_object=objs[0], object=objs[0], selected_objects=objs, selected_editable_objects=objs):
+        bpy.ops.object.join()
+    objs[0].name = 'gym_mesh'
+    return objs[0]
+
+
+def set_rows(rows, wash, frame_on, power=1.0, bar=40.0, light=20.0, washw=120.0, accent=6.0, spot=3.4):
     """switch each row of lights on at its frame (constant keys: a light is off, then on). frame_on[i] None = always on"""
     def k(target, path_obj, attr, f, on, val):
         pass

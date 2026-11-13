@@ -124,16 +124,19 @@ class Film:
             a[-b:] = 0
         return a
 
-    def finish(self, a, g, grain=0.016, vig=0.3, bloom=0.55, gym=False):
-        lum = a @ np.array([0.2126, 0.7152, 0.0722], np.float32)
+    def finish(self, a, g, grain=0.016, vig=0.3, bloom=0.55, gym=False, thr=0.7):
         if gym:
-            # the gym: a little more contrast, shadows that lean blue, lights that lean warm
-            a = np.clip(a, 0, 1) ** 1.07
+            # the gym is lifted where it is dark and left alone where it is bright (a phone's screen must stay readable)
+            a = np.clip(a, 0, 1)
+            a = a * 1.45 / (1 + 0.45 * a)
+        lum = np.clip(a @ np.array([0.2126, 0.7152, 0.0722], np.float32), 0, 1)
+        if gym:
+            # shadows that lean blue, lights that lean warm
             sh = ((1 - lum) ** 2)[..., None]
             hi = (lum ** 2)[..., None]
             a = a + sh * np.array([-0.010, 0.002, 0.020], np.float32) + hi * np.array([0.030, 0.010, -0.028], np.float32)
         if bloom:
-            hot = np.clip(a - 0.7, 0, 1) * 2.2
+            hot = np.clip(a - thr, 0, 1) * 2.2
             a = a + self.blur(hot, 26 * self.k, 8) * bloom + self.blur(hot, 7 * self.k, 4) * bloom * 0.5
         if vig:
             a = a * (1 - vig * np.clip(self.rr, 0, 1) ** 2.4)[..., None]
@@ -300,19 +303,19 @@ class Film:
                 # slow motion is a little paler, and tighter round the phone
                 lum = (a @ np.array([0.2126, 0.7152, 0.0722], np.float32))[..., None]
                 a = lerp(a, lum, 0.12)
-                a = self.finish(a, g, vig=0.45, gym=True)
+                a = self.finish(a, g, vig=0.45, gym=True, thr=0.94, bloom=0.4)
             elif shot == 'S2d' and f <= 5:
-                a = self.finish(a, g, gym=True)
+                a = self.finish(a, g, gym=True, thr=0.94, bloom=0.35)
                 if f in (3, 4):
                     a = np.clip(a + 0.1 * (5 - f), 0, 1)        # the knock: a blink of light
             else:
-                a = self.finish(a, g, gym=True)
+                a = self.finish(a, g, gym=True, thr=(0.74 if shot == 'S1' else 0.94), bloom=(0.55 if shot == 'S1' else 0.35))
             return self.bars(a, 1.0)
         if shot == 'S3a':
             if f <= 24:
                 a = self.load(shot, f)[..., :3].copy()
                 a = self.zoomblur(a, 0.5 * ease(span(f, 9, 24)) ** 2, cx=0.5, cy=0.5)
-                a = self.finish(a, g, gym=True, vig=0.3 * (1 - span(f, 14, 24)))
+                a = self.finish(a, g, gym=True, vig=0.3 * (1 - span(f, 14, 24)), thr=0.94, bloom=0.35)
                 bl = ease(span(f, 18, 24))
                 a = lerp(a, BLUE[None, None, :] * (1.0 + 0.35 * (1 - self.rr[..., None])), bl)
             else:
@@ -346,7 +349,7 @@ class Film:
                     tl = Image.new('RGBA', (int(fnt.getlength(line) + 40 * k), int(90 * k)), (0, 0, 0, 0))
                     ImageDraw.Draw(tl).text((20 * k, 10 * k), line, font=fnt, fill=(214, 222, 240, 255))
                     a = self.paste(a, tl, W * 0.665 + (1 - ease_out(span(f, 36, 56), 3)) * 40 * k, H * 0.615, 1.0, ease(span(f, 36, 54)))
-                a = self.finish(a, g, vig=0.42, bloom=0.5)
+                a = self.finish(a, g, vig=0.42, bloom=0.3, thr=0.86)
                 return a * (1 - ease(span(f, 60, 72)))
             a = self.world(g)
             if shot == 'S3b':
@@ -365,7 +368,7 @@ class Film:
                     # the turn of the phone is covered by a blink of gold
                     fl = math.exp(-((f - 30) / 2.6) ** 2)
                     a = a + fl * 0.5 * (GOLD[None, None, :] * 0.6 + 0.4) * (1 - self.rr[..., None] * 0.6)
-            a = self.finish(a, g, vig=0.36, bloom=0.5, grain=0.012)
+            a = self.finish(a, g, vig=0.36, bloom=0.3, grain=0.012, thr=0.86)
             # whips on the cuts inside the montage, alternating sides
             if shot in ('S4a', 'S4b', 'S4c', 'S4d'):
                 d = {'S4a': 1, 'S4b': -1, 'S4c': 1, 'S4d': -1}[shot]
@@ -384,7 +387,7 @@ class Film:
         if shot == 'S5':
             a = self.load(shot, f)[..., :3].copy()
             a = self.zoomblur(a, 0.35 * (1 - ease(span(f, 1, 12))) ** 2)
-            a = self.finish(a, g, gym=True, vig=0.3 * ease(span(f, 4, 20)))
+            a = self.finish(a, g, gym=True, vig=0.3 * ease(span(f, 4, 20)), thr=lerp(0.94, 0.78, ease(span(f, 30, 44))), bloom=0.4)
             a = np.clip(a + (1 - ease(span(f, 0, 6))) * 0.9, 0, 1)      # out of the white
             a = self.bars(a, ease(span(f, 4, 22)))
             if f > n - 3:
@@ -421,7 +424,7 @@ def main():
     if a.stills:
         os.makedirs(a.stills, exist_ok=True)
         for g in range(lo, hi + 1):
-            Image.fromarray((film.frame(g) * 255 + 0.5).astype(np.uint8)).save(os.path.join(a.stills, '%04d.png' % g))
+            Image.fromarray((np.clip(film.frame(g), 0, 1) * 255 + 0.5).astype(np.uint8)).save(os.path.join(a.stills, '%04d.png' % g))
         return
     cmd = [ffmpeg_exe(), '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', '%dx%d' % (film.W, film.H), '-r', str(FPS), '-i', '-']
     if os.path.exists(a.audio) and not a.frames:
@@ -430,7 +433,7 @@ def main():
             '-movflags', '+faststart', '-shortest', a.out]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for g in range(lo, hi + 1):
-        p.stdin.write((film.frame(g) * 255 + 0.5).astype(np.uint8).tobytes())
+        p.stdin.write((np.clip(film.frame(g), 0, 1) * 255 + 0.5).astype(np.uint8).tobytes())
         if g % 48 == 0:
             print('frame', g, flush=True)
     p.stdin.close()

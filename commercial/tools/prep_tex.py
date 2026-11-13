@@ -33,7 +33,7 @@ SHOTS = {
     'S4c': seg('swap', 26, 100, 60),
     'S4d': seg('set', 4, 46, 30) + seg('done', 7, 50, 30),
     'S5': seg('smith', 0, 71, 72),
-    'S6': seg('home', 0, 47, 36) + seg('welcome', 18, 40, 36),
+    'S6': seg('home', 0, 71, 72),
 }
 
 

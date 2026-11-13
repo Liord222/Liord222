@@ -6,9 +6,11 @@
       <small aria-hidden="true">by Lior Dahan</small>
     </div>
     <span class="sync" id="syncNote"></span>
+    <button class="lvl-chip" id="lvlChip" type="button" aria-label="הפרופיל שלי"></button>
     <button class="top-coach" id="topCoach" type="button" aria-label="שאל את אילון"><span class="ava" aria-hidden="true">א</span></button>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
       <button type="button" data-view="home" aria-current="page"><svg class="i" viewBox="0 0 24 24"><path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/></svg><span>היום</span></button>
+      <button type="button" data-view="profile"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1-3.6 3.8-5.4 7-5.4s6 1.8 7 5.4"/></svg><span>פרופיל</span></button>
       <button type="button" data-view="progress"><svg class="i" viewBox="0 0 24 24"><path d="M5 19v-8M12 19V5M19 19v-5"/></svg><span>התקדמות</span></button>
       <button type="button" id="chatOpen"><svg class="i" viewBox="0 0 24 24"><path d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5h-7l-4 3v-3H5A1.5 1.5 0 0 1 3.5 15V8A1.5 1.5 0 0 1 5 6.5z"/></svg><span>אילון</span></button>
     </nav>
@@ -25,11 +27,13 @@
         <section class="wk-act" id="wkAct"></section>
       </div>
 
+      <div class="view v-profile" id="profile"></div>
+
       <div class="view v-progress">
         <div class="page-h"><p class="cap" id="progCap"></p><h1 class="big">התקדמות</h1></div>
         <section class="gains" id="gains"></section>
         <section class="history" id="history"></section>
-        <section class="backup" id="backup" aria-label="גיבוי והעברה"></section>
+        <section class="backup" id="backup" aria-label="גיבוי"></section>
         <input type="file" id="restoreFile" accept=".json,application/json" hidden>
       </div>
 
@@ -39,7 +43,7 @@
     <aside class="chat" id="chat" aria-label="צ׳אט עם אילון">
       <div class="chat-h">
         <span class="ava" aria-hidden="true">א</span>
-        <div><h2>אילון</h2><p>המאמן שלך ב-gymi. חלופות, טכניקה ורישום סטים</p></div>
+        <div><h2>אילון</h2><p>המאמן שלך</p></div>
         <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M19 4l1.5 1.5"/></svg></button>
         <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה"><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
         <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -47,12 +51,12 @@
       <label class="chat-ctx" for="chatCtx"><span>לגבי</span><select id="chatCtx"></select></label>
       <div class="msgs" id="msgs"></div>
       <div class="composer">
-        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>התמונה תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
         <p class="comp-note" id="compNote" hidden></p>
         <div class="comp-row">
           <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg></button>
           <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M5 17l5-5 4 4 2-2 3 3"/></svg></button>
-          <textarea id="chatInput" rows="1" placeholder="למשל: המכשיר תפוס, מה אפשר במקום?" enterkeyhint="send" aria-label="הודעה לאילון"></textarea>
+          <textarea id="chatInput" rows="1" placeholder="שאל את אילון" enterkeyhint="send" aria-label="הודעה לאילון"></textarea>
           <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
         </div>
         <input type="file" id="camFile" accept="image/*" capture="environment" hidden>
@@ -63,4 +67,5 @@
 
   <div class="dock" id="dock" role="region" aria-label="רישום סטים וטיימר מנוחה"></div>
   <div class="sheet" id="sheet" hidden></div>
+  <div class="toast" id="toast" role="status" hidden></div>
 </div>

@@ -19,7 +19,7 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   const inner = async () => { await p.waitForSelector('iframe[title="gymi"]'); const f = p.frames().find((x) => x !== p.mainFrame()); await f.waitForSelector('#homeGo', { state: 'attached' }); return f; };
   await p.goto(url); let f = await inner(); await p.waitForTimeout(500);
   const txt = (sel) => f.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
-  check('the page boots inside the shell', (await txt('#home .next')).includes('Upper A') && (await f.evaluate(() => window.GYMI_NATIVE)) === 'web', await txt('#home'));
+  check('the page boots inside the shell', (await txt('#home .next')).includes('גוף עליון A') && (await txt('#playerBtn')).includes('רמה 1') && (await f.evaluate(() => window.GYMI_NATIVE)) === 'web', await txt('#home'));
   check('the shell passes the phone\'s dark mode to the page', (await f.evaluate(() => document.documentElement.getAttribute('data-theme'))) === 'dark', 'theme');
   check('the page says it is saved on this device', (await txt('#syncNote')).includes('במכשיר'), await txt('#syncNote'));
   await f.click('#homeGo'); await f.waitForTimeout(400); await f.click('#dkStart'); await f.waitForTimeout(600);
@@ -27,6 +27,8 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   await f.click('#dkHit'); await f.waitForTimeout(1400);
   const copy = await p.evaluate(() => localStorage.getItem('gymi:log:v1'));
   check('a logged set is mirrored to the phone\'s storage', !!copy && copy.includes('"kg":60'), copy && copy.slice(0, 120));
+  // the player: with no account to wait for, the profile counts the log at once and keeps the character on the phone
+  check('the set earned its points on the phone too', (await f.evaluate(() => [meNow().T.xp, S.cfgReady].join())) === '10,true', await f.evaluate(() => meNow().T.xp));
   check('the back button returns from the workout to today', (await f.evaluate(() => [window.gymiBack(), S.view, window.gymiBack()].join())) === 'true,home,false', 'back');
   await f.click('#chatOpen'); await f.waitForTimeout(300);
   // ---- the coach: a key saved in the shell, then a question answered by Claude (the API is answered by this script) ----
@@ -58,6 +60,11 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   await p.evaluate(() => localStorage.removeItem('ul4:v1')); await p.reload(); f = await inner(); await p.waitForTimeout(600);
   const back = await f.evaluate(() => { const s = Object.values(S.sessions)[0]; return s ? [Object.keys(S.sessions).length, s.sets.ua1[0].kg, s.sets.ua1[0].done, S.view].join() : 'none'; });
   check('the log comes back from the phone\'s copy after the page storage is emptied', back === '1,60,true,workout', back);
+  await f.click('#lvlChip'); await f.waitForTimeout(300); await f.click('#lookBtn'); await f.waitForTimeout(200);
+  await f.fill('#lkName', 'ליאור'); await f.dispatchEvent('#lkName', 'change'); await f.click('#sheet [data-look="shirt"][data-v="1"]'); await f.click('#sheet [data-close]'); await p.waitForTimeout(700);
+  const kept = JSON.parse(await p.evaluate(() => localStorage.getItem('gymi:log:v1')) || '{}');
+  check('the character is kept in the phone\'s copy', (await txt('.pf-name')) === 'ליאור' && !!kept.cfg && kept.cfg.me.name === 'ליאור' && kept.cfg.me.look.shirt === 1, kept.cfg && kept.cfg.me);
+  await f.evaluate(() => { setView('workout', true); });
   await f.click('#finishBtn'); await f.waitForTimeout(500); await f.click('#sheetClose'); await f.waitForTimeout(300);
   await f.click('#tabbar [data-view="progress"]'); await f.waitForTimeout(300);
   const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 8000 }).catch(() => null), f.click('#exportBtn')]);

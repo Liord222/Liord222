@@ -21,6 +21,7 @@ const ICON = {
   swap: '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/></svg>',
   pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
   fwd: '<svg class="i" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
+  clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.3 1.8M9.5 3.5h5"/></svg>',
 };
 /* S.sessions: id -> one workout:
    { id, v, w (workout 0-3), ts (start), end, mt, upd, sets: { slotId: [ { kg, reps, done, t, pr, tk, tr } ] },
@@ -28,8 +29,19 @@ const ICON = {
      mv: { slotId: movement, when swapped }, sore: { muscle: 0 never | 1 healed in time | 2 still sore },
      fb: { slotId: { pain, pump, load } }, cut: { slotId: slot whose pain report cancelled it }, ft (time of the last change to these) }
    S.cfg: settings and the running mesocycle, one document shared by the viewer's devices */
-const cfgDef = () => ({ upd: 0, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [] });
-const S = { view: 'home', tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
+/* S.cfg.me: the player. name and look (the character's choices, see avatar.js), made (when the character was set up),
+   arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned } */
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, arch: archZero(), badges: {} });
+function normMe(v) {
+  const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
+  v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), arch: {}, badges: {} };
+  for (const k of Object.keys(d.arch)) out.arch[k] = pos(a[k]);
+  for (const x of BADGES) if (pos(b[x.id])) out.badges[x.id] = b[x.id];
+  return out;
+}
+const cfgDef = () => ({ upd: 0, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
+const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 function normCfg(v) {
   const d = cfgDef(), obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? clone(x) : {});
@@ -37,7 +49,7 @@ function normCfg(v) {
   return {
     upd: +v.upd || 0, weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base),
     meso: v.meso && v.meso.id ? { id: String(v.meso.id), n: +v.meso.n || 1, start: +v.meso.start || 0, early: +v.meso.early || 0, asked: String(v.meso.asked || '') } : d.meso,
-    past: Array.isArray(v.past) ? clone(v.past).slice(-4) : [],
+    past: Array.isArray(v.past) ? clone(v.past).slice(-4) : [], me: normMe(v.me),
   };
 }
 function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch (e) { return {}; } }
@@ -148,7 +160,7 @@ function view(pe, s, plan) {
   const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id];
   let n = n0;
   if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
-  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: pe.int, lvl: pe.lvl, suf: pe.suf, cut, swapped: mv !== pe.a };
+  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: pe.int, lvl: pe.lvl, suf: pe.suf, cut, swapped: mv !== pe.a };
 }
 function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return PLAN[w].ex.map((pe) => view(pe, s, plan)); }
 function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
@@ -286,9 +298,29 @@ function mesoSummary(id) {
   return { n: l.length, sets: span(wkSets), mus: Object.keys(MUSCLE).filter((k) => mus[k]).map((k) => Object.assign({ k }, span(mus[k]))), gains, top };
 }
 
+/* ---- the player: totals, level and achievements, counted from the log (the rules are in game.js) ---- */
+const KEEP = 40;
+function meNow() {
+  const A = S.cfg.me.arch, list = Object.values(S.sessions), T = totalsOf(list, A), L = levelOf(T.xp);
+  return { T, L, rank: rankOf(L.lvl), X: { lvl: L.lvl, streak: streakOf(list, A, Date.now()), fullWeek: fullWeek(list), rounds: roundsDone(list) } };
+}
+/* keep the stored side of the profile in step with the log: old workouts move into the archive, new achievements get their date.
+   Waits until the settings arrived from the account, so a new device never writes over an archive it has not seen yet. Returns the new achievements */
+function meSync() {
+  if (!S.cfgReady) return [];
+  const me = S.cfg.me, got = [], a = archiveStep(Object.values(S.sessions), me.arch, KEEP);
+  if (a) me.arch = a;
+  const P = meNow();
+  for (const id of earned(P.T, P.X)) if (!me.badges[id]) { me.badges[id] = Date.now(); got.push(id); }
+  if (a || got.length) saveCfg();
+  return got;
+}
+/* points a workout would bring if every planned set is done */
+const xpPlan = (list) => list.reduce((n, e) => n + e.sets, 0) * XP.set + XP.done;
+
 function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + ' דק׳'; return Ltr(a === b ? a : a + '–' + b) + ' שנ׳'; }
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
-const rirText = (r) => (r == null ? '' : r >= 4 ? 'שבוע קל, רחוק מכשל' : r === 0 ? 'עד כשל טכני' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
+const rirText = (r) => (r == null ? '' : r >= 4 ? 'רחוק מכשל' : r === 0 ? 'עד כשל' : r === 1 ? 'חזרה אחת לפני כשל' : r + ' חזרות לפני כשל');
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
 function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
@@ -302,7 +334,7 @@ const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padSta
 const writers = new Map();
 const W = (id) => { let w = writers.get(id); if (!w) { w = { timer: 0, busy: false, again: false, fail: 0 }; writers.set(id, w); } return w; };
 function setSync(state) {
-  const t = { cloud: 'נשמר בחשבון Claude שלך', local: 'נשמר במכשיר הזה בלבד', slow: 'אין חיבור לענן כרגע, נשמר במכשיר', error: 'השמירה בענן נכשלה, נשמר במכשיר' }[state];
+  const t = { cloud: 'נשמר בחשבון Claude', local: 'נשמר במכשיר הזה', slow: 'אין חיבור, נשמר במכשיר', error: 'אין חיבור, נשמר במכשיר' }[state];
   if (t) $('#syncNote').textContent = t;
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
@@ -398,17 +430,28 @@ function restoreData(text) {
     S.gone.delete(id); S.sessions[id] = m;
     if (sig(m) !== before) { n++; S.dirty.add(id); schedule(id, 400); }
   }
+  /* the player's side: the character follows the newer settings like everything else, but one that was set up is never replaced by none.
+     The archive that reaches further and every achievement are kept whichever side wins */
+  const mine = S.cfg.me, theirs = d.cfg && typeof d.cfg === 'object' ? normMe(d.cfg.me) : null;
   if (d.cfg && typeof d.cfg === 'object' && (+d.cfg.upd || 0) > S.cfg.upd) { S.cfg = cleanCfg(d.cfg); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
+  if (theirs) {
+    const me = S.cfg.me, before = JSON.stringify(me), made = me.made ? null : mine.made ? mine : theirs.made ? theirs : null;
+    me.arch = theirs.arch.until > mine.arch.until ? theirs.arch : mine.arch; me.badges = Object.assign({}, theirs.badges, mine.badges);
+    if (made) { me.name = made.name; me.look = made.look; me.made = made.made; }
+    if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
+  }
   saveLocal();
   return { n, cfg };
 }
 async function initCloud(onChange) {
-  if (!window.claude || typeof window.claude.use !== 'function') { setSync('local'); return; }
+  /* the settings are known for sure once the account answered, or once it is clear there is no account to wait for */
+  const known = () => { if (!S.cfgReady) { S.cfgReady = true; onChange(); } };
+  if (!window.claude || typeof window.claude.use !== 'function') { setSync('local'); known(); return; }
   let slow = 0, first = true;
   try {
     const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
     const uid = db && user ? await user.id() : null;
-    if (!uid) { setSync('local'); return; }
+    if (!uid) { setSync('local'); known(); return; }
     const col = db.collection('data/users/' + uid), seen = new Set();
     slow = setTimeout(() => setSync('slow'), 10000);
     col.orderBy('ts', 'desc').limit(60).onSnapshot((snap) => {
@@ -434,13 +477,14 @@ async function initCloud(onChange) {
       }
       saveLocal(); setSync('cloud');
       if (changed) onChange();
-    }, () => { clearTimeout(slow); setSync('local'); });
+    }, () => { clearTimeout(slow); setSync('local'); known(); });
     /* settings and the mesocycle live in one document: the copy that was changed last wins */
     col.doc('cfg').onSnapshot((d) => {
       const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0;
       if (up > S.cfg.upd) { S.cfg = normCfg(v); S.dirty.delete('cfg'); saveLocal(); onChange(); }
       else if (up < S.cfg.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }
-    }, () => {});
-  } catch (e) { clearTimeout(slow); setSync('local'); }
+      known();
+    }, () => known());
+  } catch (e) { clearTimeout(slow); setSync('local'); known(); }
 }
 window.addEventListener('online', () => { for (const id of S.dirty) schedule(id, 200); });

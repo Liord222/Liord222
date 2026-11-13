@@ -2,10 +2,10 @@
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false };
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
-  return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return 'אימון ' + (i + 1) + ' – ' + w.name + (P.m ? ' (' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.name + ': ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
+  return PLAN.map((w, i) => { const s = live(i), P = phase(i, s); return wkFull(i) + (P.m ? ' (' + (P.dl ? 'שבוע קל' : 'שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב') + ', ' + rirText(P.rir) + ')' : '') + ':\n' + exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + e.he + ' (' + e.name + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות | מנוחה ' + restPlain(e)).join('\n'); }).join('\n\n');
 }
 const rules = () => 'אתה אילון, המאמן האישי בתוך gymi, אפליקציית האימונים של המשתמש. אתה עוזר AI (מבוסס Claude), ואם שואלים אותך על כך אתה אומר זאת בפשטות. ענה תמיד בעברית, בגובה העיניים, קצר וענייני (עד כ-120 מילים, אלא אם ביקשו פירוט).\n\n' +
-  'התוכנית של המשתמש (Upper/Lower, ארבעה אימונים שמתבצעים במחזור לפי הסדר). בסוגריים המרובעים מופיע מזהה התרגיל:\n\n' + planText() + '\n\n' +
+  'התוכנית של המשתמש (גוף עליון ותחתון, ארבעה אימונים שמתבצעים במחזור לפי הסדר). בסוגריים המרובעים מופיע מזהה התרגיל, ובסוגריים העגולים שמו באנגלית. באפליקציה התרגילים והאימונים מוצגים בעברית, אז השתמש בשמות העבריים:\n\n' + planText() + '\n\n' +
   'כללים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה בתשובה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה הסבר קצר (שרירי מטרה ודפוס תנועה), איך להתאים סטים, חזרות, מנוחה וקרבה לכשל, ודגש ביצוע אחד.\n' +
   '- בשאלות אחרות (טכניקה, משקל התחלתי, התקדמות) ענה ישר, בלי שורת פסיקה. כשיש בהקשר נתוני ביצוע קודמים, התבסס עליהם.\n' +
@@ -62,14 +62,14 @@ function msgHTML(m, idx) {
 function loggedHTML(m, idx) {
   if (!m.logged) return '';
   if (m.logged.undone) return '<div class="logged" style="color:var(--ink-3)">הרישום בוטל</div>';
-  return '<div class="logged"><span>' + (m.logged.idx.length === 1 ? 'נרשם סט אחד' : 'נרשמו ' + m.logged.idx.length + ' סטים') + ' · ' + Ltr(esc(m.logged.name)) + '</span><button class="link" type="button" data-unlog="' + idx + '">בטל</button></div>';
+  return '<div class="logged"><span>' + (m.logged.idx.length === 1 ? 'נרשם סט אחד' : 'נרשמו ' + m.logged.idx.length + ' סטים') + ' · ' + esc(m.logged.name) + '</span><button class="link" type="button" data-unlog="' + idx + '">בטל</button></div>';
 }
-const SUGS = ['המכשיר תפוס. מה אפשר לעשות במקום?', 'צילמתי מכשיר אחר. הוא מתאים כתחליף?', 'תן לי דגשי ביצוע לתרגיל הזה', 'כמה משקל כדאי לי לשים היום?'];
+const SUGS = ['המכשיר תפוס. מה במקום?', 'צילמתי מכשיר. הוא מתאים?', 'דגשים לתרגיל הזה', 'כמה משקל לשים היום?'];
 function renderMsgs() {
   const box = $('#msgs');
   if (chat.off) { box.innerHTML = '<div class="empty"><strong>' + (chat.needKey ? 'חיבור אילון' : 'הצ׳אט לא זמין כרגע') + '</strong><span>' + esc(chat.off) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">חיבור עם מפתח API</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
-    box.innerHTML = '<div class="empty"><strong>היי, אני אילון. מה צריך?</strong><span>צלם מכשיר או כתוב שם של תרגיל, ואגיד לך אם הוא מחליף טוב את מה שבתוכנית. אפשר גם לכתוב לי מה עשית, למשל "60 קילו, 8 8 7", ואני ארשום את הסטים.</span><div class="sugs">' +
+    box.innerHTML = '<div class="empty"><strong>היי, אני אילון</strong><span>צלם מכשיר או שאל שאלה. אפשר גם לכתוב מה עשית, ואני ארשום.</span><div class="sugs">' +
       SUGS.map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>').join('') + '</div></div>';
     return;
   }
@@ -104,24 +104,24 @@ async function pickImage(file) {
 /* what the page knows, sent with each question: the open workout, the exercise in question and its recent log */
 function ctxLine() {
   const id = $('#chatCtx').value, e = id && findEx(id);
-  let t = '[הקשר מהאפליקציה. האימון הפתוח כרגע: אימון ' + (S.tab + 1) + ' · ' + PLAN[S.tab].name + '.';
+  let t = '[הקשר מהאפליקציה. האימון הפתוח כרגע: ' + wkFull(S.tab) + '.';
   if (e) {
     const w = wkOf(id);
     const cur = live(w), rir = rirOf(e, cur), fu = firstUndone(cur, e), T = fu >= 0 ? targetOf(e, fu, cur) : null, pe = planEx(id);
-    t += ' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.name + '" (אימון ' + (w + 1) + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
+    t += ' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ' + e.n0 + ' סטים × ' + e.reps + (e.suf ? ' ' + e.suf : '') + ' חזרות, מנוחה ' + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
     if (T) t += ' היעד לסט הבא (סט ' + (fu + 1) + '): ' + fmtRow(T) + '.';
     const hist = sorted().filter((s) => s.w === w && moveOf(pe, s) === e.mv && rowsOf(s, id).some(isDone)).slice(0, 3);
     if (hist.length) t += ' ביצועים אחרונים (ק״ג×חזרות): ' + hist.map((s) => (s.end ? ago(s.ts) : 'באימון הנוכחי') + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
     else t += ' עוד אין רישום קודם לתרגיל הזה.';
   }
-  return { text: t + ']', name: e ? e.name : '' };
+  return { text: t + ']', name: e ? e.he : '' };
 }
 /* a reply may carry one "@@LOG {...}" line: sets to write into today's log */
 function applyLog(text) {
   const m = text.match(/^[ \t]*@@LOG\s*(\{.*\})\s*$/m); if (!m) return null;
   let o; try { o = JSON.parse(m[1]); } catch (e) { return null; }
   const e = o && findEx(String(o.ex || '')); if (!e || !Array.isArray(o.sets)) return null;
-  const w = wkOf(e.id), idx = [];
+  const w = wkOf(e.id), idx = [], lv0 = S.lvl;
   for (const p of o.sets) {
     if (!Array.isArray(p)) continue;
     const s = ensure(w), i = firstUndone(s, e), kg = p[0] == null ? null : num(p[0]), reps = num(p[1], true);
@@ -131,8 +131,8 @@ function applyLog(text) {
   }
   if (!idx.length) return null;
   S.touched = true; if (w === S.tab) { S.draft = null; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
-  renderAll(); keepAwake();
-  return { ex: e.id, name: e.name, idx };
+  renderAll(); bump(lv0); keepAwake();
+  return { ex: e.id, name: e.he, idx };
 }
 function undoLog(i) {
   const m = chat.msgs[i], e = m && m.logged && findEx(m.logged.ex); if (!e || m.logged.undone) return;
@@ -177,7 +177,7 @@ function showImgBtns() { $('#camBtn').hidden = $('#galBtn').hidden = !chat.canIm
 /* the exercise picker follows the plan as it stands (swapped movements show under their own name) */
 function fillCtx() {
   const sel = $('#chatCtx'), v = sel.value;
-  sel.innerHTML = '<option value="">כל התוכנית (שאלה כללית)</option>' + PLAN.map((w, i) => '<optgroup label="אימון ' + (i + 1) + ' · ' + w.name + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + esc(e.name) + '</option>').join('') + '</optgroup>').join('');
+  sel.innerHTML = '<option value="">כל התוכנית</option>' + PLAN.map((w, i) => '<optgroup label="' + wkFull(i) + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + e.he + '</option>').join('') + '</optgroup>').join('');
   sel.value = v;
 }
 function initChat() {

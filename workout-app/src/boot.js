@@ -17,8 +17,9 @@ function boot(data) {
   S.tab = typeof data.tab === 'number' && data.tab >= 0 && data.tab < 4 ? data.tab : nextUp().next;
   if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
   if (Array.isArray(data.turns)) chat.turns = data.turns;
-  setView(data.view === 'workout' || data.view === 'progress' || data.view === 'home' ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
-  readColors(); wireApp(); wireCoach(); wireChat(); renderAll(); initChat();
+  readColors(); wireApp(); wireCoach(); wireChat(); wireMe();
+  setView(['workout', 'progress', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
+  renderAll(); initChat();
   const s = live(S.tab), list = exList(S.tab, s), first = (data.open && list.find((e) => e.id === data.open)) || list.find((e) => firstUndone(s, e) >= 0) || list[0];
   if (first) { openEx(first.id, false); renderDock(); }
   initCloud(onRemoteChange);

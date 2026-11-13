@@ -63,15 +63,20 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : ' -> ' + JSON.stringify(info)));
   const T = (pg) => (sel) => pg.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
   const txt = T(p), shot = (n, pg) => snap(pg || p, n);
+  /* the stop on the week's path that is next or running: its spoken label carries the full workout name and its state */
+  const cur = (pg) => pg.getAttribute('.tab[aria-current="true"]', 'aria-label');
   // the dock: type the reps, then one tap logs the set
   const reps = async (pg, n) => { await pg.click('#dkReps'); await pg.fill('#dkRepsIn', String(n)); await pg.keyboard.press('Enter'); await pg.waitForTimeout(120); };
   const log = async (pg, n) => { await reps(pg, n); await pg.click('#dkHit'); };
   const tab = async (pg, v) => { await pg.click('#tabbar [data-view="' + v + '"]'); await pg.waitForTimeout(250); };
 
   // ---------- first workout, nothing logged before ----------
-  check('hero flags a volume warning', (await txt('#mesoBtn em')) === 'לבדוק סטים', await txt('#mesoBtn'));
+  check('today flags a volume warning', (await txt('#home .warn-pill')) === 'לבדוק סטים', await txt('#home .week'));
   check('hero shows the mesocycle week and its RIR', (await txt('#mesoBtn')).includes('שבוע 1 מתוך 5') && (await txt('#mesoBtn')).includes('3 חזרות לפני כשל'), await txt('#mesoBtn'));
-  check('opens on today, with the next workout and the week', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('Upper A') && (await txt('.tab[aria-current="true"]')).includes('הבא'), await txt('#home'));
+  check('opens on today, with the next workout and the week', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('אימון ראשון') && (await txt('#home .next')).includes('גוף עליון A') && (await cur(p)) === 'אימון ראשון – גוף עליון A, הבא', [await txt('#home'), await cur(p)]);
+  check('the whole page is in Hebrew: no English workout or exercise names on screen', !/Upper|Lower|Press|Curl|Squat|Row/.test(await txt('#home')) && !/[A-Za-z]{4,}/.test((await p.evaluate(() => [...document.querySelectorAll('.ex-name')].map((x) => x.textContent).join(' ')))), await txt('#home'));
+  check('a new player starts at level 1 with nothing earned', (await txt('#playerBtn')).includes('רמה 1') && (await txt('#playerBtn')).includes('טירון') && (await p.evaluate(() => meNow().T.xp)) === 0, await txt('#playerBtn'));
+  check('the next workout shows what it is worth', (await txt('#home .next .xp-tag')) === '+310', await txt('#home .next'));
   await shot('g0-home');
   await p.click('#homeGo'); await p.waitForTimeout(500);
   await p.click('#dkStart'); await p.waitForTimeout(700);
@@ -79,6 +84,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await shot('g1-log');
   await log(p, 8); await p.waitForTimeout(500);
   check('one tap logs the set and starts rest', (await txt('.rt-log')).includes('60×8'), await txt('#dock'));
+  check('a logged set earns 10 points, shown next to it and on the level meter', (await txt('.rt-log .xp-tag')) === '+10' && (await p.evaluate(() => meNow().T.xp)) === 10 && (await txt('#lvlChip')).includes('רמה 1') && (await p.evaluate(() => document.querySelector('#lvlChip .xpbar i').style.width)) === '5%', [await txt('.rt-log'), await txt('#lvlChip')]);
   await p.click('#rtSkip'); await p.waitForTimeout(200);
   check('weight carries to the next set, with a one-tap target', (await txt('#dkKg')).startsWith('60') && (await txt('.dk-set')).includes('2') && (await txt('#dkReps')).startsWith('8') && !!(await p.$('#dkReps.ghost')), [await txt('#dkKg'), await txt('.dk-set'), await txt('#dkReps')]);
   check('target is greyed until confirmed', !!(await p.$('#dkKg.ghost')), 'ghost');
@@ -86,7 +92,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('stepper adds one step', (await txt('#dkKg')).startsWith('62.5') && !(await p.$('#dkKg.ghost')), await txt('#dkKg'));
   await log(p, 7); await p.waitForTimeout(450);
   await p.click('#rtUndo'); await p.waitForTimeout(250);
-  check('undo returns to the same set', (await txt('.dk-set')).includes('2') && (await p.$$('.ex.open .pips i.on')).length === 1, await txt('.dk-set'));
+  check('undo returns to the same set and takes its points back', (await txt('.dk-set')).includes('2') && (await p.$$('.ex.open .pips i.on')).length === 1 && (await p.evaluate(() => meNow().T.xp)) === 10, await txt('.dk-set'));
   await log(p, 9); await p.waitForTimeout(450); await p.click('#rtSkip'); await p.waitForTimeout(150);
   await p.click('.ex.open .setp[data-i="0"]'); await p.waitForTimeout(200);
   await reps(p, 10); await p.click('#edClose'); await p.waitForTimeout(200);
@@ -104,6 +110,7 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   const calls = await p.evaluate(() => window.__calls.map((c) => ({ img: c.hasImg, ctx: c.last, first: c.first })));
   check('photo goes to the coach with the exercise context', calls[0].img && calls[0].ctx.includes('[ua1]') && calls[0].ctx.includes('60×10') && calls[0].ctx.includes('היעד לסט הבא'), calls[0].ctx);
   check('coach knows the week and its RIR', calls[0].first.includes('שבוע 1 מתוך 5') && calls[0].first.includes('3 חזרות לפני כשל'), calls[0].first.slice(0, 400));
+  check('coach gets the Hebrew names with the English ones beside them', calls[0].first.includes('אימון ראשון – גוף עליון A') && calls[0].first.includes('[ua2] מתח בסיוע (גרביטון) (Assisted Pull-ups)') && calls[0].ctx.includes('"לחיצת חזה בשיפוע עליון בסמית׳"'), calls[0].first.slice(300, 700));
   check('verdict badge and hidden command line', (await txt('.verdict')) === 'מתאים חלקית' && !(await txt('#msgs')).includes('@@'), await txt('#msgs'));
   check('chat message logs sets', (await txt('.logged')).includes('3'), await txt('.logged'));
   await p.click('#chatClose'); await p.waitForTimeout(1000);
@@ -111,13 +118,32 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   check('cloud copy has both exercises and the mesocycle fields', !!c0 && c0.sets.ua2.length === 3 && c0.sets.ua1[0].reps === 10 && c0.m === 'm1' && c0.wk === 1 && c0.rir === 3 && c0.n.ua1 === 3, c0);
   check('settings document reached the cloud', !!cloud['data/users/u_test/cfg'] && cloud['data/users/u_test/cfg'].notes.inclineSmith.includes('מושב'), Object.keys(cloud));
   await p.click('#finishBtn'); await p.waitForTimeout(500);
-  check('summary and next workout', (await txt('#sheet')).includes('5/21') && (await txt('.tab[aria-current="true"]')).includes('Lower A') && (await p.evaluate(() => S.view)) === 'home', await txt('#sheet'));
+  check('summary and next workout', (await txt('#sheet')).includes('5/21') && (await txt('#sheet')).includes('אימון ראשון הושלם') && (await txt('#sheet')).includes('הבא: אימון שני – גוף תחתון A') && (await cur(p)) === 'אימון שני – גוף תחתון A, הבא' && (await p.evaluate(() => S.view)) === 'home', [await txt('#sheet'), await cur(p)]);
+  await p.waitForTimeout(900); await shot('g1a-reward');
+  check('the summary is the reward: 5 sets and the finish bonus, no level yet', (await txt('#sumXp')) === '+150' && (await txt('#sheet .xp')).includes('רמה 1') && (await txt('#sheet .xp')).includes('150 / 200') && !(await p.$('.sum-up')) && !!(await p.$('#sheet .av.flex')) && (await p.evaluate(() => document.querySelector('#sumBar').style.width)) === '75%', await txt('#sheet'));
+  check('the first finished workout is an achievement', (await txt('.sum-new')).includes('אימון ראשון') && (await p.evaluate(() => S.cfg.me.badges.first > 0)), await txt('#sheet'));
   await p.click('#sheetClose'); await p.waitForTimeout(1200);
+  // ---------- the profile: the character, the level and what was earned ----------
+  await tab(p, 'profile'); await shot('g1p-profile');
+  const pf = await txt('#profile');
+  check('profile shows the level, the points to the next one and the totals', pf.includes('רמה 1') && pf.includes('טירון') && pf.includes('עוד 50 נק׳ לרמה 2') && pf.includes('150 / 200') && (await txt('.pf-stats')).startsWith('1 אימונים') && pf.includes('הפרס הבא') && pf.includes('סרט ראש'), pf.slice(0, 300));
+  check('profile lists the achievements, one of them earned', (await p.$$('.bdg')).length === 12 && (await p.evaluate(() => [...document.querySelectorAll('.bdg.on')].map((x) => x.innerText.trim()).join())) === 'אימון ראשון', await txt('.badges'));
+  check('the achievement reached the cloud with the settings', cloud['data/users/u_test/cfg'].me.badges.first > 0, cloud['data/users/u_test/cfg'].me);
+  await p.click('#lookBtn'); await p.waitForTimeout(250);
+  await p.fill('#lkName', 'ליאור'); await p.dispatchEvent('#lkName', 'change');
+  await p.click('#sheet [data-look="shirt"][data-v="2"]'); await p.click('#sheet [data-look="hair"][data-v="3"]'); await p.waitForTimeout(200); await shot('g1q-look');
+  check('the character sheet redraws the figure with each choice', (await p.evaluate(() => document.querySelector('#lkStage').innerHTML.includes('#E0364F') && document.querySelector('#sheet [data-look="shirt"][data-v="2"]').getAttribute('aria-pressed'))) === 'true' && (await p.evaluate(() => S.cfg.me.look.hair)) === 3, await p.evaluate(() => JSON.stringify(S.cfg.me)));
+  await p.click('#sheet [data-close]'); await p.waitForTimeout(1200);
+  check('the name and the look are kept and shown', (await txt('.pf-name')) === 'ליאור' && !!(await p.$('.pf-edit')) && cloud['data/users/u_test/cfg'].me.name === 'ליאור' && cloud['data/users/u_test/cfg'].me.look.shirt === 2, cloud['data/users/u_test/cfg'].me);
+  await tab(p, 'home');
+  check('today greets the player by name', (await txt('#playerBtn')).includes('היי, ליאור') && (await p.evaluate(() => document.querySelector('#playerBtn .av.bust').innerHTML.includes('#E0364F'))), await txt('#playerBtn'));
+  await p.click('#playerBtn'); await p.waitForTimeout(200);
+  check('the player strip opens the profile', (await p.evaluate(() => S.view)) === 'profile' && (await p.evaluate(() => document.querySelector('#tabbar [data-view="profile"]').getAttribute('aria-current'))) === 'page', await p.evaluate(() => S.view));
   check('finished workout reached the cloud', sess()[0].end > 0, sess()[0].end);
   await tab(p, 'progress'); await shot('g1b-progress');
   await p.click('#history [data-edit]'); await p.waitForTimeout(250);
   await p.click('#edReopen'); await p.waitForTimeout(500);
-  check('reopen continues the same workout', (await txt('#tabs')).includes('באמצע') && (await txt('#ringTxt')) === '5/21' && !!(await p.$('#dkHit')) && (await p.evaluate(() => S.view)) === 'workout', [await txt('#tabs'), await txt('#ringTxt')]);
+  check('reopen continues the same workout', !!(await p.$('.tab.live')) && (await txt('#ringTxt')) === '5/21' && !!(await p.$('#dkHit')) && (await p.evaluate(() => S.view)) === 'workout' && (await p.evaluate(() => meNow().T.xp)) === 50, [await cur(p), await txt('#ringTxt')]);
   await p.click('#finishBtn'); await p.waitForTimeout(400); await p.click('#sheetClose'); await p.waitForTimeout(1200);
   check('still one workout in the cloud after reopen', sess().length === 1 && sess()[0].end > 0, Object.keys(cloud));
   check('nothing was deleted from the cloud', !(await p.evaluate(() => window.__deleted)), 'deleted');
@@ -125,24 +151,31 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   // ---------- a second device: empty local storage, same account ----------
   const B = await device(b, scheme), q = B.p; ERR.push(B.errs); await q.waitForTimeout(400);
   const t2 = T(q);
-  check('second device: next up is workout 2', (await t2('.tab[aria-current="true"]')).includes('Lower A') && (await t2('#history')).includes('5 סטים'), [await t2('#tabs'), await t2('#history')]);
+  check('second device: next up is workout 2', (await cur(q)) === 'אימון שני – גוף תחתון A, הבא' && (await t2('#history')).includes('5 סטים') && (await t2('#history .xp-tag')) === '+150', [await cur(q), await t2('#history')]);
+  check('second device: the same player, level and character', (await t2('#playerBtn')).includes('היי, ליאור') && (await q.evaluate(() => [meNow().T.xp, S.cfg.me.look.shirt, S.cfg.me.badges.first > 0].join())) === '150,2,true', await t2('#playerBtn'));
   check('second device: the note arrived with the settings', (await q.evaluate(() => S.cfg.notes.inclineSmith || '')).includes('מושב'), 'note');
   await q.click('.tab[data-tab="0"]'); await q.waitForTimeout(400);
   check('second device: last time shown', (await t2('.ex.open .sets')).includes('60×10'), await t2('.ex.open .sets'));
   check('week 2 asks for one rep closer to failure', (await t2('#mesoBtn')).includes('שבוע 2 מתוך 5') && (await t2('#mesoBtn')).includes('2 חזרות לפני כשל'), await t2('#mesoBtn'));
-  check('recovery check appears before the next workout of the muscle', (await t2('#pre')).includes('חזה') && (await t2('#pre')).includes('עדיין תפוס'), await t2('#pre'));
+  check('recovery check is one question before the next workout of the muscle', (await t2('#pre')).includes('השרירים התאוששו?') && !(await q.$('#pre [data-mu]')), await t2('#pre'));
+  await q.click('#preEdit'); await q.waitForTimeout(200);
+  check('"not quite" opens the muscles one by one', (await t2('#pre')).includes('חזה') && (await t2('#pre')).includes('עדיין תפוס'), await t2('#pre'));
   await q.click('#preAll'); await q.waitForTimeout(250);
-  check('recovery check collapses once answered', (await t2('#pre')).includes('ההתאוששות נרשמה'), await t2('#pre'));
+  check('recovery check collapses once answered', (await t2('#pre')).includes('התאוששות נרשמה') && !(await q.$('#pre [data-mu]')), await t2('#pre'));
   await q.click('#dkStart'); await q.waitForTimeout(500); await shot('g2-target', q);
-  check('beat weight: top of the range last time moves the load up', (await t2('#dkKg')).startsWith('62.5') && (await t2('.dk-set')).includes('62.5×9') && (await t2('.dk-set')).includes('60×10') && (await t2('.dk-lbl')).includes('יותר משקל'), [await t2('#dkKg'), await t2('.dk-set'), await t2('.dk-lbl')]);
+  check('beat weight: top of the range last time moves the load up', (await t2('#dkKg')).startsWith('62.5') && (await t2('.dk-set')).includes('62.5×9') && (await t2('.ex.open .prev-line')).includes('60×10') && (await t2('.dk-set .goal')) === 'יותר משקל', [await t2('#dkKg'), await t2('.dk-set'), await t2('.ex.open .prev-line')]);
   await q.click('#dkHit'); await q.waitForTimeout(1500);
   const cB = sess().find((x) => !x.end);
   check('one tap on the check logs exactly the target', !!cB && cB.sets.ua1[0].kg === 62.5 && cB.sets.ua1[0].reps === 9 && cB.sets.ua1[0].tk === 62.5 && cB.sets.ua1[0].tr === 9 && cB.wk === 2 && cB.rir === 2, cB && cB.sets.ua1);
-  check('live sync back to the first device', (await txt('#tabs')).includes('באמצע'), await txt('#tabs'));
+  check('live sync back to the first device', !!(await p.$('.tab.live')) && (await cur(p)).endsWith('באמצע'), await cur(p));
+  check('a personal best is worth 30 more', (await t2('.rt-log .xp-tag')) === '+40' && (await t2('.rt-log .pr')) === 'שיא' && (await q.evaluate(() => meNow().T.xp)) === 190, await t2('.rt-log'));
   await q.click('#rtSkip'); await q.waitForTimeout(100);
   await q.click('.ex.open .same'); await q.waitForTimeout(400);
   check('"log the rest at target" fills the remaining sets', (await q.$$('.ex[data-id="ua1"] .pips i.on')).length === 3, await t2('.ex[data-id="ua1"]'));
-  check('finished exercise asks for feedback', (await t2('.fb-dock')).includes('תחושה בשריר') && (await t2('.fb-dock')).includes('כאב במפרקים'), await t2('#dock'));
+  check('crossing 200 points is a level-up, said at once', (await q.evaluate(() => [meNow().T.xp, S.lvl, document.querySelector('#toast').hidden].join())) === '210,2,false' && (await t2('#toast')) === 'רמה 2!' && (await t2('#lvlChip')).includes('רמה 2'), [await q.evaluate(() => meNow().T.xp), await t2('#toast')]);
+  check('finished exercise asks for feedback', (await t2('.fb-dock')).includes('תחושה בשריר') && (await t2('.fb-dock')).includes('עומס') && (await t2('.fb-dock')).includes('איך היה: לחיצת חזה בשיפוע עליון בסמית׳'), await t2('#dock'));
+  await p.waitForTimeout(400);
+  check('the first device follows the level without a fanfare of its own', (await p.evaluate(() => [S.lvl, document.querySelector('#toast').hidden].join())) === '2,true', await p.evaluate(() => S.lvl));
   await shot('g3-feedback', q);
   await q.click('.fb-dock [data-fb="pump"][data-v="2"]'); await q.click('.fb-dock [data-fb="load"][data-v="1"]'); await q.waitForTimeout(1400);
   const fbB = (sess().find((x) => !x.end) || {}).fb;
@@ -156,9 +189,9 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await q.click('.ex[data-id="ua5"] .ex-head'); await q.waitForTimeout(300);
   await q.click('.ex.open .swap'); await q.waitForTimeout(300); await shot('g4-swap', q);
   const swNames = await q.evaluate(() => [...document.querySelectorAll('.sw-opt .sw-t b')].map((x) => x.textContent));
-  check('swap offers only the same movement pattern', swNames.length === 2 && swNames.includes('Incline Dumbbell Press') && swNames.includes('Incline Smith Machine Press'), swNames);
+  check('swap offers only the same movement pattern', swNames.length === 2 && swNames.includes('לחיצת חזה בשיפוע עם משקולות יד') && swNames.includes('לחיצת חזה בשיפוע עליון בסמית׳') && (await t2('.sw-opt .sw-t')).includes('Incline Dumbbell Press'), swNames);
   await q.click('.sw-opt [data-sw="inclineDb"][data-mode="always"]'); await q.waitForTimeout(1300);
-  check('swap keeps the slot: new name, same sets and reps', (await t2('.ex[data-id="ua5"] .ex-name')) === 'Incline Dumbbell Press' && (await t2('.ex[data-id="ua5"] .ex-rx')).replace(/\s/g, '') === '2×8–12' && (await t2('.ex[data-id="ua5"] .stage-tag')).includes('תנועה דומה'), [await t2('.ex[data-id="ua5"] .ex-head'), await t2('.ex[data-id="ua5"] .stage-tag')]);
+  check('swap keeps the slot: new name, same sets and reps', (await t2('.ex[data-id="ua5"] .ex-name')) === 'לחיצת חזה בשיפוע עם משקולות יד' && (await t2('.ex[data-id="ua5"] .en-name')) === 'Incline Dumbbell Press' && (await t2('.ex[data-id="ua5"] .ex-rx')).replace(/\s/g, '') === '2×8–12' && (await t2('.ex[data-id="ua5"] .stage-tag')).includes('תנועה דומה'), [await t2('.ex[data-id="ua5"] .ex-head'), await t2('.ex[data-id="ua5"] .stage-tag')]);
   const sw = await q.evaluate(() => ({ cfg: S.cfg.swap.ua5, mv: live(0).mv.ua5, chest: muscleVolume(weekItems()).chest }));
   check('swap is stored and the weekly chest volume is unchanged', sw.cfg === 'inclineDb' && sw.mv === 'inclineDb' && sw.chest.d === 8, sw);
   check('swap reached the cloud settings', cloud['data/users/u_test/cfg'].swap.ua5 === 'inclineDb', cloud['data/users/u_test/cfg'].swap);
@@ -177,7 +210,9 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
   await q.click('#sheet [data-close]'); await q.waitForTimeout(300);
 
   // ---------- history-driven checks on the first device: seed a past Lower A, then train it ----------
-  await q.click('#finishBtn'); await q.waitForTimeout(400); await q.click('#sheetClose'); await q.waitForTimeout(1200);
+  await q.click('#finishBtn'); await q.waitForTimeout(1300); await shot('g5b-levelup', q);
+  check('the summary celebrates the level that was reached in this workout', (await t2('#sumXp')) === '+160' && (await t2('.sum-up')) === 'עלית לרמה 2' && (await t2('#sheet .xp')).includes('110 / 240') && (await q.evaluate(() => document.querySelector('#sumBar').style.width)) === '46%', await t2('#sheet'));
+  await q.click('#sheetClose'); await q.waitForTimeout(1200);
   await p.evaluate(() => {
     const day = 864e5, t0 = Date.now() - 4 * day, R = (kg, reps) => ({ kg, reps, done: true, t: t0 + 1000, tk: kg, tr: reps });
     S.sessions.seedLA = { id: 'seedLA', v: 3, w: 1, ts: t0, end: t0 + 3600e3, mt: t0 + 3600e3, upd: t0 + 3600e3, ft: t0, m: 'm1', wk: 1, dl: 0, rir: 3, n: { la1: 3, la2: 3, la3: 3, la4: 3, la5: 3, la6: 2 }, mv: {}, sore: {}, cut: {},
@@ -185,31 +220,31 @@ const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'numbe
       sets: { la1: [R(100, 8), R(100, 8), R(100, 7)], la2: [R(80, 9), R(80, 9), R(80, 8)], la3: [R(200, 12), R(200, 11), R(200, 10)], la4: [R(40, 12), R(40, 11), R(40, 10)], la5: [R(60, 14), R(60, 13), R(60, 12)], la6: [R(15, 12), R(15, 12)] } };
     touch(S.sessions.seedLA); S.tab = 1; S.touched = true; S.open = null; setView('workout', true); renderAll(); startTab();
   });
-  await p.waitForTimeout(400); await shot('g6-pre');
+  await p.waitForTimeout(400); await p.click('#preEdit'); await p.waitForTimeout(200); await shot('g6-pre');
   check('recovery check lists the muscles of this workout', (await txt('#pre')).includes('ארבע ראשי') && (await txt('#pre')).includes('ירך אחורית') && (await txt('#pre')).includes('שוקיים'), await txt('#pre'));
   const rx = (id) => p.evaluate((i) => document.querySelector('.ex[data-id="' + i + '"] .ex-rx').textContent.replace(/\s/g, ''), id);
   await p.click('#pre [data-mu="quads"][data-v="2"]'); await p.waitForTimeout(250);
-  check('still sore: one set off and one more rep in reserve', (await rx('la3')) === '2×10–15' && (await rx('la1')) === '3×6–10' && (await txt('#pre')).includes('סט אחד פחות') && (await p.evaluate(() => rirOf(findEx('la1'), live(1)))) === 3, [await rx('la3'), await txt('#pre')]);
+  check('still sore: one set off and one more rep in reserve', (await rx('la3')) === '2×10–15' && (await rx('la1')) === '3×6–10' && (await txt('#pre')).includes('סט פחות: לחיצת רגליים') && (await txt('#pre')).includes('חזרה פחות לארבע ראשי') && (await p.evaluate(() => rirOf(findEx('la1'), live(1)))) === 3, [await rx('la3'), await txt('#pre')]);
   await p.click('#pre [data-mu="hams"][data-v="0"]'); await p.waitForTimeout(250);
   check('never sore after easy work: one set added', (await rx('la2')) === '4×8–10' && (await txt('#pre')).includes('סט נוסף'), [await rx('la2'), await txt('#pre')]);
   await p.click('#pre [data-mu="calves"][data-v="1"]'); await p.click('#pre [data-mu="abs"][data-v="1"]').catch(() => {}); await p.waitForTimeout(250);
   check('low pump twice in a row is not flagged after one workout', !(await txt('.ex[data-id="la5"]')).includes('שווה להחליף'), await txt('.ex[data-id="la5"]'));
   await p.click('#dkStart'); await p.waitForTimeout(600);
   // sore quads hold last week's performance instead of adding a rep
-  check('sore muscle holds the target', (await txt('.dk-set')).includes('יעד 100×8') && (await txt('.dk-lbl')).includes('לשמור'), [await txt('.dk-set'), await txt('.dk-lbl')]);
+  check('sore muscle holds the target', (await txt('.dk-set')).includes('יעד 100×8') && (await txt('.dk-set .goal')) === 'כמו בפעם הקודמת', await txt('.dk-set'));
   await log(p, 12); await p.waitForTimeout(500);
   check('calibration: far more reps than predicted re-aims the next set', (await txt('.rt-state')).includes('מעלים ל-') && (await p.evaluate(() => { const T = targetOf(findEx('la1'), 1, live(1)); return T.mode + ':' + T.kg; })).startsWith('cal:1'), [await txt('.rt-state'), await p.evaluate(() => JSON.stringify(targetOf(findEx('la1'), 1, live(1))))]);
   await p.click('#rtSkip'); await p.waitForTimeout(200); await shot('g7-cal');
   const calKg = await p.evaluate(() => targetOf(findEx('la1'), 1, live(1)).kg);
-  check('calibrated weight is rounded to the equipment step', calKg % 5 === 0 && calKg > 100 && (await txt('#dkKg')).startsWith(String(calKg)) && (await txt('.dk-lbl')).includes('כויל מחדש'), [calKg, await txt('#dkKg'), await txt('.dk-lbl')]);
+  check('calibrated weight is rounded to the equipment step', calKg % 5 === 0 && calKg > 100 && (await txt('#dkKg')).startsWith(String(calKg)) && (await txt('.dk-set .goal')) === 'משקל מעודכן', [calKg, await txt('#dkKg'), await txt('.dk-set')]);
   await log(p, 4); await p.waitForTimeout(500); await p.click('#rtSkip'); await p.waitForTimeout(200);
   const dn = await p.evaluate(() => targetOf(findEx('la1'), 2, live(1)));
-  check('down-set: under the range drops the load 10%', dn.mode === 'down' && dn.kg <= calKg * 0.9 && dn.kg % 5 === 0 && dn.reps >= 6 && dn.reps <= 10 && (await txt('.dk-lbl')).includes('ירד ב-10%'), dn);
+  check('down-set: under the range drops the load 10%', dn.mode === 'down' && dn.kg <= calKg * 0.9 && dn.kg % 5 === 0 && dn.reps >= 6 && dn.reps <= 10 && (await txt('.dk-set .goal')) === 'פחות משקל', dn);
   await p.click('#dkHit'); await p.waitForTimeout(500);
-  check('feedback panel sits in the rest dock', (await txt('.dock.rest .fb-dock')).includes('כאב במפרקים'), await txt('#dock'));
+  check('feedback panel sits in the rest dock', (await txt('.dock.rest .fb-dock')).includes('כאב') && (await txt('.dock.rest .fb-dock')).includes('האק סקוואט'), await txt('#dock'));
   await p.click('.fb-dock [data-fb="pain"][data-v="2"]'); await p.waitForTimeout(400);
   const cut = await p.evaluate(() => ({ cut: live(1).cut, la3: findEx('la3').sets, off: document.querySelector('.ex[data-id="la3"]').className, banner: document.querySelector('.fb-dock .fb-warn') ? document.querySelector('.fb-dock .fb-warn').innerText : '' }));
-  check('severe joint pain cancels the rest of that muscle today and suggests a gentler movement', cut.cut.la3 === 'la1' && cut.la3 === 0 && cut.off.includes('off') && cut.banner.includes('בוטלו') && cut.banner.includes('Goblet Squat') && cut.banner.includes('נוחה יותר למפרקים'), cut);
+  check('severe joint pain cancels the rest of that muscle today and suggests a gentler movement', cut.cut.la3 === 'la1' && cut.la3 === 0 && cut.off.includes('off') && cut.banner.includes('בוטלו') && cut.banner.includes('גובלט סקוואט') && cut.banner.includes('נוח יותר למפרקים'), cut);
   await p.waitForTimeout(1500); await shot('g8-pain'); await p.click('.fb-dock [data-swapto]'); await p.waitForTimeout(300);
   check('accepting the suggestion swaps from the next workout', (await p.evaluate(() => S.cfg.swap.la1)) === 'gobletSquat' && (await txt('.fb-dock .fb-warn')).includes('מהאימון הבא') && (await p.evaluate(() => findEx('la1').mv)) === 'hackSquat', await p.evaluate(() => S.cfg.swap));
   await p.click('.fb-dock [data-fb="pump"][data-v="0"]'); await p.click('.fb-dock [data-fb="load"][data-v="2"]'); await p.waitForTimeout(600);

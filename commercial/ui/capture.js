@@ -50,7 +50,7 @@ const TAKES = {
 };
 
 async function lifterStore(p0) {
-  return p0.evaluate(([look]) => {
+  return p0.evaluate(([look, UILANG, NAME]) => {
     const now = Date.now(), day = 864e5, ses = {}; let k = 0;
     for (let wk = 1; wk <= 3; wk++) for (let w = 0; w < 4; w++) {
       const ts = now - ((3 - wk) * 7 + (5 - w) * 1.5 + 1) * day, id = 'e' + (++k), sets = {}, fb = {};
@@ -58,7 +58,7 @@ async function lifterStore(p0) {
       ses[id] = { id, v: 3, w, ts, end: ts + 3e6, mt: ts, upd: ts, ft: ts, m: 'm1', wk, dl: 0, rir: rirFor(wk, 5), n: {}, mv: {}, sore: {}, cut: {}, fb, sets };
     }
     return { sound: false, buzz: false, dirty: [], gone: [], sessions: ses, cfg: { upd: 5, lang: UILANG, weeks: 5, notes: {}, meso: { id: 'm1', n: 1, start: 0, early: 0 }, past: [], me: { name: NAME, made: 1, ob: Date.now(), exp: 1, goal: 0, look } } };
-  }, [LOOK]);
+  }, [LOOK, UILANG, NAME]);
 }
 
 (async () => {

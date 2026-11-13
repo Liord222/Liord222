@@ -1,6 +1,6 @@
 # gymi — the launch commercial
 
-A 30-second film made entirely from code: the real app captured frame by frame, a 3D phone and gym built in
+A 30-second film made entirely from code (and a second one, the Hebrew product film: `PLAN-product.md`, `./product.sh`): the real app captured frame by frame, a 3D phone and gym built in
 Blender, an original synthesized soundtrack, and an edit that puts them together. `PLAN.md` is the shot list.
 
 ## Make it

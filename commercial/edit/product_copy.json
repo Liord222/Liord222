@@ -1,0 +1,16 @@
+{
+  "_": "The words of the product film. Each one becomes a transparent picture (ui/titles.js); edit/product.py decides when and where it appears. style: open (the lines on black), head (a feature's line), sub (the grey line under it), end (the last line, in gymi's two colours).",
+  "o1": { "text": "לא צריך לדעת הכול.", "style": "open" },
+  "o2": { "text": "צריך רק להתחיל.", "style": "open" },
+  "p2h": { "text": "הכירו את gymi.", "style": "head" },
+  "p2s": { "text": "המאמן האישי שלך.", "style": "sub" },
+  "p3h": { "text": "דמות\nשהיא אתה.", "style": "head" },
+  "p3s": { "text": "בוחרים מראה,\nוהיא מתחזקת יחד איתך.", "style": "sub" },
+  "p4h": { "text": "תוכנית שנבנית בשבילך.", "style": "head" },
+  "p4s": { "text": "אילון, המאמן שלך, מתאים אותה לרמה ולמטרה.", "style": "sub" },
+  "p5h": { "text": "המכשיר תפוס?\nמחליפים.", "style": "head" },
+  "p5s": { "text": "תרגיל חלופי,\nבהקשה אחת.", "style": "sub" },
+  "p6h": { "text": "כל סט מקדם אותך.", "style": "head" },
+  "p6s": { "text": "נקודות, רמות ומדליות. כמו במשחק.", "style": "sub" },
+  "end": { "text": "הכושר שלך. שלב אחרי שלב.", "style": "end" }
+}

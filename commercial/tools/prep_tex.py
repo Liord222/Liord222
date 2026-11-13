@@ -34,10 +34,20 @@ SHOTS = {
     'S4d': seg('set', 4, 46, 30) + seg('done', 7, 50, 30),
     'S5': seg('smith', 0, 71, 72),
     'S6': seg('home', 0, 71, 72),
+    # the product film (blender/product.py): the screen is off while we see the back, and wakes on the splash
+    'P1': hold('off', 0, 52) + seg('welcome', 0, 31, 32),
+    'P2': seg('welcome', 32, 108, 84),
+    'P3': seg('character', 2, 65, 80) + hold('character', 65, 16),
+    'P4': seg('plan', 4, 83, 78) + hold('plan', 83, 6),
+    'P5': seg('swap', 22, 100, 90) + hold('swap', 100, 6),
+    'P6': seg('set', 4, 46, 44) + seg('done', 7, 58, 52),
+    'P7': seg('home', 0, 47, 48),
 }
 
 
 def frame_path(take, f):
+    if take == 'off':
+        return None
     if take.startswith('search/'):
         return os.path.join(UI, take + '.png')
     return os.path.join(UI, take, '%04d.png' % f)
@@ -51,7 +61,7 @@ def build(name):
         src = frame_path(take, f)
         if src not in cache:
             cache.clear()
-            cache[src] = screenify(Image.open(src))
+            cache[src] = Image.new('RGB', (1206, 2622), (0, 0, 0)) if src is None else screenify(Image.open(src))
         cache[src].save(os.path.join(out, '%04d.jpg' % (i + 1)), quality=93)
     json.dump({'frames': len(SHOTS[name])}, open(os.path.join(out, 'info.json'), 'w'))
     print(name, len(SHOTS[name]))

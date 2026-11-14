@@ -36,15 +36,15 @@ const ICON = {
    ob (when the opening screens were passed), exp (gym experience: 0 beginner, 1 regular, 2 experienced), goals (any of 0 physique, 1 strength,
    2 fitness; goal is the first of them, for what read it before), time (minutes a workout may take: 30, 45, 60, 75, or 0 for any),
    eq (0 a full gym, 1 a basic gym, 2 not sure yet), fb (how often Eilon asks how an exercise went: 0 never, 1 now and then, 2 always),
-   pin (the SHA-256 of the 4-digit code, or ''),
+   days (how many workouts a week: 2 to 5, or null before it was asked, which keeps the four),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, days: null, fb: 2, tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), days: DAYS_OK.includes(v.days) ? v.days : null, fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
   out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
@@ -113,10 +113,10 @@ function sessSlots(s) {
 const moveOf = (pe, s) => { const k = s ? s.mv && s.mv[pe.id] : S.cfg.swap[pe.id]; return isMv(k) ? k : pe.a; };
 const incOf = (mv) => { const q = LIB[mv].eq, v = +S.cfg.inc[q]; return v > 0 ? v : EQUIP[q].inc; };
 
-/* ---- mesocycle: a week is one pass through the four workouts; the last week is a deload ---- */
+/* ---- mesocycle: a week is one pass through the workouts of the week; the last week is a deload ---- */
 const mesoSessions = (id) => Object.values(S.sessions).filter((x) => x.m === id && hasDone(x));
-/* a mesocycle is over once every one of the four workouts has had its deload */
-function mesoDone(M) { const l = mesoSessions(M.id); return [0, 1, 2, 3].every((w) => l.some((x) => x.w === w && x.dl && x.end)); }
+/* a mesocycle is over once every workout of the week has had its deload */
+function mesoDone(M) { const l = mesoSessions(M.id); return week().every((w) => l.some((x) => x.w === w && x.dl && x.end)); }
 /* where the next workout of this type falls: mesocycle, week, deload or not, reps in reserve */
 function phaseNext(w) {
   let M = S.cfg.meso, fresh = false;
@@ -203,8 +203,10 @@ function sweep() {
 }
 function nextUp() {
   const l = sorted().filter(hasDone);
-  if (!l.length) return { next: 0, live: -1 };
-  return l[0].end ? { next: (l[0].w + 1) % 4, live: -1 } : { next: l[0].w, live: l[0].w };
+  const W = week();
+  if (!l.length) return { next: W[0], live: -1 };
+  /* the workout after the last one, in the week as it is now: a workout that left the week (the days changed) starts it again */
+  return l[0].end ? { next: W[(W.indexOf(l[0].w) + 1) % W.length], live: -1 } : { next: l[0].w, live: l[0].w };
 }
 
 /* ---- an exercise as it is done in one workout: the plan slot with that day's movement and set count ---- */
@@ -436,12 +438,13 @@ function setBase(exId, n) {
   if (s && !s.dl && s.n && doneTop(s, exId) <= n) { s.n = Object.assign({}, s.n, { [exId]: n }); s.ft = Date.now(); touch(s); }
 }
 /* the week as it stands now: every slot with its movement and planned sets */
-function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w, undefined, true)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
+function weekItems() { const out = []; for (const w of week()) for (const e of exList(w, undefined, true)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
 /* the weekly sets of each muscle in the plan the app itself builds from the lifter's answers. What a muscle gets there is by design:
    a beginner's fewer sets, a short workout, a gym without the machine. null when there are no answers to build from */
 function volBase() {
   const me = S.cfg.me; if (me.exp == null) return null;
-  const items = []; for (const list of fitPlanData(fitAns(me))) for (const x of list) items.push({ mv: x.mv, sets: x.sets });
+  /* only the workouts of the lifter's week: the others in the plan are not trained, and would make every muscle look full */
+  const all = fitPlanData(fitAns(me)), items = []; for (const w of week()) for (const x of all[w] || []) items.push({ mv: x.mv, sets: x.sets });
   return muscleVolume(items);
 }
 /* the muscles whose week sits under its minimum or over its maximum by the lifter's own doing: { muscle: 'under' | 'over' }.
@@ -608,7 +611,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'days', 'fb', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;
@@ -690,9 +693,8 @@ function restoreData(text) {
     me.arch = theirs.arch.until > mine.arch.until ? theirs.arch : mine.arch; me.badges = Object.assign({}, theirs.badges, mine.badges);
     if (made) { me.name = made.name; me.look = made.look; me.made = made.made; }
     me.ob = me.ob || mine.ob || theirs.ob; if (me.exp == null) me.exp = mine.exp != null ? mine.exp : theirs.exp; if (me.goal == null) me.goal = mine.goal != null ? mine.goal : theirs.goal;
-    for (const k of ['time', 'eq']) if (me[k] == null) me[k] = mine[k] != null ? mine[k] : theirs[k];
+    for (const k of ['time', 'eq', 'days']) if (me[k] == null) me[k] = mine[k] != null ? mine[k] : theirs[k];
     if (!me.goals.length) me.goals = (mine.goals && mine.goals.length ? mine.goals : theirs.goals || []).slice();
-    if (!me.pin) me.pin = mine.pin || theirs.pin || '';
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }
   saveLocal();

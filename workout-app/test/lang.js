@@ -37,7 +37,7 @@ const hebOn = (p) => p.evaluate(() => {
   for (const el of app.querySelectorAll('*')) { if (el.matches(skip)) continue; for (const a of ['aria-label', 'title', 'placeholder', 'alt', 'label']) { const v = el.getAttribute(a); if (v && H.test(v)) out.push(a + '=' + v.slice(0, 40)); } }
   return out;
 });
-/* through the opening screens with these answers: as far as the plan (which is waited for while it is built), the code, or the last screen.
+/* through the opening screens with these answers: as far as the plan (which is waited for while it is built), or the last screen.
    seen: called on every screen that is passed */
 const obWalk = async (pg, a, to, seen) => {
   const look = async (k) => { if (seen) await seen(k); };
@@ -48,14 +48,13 @@ const obWalk = async (pg, a, to, seen) => {
   await pg.click('.ob-opt[data-v="' + a.exp + '"]'); await look('exp'); await next();
   for (const g of a.goals) await pg.click('.ob-opt[data-v="' + g + '"]');
   await look('goals'); await next();
-  await pg.click('.ob-time[data-v="' + a.time + '"]'); await look('time'); await next();
+  await pg.click('.ob-time[data-ob="days"][data-v="' + (a.days || 4) + '"]'); await look('days'); await next();
+  await pg.click('.ob-time[data-ob="time"][data-v="' + a.time + '"]'); await look('time'); await next();
   await pg.click('.ob-opt[data-v="' + a.eq + '"]'); await look('eq'); await next();
   for (const t of ['hair', 'hc', 'beard', 'shirt', 'skin']) { await pg.click('#ob [data-lktab="' + t + '"]'); await look('look-' + t); }
   await next(); await look('build');
   await pg.waitForSelector('#obNext:not([disabled])', { timeout: 9000 }); await pg.waitForTimeout(300); await look('plan');
   if (to === 'plan') return;
-  await next(); await look('pin');
-  if (to === 'pin') return;
   await next(); await look('done');
 };
 /* the question about today's length, when it is asked: answered with the whole workout */
@@ -66,7 +65,7 @@ const noTour = async (pg) => { await pg.waitForSelector('#tourSkip', { timeout: 
 const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { await pg.click('#msAdv'); await pg.waitForTimeout(250); } };
 (async () => {
   const b = await chromium.launch();
-  /* the log: three weeks of the four workouts, every set done, each exercise rated */
+  /* the log: three weeks of the workouts, every set done, each exercise rated */
   let p = await open(b, null);
   const store = await p.evaluate(() => {
     const now = Date.now(), day = 864e5, ses = {}; let k = 0;
@@ -86,9 +85,9 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   // ---- today
   check('the language of the settings wins over the language of the phone', (await p.evaluate(() => [LANG, document.documentElement.dir, document.documentElement.lang, document.querySelector('#app').dir].join())) === 'en,ltr,en,ltr', await p.evaluate(() => LANG));
   const home = await txt('#home');
-  check('today is in English', home.includes('Hi, Sam') && home.includes('Level ') && home.includes('Workout 1') && home.includes('Upper Body A') && home.includes('8 exercises') && home.includes('Start workout') && home.includes('This week') && !home.includes(' of 5') && home.includes('Plan'), home);
+  check('today is in English', home.includes('Hi, Sam') && home.includes('Level ') && home.includes('Workout 1') && home.includes('Armor') && home.includes('8 exercises') && home.includes('Start workout') && home.includes('This week') && !home.includes(' of 5') && home.includes('Plan'), home);
   check('the tabs are in English', (await txt('#tabbar')).replace(/\s+/g, ' ').trim() === 'Workouts Journey Profile Eilon', await txt('#tabbar'));
-  check('the week path uses the short English names', (await txt('#tabs')).replace(/\s+/g, ' ').includes('Upper A') && (await txt('#tabs')).includes('Lower B') && (await p.getAttribute('#tabs .tab[data-tab="0"]', 'aria-label')) === 'Workout 1 – Upper Body A, next', await txt('#tabs'));
+  check('the week uses the English names of the workouts, with what each trains', (await txt('#tabs')).replace(/\s+/g, ' ').includes('Armor') && (await txt('#tabs')).includes('Launch') && (await txt('#tabs')).includes('Chest · back · arms') && (await p.getAttribute('#tabs .tab[data-tab="0"]', 'aria-label')) === 'Workout 1 – Armor, next', await txt('#tabs'));
   check('arrows that mean "onward" point right', (await p.evaluate(() => getComputedStyle(document.querySelector('#planBtn .i.dir')).transform)) === 'matrix(-1, 0, 0, 1, 0, 0)', 'transform');
   await clean('today'); await snap(p, 'en1-home', true);
 
@@ -110,7 +109,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('the exercise is in English', (await txt('#exList .ex-name')) === 'Incline Smith Machine Press' && (await txt('.fx-rx')) === '6–10 reps · To failure' && ex.includes('Upper chest · front delts · triceps') && (await txt('.ex.open .how')).trim() === 'Exercise details' && (await p.getAttribute('.ex.open .more', 'aria-label')) === 'More: swap, note, history' && (await p.getAttribute('.stage-wrap', 'aria-label')) === 'Pause the demo', ex.slice(0, 300));
   /* the screen during a set: two arrows, the demo with two quiet things on its corners, and one cell per set. Nothing else to press */
   check('the exercise screen holds only what a set needs', (await p.$$('#exList .ex.open button')).length === 8 && (await p.$$('#exList .ex.open .setp')).length === 3 && (await p.$$('#exList .ex.open .stage-wrap *:not(.hx):not(.hx *)')).length <= 4 && !(await p.$('#exList .chip, #exList .chipx, #exList .tagx, #exList .seg, #exList textarea')), (await p.$$('#exList .ex.open button')).length);
-  check('the header says where in the workout the screen stands', (await txt('#wkTitle')).replace(/\s+/g, ' ').includes('Upper Body A Exercise 1 of 8') && (await p.getAttribute('#backBtn', 'aria-label')) === 'Back to the main screen' && (await p.getAttribute('#listBtn', 'aria-label')) === 'All exercises' && (await p.getAttribute('#wkBar .bar', 'aria-label')) === '0 of 21 sets', [await txt('#wkTitle'), await p.getAttribute('#wkBar .bar', 'aria-label')]);
+  check('the header says where in the workout the screen stands', (await txt('#wkTitle')).replace(/\s+/g, ' ').includes('Armor Exercise 1 of 8') && (await p.getAttribute('#backBtn', 'aria-label')) === 'Back to the main screen' && (await p.getAttribute('#listBtn', 'aria-label')) === 'All exercises' && (await p.getAttribute('#wkBar .bar', 'aria-label')) === '0 of 21 sets', [await txt('#wkTitle'), await p.getAttribute('#wkBar .bar', 'aria-label')]);
   const dock = await txt('#dock');
   check('the bar at the bottom is in English, and says each thing once', dock.includes('Set 1 of 3') && dock.includes('More reps') && dock.includes('kg') && dock.includes('reps') && dock.includes('Set done') && !dock.includes('target') && (await p.$$('#dock button')).length === 6 && (await p.getAttribute('#dkKg', 'aria-label')) === 'Weight: 47.5 kg, tap to type' && (await p.getAttribute('#dkReps', 'aria-label')) === 'Reps: 10, tap to type' && (await p.getAttribute('#dock', 'aria-label')) === 'Set log and rest timer' && (await p.evaluate(() => [...document.querySelectorAll('#dock .step')].map((x) => x.textContent + '/' + x.getAttribute('aria-label')).join('|'))) === '−2.5/Take off 2.5 kg|+5/Add 5 kg' && !(await p.$('#dock .xp-tag')), dock);
   await clean('the exercise'); await snap(p, 'en3-exercise', true);
@@ -172,24 +171,24 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#listBtn'); await p.waitForTimeout(250); await p.click('#editWk'); await p.waitForTimeout(350);
   const wkp = await txt('#sheet');
-  check('the page of a workout in the plan is in English', wkp.includes('Upper Body A') && wkp.includes('+ Add exercise') && wkp.includes('Reorder and remove') && (await p.getAttribute('#sheet [data-msp=""]', 'aria-label')) === 'Back to the plan' && (await p.getAttribute('#sheet [data-base]', 'aria-label')) === 'One set less', wkp.slice(0, 300));
+  check('the page of a workout in the plan is in English', wkp.includes('Armor') && wkp.includes('+ Add exercise') && wkp.includes('Reorder and remove') && (await p.getAttribute('#sheet [data-msp=""]', 'aria-label')) === 'Back to the plan' && (await p.getAttribute('#sheet [data-base]', 'aria-label')) === 'One set less', wkp.slice(0, 300));
   await clean('the plan, one workout'); await snap(p, 'en8b-plan-workout', true);
   await p.click('#sheet [data-bled="0"]'); await p.waitForTimeout(250); await clean('the plan, reordering');
   await p.click('#sheet [data-bled="0"]'); await p.waitForTimeout(200);
   await p.click('#sheet [data-addw="0"]'); await p.waitForTimeout(350);
-  check('adding an exercise is in English', (await txt('#sheet')).includes('Add exercise · Upper Body A') && (await txt('#sheet')).includes('What to add?') && (await txt('#sheet .mu-row')).includes('Chest') && !(await p.$('#sheet .sw-b')), (await txt('#sheet')).slice(0, 200));
+  check('adding an exercise is in English', (await txt('#sheet')).includes('Add exercise · Armor') && (await txt('#sheet')).includes('What to add?') && (await txt('#sheet .mu-row')).includes('Chest') && !(await p.$('#sheet .sw-b')), (await txt('#sheet')).slice(0, 200));
   await clean('adding an exercise');
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#sheet [data-msp=""]'); await p.waitForTimeout(250);
   const ms0 = await txt('#sheet');
-  check('the plan opens as one short screen, in English', ms0.includes('Your plan') && ms0.includes('Four workouts') && ms0.includes('Tap a workout to add, swap or remove exercises.') && ms0.includes('Lower Body B') && /\d exercises · \d\d min/.test(ms0) && ms0.includes('Advanced settings') && (await p.$$('#sheet .pl-card')).length === 4 && !(await p.$('#sheet .m-row, #sheet select, #sheet .vol-row, #sheet .bl-row')) && (await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); return el.scrollHeight <= el.clientHeight + 1; })), ms0);
+  check('the plan opens as one short screen, in English', ms0.includes('Your plan') && ms0.includes('4 workouts a week') && ms0.includes('Tap a workout to add, swap or remove exercises.') && ms0.includes('Launch') && /\d exercises · \d\d min/.test(ms0) && ms0.includes('Advanced settings') && (await p.$$('#sheet .pl-card')).length === 4 && !(await p.$('#sheet .m-row, #sheet select, #sheet .vol-row, #sheet .bl-row')) && (await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); return el.scrollHeight <= el.clientHeight + 1; })), ms0);
   await clean('the plan, folded'); await snap(p, 'en8a-plan', true);
   /* a set is taken off the calves, so that the plan has something to say about a muscle */
   await p.click('#sheet [data-msw="1"]'); await p.waitForTimeout(250); await p.click('#sheet [data-base="la5"][aria-label="One set less"]'); await p.waitForTimeout(200); await p.click('#sheet [data-msp=""]'); await p.waitForTimeout(250);
   check('a muscle taken out of its range is marked on the folded plan with a quiet dot', !!(await p.$('#msAdv .pl-dot')) && (await p.getAttribute('#msAdv .pl-dot', 'title')) === 'Something to look at', await txt('#msAdv'));
   await adv(p);
   const ms = await txt('#sheet');
-  check('the plan is in English', ms.includes('Round 1') && ms.includes('Week 4 of 5') && ms.includes('To failure') && ms.includes('Easy week') && ms.includes('Lower Body B') && /\d exercises/.test(ms) && ms.includes('Sets a week by muscle') && ms.includes('muscle out of range') && ms.includes('Weight step') && ms.includes('Weeks in a round') && ms.includes('Summary of this round') && ms.includes('Easy week now') && ms.includes('New round'), ms.slice(0, 500));
+  check('the plan is in English', ms.includes('Round 1') && ms.includes('Week 4 of 5') && ms.includes('To failure') && ms.includes('Easy week') && ms.includes('Launch') && /\d exercises/.test(ms) && ms.includes('Sets a week by muscle') && ms.includes('muscle out of range') && ms.includes('Weight step') && ms.includes('Weeks in a round') && ms.includes('Summary of this round') && ms.includes('Easy week now') && ms.includes('New round'), ms.slice(0, 500));
   await clean('the plan'); await snap(p, 'en8-plan', true);
   await p.click('#sheet [data-msp="vol"]'); await p.waitForTimeout(250);
   check('the volume bars are read out in English', /^[A-Z][a-z ]+: [\d.]+ sets a week\. Suggested range: \d+ to \d+$/.test(await p.getAttribute('#sheet .vol-bar', 'aria-label')) && (await txt('#sheet')).includes('The light band is the suggested range.') && (await txt('#sheet')).includes('Below the minimum'), await p.getAttribute('#sheet .vol-bar', 'aria-label'));
@@ -212,11 +211,11 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.click('.ex.open .more'); await p.waitForTimeout(250); await p.click('#moreAsk'); await p.waitForTimeout(350);
   const ch = await txt('#chat');
   check('the coach greets in English', ch.includes('Eilon') && ch.includes('Your coach') && ch.includes('Hi, I am Eilon') && ch.includes('The machine is taken. What instead?') && ch.includes('About') && (await p.getAttribute('#chatInput', 'placeholder')) === 'Ask Eilon' && (await p.getAttribute('#sendBtn', 'aria-label')) === 'Send', ch.slice(0, 300));
-  check('the exercise picker of the chat is in English', (await p.evaluate(() => { const s = document.querySelector('#chatCtx'); return [s.options[0].text, s.querySelector('optgroup').label, s.selectedOptions[0].text].join('|'); })) === 'The whole plan|Workout 1 – Upper Body A|Assisted Pull-ups', await p.evaluate(() => document.querySelector('#chatCtx').selectedOptions[0].text));
+  check('the exercise picker of the chat is in English', (await p.evaluate(() => { const s = document.querySelector('#chatCtx'); return [s.options[0].text, s.querySelector('optgroup').label, s.selectedOptions[0].text].join('|'); })) === 'The whole plan|Workout 1 – Armor|Assisted Pull-ups', await p.evaluate(() => document.querySelector('#chatCtx').selectedOptions[0].text));
   await clean('the chat, empty'); await snap(p, 'en10-chat');
   await p.fill('#chatInput', 'Can a seated chest press replace this?'); await p.click('#sendBtn'); await p.waitForTimeout(600);
   const call = await p.evaluate(() => window.__calls[0]);
-  check('the coach gets his rules in English, with the plan and the lifter', !/[֐-׿]/.test(call.first) && call.first.startsWith('You are Eilon') && call.first.includes('Workout 1 – Upper Body A') && call.first.includes('1. [ua1] Incline Smith Machine Press: 3 sets × 6–10 reps | rest 2–3 min') && call.first.includes('About the user: Name: Sam · Gym experience: Regular (Six months to two years) · Goal: Physique') && call.first.includes('"Verdict: Partly suitable"'), call.first.slice(0, 200));
+  check('the coach gets his rules in English, with the plan and the lifter', !/[֐-׿]/.test(call.first) && call.first.startsWith('You are Eilon') && call.first.includes('Workout 1 – Armor') && call.first.includes('1. [ua1] Incline Smith Machine Press: 3 sets × 6–10 reps | rest 2–3 min') && call.first.includes('About the user: Name: Sam · Gym experience: Regular (Six months to two years) · Goal: Physique') && call.first.includes('"Verdict: Partly suitable"'), call.first.slice(0, 200));
   check('the question goes with its context in English', !/[֐-׿]/.test(call.last) && call.last.startsWith('[Context from the app.') && call.last.includes('The question is about the exercise [ua2] "Assisted Pull-ups" (Workout 1): 3 sets × 6–10 reps, rest 2 min, To failure.') && /Recent results \(kg×reps\): \d+ days ago: /.test(call.last) && call.last.endsWith('Can a seated chest press replace this?'), call.last);
   check('an English verdict is shown as a verdict', (await txt('#msgs .verdict.mid')) === 'Partly suitable' && (await txt('#msgs')).includes('About Assisted Pull-ups') && !(await txt('#msgs .msg.a')).includes('Verdict:'), await txt('#msgs'));
   await p.fill('#chatInput', 'log 40 kg 8 8 7'); await p.click('#sendBtn'); await p.waitForTimeout(700);
@@ -246,7 +245,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await clean('profile'); await snap(p, 'en13-history', true);
   await p.click('#history [data-edit]'); await p.waitForTimeout(350);
   const ed = await txt('#sheet');
-  check('fixing a finished workout is in English', ed.includes('Workout 1') && ed.includes('Upper Body A') && ed.includes('Date') && ed.includes('Set 1') && ed.includes('kg') && ed.includes('reps') && ed.includes('Delete workout') && ed.includes('Continue this workout') && ed.includes('Done') && /\d exercises that were not logged/.test(ed) && (await p.getAttribute('#sheet .ed-row input', 'aria-label')) === 'Weight in set 1', ed.slice(0, 300));
+  check('fixing a finished workout is in English', ed.includes('Workout 1') && ed.includes('Armor') && ed.includes('Date') && ed.includes('Set 1') && ed.includes('kg') && ed.includes('reps') && ed.includes('Delete workout') && ed.includes('Continue this workout') && ed.includes('Done') && /\d exercises that were not logged/.test(ed) && (await p.getAttribute('#sheet .ed-row input', 'aria-label')) === 'Weight in set 1', ed.slice(0, 300));
   await clean('fixing a finished workout'); await snap(p, 'en14-editor', true);
   await p.click('#edDelAsk'); await p.waitForTimeout(200);
   check('deleting asks in English', (await txt('#edAct')).includes('Delete this workout?') && (await txt('#edDelYes')) === 'Yes, delete', await txt('#edAct'));
@@ -274,38 +273,15 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#setBtn'); await p.waitForTimeout(300);
   const st = await txt('#sheet');
-  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Physique') && st.includes('Fitness and health') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && st.includes('Character and name') && st.includes('My training') && st.includes('Goals') && st.includes('Time for a workout, in minutes') && st.includes('The gym') && st.includes('Not sure') && st.includes('Eilon asks how it went') && st.includes('On heavy lifts') && st.includes('Sound and touch') && st.includes('Privacy') && st.includes('Entry code') && st.includes('A tour of the app') && st.includes('Delete the account') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
+  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Physique') && st.includes('Fitness and health') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && st.includes('Character and name') && st.includes('My training') && st.includes('Goals') && st.includes('Time for a workout, in minutes') && st.includes('The gym') && st.includes('Not sure') && st.includes('Eilon asks how it went') && st.includes('On heavy lifts') && st.includes('Sound and touch') && st.includes('Workouts a week') && !st.includes('Privacy') && !st.includes('Entry code') && st.includes('A tour of the app') && st.includes('Delete the account') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
   await clean('the settings'); await snap(p, 'en15b-settings', true);
-  /* the code, the page that deletes the account, and the door */
-  const keysE = async (attr, d) => { for (const k of d) { await p.click('[' + attr + '="' + k + '"]'); await p.waitForTimeout(40); } await p.waitForTimeout(260); };
-  await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; }); await p.click('#pinSet'); await p.waitForTimeout(250);
-  const pinE = await txt('#sheet');
-  check('setting a code is in English', pinE.includes('Entry code') && pinE.includes('A new code: 4 digits') && pinE.includes('It cannot be recovered.') && (await p.getAttribute('#sheet [data-pk="del"]', 'aria-label')) === 'Delete a digit' && (await p.getAttribute('#setDots', 'aria-label')) === 'Digits typed: 0' && (await p.getAttribute('#sheet [data-setpg=""]', 'aria-label')) === 'Back to the settings', pinE);
-  await keysE('data-pk', '4826'); check('and asked for twice', (await txt('#sheet .pin-ask')) === 'Once more, to confirm', await txt('#sheet'));
-  await keysE('data-pk', '4827'); check('two codes that differ are said so', (await txt('#setErr')) === 'The codes did not match. Let us start again.', await txt('#setErr'));
-  await clean('the code page'); await keysE('data-pk', '4826'); await keysE('data-pk', '4826'); await p.waitForTimeout(200);
-  check('a code that is saved is said so, and the settings know it', (await txt('#toast')).includes('The code is saved') && (await txt('#pinChange')).replace(/\s+/g, ' ').includes('Change the code On') && (await txt('#pinOff')).includes('Remove the code'), await txt('#sheet'));
+  /* the page that deletes the account: no code any more, the name typed is the confirmation */
+  check('there is no entry code in the settings', !(await p.$('#pinSet')) && !(await p.$('#lock')) && !(await txt('#sheet')).includes('code'), await txt('#sheet'));
   await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; }); await p.click('#delAsk'); await p.waitForTimeout(250);
-  check('deleting asks for the code first, in English', (await txt('#sheet h2')) === 'Delete the account' && (await txt('#sheet .pin-ask')) === 'The current code', await txt('#sheet'));
-  await keysE('data-pk', '1111'); check('a wrong code is said so', (await txt('#setErr')) === 'That is not the code', await txt('#setErr'));
-  await keysE('data-pk', '4826');
   const delE = await txt('#sheet');
-  check('the page that deletes the account is in English', delE.includes('Delete the account?') && delE.includes('Every workout, the character, the coins and the settings will be erased from this device and from the account. This cannot be undone.') && delE.includes('To confirm, type: Sam') && delE.includes('Delete for good') && delE.includes('Cancel') && delE.includes('Save a backup file first'), delE);
+  check('the page that deletes the account is in English', (await txt('#sheet h2')) === 'Delete the account' && delE.includes('Delete the account?') && delE.includes('Every workout, the character, the coins and the settings will be erased from this device and from the account. This cannot be undone.') && delE.includes('To confirm, type: Sam') && delE.includes('Delete for good') && delE.includes('Cancel') && delE.includes('Save a backup file first'), delE);
   await clean('the page that deletes the account'); await snap(p, 'en15c-delete', true);
-  await p.click('#sheet .st-del [data-setpg=""]'); await p.waitForTimeout(200); await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
-  await p.evaluate(() => { S.unlocked = false; maybeLock(); }); await p.waitForTimeout(300);
-  const doorE = await txt('#lock');
-  check('the door is in English', doorE.includes('Hi, Sam') && doorE.includes('Your code, and you are in') && doorE.includes('I forgot the code') && (await p.getAttribute('#lock', 'aria-label')) === 'Entry code', doorE);
-  await keysE('data-lk', '0000'); check('a wrong code at the door is said so', (await txt('#lockErr')) === 'That is not the code', await txt('#lockErr'));
-  await clean('the door'); await snap(p, 'en15d-door');
-  await p.click('#lockForgot'); await p.waitForTimeout(200);
-  const fgE = await txt('#lock');
-  check('and so is what it says to one who forgot the code', fgE.includes('Forgot the code?') && fgE.includes('The code is kept only with you and cannot be recovered.') && fgE.includes('To delete, type: Sam') && fgE.includes('Delete the account and start again') && fgE.includes('Back to the code'), fgE);
-  await clean('the door, the code forgotten'); await p.click('#lockBack'); await p.waitForTimeout(200); await keysE('data-lk', '4826'); await p.waitForTimeout(500);
-  check('the right code opens the door', (await p.isHidden('#lock')) && (await p.evaluate(() => !DOOR.on && S.unlocked)), await txt('#lock'));
-  /* the code is taken off again, so that the rest of the visit is as it was */
-  await p.click('#setBtn'); await p.waitForTimeout(300); await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; }); await p.click('#pinOff'); await p.waitForTimeout(250); await keysE('data-pk', '4826'); await p.waitForTimeout(200);
-  check('and the code can be taken off', (await p.evaluate(() => S.cfg.me.pin)) === '' && (await txt('#toast')).includes('The code is off') && (await txt('#pinSet')).replace(/\s+/g, ' ').includes('Entry code Off'), await txt('#sheet'));
+  await p.click('#sheet .st-del [data-setpg=""]'); await p.waitForTimeout(200);
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#lookBtn'); await p.waitForTimeout(300);
   let lk = await txt('#sheet');
@@ -330,7 +306,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.waitForTimeout(150);
   check('the level-up note is in English', (await txt('#toast')) === 'Level 7!', await txt('#toast'));
   await p.evaluate(() => { startDeload(); renderHome(); }); await p.waitForTimeout(150);
-  check('a banner is in English', (await txt('#home .banner')).includes('The easy week has started. Half the sets and less weight for the next four workouts.') && (await p.getAttribute('#home .banner-x', 'aria-label')) === 'Close', await txt('#home .banner'));
+  check('a banner is in English', (await txt('#home .banner')).includes('The easy week has started. Half the sets and less weight for this week\'s workouts.') && (await p.getAttribute('#home .banner-x', 'aria-label')) === 'Close', await txt('#home .banner'));
   await tab('home'); await clean('today, in an easy week');
   check('an easy week is named in English', (await txt('#home .week h2')) === 'Easy week', await txt('#home .week h2'));
   /* a banner is a written text: it does not outlive a change of language */
@@ -365,7 +341,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('a first visit on an English phone opens in English', (await p.isVisible('#ob')) && (await p.evaluate(() => LANG)) === 'en' && (await hebOn(p)).length === 0, await hebOn(p));
   const seenOb = [];
   await obWalk(p, { name: 'Ann', exp: 1, goals: [0, 1], time: 45, eq: 2 }, 'done', async (k) => { seenOb.push(k); const h = await hebOn(p); if (h.length) bad.push('Hebrew on opening screen ' + k + ' -> ' + JSON.stringify(h)); if (k === 'film' || k === 'exp' || k === 'look-hair' || k === 'plan' || k === 'done') await snap(p, 'en19-ob-' + k); });
-  check('every screen of the opening was seen in English', seenOb.join() === 'film,name,exp,goals,time,eq,look-hair,look-hc,look-beard,look-shirt,look-skin,build,plan,pin,done', seenOb.join());
+  check('every screen of the opening was seen in English', seenOb.join() === 'film,name,exp,goals,days,time,eq,look-hair,look-hc,look-beard,look-shirt,look-skin,build,plan,done', seenOb.join());
   await p.click('#obNext'); await p.waitForTimeout(400);
   /* the tour that follows speaks English too, step by step */
   await p.waitForSelector('#tourNext'); await p.waitForTimeout(900); await snap(p, 'en19-tour');

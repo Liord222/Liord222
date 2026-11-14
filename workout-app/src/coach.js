@@ -41,7 +41,10 @@ function renderPre() {
   }
   const mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
   const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore), on = mus.length > 0 && S.preSkip !== w && (left > 0 || !!S.preOpen);
+  const was = $('#app').classList.contains('pre-on');
   $('#app').classList.toggle('pre-on', on);
+  /* the questions before the workout were answered: the first exercise comes in under the purple screen */
+  if (was && !on && S.view === 'workout' && !(s && hasDone(s))) setTimeout(() => exIntro(shown(), true), 60);
   if (on && box.hidden) S.preAt = Date.now();
   box.hidden = !on;
   if (!on) { box.innerHTML = ''; S.preOpen = false; return; }
@@ -114,7 +117,7 @@ function builderHTML(w) {
         : '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (dl || e.n0 <= Math.max(1, rowsOf(s, e.id).filter(isDone).length) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div>') + '</div>';
   }).join('') + '</div><div class="bl-act"><button class="link" type="button" data-addw="' + w + '">' + say('+ הוסף תרגיל', '+ Add exercise') + '</button><button class="link" type="button" data-bled="' + w + '">' + (ed ? say('סיום', 'Done') : say('סידור והסרה', 'Reorder and remove')) + '</button></div>';
 }
-/* The plan opens as a short menu: where the round stands, the four workouts, and the few things that can be set.
+/* The plan opens as a short menu: where the round stands, the workouts of the week, and the few things that can be set.
    Each of them has a page of its own (S.msPage: 'ex' for the workout S.msW, 'vol', 'inc'), one tap in and one tap back */
 function renderMeso() {
   const sh = $('#sheet'), old = $('.sheet-in', sh), pg = S.msPage || 'menu', top = old && old.dataset.pg === pg ? old.scrollTop : 0, M = S.cfg.meso, s = live(S.tab), P = phase(S.tab, s), W = S.cfg.weeks, past = (S.cfg.past || []).filter((p) => mesoSessions(p.id).length).slice(-1)[0];
@@ -137,13 +140,13 @@ function renderMeso() {
     else act = (M.early ? '<button class="link" id="msDlOff" type="button">' + say('בטל שבוע קל', 'Cancel the easy week') + '</button>' : P.dl ? '' : '<button class="link" id="msDl" type="button">' + say('שבוע קל עכשיו', 'Easy week now') + '</button>') + '<button class="link" id="msNew" type="button">' + say('סבב חדש', 'New round') + '</button>';
     const back = S.msAsk === 'plan' ? ask(say('להחזיר את רשימת התרגילים המקורית?', 'Bring back the original list of exercises?'), say('כן, אפס', 'Yes, reset'), 'planResetYes')
       : planChanged() ? '<button class="link" id="planReset" type="button">' + say('איפוס תרגילים', 'Reset exercises') + '</button>' : '';
-    /* the plan, plainly: the four workouts, each a tap away from its list of exercises. What steers the round (how close to failure each
+    /* the plan, plainly: the workouts of the week, each a tap away from its list of exercises. What steers the round (how close to failure each
        week goes, the sets a muscle gets, the weight steps, an easy week, a new round) waits folded under "Advanced" */
     const adv = !!S.msAdv || S.msAsk === 'dl' || S.msAsk === 'new';
-    const card = (w) => '<li><button class="pl-card w' + w + '" type="button" data-msw="' + w + '"><span class="pl-ic" aria-hidden="true">' + stopIcon(w) + '</span><span class="pl-t"><b>' + wkName(w) + '</b><small>' + cnt(planIds(w).length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(exList(w, null, true)) + say(' דק׳', ' min') + '</small></span>' + ICON.fwd + '</button></li>';
-    sh.innerHTML = '<div class="sheet-in ms" data-pg="menu" role="dialog" aria-modal="true" aria-label="' + say('התוכנית שלי', 'My plan') + '"><div class="ed-h"><div><p class="kicker">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + say('ארבעה אימונים', 'Four workouts') + '</h2></div>' + x + '</div>' +
+    const card = (w) => '<li><button class="pl-card ' + wkTone(w) + '" type="button" data-msw="' + w + '"><span class="pl-ic" aria-hidden="true">' + (posOf(w) + 1) + '</span><span class="pl-t"><b>' + wkName(w) + '</b><small>' + wkMus(w) + ' · ' + cnt(planIds(w).length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(exList(w, null, true)) + say(' דק׳', ' min') + '</small></span>' + ICON.fwd + '</button></li>';
+    sh.innerHTML = '<div class="sheet-in ms" data-pg="menu" role="dialog" aria-modal="true" aria-label="' + say('התוכנית שלי', 'My plan') + '"><div class="ed-h"><div><p class="kicker">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + week().length + say(' אימונים בשבוע', ' workouts a week') + '</h2></div>' + x + '</div>' +
       '<p class="pl-sub">' + say('לוחצים על אימון כדי להוסיף, להחליף או להוריד תרגילים.', 'Tap a workout to add, swap or remove exercises.') + '</p>' +
-      '<ul class="pl-cards" aria-label="' + say('האימונים', 'The workouts') + '">' + PLAN.map((_, w) => card(w)).join('') + '</ul>' + (back ? '<div class="ms-act">' + back + '</div>' : '') +
+      '<ul class="pl-cards" aria-label="' + say('האימונים', 'The workouts') + '">' + week().map(card).join('') + '</ul>' + (back ? '<div class="ms-act">' + back + '</div>' : '') +
       '<button class="pl-adv" id="msAdv" type="button" aria-expanded="' + adv + '"><span>' + say('הגדרות מתקדמות', 'Advanced settings') + '</span>' + (off && !adv ? '<i class="pl-dot" title="' + say('יש מה לבדוק', 'Something to look at') + '"></i>' : '') + ICON.down + '</button>' +
       (!adv ? '' : '<div class="pl-more"><p class="kicker">' + say('סבב ', 'Round ') + P.n + (M.early && !over ? say(' · שבוע קל מוקדם', ' · early easy week') : '') + ' · ' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + say(' מתוך ', ' of ') + W) + '</p>' +
       '<ol class="wk-strip">' + strip + '</ol>' +
@@ -183,7 +186,7 @@ function showDeloadOffer(s, R) {
     '<button class="btn primary big" id="dlYes" type="button">' + say('להתחיל שבוע קל', 'Start an easy week') + '</button><button class="btn big" data-close="1" type="button">' + say('לא עכשיו', 'Not now') + '</button></div>';
   sh.hidden = false;
 }
-function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>' + say('שבוע קל התחיל.', 'The easy week has started.') + '</b>' + say(' חצי מהסטים ופחות משקל בארבעת האימונים הבאים.', ' Half the sets and less weight for the next four workouts.'); }
+function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>' + say('שבוע קל התחיל.', 'The easy week has started.') + '</b>' + say(' חצי מהסטים ופחות משקל באימונים של השבוע הזה.', ' Half the sets and less weight for this week\'s workouts.'); }
 /* clicks inside the sheet that belong to this file; returns true when the click was handled */
 function coachSheetClick(ev, id) {
   const b = ev.target.closest('button'), ds = b ? b.dataset : {};
@@ -200,7 +203,7 @@ function coachSheetClick(ev, id) {
     S.drafts = {}; S.pick = null; closeSheet(); return true;
   }
   if (id === 'swAsk') { const exId = S.swEx; closeSheet(); openChat(exId); return true; }
-  if (ds.msw != null) { S.msPage = 'ex'; S.msW = clamp(+ds.msw || 0, 0, PLAN.length - 1); S.blEdit = null; S.msAsk = null; renderMeso(); return true; }
+  if (ds.msw != null) { S.msPage = 'ex'; S.msW = inWeek(+ds.msw) ? +ds.msw : week()[0]; S.blEdit = null; S.msAsk = null; renderMeso(); return true; }
   if (ds.msp != null) { S.msPage = ds.msp === 'vol' || ds.msp === 'inc' ? ds.msp : null; S.blEdit = null; S.msAsk = null; renderMeso(); return true; }
   if (ds.base) { setBase(ds.base, +ds.n); renderMeso(); return true; }
   if (ds.addw) { openAdd(+ds.addw); return true; }

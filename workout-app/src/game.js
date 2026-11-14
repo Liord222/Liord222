@@ -122,17 +122,17 @@ function streakOf(list, arch, now) {
   while (weeks.has(w)) { n++; if (arch.sw && w === arch.lw) return n + arch.sw - 1; w--; }
   return n;
 }
-/* all four workouts of one week of a round were finished */
+/* every workout of one week of a round was finished (as many as the week has now, never fewer than two) */
 function fullWeek(list) {
   const seen = {};
   for (const s of list) if (s.end && s.m && s.wk) (seen[s.m + '/' + s.wk] || (seen[s.m + '/' + s.wk] = new Set())).add(s.w);
-  return Object.values(seen).some((x) => x.size >= 4);
+  return Object.values(seen).some((x) => x.size >= Math.max(2, week().length));
 }
-/* rounds whose easy last week was finished in all four workouts */
+/* rounds whose easy last week was finished in every workout of the week */
 function roundsDone(list) {
   const seen = {};
   for (const s of list) if (s.end && s.m && s.dl) (seen[s.m] || (seen[s.m] = new Set())).add(s.w);
-  return Object.values(seen).filter((x) => x.size >= 4).length;
+  return Object.values(seen).filter((x) => x.size >= Math.max(2, week().length)).length;
 }
 /* achievements. T: the totals, X: { lvl, streak, fullWeek, rounds }. ic names the drawing in the profile */
 const BADGES = [

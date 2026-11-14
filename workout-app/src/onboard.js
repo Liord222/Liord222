@@ -66,14 +66,16 @@ function langFade(fn) {
    A short film first: the camera finds Eilon, pulls back onto the player's character beside him, and pushes in on it as it
    grows. Then the questions, one a screen, each asked by Eilon from the same place, so that only what is asked changes. The
    answers build the plan: experience sets the sets, the time sets how many exercises, and the gym sets the machines */
-const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goals: [], time: null, eq: null, fb: 2, pin: '', pin1: '', pinBuf: '', pinErr: '', beat: 0 };
-const OB_STEPS = ['film', 'name', 'exp', 'goals', 'time', 'eq', 'look', 'plan', 'pin', 'done'];
+const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goals: [], days: null, time: null, eq: null, fb: 2, beat: 0 };
+const OB_STEPS = ['film', 'name', 'exp', 'goals', 'days', 'time', 'eq', 'look', 'plan', 'done'];
 const OB_LAST = OB_STEPS.length - 1;
 const obIs = (k) => OB_STEPS[OB.step] === k;
 const EXP = () => [[say('מתחיל', 'Beginner'), say('פחות מחצי שנה', 'Less than six months')], [say('מתאמן קבוע', 'Regular'), say('חצי שנה עד שנתיים', 'Six months to two years')], [say('מנוסה', 'Experienced'), say('יותר משנתיים', 'More than two years')]];
 /* how built the character is drawn for each answer, before a single level is earned: as one starts, half way, well trained */
 const EXP_BASE = [0, 0.35, 0.62];
 const GOALS = () => [[say('מראה ומבנה גוף', 'Physique'), say('מסה, חיטוב והגדרה', 'Size, shape and definition')], [say('כוח', 'Strength'), say('להרים יותר משקל', 'Lift heavier')], [say('כושר ובריאות', 'Fitness and health'), say('אנרגיה, יציבה וגוף בריא', 'Energy, posture and a healthy body')]];
+/* how many workouts a week, and what the week is made of then */
+const DAYS = () => [[2, say('כל הגוף, פעמיים', 'Full body, twice')], [3, say('כל הגוף, 3 פעמים', 'Full body, 3 times')], [4, say('עליון ותחתון', 'Upper and lower')], [5, say('חלוקה מלאה', 'A full split')]];
 const TIMES = () => [[30, say('קצר וממוקד', 'Short and focused')], [45, say('מאוזן', 'Balanced')], [60, say('אימון מלא', 'A full workout')], [75, say('ארוך ויסודי', 'Long and thorough')]];
 const EQS = () => [[say('חדר כושר מלא', 'A full gym'), say('מכונות, כבלים, מוטות ומשקולות', 'Machines, cables, bars and dumbbells')], [say('חדר כושר בסיסי', 'A basic gym'), say('משקולות, מוטות וכבלים, בלי מכונות', 'Dumbbells, bars and cables, no machines')], [say('עוד לא יודע', 'Not sure yet'), say('מתחילים מחדר מלא, וכל תרגיל מתחלף בלחיצה', 'We start with a full gym; any exercise swaps with a tap')]];
 /* the equipment each answer has: null for all of it */
@@ -189,29 +191,20 @@ function fitPlan(again) {
   });
   saveCfg();
 }
+/* the week the answers in the opening ask for */
+const obWeek = () => WEEKS[OB.days] || week();
 /* what the plan will be, before it is made: how many exercises a workout has, the sets they get, and how long it runs.
    A plan that was already trained stays as it is, so there the numbers are its own */
 function planPreview() {
   const fresh = meNow().T.sets === 0, span = (a) => { const lo = Math.min.apply(null, a), hi = Math.max.apply(null, a); return lo === hi ? '' + lo : Ltr(lo + '–' + hi); };
-  const lists = fresh ? fitPlanData(fitAns(OB)).map((l) => l.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t }))) : PLAN.map((x, w) => exList(w, undefined, true));
+  const all = fresh ? fitPlanData(fitAns(OB)) : null, lists = obWeek().map((w) => (fresh ? all[w].map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })) : exList(w, undefined, true)));
   return { ex: span(lists.map((l) => l.length)), sets: span([].concat.apply([], lists.map((l) => l.map((e) => e.sets)))), mins: span(lists.map(workMins)) };
-}
-
-async function pinHash(pin) {
-  const text = 'gymi:' + pin;
-  try {
-    const h = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-    return Array.from(new Uint8Array(h)).map((b) => b.toString(16).padStart(2, '0')).join('');
-  } catch (e) {
-    /* no subtle crypto here: a plain mix of the digits, as long as the real one */
-    let x = 2166136261; for (const c of text) x = Math.imul(x ^ c.charCodeAt(0), 16777619) >>> 0;
-    return (x.toString(16).padStart(8, '0')).repeat(8);
-  }
 }
 
 /* what the plan is fitted to, one line for each, in the lifter's own answers */
 const buildSteps = () => [
   OB.eq === 1 ? say('בוחר תרגילים בלי מכונות', 'Choosing exercises that need no machines') : say('בוחר תרגילים לחדר כושר מלא', 'Choosing exercises for a full gym'),
+  OB.days ? say('בונה שבוע של ', 'Building a week of ') + OB.days + say(' אימונים', ' workouts') : say('בונה את השבוע', 'Building the week'),
   [say('קובע סטים למתחיל', 'Setting the sets for a beginner'), say('קובע סטים למתאמן קבוע', 'Setting the sets for a regular lifter'), say('קובע סטים למנוסה', 'Setting the sets for an experienced lifter')][OB.exp == null ? 1 : OB.exp],
   say('מכוון חזרות ומנוחות למטרות שלך', 'Tuning reps and rests to your goals'),
   OB.time ? say('מתאים כל אימון ל-', 'Fitting each workout into ') + Ltr(OB.time) + say(' דקות', ' minutes') : say('משאיר כל אימון באורך מלא', 'Keeping each workout at full length'),
@@ -239,6 +232,11 @@ function obHTML() {
     body = ask(say('מה המטרות שלך?', 'What are your goals?'), say('אפשר לבחור כמה', 'Pick as many as you like')) +
       group(true, GOALS().map((o, i) => card('goals', i, [OBI.body, OBI.bell, OBI.heart][i], o[0], o[1], OB.goals.includes(i), true)).join(''));
     can = OB.goals.length > 0;
+  } else if (st === 'days') {
+    body = ask(say('כמה אימונים בשבוע אתה יכול?', 'How many workouts a week can you do?'), say('אבנה את השבוע לפי זה. אפשר לשנות בכל רגע', 'I will build the week around it. You can change it any time')) +
+      '<div class="ob-times days" role="radiogroup" aria-labelledby="obTitle">' + DAYS().map((t) => '<button type="button" class="ob-time" role="radio" aria-checked="' + (OB.days === t[0]) + '" data-ob="days" data-v="' + t[0] + '"><b>' + t[0] + '</b><span>' + say('בשבוע', 'a week') + '</span><small>' + t[1] + '</small></button>').join('') + '</div>' +
+      '<p class="ob-hint">' + say('3–4 אימונים בשבוע זה המקום הכי טוב להתחיל בו', '3–4 a week is the best place to start') + '</p>';
+    can = OB.days != null;
   } else if (st === 'time') {
     body = ask(say('כמה זמן יש לך לאימון?', 'How long can a workout take?'), say('אתאים לזה את מספר התרגילים', 'I will fit the number of exercises to it')) +
       '<div class="ob-times" role="radiogroup" aria-labelledby="obTitle">' + TIMES().map((t) => '<button type="button" class="ob-time" role="radio" aria-checked="' + (OB.time === t[0]) + '" data-ob="time" data-v="' + t[0] + '"><b>' + Ltr(t[0] === 75 ? '75+' : '' + t[0]) + '</b><span>' + say('דקות', 'minutes') + '</span><small>' + t[1] + '</small></button>').join('') +
@@ -261,16 +259,10 @@ function obHTML() {
     const P = planPreview(), stat = (v, t) => '<li><b>' + v + '</b><span>' + t + '</span></li>';
     cta = say('נשמע טוב', 'Sounds good');
     body = ask(say('התוכנית שלך מוכנה', 'Your plan is ready'), say('בניתי אותה לפי מה שסיפרת לי', 'I built it from what you told me')) +
-      '<section class="card next w0 ob-plan' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '"><p class="k">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + say('4 אימונים בסבב', '4 workouts a cycle') + '</h2>' +
+      '<section class="card next w0 ob-plan' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '"><p class="k">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + obWeek().length + say(' אימונים בשבוע', ' workouts a week') + '</h2>' +
       '<ul class="ob-stats">' + stat(P.ex, say('תרגילים באימון', 'exercises a workout')) + stat(P.sets, say('סטים לתרגיל', 'sets each')) + stat(P.mins, say('דקות לאימון', 'minutes a workout')) + '</ul>' +
-      '<ol class="ob-wks">' + PLAN.map((x, i) => '<li><span class="w-dot w' + i + '"></span>' + wkName(i) + '</li>').join('') + '</ol><i class="ob-shine" aria-hidden="true"></i></section>' +
+      '<ol class="ob-wks">' + obWeek().map((w, k) => '<li><span class="w-dot w' + k + '"></span><b>' + wkName(w) + '</b><small>' + wkMus(w) + '</small></li>').join('') + '</ol><i class="ob-shine" aria-hidden="true"></i></section>' +
       '<div class="ob-fb"><span><b>' + say('אילון ישאל איך היה', 'Eilon asks how it went') + '</b><small>' + say('שאלה קצרה אחרי כל תרגיל, כדי לכוון את המשקל', 'A quick question after each exercise, to tune the weight') + '</small></span><button type="button" class="tog" role="switch" id="obFb" aria-checked="' + (OB.fb > 0) + '" aria-label="' + say('אילון ישאל איך היה', 'Eilon asks how it went') + '"><i></i></button></div>';
-  } else if (st === 'pin') {
-    cta = OB.pin ? say('המשך', 'Continue') : say('דלג בינתיים', 'Skip for now'); quiet = !OB.pin;
-    body = ask(say('קוד אישי', 'A personal code'), OB.pin ? say('הקוד נשמר.', 'The code is saved.') : OB.pin1 ? say('עוד פעם, לאישור', 'Once more, to confirm') : say('4 ספרות. הקוד יידרש לפתיחת האפליקציה ולמחיקת החשבון.', '4 digits. It is asked when the app opens, and to delete the account.')) +
-      '<div class="ob-pin"><div class="pin-dots' + (OB.pin ? ' ok' : '') + '" id="pinDots" role="img" aria-label="' + say('ספרות שהוקלדו: ', 'Digits typed: ') + (OB.pin ? 4 : OB.pinBuf.length) + '">' + [0, 1, 2, 3].map((i) => '<i class="' + (OB.pin || i < OB.pinBuf.length ? 'on' : '') + '"></i>').join('') + '</div>' +
-      '<p class="pin-err" id="pinErr" aria-live="polite">' + (OB.pinErr || '') + '</p>' +
-      '<div class="pin-pad">' + ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((k) => (k === '' ? '<span></span>' : '<button type="button" class="pin-k" data-pin="' + k + '"' + (OB.pin ? ' disabled' : '') + (k === 'del' ? ' aria-label="' + say('מחק ספרה', 'Delete a digit') + '">' + OBI.del : '>' + k) + '</button>')).join('') + '</div></div>';
   } else {
     const old = meNow().T.wk > 0, cap = (a, b) => '<figcaption>' + a + '<b>' + b + '</b></figcaption>';
     cta = old ? say('קדימה', "Let's go") : say('לאימון הראשון', 'To the first workout');
@@ -341,7 +333,7 @@ function obFade(fn) {
 function openOb() {
   const me = S.cfg.me;
   LK.tab = 'skin'; LK.note = '';
-  Object.assign(OB, { on: true, step: 0, dir: 0, beat: 0, stay: false, building: false, reveal: false, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goals: (me.goals || []).slice(), time: me.time, eq: me.eq, fb: me.fb == null ? 2 : me.fb, pin: me.pin || '', pin1: '', pinBuf: '', pinErr: '' });
+  Object.assign(OB, { on: true, step: 0, dir: 0, beat: 0, stay: false, building: false, reveal: false, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goals: (me.goals || []).slice(), time: me.time, eq: me.eq, days: me.days, fb: me.fb == null ? 2 : me.fb });
   /* the language shown is the one kept: a look chosen on the way must not turn an English page Hebrew on the next visit */
   if (!S.cfg.lang) S.cfg.lang = LANG;
   $('#ob').hidden = false; document.body.style.overflow = 'hidden'; renderOb();
@@ -352,7 +344,8 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) {
     me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goals = OB.goals.slice(); me.goal = OB.goals.length ? OB.goals[0] : null;
-    me.time = OB.time; me.eq = OB.eq; me.fb = OB.fb; if (OB.pin) { me.pin = OB.pin; S.unlocked = true; } me.made = me.made || Date.now();
+    me.time = OB.time; me.eq = OB.eq; me.fb = OB.fb; me.made = me.made || Date.now();
+    if (OB.days != null && OB.days !== me.days) { me.days = OB.days; if (!live(S.tab)) S.tab = nextUp().next; }
     fitPlan();
   }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
@@ -366,7 +359,7 @@ const TR = { on: false, i: 0 };
 const TOUR = () => [
   { at: '#tabbar [data-view="home"]', t: say('כאן האימונים שלך. מכאן מתחילים בכל פעם.', 'Your workouts live here. Every session starts from this tab.') },
   { at: '#homeGo', t: say('זה האימון הבא שלך. לוחצים על "התחל אימון", ואני מלווה אותך סט אחרי סט.', 'This is your next workout. Tap "Start workout" and I\'ll take you through it, set by set.') },
-  { at: '#tabs .tab[aria-current="true"] .dot', round: 1, t: say('זה המסלול של השבוע. כל אימון שמסיימים הופך לזהב.', 'This is the road of your week. Every workout you finish turns gold.') },
+  { at: '#tabs .tab[aria-current="true"] .dot', round: 1, t: say('אלה האימונים של השבוע. כל אימון שמסיימים מסומן, והמונה מתמלא.', 'These are the workouts of your week. Each one you finish is ticked off, and the meter fills.') },
   { at: '#tabbar [data-view="journey"]', t: say('במסע רואים לאן כל זה מוביל: הדמות שלך ברמה 100.', 'The journey shows where all this leads: your character at level 100.') },
   { at: '#tabbar [data-view="profile"]', t: say('בפרופיל נמצאים הדמות שלך, ההישגים וההגדרות.', 'Your profile holds your character, your achievements and the settings.') },
   { at: '#chatOpen', alt: '.chat-h', t: say('ואני תמיד כאן. שאלה על תרגיל, על כאב או על התוכנית? לוחצים עליי.', 'And I\'m always here. A question about an exercise, a pain or the plan? Tap me.') },
@@ -429,29 +422,12 @@ function obStep(d) {
   /* Eilon stays where he stands from one question to the next: only the words and the answers arrive. (On the name he
      stands larger, in the middle, and the last screen has none of him, so there he arrives) */
   const side = (i) => i >= 2 && i < OB_LAST;
-  OB.stay = side(OB.step) && side(n); OB.step = n; OB.dir = d; OB.pinErr = ''; OB.pin1 = ''; OB.pinBuf = '';
+  OB.stay = side(OB.step) && side(n); OB.step = n; OB.dir = d;
   /* the plan is built on the way forward only; on the way back it is simply there */
   const made = d > 0 && OB_STEPS[n] === 'plan'; OB.building = made && !reduced; OB.reveal = made && reduced;
   renderOb();
 }
 /* a digit of the code; the fourth asks for the code again, and the same code twice is kept */
-function obPin(k) {
-  if (OB.pin) return;
-  if (k === 'del') OB.pinBuf = OB.pinBuf.slice(0, -1);
-  else if (OB.pinBuf.length < 4) { OB.pinBuf += k; haptic('select'); }
-  OB.pinErr = '';
-  const dots = $$('#pinDots i'); dots.forEach((d, i) => d.classList.toggle('on', i < OB.pinBuf.length));
-  const err = $('#pinErr'); if (err) err.textContent = '';
-  if (OB.pinBuf.length < 4) return;
-  const typed = OB.pinBuf;
-  setTimeout(() => {
-    if (!OB.on || !obIs('pin')) return;
-    if (!OB.pin1) { OB.pin1 = typed; OB.pinBuf = ''; renderOb(); return; }
-    if (typed !== OB.pin1) { OB.pin1 = ''; OB.pinBuf = ''; OB.pinErr = say('הקודים לא תואמים. מתחילים מחדש.', 'The codes did not match. Let us start again.'); renderOb(); haptic('warn'); return; }
-    pinHash(typed).then((h) => { if (!OB.on || !obIs('pin')) return; OB.pin = h; OB.pin1 = ''; OB.pinBuf = ''; renderOb(); feel('set', 'success'); });
-  }, 180);
-}
-/* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */
 function maybeOb() {
   /* passed on another device while open here: they close. Opened again from the profile, they were passed before, and stay */
   if (OB.on) { if (S.cfg.me.ob && S.cfg.me.ob !== OB.was) closeOb(); return; }
@@ -471,7 +447,6 @@ function wireOb() {
     else if (b.id === 'obBack') obStep(-1);
     else if (b.id === 'obSkip') obFinish(true);
     else if (b.id === 'obFb') { OB.fb = OB.fb > 0 ? 0 : 2; b.setAttribute('aria-checked', String(OB.fb > 0)); haptic('select'); }
-    else if (b.dataset.pin) obPin(b.dataset.pin);
     else if (b.dataset.lang) { if (b.getAttribute('aria-pressed') === 'true') return; obFade(() => { setLang(b.dataset.lang, true); renderOb(); }); }
     /* an answer is marked where it stands: the screen does not arrive a second time */
     else if (b.dataset.ob) {
@@ -488,7 +463,5 @@ function wireOb() {
   el.addEventListener('input', (ev) => { if (ev.target.id === 'obName') OB.name = ev.target.value; });
   el.addEventListener('keydown', (ev) => {
     if (ev.key === 'Enter' && ev.target.id === 'obName') { ev.preventDefault(); obStep(1); }
-    else if (obIs('pin') && /^[0-9]$/.test(ev.key)) obPin(ev.key);
-    else if (obIs('pin') && ev.key === 'Backspace') obPin('del');
   });
 }

@@ -159,6 +159,7 @@ const SET_I = {
   exp: '<path d="M5.5 19.5V14M12 19.5V9M18.5 19.5V4.5"/>',
   goal: '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.3"/><path d="M12 12h.01" stroke-width="3"/>',
   time: '<circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3 2"/>',
+  days: '<rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
   eq: '<path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/>',
   fb: '<path d="M5 5.5h14v10h-8.6L6.5 19v-3.5H5z"/>',
   sound: '<path d="M4.5 9.5h3l4.5-4v13l-4.5-4h-3zM15.6 9.2a4 4 0 0 1 0 5.6M18.2 6.8a7.6 7.6 0 0 1 0 10.4"/>',
@@ -169,8 +170,6 @@ const SET_I = {
   del: '<path d="M5 7h14M9.5 7V4.8h5V7M7 7l.8 12.2h8.4L17 7M10.3 10.5v5.5M13.7 10.5v5.5"/>',
 };
 const setIcon = (k, tone) => '<span class="st-i' + (tone ? ' ' + tone : '') + '" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">' + SET_I[k] + '</svg></span>';
-const pinKeys = (attr, off) => ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((k) => (k === '' ? '<span></span>' : '<button type="button" class="pin-k" ' + attr + '="' + k + '"' + (off ? ' disabled' : '') + (k === 'del' ? ' aria-label="' + say('מחק ספרה', 'Delete a digit') + '">' + OBI.del : '>' + k) + '</button>')).join('');
-const pinDots = (id, n) => '<div class="pin-dots" id="' + id + '" role="img" aria-label="' + say('ספרות שהוקלדו: ', 'Digits typed: ') + n + '">' + [0, 1, 2, 3].map((i) => '<i class="' + (i < n ? 'on' : '') + '"></i>').join('') + '</div>';
 /* the word that has to be typed to delete the account: the lifter's own name, or a plain word when there is none */
 const delWord = () => S.cfg.me.name || say('מחק', 'delete');
 const sameWord = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
@@ -178,7 +177,6 @@ function renderSettings() {
   const me = S.cfg.me, sh = $('#sheet'), old = $('.sheet-in', sh), pg = S.setPg || '', top = old && old.dataset.pg === pg ? old.scrollTop : 0;
   const x = '<button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button>';
   const page = (title, body) => '<div class="sheet-in st pg" data-pg="' + pg + '" role="dialog" aria-modal="true" aria-label="' + title + '"><div class="ed-h"><button class="fx-nav" type="button" data-setpg="" aria-label="' + say('חזרה להגדרות', 'Back to the settings') + '">' + ICON.back + '</button><div><h2>' + title + '</h2></div>' + x + '</div>' + body + '</div>';
-  if (pg === 'pin' || (pg === 'del' && me.pin && !(S.pinFlow && S.pinFlow.ok))) { sh.innerHTML = page(pinTitle(), pinPageHTML()); return; }
   if (pg === 'del') { sh.innerHTML = page(say('מחיקת החשבון', 'Delete the account'), delPageHTML()); return; }
   const seg = (label, key, list, cur, ic, cls) => '<div class="st-row col"><div class="st-h">' + setIcon(ic) + '<span class="st-l">' + label + '</span></div><div class="seg' + (cls ? ' ' + cls : '') + '" role="group" aria-label="' + label + '">' +
     list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (Array.isArray(cur) ? cur.includes(o[0]) : o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
@@ -192,18 +190,18 @@ function renderSettings() {
     grp(say('האימון שלי', 'My training'),
       seg(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp, 'exp') +
       seg(say('מטרות', 'Goals'), 'goals', GOALS().map((o, i) => [i, o[0]]), me.goals, 'goal') +
+      seg(say('אימונים בשבוע', 'Workouts a week'), 'days', DAYS_OK.map((d) => [d, '' + d]), me.days || 4, 'days') +
       seg(say('זמן לאימון, בדקות', 'Time for a workout, in minutes'), 'time', [[30, '30'], [45, '45'], [60, '60'], [75, '75'], [0, say('לא משנה', 'Any')]], me.time, 'time', 'five') +
       seg(say('חדר הכושר', 'The gym'), 'eq', [[0, say('מלא', 'Full')], [1, say('בסיסי', 'Basic')], [2, say('לא בטוח', 'Not sure')]], me.eq, 'eq') +
       seg(say('אילון שואל איך היה', 'Eilon asks how it went'), 'fb', [[0, say('אף פעם', 'Never')], [1, say('בתרגילים הכבדים', 'On heavy lifts')], [2, say('תמיד', 'Always')]], me.fb, 'fb')) +
     (refit ? '<div class="st-note" role="status"><span>' + say('התשובות השתנו, והתוכנית נשארה כפי ששינית אותה.', 'The answers changed, and the plan stays as you changed it.') + '</span><button class="btn" id="setRefit" type="button">' + say('לבנות את התוכנית מחדש', 'Build the plan again') + '</button></div>' : '') +
     grp(say('צליל ומגע', 'Sound and touch'), tog(say('צליל', 'Sound'), 'sound', !!S.sound, 'sound') + tog(say('רטט', 'Vibration'), 'buzz', S.buzz !== false, 'buzz')) +
-    grp(say('פרטיות', 'Privacy'), me.pin ? nav(say('שינוי הקוד', 'Change the code'), 'pinChange', say('פעיל', 'On'), 'pin') + nav(say('ביטול הקוד', 'Remove the code'), 'pinOff', '', 'pin', 'grey') : nav(say('קוד כניסה', 'Entry code'), 'pinSet', say('כבוי', 'Off'), 'pin')) +
     grp(say('גיבוי', 'Backup'), '<section class="backup" id="backup" aria-label="' + say('גיבוי', 'Backup') + '"></section>') +
     grp(say('עוד', 'More'), nav(say('סיור באפליקציה', 'A tour of the app'), 'tourAgain', '', 'tour', 'calm') + nav(say('מסך הפתיחה', 'The opening screens'), 'obAgain', '', 'film', 'calm')) +
     '<section class="st-g"><button class="st-row nav red" type="button" id="delAsk">' + setIcon('del', 'red') + '<span class="st-l">' + say('מחיקת החשבון', 'Delete the account') + '</span>' + ICON.fwd + '</button></section></div>';
   $('.sheet-in', sh).scrollTop = top; renderBackup();
 }
-function openSettings() { S.sheet = 'set'; S.backupNote = ''; S.setPg = null; S.pinFlow = null; S.del = null; S.setRefit = false; renderSettings(); $('#sheet').hidden = false; }
+function openSettings() { S.sheet = 'set'; S.backupNote = ''; S.setPg = null; S.del = null; S.setRefit = false; renderSettings(); $('#sheet').hidden = false; }
 /* an answer that shapes the plan was changed. A plan that is still the one the app built follows the new answers at once; one the
    lifter changed by hand stays, and the settings offer to build it again (see renderSettings) */
 function setAnswer(key, v) {
@@ -211,40 +209,12 @@ function setAnswer(key, v) {
   if (key === 'goals') { const g = me.goals.includes(v) ? me.goals.filter((x) => x !== v) : me.goals.concat(v).sort(); if (!g.length) return; me.goals = g; me.goal = g[0]; }
   else me[key] = v;
   if (key === 'exp') applyExp();
+  /* another number of days is another week: the next workout is the first of it, unless one is under way */
+  if (key === 'days' && !live(S.tab)) S.tab = nextUp().next;
   if (me.exp != null && key !== 'fb') { if (clean) resetPlan(); S.setRefit = planChanged(); }
   saveCfg(); renderAll();
 }
-/* ---- the code: setting it, changing it and taking it off, on a page of the settings. F.step: cur (the code as it is), new, again ---- */
-function pinTitle() { const m = (S.pinFlow || {}).mode; return m === 'off' ? say('ביטול הקוד', 'Remove the code') : m === 'change' ? say('שינוי הקוד', 'Change the code') : m === 'del' ? say('מחיקת החשבון', 'Delete the account') : say('קוד כניסה', 'Entry code'); }
-function pinPageHTML() {
-  const F = S.pinFlow, ask = F.step === 'cur' ? say('הקוד הנוכחי', 'The current code') : F.step === 'again' ? say('עוד פעם, לאישור', 'Once more, to confirm') : say('קוד חדש: 4 ספרות', 'A new code: 4 digits');
-  return '<div class="st-pg ob-pin"><p class="pin-ask">' + ask + '</p>' + pinDots('setDots', F.buf.length) + '<p class="pin-err" id="setErr" aria-live="polite">' + (F.err || '') + '</p><div class="pin-pad">' + pinKeys('data-pk', false) + '</div>' +
-    (F.mode === 'set' ? '<p class="ms-sub">' + say('הקוד יידרש כשפותחים את האפליקציה, וכדי למחוק את החשבון. אי אפשר לשחזר אותו.', 'The code is asked when the app opens, and to delete the account. It cannot be recovered.') + '</p>' : '') + '</div>';
-}
-function openPin(mode) { S.pinFlow = { mode, step: mode === 'set' ? 'new' : 'cur', buf: '', first: '', err: '', ok: false }; S.setPg = mode === 'del' ? 'del' : 'pin'; renderSettings(); }
-function pinKey(k) {
-  const F = S.pinFlow; if (!F || F.busy) return;
-  if (k === 'del') F.buf = F.buf.slice(0, -1); else if (F.buf.length < 4) F.buf += k;
-  $$('#setDots i').forEach((d, i) => d.classList.toggle('on', i < F.buf.length));
-  if (F.err) { F.err = ''; const e = $('#setErr'); if (e) e.textContent = ''; }
-  if (F.buf.length < 4) return;
-  const typed = F.buf; F.buf = '';
-  if (F.step === 'new') { F.first = typed; F.step = 'again'; renderSettings(); return; }
-  if (F.step === 'again' && typed !== F.first) { F.step = 'new'; F.first = ''; F.err = say('הקודים לא תואמים. מתחילים מחדש.', 'The codes did not match. Let us start again.'); haptic('warn'); renderSettings(); return; }
-  F.busy = true;
-  pinHash(typed).then((h) => {
-    F.busy = false; if (S.pinFlow !== F || S.sheet !== 'set') return;
-    const me = S.cfg.me, lock = '<svg class="i ln" viewBox="0 0 24 24" aria-hidden="true">' + SET_I.pin + '</svg>';
-    if (F.step === 'cur') {
-      if (h !== me.pin) { F.err = say('הקוד לא נכון', 'That is not the code'); haptic('warn'); renderSettings(); return; }
-      if (F.mode === 'off') { me.pin = ''; saveCfg(); S.setPg = null; S.pinFlow = null; renderSettings(); toast(lock + '<b>' + say('הקוד בוטל', 'The code is off') + '</b>'); return; }
-      if (F.mode === 'del') { F.ok = true; renderSettings(); return; }
-      F.step = 'new'; renderSettings(); return;
-    }
-    me.pin = h; saveCfg(); S.unlocked = true; S.setPg = null; S.pinFlow = null; renderSettings(); feel('set', 'success'); toast(lock + '<b>' + say('הקוד נשמר', 'The code is saved') + '</b>');
-  });
-}
-/* ---- deleting the account: said plainly, confirmed by typing a word, and by the code when there is one ---- */
+/* ---- deleting the account: said plainly, and confirmed by typing a word ---- */
 function delPageHTML() {
   const D = S.del || (S.del = { v: '', busy: false, note: '' }), word = delWord();
   return '<div class="st-del"><span class="st-del-i" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">' + SET_I.del + '</svg></span><h3>' + say('למחוק את החשבון?', 'Delete the account?') + '</h3>' +
@@ -258,73 +228,17 @@ function delPageHTML() {
 }
 const WIPE_FAIL = () => say('המחיקה לא הושלמה: אין חיבור לחשבון. אפשר לנסות שוב כשיש חיבור.', 'The deletion did not finish: the account could not be reached. Try again once you are connected.');
 function delNow() {
-  const D = S.del, me = S.cfg.me; if (!D || D.busy || !sameWord(D.v, delWord()) || (me.pin && !(S.pinFlow && S.pinFlow.ok))) return;
+  const D = S.del; if (!D || D.busy || !sameWord(D.v, delWord())) return;
   D.busy = true; D.note = ''; renderSettings();
   wipeAccount().then((ok) => { if (ok) { afterWipe(); return; } D.busy = false; D.note = WIPE_FAIL(); if (S.sheet === 'set') renderSettings(); });
 }
 /* the account is gone: the page starts over where a new lifter starts, in the language it was in */
 function afterWipe() {
-  chat.msgs = []; chat.turns = []; S.setPg = null; S.pinFlow = null; S.del = null; S.bdgAll = false; S.unlocked = false;
+  chat.msgs = []; chat.turns = []; S.setPg = null; S.del = null; S.bdgAll = false;
   if (window.gymiNative && typeof window.gymiNative.forget === 'function') window.gymiNative.forget();
   if (!$('#sheet').hidden) closeSheet();
   closeChat(); applyLang(); setView('home'); renderAll(); renderMsgs(); maybeOb();
 }
-/* ---- the code at the door. A lifter who set a code is asked for it when the app opens, and again after the app was away for a
-   while. It is a light lock for the phone in hand: what is kept is a hash of the code, beside the settings ---- */
-const DOOR = { on: false, buf: '', err: '', tries: 0, until: 0, forgot: false, v: '', busy: false, note: '' }, AWAY_MS = 10 * 60000;
-function lockDraw() {
-  const box = $('#lock'), me = S.cfg.me, wait = DOOR.until > Date.now();
-  box.setAttribute('aria-label', say('קוד כניסה', 'Entry code'));
-  box.innerHTML = '<div class="lock-in">' + (DOOR.forgot
-    ? '<h1>' + say('שכחת את הקוד?', 'Forgot the code?') + '</h1><div class="lock-forgot"><p>' + say('הקוד שמור רק אצלך, ואי אפשר לשחזר אותו. אפשר למחוק את החשבון ולהתחיל מחדש.', 'The code is kept only with you and cannot be recovered. You can delete the account and start again.') + '</p>' +
-      '<label for="lockName">' + say('כדי למחוק, כותבים כאן: ', 'To delete, type: ') + '<b><bdi>' + esc(delWord()) + '</bdi></b></label><input id="lockName" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" value="' + esc(DOOR.v) + '">' +
-      (DOOR.note ? '<p role="status">' + DOOR.note + '</p>' : '') +
-      '<button class="btn danger" id="lockWipe" type="button"' + (DOOR.busy || !sameWord(DOOR.v, delWord()) ? ' disabled' : '') + '>' + (DOOR.busy ? say('מוחק…', 'Deleting…') : say('מחיקת החשבון והתחלה מחדש', 'Delete the account and start again')) + '</button>' +
-      '<button class="btn quiet" id="lockBack" type="button">' + say('חזרה לקוד', 'Back to the code') + '</button></div>'
-    : '<span class="lock-ava" aria-hidden="true">' + avatar(meNow().L.lvl, { bust: true }) + '</span><h1>' + (me.name ? say('היי, ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi>' : say('היי!', 'Hi!')) + '</h1><p class="lock-sub">' + say('הקוד שלך, ונכנסים', 'Your code, and you are in') + '</p>' +
-      pinDots('lockDots', DOOR.buf.length) + '<p class="pin-err" id="lockErr" aria-live="polite">' + (wait ? say('יותר מדי ניסיונות. עוד רגע אפשר לנסות שוב.', 'Too many tries. You can try again in a moment.') : DOOR.err) + '</p>' +
-      '<div class="pin-pad">' + pinKeys('data-lk', wait) + '</div><button class="link" id="lockForgot" type="button">' + say('שכחתי את הקוד', 'I forgot the code') + '</button>') + '</div>';
-}
-/* the door closes when there is a code and it was not given yet (or the app was away long enough to ask again) */
-function maybeLock() {
-  if (DOOR.on) { if (!S.cfg.me.pin) unlock(); return; }
-  if (S.unlocked || !S.cfg.me.pin || OB.on) return;
-  DOOR.on = true; DOOR.buf = ''; DOOR.err = ''; DOOR.forgot = false; DOOR.v = ''; DOOR.note = ''; DOOR.busy = false;
-  closeChat(); if (TR.on) tourEnd();
-  lockDraw(); const box = $('#lock'); box.classList.remove('out'); box.hidden = false;
-}
-function unlock() {
-  S.unlocked = true; DOOR.on = false; DOOR.tries = 0;
-  const box = $('#lock'), gone = () => { if (!DOOR.on) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } };
-  if (reduced) gone(); else { box.classList.add('out'); setTimeout(gone, 340); }
-}
-function lockKey(k) {
-  if (!DOOR.on || DOOR.forgot || DOOR.busy || DOOR.until > Date.now()) return;
-  if (k === 'del') DOOR.buf = DOOR.buf.slice(0, -1); else if (DOOR.buf.length < 4) DOOR.buf += k;
-  $$('#lockDots i').forEach((d, i) => d.classList.toggle('on', i < DOOR.buf.length));
-  if (DOOR.err) { DOOR.err = ''; const e = $('#lockErr'); if (e) e.textContent = ''; }
-  if (DOOR.buf.length < 4) return;
-  const typed = DOOR.buf; DOOR.busy = true;
-  pinHash(typed).then((h) => {
-    DOOR.busy = false; DOOR.buf = '';
-    if (!DOOR.on) return;
-    if (h === S.cfg.me.pin) { feel('set', 'success'); unlock(); return; }
-    DOOR.tries++; haptic('warn'); DOOR.err = say('הקוד לא נכון', 'That is not the code');
-    if (DOOR.tries >= 5) { DOOR.tries = 0; DOOR.until = Date.now() + 30000; setTimeout(() => { if (DOOR.on && !DOOR.forgot) { DOOR.err = ''; lockDraw(); } }, 30200); }
-    lockDraw();
-    const d = $('#lockDots'); if (d && !reduced) d.classList.add('bad');
-  });
-}
-function lockWipe() {
-  if (DOOR.busy || !sameWord(DOOR.v, delWord())) return;
-  DOOR.busy = true; DOOR.note = ''; lockDraw();
-  wipeAccount().then((ok) => {
-    DOOR.busy = false;
-    if (!ok) { DOOR.note = WIPE_FAIL(); lockDraw(); return; }
-    DOOR.on = false; const box = $('#lock'); box.hidden = true; box.innerHTML = ''; afterWipe();
-  });
-}
-
 /* ---- the character editor: name and looks; every choice is saved at once. One kind of choice is on screen at a time,
    picked from a row of tabs, so that the whole editor fits on one screen with the character above it ---- */
 const LK = { tab: 'skin', busy: false, note: '' };
@@ -411,17 +325,13 @@ function meSheetClick(ev) {
   const buy = ev.target.closest('[data-buy]'); if (buy) { shopBuyNow(buy.dataset.buy); return true; }
   const thing = ev.target.closest('[data-shop]'); if (thing) { shopTap(thing.dataset.shop); return true; }
   if (S.sheet !== 'set') return false;
-  const pk = ev.target.closest('[data-pk]'); if (pk) { pinKey(pk.dataset.pk); return true; }
-  const pg = ev.target.closest('[data-setpg]'); if (pg) { S.setPg = pg.dataset.setpg || null; S.pinFlow = null; S.del = null; renderSettings(); return true; }
+  const pg = ev.target.closest('[data-setpg]'); if (pg) { S.setPg = pg.dataset.setpg || null; S.del = null; renderSettings(); return true; }
   const b = ev.target.closest('button'); if (!b) return false;
   const k = b.dataset.set, v = b.dataset.v;
   if (b.id === 'obAgain') { closeSheet(); openOb(); }
   else if (b.id === 'tourAgain') { closeSheet(); setTimeout(startTour, 380); }
   else if (b.id === 'setLook') { closeSheet(); openLook(); }
-  else if (b.id === 'pinSet') openPin('set');
-  else if (b.id === 'pinChange') openPin('change');
-  else if (b.id === 'pinOff') openPin('off');
-  else if (b.id === 'delAsk') { S.del = { v: '', busy: false, note: '' }; if (S.cfg.me.pin) openPin('del'); else { S.setPg = 'del'; renderSettings(); } }
+  else if (b.id === 'delAsk') { S.del = { v: '', busy: false, note: '' }; S.setPg = 'del'; renderSettings(); }
   else if (b.id === 'delYes') delNow();
   else if (b.id === 'setRefit') { resetPlan(); S.setRefit = false; renderAll(); toast(ICON.check + '<b>' + say('התוכנית נבנתה מחדש', 'The plan was built again') + '</b>'); }
   else if (b.id === 'backupBtn') exportBackup();
@@ -430,7 +340,7 @@ function meSheetClick(ev) {
   else if (k === 'lang') { if (v !== LANG) langFade(() => setLang(v)); }
   else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) sfx('set'); renderSettings(); }
   else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); if (HX.on) document.documentElement.dataset.hx = S.buzz ? 'on' : 'off'; haptic('success'); renderSettings(); }
-  else if (k === 'exp' || k === 'goals' || k === 'time' || k === 'eq' || k === 'fb') setAnswer(k, +v);
+  else if (k === 'exp' || k === 'goals' || k === 'days' || k === 'time' || k === 'eq' || k === 'fb') setAnswer(k, +v);
   else return false;
   return true;
 }
@@ -489,21 +399,4 @@ function wireMe() {
     else if (b.id === 'bdgAll') { S.bdgAll = !S.bdgAll; renderProfile(); const again = $('#bdgAll'); if (again) again.focus({ preventScroll: true }); }
   });
   $('#journey').addEventListener('click', (ev) => { const b = ev.target.closest('button[data-lv]'); if (b) openLevel(+b.dataset.lv); });
-  const lock = $('#lock');
-  lock.addEventListener('click', (ev) => {
-    const k = ev.target.closest('[data-lk]'); if (k) { lockKey(k.dataset.lk); return; }
-    const b = ev.target.closest('button'); if (!b) return;
-    if (b.id === 'lockForgot') { DOOR.forgot = true; DOOR.v = ''; DOOR.note = ''; lockDraw(); const i = $('#lockName'); if (i) i.focus({ preventScroll: true }); }
-    else if (b.id === 'lockBack') { DOOR.forgot = false; lockDraw(); }
-    else if (b.id === 'lockWipe') lockWipe();
-  });
-  lock.addEventListener('input', (ev) => { if (ev.target.id !== 'lockName') return; DOOR.v = ev.target.value; const b = $('#lockWipe'); if (b) b.disabled = DOOR.busy || !sameWord(DOOR.v, delWord()); });
-  document.addEventListener('keydown', (ev) => {
-    if (!DOOR.on || DOOR.forgot || ev.metaKey || ev.ctrlKey || ev.altKey) return;
-    if (/^[0-9]$/.test(ev.key)) { lockKey(ev.key); ev.preventDefault(); } else if (ev.key === 'Backspace') { lockKey('del'); ev.preventDefault(); }
-  });
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { S.awayAt = Date.now(); return; }
-    if (S.cfg.me.pin && S.awayAt && Date.now() - S.awayAt > AWAY_MS) { S.unlocked = false; maybeLock(); }
-  });
 }

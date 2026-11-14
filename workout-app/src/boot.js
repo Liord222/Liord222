@@ -18,14 +18,14 @@ function boot(data) {
   sweep();
   /* a workout that was already running before mesocycles existed joins the current one where it stands */
   for (const s of Object.values(S.sessions)) if (!s.end && !s.m) { stamp(s); touch(s, true); }
-  S.tab = typeof data.tab === 'number' && data.tab >= 0 && data.tab < 4 ? data.tab : nextUp().next;
+  S.tab = typeof data.tab === 'number' && (inWeek(data.tab) || (PLAN[data.tab] && live(data.tab))) ? data.tab : nextUp().next;
   if (Array.isArray(data.msgs)) chat.msgs = data.msgs;
   if (Array.isArray(data.turns)) chat.turns = data.turns;
   applyLang();
   readColors(); wireApp(); wireFeel(); wireCoach(); wireChat(); wireMe(); wireOb();
   setView(['workout', 'home', 'profile', 'journey'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
-  splash(); renderAll(); initChat(); maybeLock();
+  splash(); renderAll(); initChat();
   initCloud(onRemoteChange);
   if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then((dl) => { if (dl) { S.dl = dl; renderHistory(); } }).catch(() => {});
 }

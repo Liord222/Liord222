@@ -7,6 +7,7 @@ const hx = process.env.HX === '1';
 /* one file per checkout: a run from another worktree must not swap the build under test. Moved into place in one step: several runs of this checkout share it */
 const tag = require('crypto').createHash('sha1').update(path.join(__dirname, '..')).digest('hex').slice(0, 10);
 const file = path.join(os.tmpdir(), 'gymi-preview-' + tag + (hx ? '-hx' : '') + '.html');
-/* the black curtain of the first seconds is left out, unless a test asks for it (window.__splash = true before the page loads) */
-fs.writeFileSync(file + '.' + process.pid, head + '<script>if(window.__splash===undefined)window.__splash=false</script>' + (hx ? '<script>window.__hx=true</script>' : '') + src + '</body></html>'); fs.renameSync(file + '.' + process.pid, file);
+/* the black curtain of the first seconds is left out, and so is the purple screen that opens each exercise, unless a test asks for them
+   (window.__splash = true or window.__intro = true before the page loads) */
+fs.writeFileSync(file + '.' + process.pid, head + '<script>if(window.__splash===undefined)window.__splash=false;if(window.__intro===undefined)window.__intro=false</script>' + (hx ? '<script>window.__hx=true</script>' : '') + src + '</body></html>'); fs.renameSync(file + '.' + process.pid, file);
 module.exports = file;

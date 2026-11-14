@@ -17,7 +17,7 @@ async function open(b, store, fresh, locale) {
   return p;
 }
 const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
-/* through the opening screens with these answers: as far as the plan (which is waited for while it is built), the code, or the last screen.
+/* through the opening screens with these answers: as far as the plan (which is waited for while it is built), or the last screen.
    seen: called on every screen that is passed */
 const obWalk = async (pg, a, to, seen) => {
   const look = async (k) => { if (seen) await seen(k); };
@@ -28,14 +28,13 @@ const obWalk = async (pg, a, to, seen) => {
   await pg.click('.ob-opt[data-v="' + a.exp + '"]'); await look('exp'); await next();
   for (const g of a.goals) await pg.click('.ob-opt[data-v="' + g + '"]');
   await look('goals'); await next();
-  await pg.click('.ob-time[data-v="' + a.time + '"]'); await look('time'); await next();
+  await pg.click('.ob-time[data-ob="days"][data-v="' + (a.days || 4) + '"]'); await look('days'); await next();
+  await pg.click('.ob-time[data-ob="time"][data-v="' + a.time + '"]'); await look('time'); await next();
   await pg.click('.ob-opt[data-v="' + a.eq + '"]'); await look('eq'); await next();
   for (const t of ['hair', 'hc', 'beard', 'shirt', 'skin']) { await pg.click('#ob [data-lktab="' + t + '"]'); await look('look-' + t); }
   await next(); await look('build');
   await pg.waitForSelector('#obNext:not([disabled])', { timeout: 9000 }); await pg.waitForTimeout(300); await look('plan');
   if (to === 'plan') return;
-  await next(); await look('pin');
-  if (to === 'pin') return;
   await next(); await look('done');
 };
 /* the question about today's length, when it is asked: answered with the whole workout */
@@ -86,7 +85,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('after the deload: next workout is week 1 of mesocycle 2', (await p.evaluate(() => { const P = phaseNext(0); return [P.n, P.wk, P.rir].join(); })) === '2,1,3' && (await txt('#home .week h2')).includes('השבוע') && !(await txt('#home .week h2')).includes('מתוך'), await txt('#home .week'));
   const t1 = await p.evaluate(() => { const e = findEx('ua1', null), t = targetOf(e, 0, null); return [t.kg, t.reps, t.mode, e.sets]; });
   check('new mesocycle starts further from failure, sets back to base', t1[2] === 'base' && t1[1] >= 6 && t1[1] <= 10 && t1[0] <= 62.5 && t1[3] === 3, t1);
-  check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('גוף עליון A'), await txt('#home'));
+  check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('שריון'), await txt('#home'));
   await p.click('#planBtn'); await p.waitForTimeout(300); await adv(p);
   check('between rounds the plan says so and offers the summary, with nothing to steer', (await txt('.ms-act')).includes('סבב 1 הושלם') && (await txt('#sheet [data-sum="m1"]')).includes('סיכום הסבב') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('#sheet'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
@@ -119,7 +118,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   const got = await p.evaluate(() => ({ n: Object.keys(S.sessions).length, weeks: S.cfg.weeks, note: S.cfg.notes.hackSquat, swap: S.cfg.swap.ua5, base: S.cfg.base, evil: S.sessions.evil && S.sessions.evil.sets.la1.map((r) => [r.kg, r.reps, r.done]), evilN: S.sessions.evil && S.sessions.evil.n, evilMv: S.sessions.evil && S.sessions.evil.mv, img: document.querySelectorAll('img[src="x"]').length, fb: S.sessions.s01.fb.ua1 }));
   const pl = await p.evaluate(() => ({ slots: Object.keys(S.cfg.slots).join(), order: JSON.stringify(S.cfg.order), plan: planSlots(1).map((x) => x.a).join(), row: S.sessions.cs1 && S.sessions.cs1.sets.cabc12345 && S.sessions.cs1.sets.cabc12345[0].kg, o: S.sessions.cs1 && S.sessions.cs1.o.join(), list: exList(1, S.sessions.cs1).map((e) => e.mv).join() }));
   check('restore brings back the changed plan, and the workout that used the added exercise', pl.slots === 'cabc12345' && pl.order === '{"1":["la1","cabc12345","la2","la3","la4","la5"]}' && pl.plan === 'hackSquat,legExt,rdl,legPress,seatedLegCurl,standingCalf' && pl.row === 30 && pl.o === 'la1,cabc12345,la2,la3,la4,la5' && pl.list.startsWith('hackSquat,legExt'), pl);
-  check('restore brings back the workouts and the settings', got.n === Object.keys(withAdded).length + 1 && got.weeks === 6 && got.note === 'מושב 4' && got.swap === 'inclineDb' && got.fb.pump === 2 && (await txt('#backup')).includes('אימונים שוחזרו') && (await txt('#history')).includes('גוף תחתון B'), [got.n, got.weeks, await txt('#backup')]);
+  check('restore brings back the workouts and the settings', got.n === Object.keys(withAdded).length + 1 && got.weeks === 6 && got.note === 'מושב 4' && got.swap === 'inclineDb' && got.fb.pump === 2 && (await txt('#backup')).includes('אימונים שוחזרו') && (await txt('#history')).includes('זינוק'), [got.n, got.weeks, await txt('#backup')]);
   /* the tampered workout adds one finished workout of one set (110 points) to what the source copy had */
   const back = await p.evaluate(() => { const P = meNow(), m = S.cfg.me; return { xp: P.T.xp, wk: P.T.wk, name: m.name, look: m.look, made: m.made, first: m.badges.first, until: m.arch.until > 0 }; }), s0 = src.split(',').map(Number);
   check('restore brings the player back: character, archive and level', back.name === 'ליאור' && JSON.stringify(back.look) === JSON.stringify(me.look) && back.made === 7 && back.first === 5 && back.until && back.xp === s0[0] + 110 && back.wk === s0[1] + 1 && (await txt('#playerBtn')).includes('היי, ליאור'), [back, src]);
@@ -165,10 +164,8 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   const heb6 = [];
   await obWalk(p, { name: 'Sam', exp: 0, goals: [2], time: 30, eq: 1 }, 'plan', async (k) => { const t = await p.evaluate(() => { const c = document.querySelector('#ob').cloneNode(true); for (const x of c.querySelectorAll('.ob-lang')) x.remove(); return c.textContent; }); if (/[\u0590-\u05FF]/.test(t)) heb6.push(k + ': ' + t.slice(0, 80)); });
   await snap(p, 'h6-plan-en');
-  const off6 = await p.evaluate(() => ({ title: document.querySelector('#obTitle').textContent, stats: [...document.querySelectorAll('.ob-stats li')].map((x) => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent).join('|'), wks: [...document.querySelectorAll('.ob-wks li')].map((x) => x.textContent).join('|') }));
-  check('the plan is offered in English, with the lighter start a beginner gets and the half hour that was asked for', off6.title === 'Your plan is ready' && off6.stats === '5 exercises a workout|2 sets each|30 minutes a workout' && off6.wks === 'Upper Body A|Lower Body A|Upper Body B|Lower Body B' && heb6.length === 0, [off6, heb6]);
-  await p.click('#obNext'); await p.waitForTimeout(400);
-  check('the code is asked for in English, and can be left for later', (await txt('#obTitle')) === 'A personal code' && (await txt('#obNext')) === 'Skip for now' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
+  const off6 = await p.evaluate(() => ({ title: document.querySelector('#obTitle').textContent, stats: [...document.querySelectorAll('.ob-stats li')].map((x) => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent).join('|'), wks: [...document.querySelectorAll('.ob-wks li')].map((x) => x.querySelector('b').textContent).join('|') }));
+  check('the plan is offered in English, with the lighter start a beginner gets and the half hour that was asked for', off6.title === 'Your plan is ready' && off6.stats === '5 exercises a workout|2 sets each|30 minutes a workout' && off6.wks === 'Armor|Bedrock|Wings|Launch' && heb6.length === 0, [off6, heb6]);
   await p.click('#obNext'); await p.waitForTimeout(500);
   await snap(p, 'h6-ready-en');
   check('the last screen is in English too', (await txt('#obTitle')) === 'Sam, you are all set!' && (await txt('#obNext')) === 'To the first workout' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
@@ -582,56 +579,33 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     await p.context().close();
   }
 
-  // ---- 18. the code: set in the settings, asked for at the door, changed, taken off; and the way out for one who forgot it ----
+  // ---- 18. the week follows the days a week the lifter can train: whole-body workouts for two or three, upper and lower for four,
+  //      and push, pull and legs added for five. A code kept by an older version is let go: the app opens with no door ----
   {
-    const p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { name: 'נועה', made: 5 } } }), txt = T(p);
-    const keys = async (attr, d) => { for (const k of d) { await p.click('[' + attr + '="' + k + '"]'); await p.waitForTimeout(35); } await p.waitForTimeout(280); };
-    const toEnd = () => p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; });
-    const settings = async () => { await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(250); await p.click('#setBtn'); await p.waitForTimeout(300); await toEnd(); };
-    await settings(); await p.click('#pinSet'); await p.waitForTimeout(250);
-    check('a code is four digits on a pad of its own, with a way back', (await p.$$('#sheet [data-pk]')).length === 11 && (await txt('#sheet .pin-ask')) === 'קוד חדש: 4 ספרות' && !!(await p.$('#sheet [data-setpg=""]')) && (await p.evaluate(() => Math.min.apply(null, [...document.querySelectorAll('#sheet .pin-k')].map((x) => x.getBoundingClientRect().width)))) >= 60, await txt('#sheet'));
-    await keys('data-pk', '25'); await p.click('#sheet [data-pk="del"]'); await p.waitForTimeout(80);
-    check('a digit can be taken back', (await p.$$('#setDots i.on')).length === 1, await p.$$eval('#setDots i.on', (l) => l.length));
-    await keys('data-pk', '580'); 
-    check('it is asked for once more', (await txt('#sheet .pin-ask')) === 'עוד פעם, לאישור' && (await p.evaluate(() => S.cfg.me.pin)) === '', await txt('#sheet'));
-    await keys('data-pk', '2581');
-    check('two codes that differ start over, and nothing is saved', (await txt('#setErr')).includes('הקודים לא תואמים') && (await txt('#sheet .pin-ask')) === 'קוד חדש: 4 ספרות' && (await p.evaluate(() => S.cfg.me.pin)) === '', await txt('#sheet'));
-    await keys('data-pk', '2580'); await keys('data-pk', '2580'); await p.waitForTimeout(250);
-    const set1 = await p.evaluate(() => ({ pin: S.cfg.me.pin, kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.pin, door: DOOR.on, page: S.setPg, row: document.querySelector('#pinChange').innerText.replace(/\s+/g, ' ').trim(), toast: document.querySelector('#toast').innerText }));
-    check('the code is kept as a hash, never as its digits; the settings say it is on, and the door stays open for the one who has just set it', /^[0-9a-f]{64}$/.test(set1.pin) && !set1.pin.includes('2580') && set1.kept === set1.pin && !set1.door && !set1.page && set1.row === 'שינוי הקוד פעיל' && set1.toast.includes('הקוד נשמר'), set1);
-    await p.click('#sheet [data-close]'); await p.waitForTimeout(250); await p.reload(); await p.waitForTimeout(800);
-    const door = await p.evaluate(() => ({ on: DOOR.on, shown: !document.querySelector('#lock').hidden, text: document.querySelector('#lock').innerText.replace(/\s+/g, ' '), inert: document.querySelector('.cols').inert && document.querySelector('.brand').inert, top: document.elementFromPoint(195, 300).closest('#lock') != null, face: !!document.querySelector('#lock .lock-ava svg'), fits: document.documentElement.scrollWidth <= innerWidth && document.querySelector('#lock').scrollHeight <= innerHeight + 1 }));
-    check('on the next visit the door is closed: the lifter is greeted by name and asked for the code, and nothing behind it can be reached', door.on && door.shown && door.text.includes('היי, נועה') && door.text.includes('שכחתי את הקוד') && door.inert && door.top && door.face && door.fits, door);
-    await keys('data-lk', '0000'); await p.waitForTimeout(150);
-    check('a wrong code is said so, and the door stays closed', (await txt('#lockErr')) === 'הקוד לא נכון' && (await p.$$('#lockDots i.on')).length === 0 && (await p.evaluate(() => DOOR.on)), await txt('#lock'));
-    await p.keyboard.type('258'); await p.keyboard.press('Backspace'); await p.keyboard.type('80'); await p.waitForTimeout(700);
-    check('the right code opens it, typed on a keyboard as well', (await p.isHidden('#lock')) && (await p.evaluate(() => !DOOR.on && S.unlocked && !document.querySelector('.cols').inert)), await p.evaluate(() => DOOR.on));
-    await p.evaluate(() => { S.awayAt = Date.now() - 4 * 60000; document.dispatchEvent(new Event('visibilitychange')); }); await p.waitForTimeout(200);
-    const soon = await p.evaluate(() => DOOR.on);
-    await p.evaluate(() => { S.awayAt = Date.now() - 11 * 60000; document.dispatchEvent(new Event('visibilitychange')); }); await p.waitForTimeout(300);
-    check('coming back after a few minutes away is free, after a long while the code is asked for again', !soon && (await p.evaluate(() => DOOR.on)) && (await p.isVisible('#lock')), soon);
-    for (let i = 0; i < 5; i++) await keys('data-lk', '1111');
-    const many = await p.evaluate(() => ({ off: [...document.querySelectorAll('#lock [data-lk]')].every((x) => x.disabled), text: document.querySelector('#lockErr').textContent, until: DOOR.until > Date.now() }));
-    check('five wrong codes in a row close the keys for half a minute', many.off && many.text.includes('יותר מדי ניסיונות') && many.until, many);
-    await p.evaluate(() => { DOOR.until = 0; lockDraw(); }); await keys('data-lk', '2580'); await p.waitForTimeout(600);
-    /* changing the code asks for the one that is there */
-    await settings(); await p.click('#pinChange'); await p.waitForTimeout(250);
-    await keys('data-pk', '9999');
-    const wrongCur = await txt('#setErr');
-    await keys('data-pk', '2580'); await keys('data-pk', '1357'); await keys('data-pk', '1357'); await p.waitForTimeout(250);
-    check('changing the code takes the old one first, then the new one twice', wrongCur === 'הקוד לא נכון' && (await p.evaluate((h) => /^[0-9a-f]{64}$/.test(S.cfg.me.pin) && S.cfg.me.pin !== h, set1.pin)), wrongCur);
-    /* the one who forgot: the only way on is to delete the account, by name */
-    await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
-    await p.evaluate(() => { S.sessions.z1 = { id: 'z1', v: 3, w: 0, ts: Date.now() - 864e5, end: Date.now() - 86e6, mt: 1, upd: 1, ft: 1, m: 'm1', wk: 1, dl: 0, rir: 3, n: {}, mv: {}, sore: {}, cut: {}, fb: {}, sets: { ua1: [{ kg: 40, reps: 8, done: true, t: Date.now() - 864e5 }] } }; saveLocal(); S.unlocked = false; maybeLock(); }); await p.waitForTimeout(300);
-    await p.click('#lockForgot'); await p.waitForTimeout(250);
-    const fg = await p.evaluate(() => ({ text: document.querySelector('#lock').innerText.replace(/\s+/g, ' '), off: document.querySelector('#lockWipe').disabled, pad: !!document.querySelector('#lock .pin-pad'), back: document.querySelector('#lockBack').getBoundingClientRect().width }));
-    await p.fill('#lockName', 'מישהי אחרת'); await p.waitForTimeout(80);
-    const fgWrong = await p.isDisabled('#lockWipe');
-    await p.fill('#lockName', 'נועה'); await p.waitForTimeout(80);
-    check('a forgotten code cannot be brought back: the door says so and offers only to delete the account, by the lifter\'s name', fg.text.includes('שכחת את הקוד?') && fg.text.includes('אי אפשר לשחזר אותו') && fg.text.includes('כותבים כאן: נועה') && fg.off && !fg.pad && fg.back > 200 && fgWrong && !(await p.isDisabled('#lockWipe')), fg);
-    await p.click('#lockWipe'); await p.waitForTimeout(900);
-    const gone = await p.evaluate(() => ({ door: DOOR.on, lock: document.querySelector('#lock').hidden, pin: S.cfg.me.pin, name: S.cfg.me.name, sessions: Object.keys(S.sessions).length, ls: Object.keys(JSON.parse(localStorage.getItem('ul4:v1')).sessions).length, opening: !document.querySelector('#ob').hidden, wiped: S.cfg.wiped > 0 }));
-    check('with the name typed everything is deleted, the code with it, and the app starts over at its opening', !gone.door && gone.lock && gone.pin === '' && gone.name === '' && gone.sessions === 0 && gone.ls === 0 && gone.opening && gone.wiped, gone);
+    const t0 = Date.now() - 6 * 864e5;
+    const mk = (id, w, d, ex) => ({ id, v: 3, w, ts: t0 + d * 864e5, end: t0 + d * 864e5 + 3600e3, upd: t0 + d * 864e5 + 3600e3, ft: t0 + d * 864e5, m: 'm1', wk: 1, dl: 0, rir: 3, n: {}, mv: {}, sore: {}, cut: {}, fb: {}, sets: { [ex]: [{ kg: 40, reps: 8, done: true, t: t0 + d * 864e5 + 600e3 }] } });
+    const p = await open(b, { sound: false, dirty: [], gone: [], sessions: { o1: mk('o1', 0, 0, 'ua1') }, cfg: { upd: 3, weeks: 5, meso: { id: 'm1', n: 1, start: t0, early: 0, asked: '' }, me: { ob: 1, name: 'נועה', made: 5, tour: 1, days: 3, pin: 'a'.repeat(64) } } }), txt = T(p);
+    const rows = () => p.evaluate(() => [...document.querySelectorAll('#tabs .tab')].map((x) => x.querySelector('b').textContent + ':' + x.className.split(' ').slice(-1)[0]));
+    const add = (list) => p.evaluate((list) => { for (const x of list) { S.sessions[x.id] = x; touch(x); } S.touched = false; S.tab = nextUp().next; renderAll(); }, list);
+    const st = await p.evaluate(() => ({ lock: !!document.querySelector('#lock'), pin: S.cfg.me.pin, days: S.cfg.me.days, week: week().join() }));
+    check('a code from an older version is let go, and there is no door', !st.lock && st.pin === undefined, JSON.stringify(st));
+    check('three days a week: three whole-body workouts, each with a name of its own and what it trains', st.days === 3 && st.week === '4,5,6' && (await rows()).join() === 'מנוע:next,סערה:todo,להבה:todo' && (await txt('#tabs')).includes('כל הגוף'), JSON.stringify(await rows()));
+    check('a workout from before the days changed keeps its name', (await p.evaluate(() => wkName(S.sessions.o1.w))) === 'שריון');
+    /* the three of the week, one after the other: then the first comes round again */
+    await add([mk('a1', 4, 1, 'fa1'), mk('a2', 5, 2, 'fb1')]);
+    check('after the first two, the third is next, and the first two are done', (await rows()).join() === 'מנוע:done,סערה:done,להבה:next' && (await txt('#home .next h2')) === 'להבה' && (await txt('#home .next .k')) === 'אימון שלישי', JSON.stringify(await rows()));
+    await add([mk('a3', 6, 3, 'fc1')]);
+    check('and after the third, the week starts again from the first', (await p.evaluate(() => nextUp().next)) === 4 && (await txt('#home .next h2')) === 'מנוע', await txt('#home .next'));
+    /* five days, from the settings: the week grows, the plan sheet follows it */
+    await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(250); await p.click('#setBtn'); await p.waitForTimeout(300);
+    await p.click('#sheet [data-set="days"][data-v="5"]'); await p.waitForTimeout(250);
+    const five = await p.evaluate(() => ({ days: S.cfg.me.days, kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.days, pressed: document.querySelector('#sheet [data-set="days"][aria-pressed="true"]').dataset.v }));
+    await p.click('#sheet [data-close]'); await p.waitForTimeout(250); await p.click('#tabbar [data-view="home"]'); await p.waitForTimeout(300);
+    check('five days, set in the settings and kept: upper, lower, then push, pull and legs', five.days === 5 && five.kept === 5 && five.pressed === '5' && (await rows()).map((x) => x.split(':')[0]).join() === 'שריון,סלע,פטיש,עוגן,עמוד', JSON.stringify([five, await rows()]));
+    check('the meter of the week counts five', (await txt('.wk-meter b')).includes('/5') && (await p.$$('.wk-meter i')).length === 5, await txt('.week-h'));
+    await p.click('#planBtn'); await p.waitForTimeout(350);
+    check('the plan shows the five workouts of the week, and no drawings of clothes', (await p.$$('#sheet .pl-card')).length === 5 && (await txt('#sheet .pl-cards')).includes('פטיש') && !(await p.$('#sheet .pl-ic svg')), await txt('#sheet .pl-cards'));
+    await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
     await p.context().close();
   }
 

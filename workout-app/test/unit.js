@@ -3,10 +3,10 @@ const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = process.argv[2] || path.join(__dirname, '..', 'src');
 const GAME = ['rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'startKg', 'stepUp', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned', 'SHOP', 'shopItem', 'coinsOf', 'cleanShop', 'spentOf', 'coinsLeft', 'shopWear', 'shopBuy'];
 const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') +
-  '\n;globalThis.X = { PLAN, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
+  '\n;globalThis.X = { PLAN, WEEKS, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
   '\n;globalThis.G = {' + GAME.map((k) => k + ': typeof ' + k + " === 'undefined' ? undefined : " + k).join(', ') + '};';
 vm.runInThisContext(code);
-const { PLAN, LIB, MUSCLE, PATTERN, EQUIP, EN, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark } = globalThis.X;
+const { PLAN, WEEKS, LIB, MUSCLE, PATTERN, EQUIP, EN, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark } = globalThis.X;
 let pass = 0; const bad = [];
 const eq = (name, got, want) => { if (JSON.stringify(got) === JSON.stringify(want)) pass++; else bad.push(name + ': got ' + JSON.stringify(got) + ' want ' + JSON.stringify(want)); };
 const O = (x) => Object.assign({ lo: 6, hi: 10, inc: 2.5, rir: 2, sore: 0, dl: false, inv: false }, x);
@@ -75,9 +75,17 @@ eq('score bodyweight', score(LIB.kneeRaise, null, 12), 12);
 // fractional volume: bench = 1 chest + 0.5 front delts + 0.5 triceps
 const v1 = muscleVolume([{ mv: 'inclineSmith', sets: 3 }]);
 eq('fractional volume', [v1.chest, v1.fdelt, v1.triceps, v1.back], [{ d: 3, i: 0 }, { d: 0, i: 1.5 }, { d: 0, i: 1.5 }, { d: 0, i: 0 }]);
-const all = muscleVolume(PLAN.flatMap((w) => w.ex.map((e) => ({ mv: e.a, sets: e.sets }))));
+const weekVol = (d) => { const v = muscleVolume(WEEKS[d].flatMap((w) => PLAN[w].ex.map((e) => ({ mv: e.a, sets: e.sets })))); return Object.fromEntries(Object.keys(v).map((k) => [k, v[k].d + v[k].i])); };
+const all = muscleVolume(WEEKS[4].flatMap((w) => PLAN[w].ex.map((e) => ({ mv: e.a, sets: e.sets }))));
 const tot = Object.fromEntries(Object.keys(all).map((k) => [k, all[k].d + all[k].i]));
 eq('plan volume', tot, { chest: 8, back: 13, delts: 12, fdelt: 6, biceps: 10, triceps: 9, quads: 13, hams: 10.5, glutes: 10, calves: 6, abs: 11 });
+/* every week, whatever the number of days, trains every big muscle; more days give more work, never less */
+eq('every week trains the big muscles', [2, 3, 4, 5].map((d) => ['chest', 'back', 'delts', 'quads', 'hams', 'biceps', 'triceps'].every((k) => weekVol(d)[k] >= 3)), [true, true, true, true]);
+eq('more days give more work', [2, 3, 4, 5].map((d) => Math.round(Object.values(weekVol(d)).reduce((a, b) => a + b, 0))).every((v, i, a) => !i || v > a[i - 1]), true);
+eq('the week has as many workouts as the days, none twice, every one of them a workout of the plan', [2, 3, 4, 5].map((d) => WEEKS[d].length === d && new Set(WEEKS[d]).size === d && WEEKS[d].every((w) => !!PLAN[w])), [true, true, true, true]);
+eq('no slot id comes twice in the plan', new Set(PLAN.flatMap((w) => w.ex.map((e) => e.id))).size, PLAN.reduce((n, w) => n + w.ex.length, 0));
+eq('no movement comes twice in a workout', PLAN.every((w) => new Set(w.ex.map((e) => e.a)).size === w.ex.length), true);
+eq('every movement of the plan is in the library', PLAN.every((w) => w.ex.every((e) => !!LIB[e.a])), true);
 eq('landmarks', [landmark('calves', 6), landmark('chest', 8), landmark('chest', 23)], ['under', 'ok', 'over']);
 
 // library integrity: every movement is complete, every swap option has a demo, every plan slot has a partner in its pattern
@@ -95,9 +103,10 @@ const ses = (o) => Object.assign({ id: 's1', w: 0, ts: 1000, end: 2000, sets: {}
 const three = { ua1: [{ kg: 60, reps: 8, done: true }, { kg: 60, reps: 7, done: true, pr: true }, { kg: null, reps: null, done: false }], ua2: [{ kg: null, reps: 12, done: true }] };
 
 // workout names in Hebrew, the way the owner asked for them
-t('workout titles', () => PLAN.map((w) => w.t), ['גוף עליון A', 'גוף תחתון A', 'גוף עליון B', 'גוף תחתון B']);
+t('workout titles', () => PLAN.map((w) => w.t), ['שריון', 'סלע', 'כנפיים', 'זינוק', 'מנוע', 'סערה', 'להבה', 'פטיש', 'עוגן', 'עמוד']);
+t('every workout says what it trains, in both languages', () => PLAN.every((w) => !!w.m && !!w.me && !!w.te), true);
 t('workout ordinals', () => [0, 1, 2, 3].map((w) => G.wkOrd(w)), ['אימון ראשון', 'אימון שני', 'אימון שלישי', 'אימון רביעי']);
-t('full workout name', () => G.wkFull(1), 'אימון שני – גוף תחתון A');
+t('full workout name', () => G.wkFull(1), 'אימון שני – סלע');
 
 // points: 10 a set, 30 more for a personal best, 100 for finishing
 t('points of a finished workout', () => G.tally(ses({ sets: three })), { sets: 3, prs: 1, kg: 900, xp: 160 });
@@ -113,7 +122,7 @@ t('level 5 exactly', () => G.levelOf(1040), { lvl: 5, into: 0, need: 360 });
 t('inside level 5', () => G.levelOf(1240), { lvl: 5, into: 200, need: 360 });
 t('bad input is level 1', () => [G.levelOf(-5).lvl, G.levelOf(NaN).lvl, G.levelOf(undefined).lvl], [1, 1, 1]);
 // the first week: every one of the four workouts lifts the level
-t('each of the first four workouts raises the level', () => { let xp = 0; return PLAN.map((w) => { xp += w.ex.reduce((n, e) => n + e.sets, 0) * G.XP.set + G.XP.done; return G.levelOf(xp).lvl; }); }, [2, 3, 4, 5]);
+t('each of the first four workouts raises the level', () => { let xp = 0; return WEEKS[4].map((i) => PLAN[i]).map((w) => { xp += w.ex.reduce((n, e) => n + e.sets, 0) * G.XP.set + G.XP.done; return G.levelOf(xp).lvl; }); }, [2, 3, 4, 5]);
 
 // ranks and rewards
 t('ranks', () => [1, 4, 5, 10, 19, 20, 30, 49, 50, 99, 100, 240].map((l) => G.rankOf(l).he), ['טירון', 'טירון', 'מתמיד', 'ספורטאי', 'מכונה', 'חיה', 'אלוף', 'אגדה', 'טיטאן', 'אולימפי', 'אגדה חיה', 'אגדה חיה']);
@@ -196,15 +205,15 @@ t('a workout takes its sets, its rests, the moves between exercises and a warm-u
   const BASIC = ['db', 'bar', 'cable', 'bw'], fit = (a) => G.fitPlanData(Object.assign({ exp: 1, goals: [0], time: 0, ok: null }, a));
   const mins = (l) => G.workMins(l.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })));
   t('a full gym, any length, a regular lifter: the plan as it is written', () => fit({}).map((l, w) => l.map((x) => x.id + ':' + x.mv + ':' + x.sets + ':' + x.kind).join()), PLAN.map((wk) => wk.ex.map((e) => e.id + ':' + e.a + ':' + e.sets + ':').join()));
-  t('a gym without machines: every movement is one it has the equipment for', () => fit({ ok: BASIC }).map((l) => l.filter((x) => !BASIC.includes(LIB[x.mv].eq)).map((x) => x.mv)), [[], [], [], []]);
-  t('and no movement comes twice in a workout, and none is left short', () => fit({ ok: BASIC }).map((l) => new Set(l.map((x) => x.mv)).size === l.length && l.length >= 4), [true, true, true, true]);
+  t('a gym without machines: every movement is one it has the equipment for', () => fit({ ok: BASIC }).map((l) => l.filter((x) => !BASIC.includes(LIB[x.mv].eq)).map((x) => x.mv)), PLAN.map(() => []));
+  t('and no movement comes twice in a workout, and none is left short', () => fit({ ok: BASIC }).map((l) => new Set(l.map((x) => x.mv)).size === l.length && l.length >= 4), PLAN.map(() => true));
   t('a swap keeps the slot and its numbers; another movement for the muscle brings its own', () => fit({ ok: BASIC }).every((l, w) => l.every((x) => { const e = PLAN[w].ex.find((y) => y.id === x.id); return x.kind === 'repl' ? x.full === G.rxOf(x.mv).sets && x.reps === G.rxOf(x.mv).reps : x.full === e.sets && x.reps === e.reps && (x.kind === 'swap') === (x.mv !== e.a); })), true);
   t('a slot is swapped for the same kind of movement where the gym has one', () => fit({ ok: BASIC }).every((l) => l.every((x) => x.kind !== 'repl' || !G.sameKind(PLAN.flatMap((w) => w.ex).find((e) => e.id === x.id).a).some((k) => BASIC.includes(LIB[k].eq) && !l.some((y) => y.mv === k && y.id !== x.id)))), true);
   t('a beginner does one set less where there were three or more', () => [fit({ exp: 0 }).every((l) => l.every((x) => x.sets === (x.full >= 3 ? x.full - 1 : x.full))), fit({ exp: 2 }).every((l) => l.every((x) => x.sets === x.full))], [true, true]);
-  for (const time of [30, 45, 60, 75]) t('a workout of ' + time + ' minutes runs no longer, unless it is down to four exercises', () => fit({ time }).map((l) => mins(l) <= time || l.length === 4), [true, true, true, true]);
-  t('what leaves is the end of the workout: the heavy lifts that open it stay', () => fit({ time: 30 }).map((l, w) => l.map((x) => x.id).join() === PLAN[w].ex.slice(0, l.length).map((e) => e.id).join()), [true, true, true, true]);
+  for (const time of [30, 45, 60, 75]) t('a workout of ' + time + ' minutes runs no longer, unless it is down to four exercises', () => fit({ time }).map((l) => mins(l) <= time || l.length === 4), PLAN.map(() => true));
+  t('what leaves is the end of the workout: the heavy lifts that open it stay', () => fit({ time: 30 }).map((l, w) => l.map((x) => x.id).join() === PLAN[w].ex.slice(0, l.length).map((e) => e.id).join()), PLAN.map(() => true));
   t('more time never means fewer exercises', () => { const n = [30, 45, 60, 75, 0].map((time) => fit({ time }).map((l) => l.length)); return n.every((a, i) => !i || a.every((v, w) => v >= n[i - 1][w])); }, true);
-  t('a short workout keeps what it can, never less than four', () => fit({ time: 30, exp: 2, goals: [1] }).map((l) => l.length >= 4), [true, true, true, true]);
+  t('a short workout keeps what it can, never less than four', () => fit({ time: 30, exp: 2, goals: [1] }).map((l) => l.length >= 4), PLAN.map(() => true));
   t('the reps and rests of the fitted plan are the ones the goals ask for', () => { const l = fit({ goals: [1] })[0][0], e = PLAN[0].ex[0]; return [l.reps, l.r, l.rest.join(), l.t.join(), e.reps]; }, ['6–10', '4–6', '120,180', '150,210', '6–10']);
   t('fitting leaves the plan itself as it was', () => { const before = JSON.stringify(PLAN); fit({ ok: BASIC, time: 30, exp: 0, goals: [1, 2] }); return JSON.stringify(PLAN) === before; }, true);
 })();
@@ -218,7 +227,7 @@ t('a saved order that is not a list is ignored', () => G.orderOf(['a', 'b'], { 0
 // a slot read from a file or from the account is rebuilt field by field
 t('a clean slot passes', () => G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '12–15', rest: [75, 75] }), { w: 1, a: 'legExt', sets: 3, reps: '12–15', rest: [75, 75] });
 t('a slot is clamped to sane numbers', () => G.cleanSlot({ w: 2, a: 'dbCurl', sets: 99, reps: '10–15', rest: [1, 9999] }), { w: 2, a: 'dbCurl', sets: 8, reps: '10–15', rest: [15, 600] });
-t('a slot with an unknown movement, workout or rep range is refused', () => [G.cleanSlot({ w: 1, a: '<img>', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 7, a: 'legExt', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '<b>', rest: [60, 60] }), G.cleanSlot(null)], [null, null, null, null]);
+t('a slot with an unknown movement, workout or rep range is refused', () => [G.cleanSlot({ w: 1, a: '<img>', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 40, a: 'legExt', sets: 3, reps: '8–12', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '<b>', rest: [60, 60] }), G.cleanSlot(null)], [null, null, null, null]);
 t('a slot whose rep range is empty or upside down is refused', () => [G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '0–0', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '12–8', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '0', rest: [60, 60] }), G.cleanSlot({ w: 1, a: 'legExt', sets: 3, reps: '12', rest: [60, 60] }).reps], [null, null, null, '12']);
 
 // ---- two languages: every text of the content has an English twin, and the helpers follow the language of the page
@@ -229,7 +238,7 @@ t('in Hebrew the cues and the muscle line are the Hebrew ones', () => [L('mvCues
 t('every muscle and every kind of equipment has an English name', () => inEn(() => Object.keys(MUSCLE).map((k) => L('muName')(k)).concat(Object.keys(EQUIP).map((k) => L('eqName')(k))).filter((x) => !x || HEB.test(x))), []);
 t('a muscle inside an English sentence is in lower case', () => inEn(() => [L('muLow')('chest'), L('muLow')('quads')]), ['chest', 'quads']);
 t('every note of the plan has its English', () => inEn(() => { const out = []; for (const w of PLAN) for (const e of w.ex) for (const x of [e.int, e.suf]) if (x && HEB.test(L('planNote')(x))) out.push(x); return out; }), []);
-t('a workout is named in the language of the page', () => [G.wkFull(1), L('wkShort')(1), inEn(() => G.wkFull(1)), inEn(() => L('wkShort')(3))], ['אימון שני – גוף תחתון A', 'תחתון A', 'Workout 2 – Lower Body A', 'Lower B']);
+t('a workout is named in the language of the page', () => [G.wkFull(1), L('wkShort')(1), inEn(() => G.wkFull(1)), inEn(() => L('wkShort')(3))], ['אימון שני – סלע', 'סלע', 'Workout 2 – Bedrock', 'Launch']);
 t('ranks, rewards and achievements have English names', () => inEn(() => G.RANKS.concat(G.REWARDS, G.BADGES).map((x) => L('nm')(x)).filter((x) => !x || HEB.test(x))), []);
 t('the rank of a level carries both names', () => [L('nm')(G.rankOf(12)), inEn(() => L('nm')(G.rankOf(12)))], ['ספורטאי', 'Athlete']);
 t('a count takes the singular for one', () => [L("cnt(1, 'סטים', 'סט אחד', 'sets', 'set')"), L("cnt(3, 'סטים', 'סט אחד', 'sets', 'set')"), inEn(() => L("cnt(1, 'סטים', 'סט אחד', 'sets', 'set')")), inEn(() => L("cnt(3, 'סטים', 'סט אחד', 'sets', 'set')"))], ['סט אחד', '3 סטים', '1 set', '3 sets']);

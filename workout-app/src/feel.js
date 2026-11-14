@@ -99,7 +99,9 @@ function wireFeel() {
     const b = t.closest && t.closest('button,[role="button"],a[href],select,summary,label.chat-ctx'); if (!b || b.disabled) return;
     primeAudio();
     /* under a clear label the finger has already been answered by the phone itself */
-    if (!(HX.on && t.className === 'hx')) haptic(touchOf(b));
+    /* a stepper was already felt when the finger came down on it (pointerdown below): once is enough */
+    const k = touchOf(b);
+    if (!(HX.on && t.className === 'hx') && !(k === 'step' && ev.detail > 0 && b.closest('.step,.rstep'))) haptic(k);
     if (b.matches(YES)) sfx('set');
   }, true);
   /* a weight or a number that is held down keeps ticking as it runs */

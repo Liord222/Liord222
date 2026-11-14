@@ -121,10 +121,10 @@ function obHTML() {
     cta = say('בואו נתחיל', "Let's start");
     body = '<div class="ob-stage"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
       '<button class="ob-me" id="obMe" type="button" aria-label="' + say('הדמות שלך. כל הקשה מעלה אותה רמה', 'Your character. Every tap takes it up a level') + '"><span class="ob-rings" aria-hidden="true"><i></i><i></i></span><span class="ob-av" id="obAv">' + avatar(lvl) + '</span>' +
-      '<span class="lv-badge ob-lv" id="obLv" aria-hidden="true">' + say('רמה ', 'Level ') + lvl + '</span><span class="ob-tap" aria-hidden="true">' + say('הקש עליי', 'Tap me') + '</span></button>' +
+      '<span class="lv-badge ob-lv" id="obLv" aria-hidden="true">' + say('רמה ', 'Level ') + lvl + '</span><span class="ob-tap" aria-hidden="true">' + say('הקישו עליי', 'Tap me') + '</span></button>' +
       '<div class="ob-q ob-hi"><span class="ava" aria-hidden="true">' + coachFace() + '</span><div class="ob-bub"><h1 id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1><p>' + say('אני אילון, המאמן שלך. נבנה לך תוכנית?', 'I am Eilon, your coach. Shall we build your plan?') + '</p></div></div></div>';
   } else if (st === 1) {
-    body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">' + buddy;
+    body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" dir="auto" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">' + buddy;
   } else if (st === 2) {
     body = ask(say('כמה ניסיון יש לך בחדר כושר?', 'How much gym experience do you have?')) + opts('exp', EXP(), OB.exp) + buddy; can = OB.exp != null;
   } else if (st === 3) {
@@ -133,21 +133,23 @@ function obHTML() {
     body = ask(say('זו הדמות שלך', 'This is your character'), say('היא מתחזקת עם כל רמה, והיא שתדגים לך את התרגילים.', 'It grows with every level, and it shows you the exercises.')) + '<div class="lk-stage" id="lkStage">' + avatar(lvl) + '</div><div id="lkRows">' + lookRows() + '</div>';
   } else if (st === 5) {
     /* the coach offers the plan, one line after the other. Each line says what the app really does */
-    const sets = Object.keys(SLOT).map((id) => (OB.exp === 0 && SLOT[id].sets >= 3 ? SLOT[id].sets - 1 : SLOT[id].sets)), lo = Math.min.apply(null, sets), hi = Math.max.apply(null, sets), wks = S.cfg.weeks;
+    /* the cut for a beginner is made only before the first logged set (applyExp): after that the plan stays as it is, and the line says so */
+    const cut = meNow().T.sets === 0, plan = (id) => { const b = S.cfg.base[id]; return b && b.n && !(cut && b.x) ? b.n : SLOT[id].sets; };
+    const sets = Object.keys(SLOT).map((id) => (cut ? (OB.exp === 0 && SLOT[id].sets >= 3 ? SLOT[id].sets - 1 : SLOT[id].sets) : plan(id))), lo = Math.min.apply(null, sets), hi = Math.max.apply(null, sets), wks = S.cfg.weeks;
     const line = (k, ic, b, sm) => '<li>' + tile(ic, k) + '<span><b>' + b + '</b><small>' + sm + '</small></span></li>';
     cta = say('נשמע טוב', 'Sounds good');
     body = ask(say('אני חושב שהתוכנית הזאת תתאים לך', 'I think this plan will suit you')) + '<ol class="ob-lines">' +
       line(0, ICON.bell, say('ארבעה אימונים בסבב', 'Four workouts in a cycle'), say('עליון, תחתון, עליון, תחתון', 'Upper, lower, upper, lower')) +
-      line(1, barsIcon((OB.exp == null ? 1 : OB.exp) + 1), lo === hi ? cnt(lo, 'סטים לתרגיל', 'סט לתרגיל', 'sets an exercise', 'set an exercise') : say(lo + '–' + hi + ' סטים לתרגיל', lo + '–' + hi + ' sets an exercise'), say('לפי הניסיון שלך', 'By your experience') + (EXP()[OB.exp] ? ': ' + EXP()[OB.exp][0] : '')) +
+      line(1, barsIcon((OB.exp == null ? 1 : OB.exp) + 1), lo === hi ? cnt(lo, 'סטים לתרגיל', 'סט לתרגיל', 'sets an exercise', 'set an exercise') : say(Ltr(lo + '–' + hi) + ' סטים לתרגיל', lo + '–' + hi + ' sets an exercise'), cut ? say('לפי הניסיון שלך', 'By your experience') + (EXP()[OB.exp] ? ': ' + EXP()[OB.exp][0] : '') : say('כמו בתוכנית שלך', 'As in your plan')) +
       line(2, glyph('bolt'), say('כל שבוע קצת יותר', 'A little more every week'), say('סבב של ' + wks + ' שבועות, והאחרון קל', 'A round of ' + wks + ' weeks, and the last one is easy')) +
       line(3, ICON.swap, say('לא מתחבר לתרגיל?', 'Not into an exercise?'), say('מחליפים אותו בלחיצה', 'Swap it with one tap')) + '</ol>' + buddy;
   } else {
-    const old = meNow().T.wk > 0;
+    const old = meNow().T.wk > 0, nm = String(OB.name || '').trim();
     cta = old ? say('קדימה', "Let's go") : say('לאימון הראשון', 'To the first workout');
-    body = '<div class="ob-hero done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><div class="ob-av">' + avatar(lvl, { flex: true }) + '</div><h1 id="obTitle">' + (OB.name ? esc(OB.name) + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
+    body = '<div class="ob-hero done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><div class="ob-av">' + avatar(lvl, { flex: true }) + '</div><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi>' + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
       '<p class="ob-note">' + say('לא תחליף לייעוץ רפואי. יש כאב או מגבלה? קודם מתייעצים עם איש מקצוע.', 'Not medical advice. Pain or a condition? Talk to a professional first.') + '</p></div>';
   }
-  const langs = '<div class="seg ob-lang" role="group" aria-label="' + LANG_LABEL + '">' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div>';
+  const langs = '<div class="seg ob-lang" role="group" aria-labelledby="obLangL"><span class="sr" id="obLangL">' + LANG_LABEL + '</span>' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div>';
   /* the first screen arrives with its whole entrance once; drawn again (a change of language) it is simply there */
   const quiet = st === 0 && OB.seen0; if (st === 0) OB.seen0 = true;
   return '<div class="ob-bg" aria-hidden="true">' + '<i></i>'.repeat(10) + '</div><div class="ob-in' + (quiet ? ' quiet' : '') + '" data-step="' + st + '"><div class="ob-top' + (st === 0 ? ' first' : '') + '">' + (st > 0 ? '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : langs) +
@@ -168,10 +170,12 @@ function renderOb() {
 }
 function openOb() {
   const me = S.cfg.me;
-  Object.assign(OB, { on: true, step: 0, dir: 0, seen0: false, tapT: 0, playT: 0, name: me.name || '', exp: me.exp, goal: me.goal });
+  Object.assign(OB, { on: true, step: 0, dir: 0, seen0: false, tapT: 0, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goal: me.goal });
+  /* the language shown is the one kept: a look chosen on the way must not turn an English page Hebrew on the next visit */
+  if (!S.cfg.lang) S.cfg.lang = LANG;
   $('#ob').hidden = false; document.body.style.overflow = 'hidden'; renderOb();
 }
-function closeOb() { OB.on = false; clearInterval(OB.showT); const el = $('#ob'); el.hidden = true; el.classList.remove('play'); el.innerHTML = ''; if (!$('#chat').classList.contains('open')) document.body.style.overflow = ''; }
+function closeOb() { OB.on = false; clearInterval(OB.showT); const el = $('#ob'); el.hidden = true; el.classList.remove('play'); el.innerHTML = ''; if (!(chat.modal && $('#chat').classList.contains('open'))) document.body.style.overflow = ''; }
 /* the answers are kept when the last screen is passed. skip: only remember that the screens were seen */
 function obFinish(skip) {
   const me = S.cfg.me;
@@ -179,17 +183,18 @@ function obFinish(skip) {
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
   closeOb(); renderAll();
 }
-function obStep(d) { const n = OB.step + d; if (n < 0) return; if (n > OB_LAST) { obFinish(false); return; } if (d > 0 && n < OB_LAST) sfx('set'); OB.step = n; OB.dir = d; renderOb(); }
+function obStep(d) { const n = OB.step + d; if (n < 0) return; OB.stepAt = Date.now(); if (n > OB_LAST) { obFinish(false); return; } if (d > 0 && n < OB_LAST) sfx('set'); OB.step = n; OB.dir = d; renderOb(); }
 /* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */
 function maybeOb() {
-  if (OB.on) { if (S.cfg.me.ob) closeOb(); return; }
+  /* passed on another device while open here: they close. Opened again from the profile, they were passed before, and stay */
+  if (OB.on) { if (S.cfg.me.ob && S.cfg.me.ob !== OB.was) closeOb(); return; }
   if (S.cfgReady && !S.cfg.me.ob && nextUp().live < 0 && $('#sheet').hidden) openOb();
 }
 function wireOb() {
   const el = $('#ob');
   el.addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
-    if (b.id === 'obNext') obStep(1);
+    if (b.id === 'obNext') { if (ev.detail !== 0 && Date.now() - (OB.stepAt || 0) < 300) return; obStep(1); }
     else if (b.id === 'obBack') obStep(-1);
     else if (b.id === 'obSkip') obFinish(true);
     else if (b.id === 'obMe') obLevel(true);

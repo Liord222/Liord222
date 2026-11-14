@@ -68,9 +68,6 @@ function solve(p) {
   const foot = (lg, f) => ({ a: lg.c, f: f === 'p' ? lg.a2 + 90 : f });
   return { p, hip, mid, sh, head, shN, shF, hpN, hpF, armN, armF, legN, legF, footN: foot(legN, p.footN), footF: foot(legF, p.footF) };
 }
-/* point on the sole under the ball of the foot, and the ankle that puts the ball at a fixed spot */
-const ballOf = (ft) => add(add(ft.a, dir(ft.f), 14), dir(ft.f - 90), LEN.ankle);
-const ankleFor = (ball, f) => add(add(ball, dir(f), -14), dir(f - 90), -LEN.ankle);
 
 /* ---- primitives ---- */
 function capsule(g, a, b, w, col) { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }
@@ -325,7 +322,7 @@ const K = {
     for (let i = 0; i < n; i++) { const y = top + i * 6.2 - (i < 4 ? lift || 0 : 0); box(g, x, y + 2.4, 18, 4.8, 0, i < 4 ? C.plate : C.eq2, 1.4); }
     ring(g, [x + 5, top + 3 * 6.2 + 2.4 - (lift || 0)], 1.5, C.accent);
   },
-  pulley(g, C, c, r) { r = r || 6; ring(g, c, r, C.eq2); ring(g, c, r - 2.3, C.stage); ring(g, c, 1.7, C.eq2); },
+  pulley(g, C, c, r) { r = r || 6; ring(g, c, r, C.eq2); ring(g, c, r - 2.3, C.bg || C.stage); ring(g, c, 1.7, C.eq2); },
   cable(g, C, pts) { g.strokeStyle = C.cable; g.lineWidth = 1.5; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]))); g.stroke(); },
   /* cable column with a weight stack; the pulley sits on an arm */
   tower(g, C, x, o) {

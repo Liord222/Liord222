@@ -379,6 +379,63 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
     check('an older file does not replace newer settings, and the note says they were kept', (await p.evaluate(() => S.cfg.weeks)) === 6 && (await txt('#backup')).includes('ההגדרות שבמכשיר הזה חדשות יותר'), await txt('#backup'));
     await p.context().close();
   }
+  // ---- 15. the answers the other suites only ever say "no" to: clear, delete, reset, an early easy week, a backup. And the coach when Claude fails ----
+  {
+    const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'he-IL' }), q = await ctx.newPage();
+    q.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
+    const ses = {};
+    for (let i = 0; i < 3; i++) { const ts = now - (7 - i * 2) * day; ses['Y' + i] = { id: 'Y' + i, v: 3, w: i, ts, end: ts + 3e6, mt: ts, upd: ts, ft: 0, m: 'm1', wk: 1, dl: 0, rir: 3, sets: { [['ua1', 'la1', 'ub1'][i]]: [{ kg: 50, reps: 8, done: true, t: ts }] } }; }
+    ses.Ylive = { id: 'Ylive', v: 3, w: 3, ts: now - 36e5, end: 0, mt: 0, upd: now - 6e4, ft: 0, m: 'm1', wk: 1, dl: 0, rir: 3, sets: { lb1: [{ kg: 50, reps: 8, done: true, t: now - 6e4 }] } };
+    const store = { sound: false, dirty: [], gone: [], sessions: ses, cfg: { upd: 3, me: { ob: 1, name: 'Y' }, swap: { ua5: 'inclineDb' }, meso: { id: 'm1', n: 1, start: now - 8 * day, early: 0, asked: '' } } };
+    await q.addInitScript((st) => {
+      if (!localStorage.getItem('ul4:v1')) localStorage.setItem('ul4:v1', st);
+      window.__files = [];
+      /* Claude as the runtime gives it, failing on purpose for chosen questions */
+      const sample = async (input, opts) => {
+        const last = input[input.length - 1].content;
+        if (/מגבלה/.test(last)) throw { code: 'rate_limited', message: 'limit' };
+        if (/באמצע/.test(last)) { opts.onText({ text: 'הנה חצי תשובה', delta: 'הנה חצי תשובה' }); throw { code: 'upstream_error', message: 'cut', text: 'הנה חצי תשובה' }; }
+        return { text: 'בסדר.', truncated: false };
+      };
+      sample.limits = async () => ({ maxPromptBytes: 262144, images: { maxCount: 4, maxInputBytes: 2e7, mediaTypes: ['image/jpeg', 'image/png'] } });
+      window.claude = { use: async (n) => (n === 'sample' ? sample : n === 'downloads' ? { save: async (r) => { window.__files.push(r); return { status: 'saved' }; } } : null) };
+    }, JSON.stringify(store));
+    await q.goto(PREVIEW); await q.waitForTimeout(900);
+    /* clear the running workout: it goes, and its deletion waits to be sent */
+    /* the page opens on the running workout */
+    await q.click('#listBtn'); await q.waitForTimeout(250);
+    await q.click('#resetBtn'); await q.waitForTimeout(200); await q.click('#resetYes'); await q.waitForTimeout(300);
+    check('"Yes, clear" removes the running workout and marks it deleted', await q.evaluate(() => !S.sessions.Ylive && S.gone.has('Ylive') && S.dirty.has('Ylive')), await q.evaluate(() => Object.keys(S.sessions).join()));
+    /* delete a finished workout from its editor */
+    await q.evaluate(() => { setView('home'); openEditor('Y0'); }); await q.waitForTimeout(350);
+    await q.click('#edDelAsk'); await q.waitForTimeout(200); await q.click('#edDelYes'); await q.waitForTimeout(300);
+    check('"Yes, delete" in the editor deletes that workout', await q.evaluate(() => !S.sessions.Y0 && S.gone.has('Y0') && $('#sheet').hidden), await q.evaluate(() => Object.keys(S.sessions).join()));
+    /* reset the plan, then start an easy week early */
+    await q.evaluate(() => { S.cfg.order = { 0: ['ua2', 'ua1'] }; openMeso(); }); await q.waitForTimeout(300);
+    await q.evaluate(() => { S.msAsk = 'plan'; renderMeso(); }); await q.waitForTimeout(150);
+    if (await q.$('#planResetYes')) { await q.click('#planResetYes'); await q.waitForTimeout(200); }
+    check('"Yes" on resetting the plan clears the order and the swaps', await q.evaluate(() => !Object.keys(S.cfg.order).length && !Object.keys(S.cfg.swap).length), await q.evaluate(() => JSON.stringify([S.cfg.order, S.cfg.swap])));
+    await q.evaluate(() => { S.msPage = ''; S.msAsk = 'dl'; renderMeso(); }); await q.waitForTimeout(150);
+    await q.click('#msDlYes'); await q.waitForTimeout(300);
+    check('"Yes, easy week" starts the easy week now', await q.evaluate(() => !!S.cfg.meso.early && $('#sheet').hidden), await q.evaluate(() => JSON.stringify(S.cfg.meso)));
+    /* a backup goes out whole, and reads back */
+    await q.evaluate(() => { setView('profile'); openSettings(); }); await q.waitForTimeout(300);
+    await q.click('#backupBtn'); await q.waitForTimeout(300);
+    const bk = await q.evaluate(() => { const f = window.__files[0]; let d = null; try { d = JSON.parse(f.data); } catch (e) { /* not json */ } return { name: f && f.filename, ids: d && d.sessions ? Object.keys(d.sessions).sort().join() : '', note: S.backupNote }; });
+    check('the backup is saved as a file that holds the log', /^gymi-backup-\d{4}-\d\d-\d\d\.json$/.test(bk.name || '') && bk.ids === 'Y1,Y2' && bk.note.includes('נשמר'), bk);
+    await q.evaluate(() => closeSheet()); await q.waitForTimeout(200);
+    /* the coach: a refusal by the service puts the question back; a stream cut in the middle keeps what was written */
+    await q.evaluate(() => { setView('home'); openChat(); }); await q.waitForTimeout(400);
+    await q.fill('#chatInput', 'הגעתי למגבלה?'); await q.click('#sendBtn'); await q.waitForTimeout(600);
+    const lim = await q.evaluate(() => ({ box: $('#chatInput').value, note: $('#compNote').hidden ? '' : $('#compNote').textContent, turns: chat.turns.length }));
+    check('when Claude says no for now, the question goes back in the box with a note', lim.box === 'הגעתי למגבלה?' && lim.note.includes('מגבלת השימוש') && lim.turns === 0, lim);
+    await q.fill('#chatInput', 'נקטע באמצע?'); await q.waitForTimeout(500); await q.click('#sendBtn'); await q.waitForTimeout(700);
+    const cut = await q.evaluate(() => ({ last: chat.turns.length ? chat.turns[chat.turns.length - 1] : null, shown: $('#msgs').innerText }));
+    check('an answer cut in the middle keeps the part that came', !!cut.last && cut.last.role === 'assistant' && cut.last.content === 'הנה חצי תשובה' && cut.shown.includes('הנה חצי תשובה'), cut);
+    await ctx.close();
+  }
+
   console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (errs.join(' | ') || 'none'));
+  process.exitCode = bad.length || errs.length ? 1 : 0;
   await b.close();
 })().catch((e) => { console.log('PASS ' + ok.length, 'FAIL', bad); console.log('CRASH', e.message.split('\n').slice(0, 5).join('\n')); process.exit(1); });

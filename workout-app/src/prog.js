@@ -25,11 +25,15 @@ function nextTarget(ref, o) {
   const lo = o.lo, hi = o.hi, inc = o.inc || 2.5, load = ref.kg != null && ref.kg > 0;
   if (o.dl) {
     if (!load) return { kg: ref.kg == null ? null : ref.kg, reps: Math.max(1, Math.round(ref.reps * 0.6)), mode: 'deload' };
-    return { kg: o.inv ? roundTo(ref.kg * 1.15, inc, 1) : roundTo(ref.kg * 0.85, inc, -1), reps: clamp(ref.reps, Math.min(lo, ref.reps), hi), mode: 'deload' };
+    const kg = o.inv ? roundTo(ref.kg * 1.15, inc, 1) : roundTo(ref.kg * 0.85, inc, -1);
+    /* at the lightest step there is no lighter load: the deload comes from the reps, as without weight */
+    if (!o.inv && !(kg > 0)) return { kg: ref.kg, reps: Math.max(1, Math.round(ref.reps * 0.6)), mode: 'deload' };
+    return { kg, reps: clamp(ref.reps, Math.min(lo, ref.reps), hi), mode: 'deload' };
   }
-  /* one step closer to failure than last time is worth one rep; the same distance still asks for one more; a new mesocycle starts further away and asks for fewer */
+  /* one step closer to failure than last time is worth one rep; the same distance still asks for one more; a new mesocycle starts further away and asks for fewer.
+     One rep of the round is carried over it: else a round that climbs from the restart to the top of the range would start the same way again, and the load never goes up */
   const step = ref.rir == null ? 1 : ref.rir - o.rir;
-  const raw = ref.reps + (step >= 0 ? Math.max(1, step) : step) - (o.sore ? 1 : 0);
+  const raw = ref.reps + (step >= 0 ? Math.max(1, step) : step + 1) - (o.sore ? 1 : 0);
   const modeOf = (r) => (r > ref.reps ? 'reps' : r === ref.reps ? 'hold' : 'base');
   if (!load) return { kg: ref.kg == null ? null : ref.kg, reps: Math.max(1, raw), mode: modeOf(raw) };
   if (raw > hi) {
@@ -40,10 +44,12 @@ function nextTarget(ref, o) {
   }
   if (raw < lo) {
     /* too few reps to stay in the range at this load: bring the load down so the set lands inside it */
-    if (o.inv) return { kg: roundTo(ref.kg + (lo - raw) * 2.5, inc, 1), reps: lo, mode: 'base' };
+    /* a new round says so; in the middle of one it is a step down after a weak workout */
+    const fresh = step < 0, md = fresh ? 'base' : 'down';
+    if (o.inv) return { kg: roundTo(ref.kg + (lo - raw) * 2.5, inc, 1), reps: lo, mode: md };
     const e = e1rm(ref.kg, Math.max(1, raw)), down = roundTo(e / (1 + lo / 30), inc, -1);
-    if (down <= 0 || down >= ref.kg) return { kg: ref.kg, reps: lo, mode: 'base' };
-    return { kg: down, reps: clamp(Math.floor((e / down - 1) * 30 + 1e-6), lo, hi), mode: 'base' };
+    if (down <= 0 || down >= ref.kg) return { kg: ref.kg, reps: lo, mode: fresh ? 'base' : 'hold' };
+    return { kg: down, reps: clamp(Math.floor((e / down - 1) * 30 + 1e-6), lo, hi), mode: md };
   }
   return { kg: ref.kg, reps: raw, mode: modeOf(raw) };
 }
@@ -57,13 +63,25 @@ function adjustTarget(T, last, o) {
   const want = clamp(T ? T.reps : last.tr != null ? last.tr : last.reps, lo, hi);
   if (load && !o.dl && last.reps < lo) {
     const kg = o.inv ? Math.max(roundTo(last.kg * 1.1, inc, 1), roundTo(last.kg + inc, inc, 0)) : Math.min(roundTo(last.kg * 0.9, inc, -1), roundTo(Math.max(0, last.kg - inc), inc, 0));
+    /* already at the lightest step: no load is lighter, and a set with no weight would lose it for good */
+    if (!o.inv && !(kg > 0)) return { kg: last.kg, reps: want, mode: 'hold' };
     return { kg, reps: want, mode: 'down' };
   }
   const beat = last.tk != null && last.tr != null && (o.inv ? last.kg <= last.tk : last.kg >= last.tk) && last.reps >= last.tr + Math.max(3, Math.round(last.tr * 0.25));
   if (load && !o.dl && beat) {
     let kg;
     if (o.inv) { kg = roundTo(Math.max(0, last.kg - (last.reps - want) * 2.5), inc, 1); if (kg >= last.kg) kg = roundTo(Math.max(0, last.kg - inc), inc, 0); }
-    else { kg = roundTo((last.kg * (1 + (last.reps + rir) / 30)) / (1 + (want + rir) / 30), inc, 0); if (kg <= last.kg) kg = roundTo(last.kg + inc, inc, 0); }
+    else {
+      /* the set just done says how strong the lifter is today; the reps are those that strength gives at the load that can really be loaded */
+      const e = last.kg * (1 + (last.reps + rir) / 30), at = (k) => Math.floor((e / k - 1) * 30 + 1e-6) - rir;
+      kg = roundTo(e / (1 + (want + rir) / 30), inc, 0);
+      if (kg <= last.kg) {
+        /* the strength rounds back to the same load: one full step up, with the reps that step allows. Too big a step for the range: stay, and ask for the reps it was done with */
+        kg = roundTo(last.kg + inc, inc, 0);
+        if (at(kg) < lo) return { kg: last.kg, reps: clamp(last.reps, lo, hi), mode: 'hold' };
+        return { kg, reps: clamp(at(kg), lo, hi), mode: 'cal' };
+      }
+    }
     return { kg, reps: want, mode: 'cal' };
   }
   if (!T) return { kg: last.kg == null ? null : last.kg, reps: clamp(last.reps, lo, Math.max(hi, lo)), mode: 'hold' };

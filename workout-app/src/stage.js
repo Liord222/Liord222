@@ -40,7 +40,8 @@ function paintStage(t) {
 }
 function frame(now) {
   /* out of sight (another tab of the app, scrolled away): no more frames are asked for until it is seen again */
-  if (!player.cv || !player.playing || !player.visible) { player.raf = 0; return; }
+  /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
+  if (!player.cv || !player.playing || !player.visible || chat.modal) { player.raf = 0; return; }
   player.raf = requestAnimationFrame(frame);
   const dt = Math.min(80, now - (player.last || now)); player.last = now;
   player.clock += dt;
@@ -52,17 +53,20 @@ function frame(now) {
 /* the demo is one button: a tap stops it, another starts it again */
 function setPlaying(on) {
   player.playing = on; cancelAnimationFrame(player.raf); player.raf = 0;
-  if (player.btn) { player.btn.setAttribute('aria-pressed', String(!on)); player.btn.setAttribute('aria-label', on ? say('השהה את ההדמיה', 'Pause the demo') : say('נגן את ההדמיה', 'Play the demo')); }
+  /* one name and one state: 'pause', pressed while it is paused (a name that changes with the state would say 'play, pressed' while it does not play) */
+  if (player.btn) { player.btn.setAttribute('aria-pressed', String(!on)); player.btn.setAttribute('aria-label', say('השהה את ההדמיה', 'Pause the demo')); }
   if (on) { player.last = 0; player.raf = requestAnimationFrame(frame); } else paintStage(player.lastT);
 }
 function startPlayer(cv, key, body) {
   stopPlayer();
   Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: 0.5, clock: 0, visible: true });
   fitCanvas(cv, cv.getBoundingClientRect().width || 340);
-  if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); if (!player.playing) paintStage(player.lastT); }); player.ro.observe(cv); }
+  if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); paintStage(player.lastT); }); player.ro.observe(cv); }
   if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; if (player.visible && player.playing && player.cv && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }); player.io.observe(cv); }
   setPlaying(player.playing);
 }
+/* the demo goes on where it stopped, once it can be seen again */
+function wakePlayer() { if (player.cv && player.playing && player.visible && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }
 function stopPlayer() {
   cancelAnimationFrame(player.raf); player.raf = 0;
   if (player.ro) player.ro.disconnect(); if (player.io) player.io.disconnect();

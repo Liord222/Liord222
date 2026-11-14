@@ -64,7 +64,8 @@ function bridge(saved, theme, platform, hasKey) {
   sample.limits = function () { return Promise.resolve({ images: { maxCount: 1 } }); };
   window.claude = { use: function (name) {
     if (name === 'sample') return Promise.resolve(sample);
-    if (name === 'downloads') return Promise.resolve({ save: function (r) { post({ type: 'export', filename: String((r && r.filename) || 'gymi-log.csv'), data: String((r && r.data) || '') }); return Promise.resolve({ status: 'saved' }); } });
+    /* the shell answers when the file was really written and handed on, or says it failed: the page never reports a backup that is not there */
+    if (name === 'downloads') return Promise.resolve({ save: function (r) { return call({ type: 'export', filename: String((r && r.filename) || 'gymi-log.csv'), data: String((r && r.data) || '') }).then(function (a) { if (a && a.ok) return { status: 'saved' }; return Promise.reject({ code: 'write_failed', message: String((a && a.error) || 'the file was not saved') }); }); } });
     return Promise.resolve(null);
   } };
 })();`;

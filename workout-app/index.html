@@ -386,8 +386,8 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.94);transit
 .rt-state span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .rt-state b{color:var(--ink);font-weight:700}
 .dock.ready .rt-state b,.dock.go .rt-state b{color:var(--ok)}
-.rt-track{height:6px;border-radius:99px;background:var(--surface-3);position:relative;overflow:hidden;direction:ltr}
-.rt-track i{position:absolute;inset:0 auto 0 0;width:0;background:var(--accent);border-radius:99px}
+.rt-track{height:6px;border-radius:99px;background:var(--surface-3);position:relative;overflow:hidden}
+.rt-track i{position:absolute;inset-block:0;inset-inline-start:0;width:0;background:var(--accent);border-radius:99px}
 .dock.ready .rt-track i,.dock.go .rt-track i{background:var(--ok)}
 .rt-log{font-size:13px;color:var(--ink-2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .rt-log .link{padding:6px 6px;margin-block:-6px;font-size:13px}
@@ -574,7 +574,7 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.94);transit
 .pf-edit{position:absolute;top:14px;inset-inline-end:14px}
 .pf-edit svg,.pf-top .btn svg{width:18px;height:18px}
 .pf-stage{width:min(220px,60%)}
-.pf-name{font-size:32px;font-weight:800;line-height:1.12;letter-spacing:-.02em}
+.pf-name{font-size:32px;font-weight:800;line-height:1.12;letter-spacing:-.02em;overflow-wrap:anywhere;min-width:0}
 .pf-rank{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:600;color:var(--ink-2);padding-bottom:6px}
 .pf-top .btn{margin-top:8px}
 .xp{display:grid;gap:6px;width:100%}
@@ -599,7 +599,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .set-row{display:flex;align-items:center;gap:12px;min-height:56px;font-size:16px;font-weight:600}
 .set-row+.set-row{border-top:1px solid var(--line)}
 .set-row>span{flex:1;min-width:0}
-.tog{position:relative;flex:none;width:52px;height:32px;border-radius:99px;border:0;padding:0;background:var(--ink-4);transition:background .15s}
+.tog{position:relative;flex:none;width:52px;height:32px;border-radius:99px;border:0;padding:0;background:var(--ink-3);transition:background .15s}
 .tog::after{content:"";position:absolute;inset:-8px -6px}
 .tog i{position:absolute;top:3px;inset-inline-start:3px;width:26px;height:26px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgb(0 0 0 / .25);transition:inset-inline-start .15s}
 .tog[aria-checked="true"]{background:var(--accent)}
@@ -688,7 +688,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .ob-opt span{display:grid;min-width:0}
 .ob-opt b{font-size:17px;font-weight:700;line-height:1.3}
 .ob-opt small{font-size:13.5px;color:var(--ink-2)}
-.ob-chk{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--ink-4);color:transparent}
+.ob-chk{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--ink-3);color:transparent}
 .ob-chk svg{width:15px;height:15px;stroke-width:3}
 .ob-opt[aria-checked="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
 .ob-opt[aria-checked="true"] .ob-chk{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
@@ -715,7 +715,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .card.next::before{width:220px;height:220px;inset-inline-end:-70px;top:-100px}
 .card.next::after{width:130px;height:130px;inset-inline-end:70px;bottom:-80px}
 .card.next .k,.card.next .meta{color:#fff}
-.card.next .xp-tag{background:rgb(255 255 255 / .2);color:#fff}
+.card.next .xp-tag{background:rgb(0 0 0 / .22);color:#fff}
 .card.next .btn.primary{background:#fff;color:var(--wk-lip);box-shadow:0 4px 0 rgb(0 0 0 / .22)}
 .card.next .btn.primary:active:not(:disabled){box-shadow:0 0 0 rgb(0 0 0 / .22)}
 .w-dot{display:inline-block;width:12px;height:12px;margin-inline-end:10px;border-radius:50%;background:var(--wk);box-shadow:0 2px 0 var(--wk-lip)}
@@ -739,7 +739,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .setp.done .v{color:var(--wk-ink)}
 .hit,.rt-btns .go,.dock .btn.primary{background:var(--wk);color:#fff;box-shadow:0 4px 0 var(--wk-lip);margin-bottom:4px}
 .hit:active,.rt-btns .go:active,.dock .btn.primary:active:not(:disabled){transform:translateY(4px);box-shadow:0 0 0 var(--wk-lip)}
-.hit .xp-tag{background:rgb(255 255 255 / .22);color:#fff}
+.hit .xp-tag{background:rgb(0 0 0 / .22);color:#fff}
 .hit.hit-on{background:var(--gold);color:var(--gold-ink);box-shadow:0 2px 0 var(--gold-lip);transform:translateY(2px)}
 .hit.hit-on .xp-tag{background:rgb(255 255 255 / .45);color:var(--gold-ink)}
 .dock.ready .rt-track i,.dock.go .rt-track i{background:var(--wk)}
@@ -923,7 +923,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
   .chat{display:flex;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);height:calc(100vh - 112px);min-height:420px;margin-top:14px;border-radius:var(--r);overflow:hidden}
   .dock{left:auto;right:auto;inset-inline-start:max(20px,calc((100vw - 1180px)/2 + 20px));bottom:16px;width:min(620px,calc(100vw - 452px));border-radius:28px;padding:16px}
 }
-@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 
 /* read by a screen reader, not shown */
 .sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
@@ -1008,7 +1008,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 let LANG = 'he';
 const say = (he, en) => (LANG === 'en' ? en : he);
 /* the languages, each under its own name, and the label of the choice between them (read by both kinds of reader) */
-const LANGS = [['he', 'עברית'], ['en', 'English']], LANG_LABEL = 'Language · שפה';
+const LANGS = [['he', 'עברית'], ['en', 'English']], LANG_LABEL = '<span lang="en">Language</span> · <span lang="he">שפה</span>';
 
 /* ================================================================== plan */
 /* each workout: name = the short English name kept in exports, t / te = the title shown in the app in Hebrew / English */
@@ -1106,7 +1106,8 @@ const LIB = {
   inclineSmith: { he: 'לחיצת חזה בשיפוע עליון בסמית׳', m: 'חזה עליון · כתף קדמית · טרייספס', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'smith', c: ['ספסל בשיפוע 30–45°, שכמות אסופות לאחור ולמטה', 'הורד את המוט לחזה העליון בשליטה', 'דחוף למעלה בלי לנעול מרפקים בכוח'] },
   assistedPullup: { he: 'מתח בסיוע (גרביטון)', m: 'רחב גבי · ביספס · גב עליון', p: 'back', s: ['biceps'], pat: 'vpull', eq: 'machine', inv: true, c: ['אחיזה מעט רחבה מהכתפיים', 'התחל מהשכמות ומשוך מרפקים למטה לכיוון הצלעות', 'ירידה איטית עד יישור כמעט מלא'] },
   chestRow: { he: 'חתירה בתמיכת חזה', m: 'רחב גבי · אמצע הגב · ביספס', p: 'back', s: ['biceps', 'delts'], pat: 'hpull', eq: 'plates', jf: true, c: ['החזה צמוד לכרית לאורך כל החזרה', 'משוך מרפקים לאחור לכיוון הירכיים', 'עצור שנייה בכיווץ וחזור עד מתיחה מלאה'] },
-  latRaise: { he: 'הרחקות לצדדים בתמיכת חזה', m: 'כתף אמצעית', p: 'delts', s: [], pat: 'raise', eq: 'db', c: ['חזה על ספסל משופע, בלי תנופה מהגוף', 'הרם לצדדים עד גובה הכתפיים, מרפק מעט כפוף', 'הובל עם המרפקים והורד לאט'] },
+  /* near: the demo draws the seated raise, close to this one but not it (the chest is not on a bench) */
+  latRaise: { near: 1, he: 'הרחקות לצדדים בתמיכת חזה', m: 'כתף אמצעית', p: 'delts', s: [], pat: 'raise', eq: 'db', c: ['חזה על ספסל משופע, בלי תנופה מהגוף', 'הרם לצדדים עד גובה הכתפיים, מרפק מעט כפוף', 'הובל עם המרפקים והורד לאט'] },
   machinePress: { he: 'לחיצת חזה במכונה', m: 'חזה · טרייספס · כתף קדמית', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'machine', jf: true, c: ['כוונן מושב כך שהידיות בגובה אמצע החזה', 'שכמות צמודות למשענת', 'דחוף קדימה וחזור לאט עד מתיחה בחזה'] },
   pushdown: { he: 'פשיטת מרפקים בפולי עליון', m: 'טרייספס', p: 'triceps', s: [], pat: 'ext', eq: 'cable', jf: true, c: ['מרפקים צמודים לגוף ולא זזים', 'יישר עד הסוף וכווץ', 'עלה בשליטה עד שהאמות מעט מעל קו המרפק'] },
   dbCurl: { he: 'כפיפת מרפקים עם משקולות יד', m: 'ביספס', p: 'biceps', s: [], pat: 'curl', eq: 'db', c: ['מרפקים צמודים לצד הגוף', 'כף היד פונה למעלה, עלה בלי תנופה מהגב', 'הורד לאט עד יישור מלא'] },
@@ -1358,11 +1359,15 @@ function nextTarget(ref, o) {
   const lo = o.lo, hi = o.hi, inc = o.inc || 2.5, load = ref.kg != null && ref.kg > 0;
   if (o.dl) {
     if (!load) return { kg: ref.kg == null ? null : ref.kg, reps: Math.max(1, Math.round(ref.reps * 0.6)), mode: 'deload' };
-    return { kg: o.inv ? roundTo(ref.kg * 1.15, inc, 1) : roundTo(ref.kg * 0.85, inc, -1), reps: clamp(ref.reps, Math.min(lo, ref.reps), hi), mode: 'deload' };
+    const kg = o.inv ? roundTo(ref.kg * 1.15, inc, 1) : roundTo(ref.kg * 0.85, inc, -1);
+    /* at the lightest step there is no lighter load: the deload comes from the reps, as without weight */
+    if (!o.inv && !(kg > 0)) return { kg: ref.kg, reps: Math.max(1, Math.round(ref.reps * 0.6)), mode: 'deload' };
+    return { kg, reps: clamp(ref.reps, Math.min(lo, ref.reps), hi), mode: 'deload' };
   }
-  /* one step closer to failure than last time is worth one rep; the same distance still asks for one more; a new mesocycle starts further away and asks for fewer */
+  /* one step closer to failure than last time is worth one rep; the same distance still asks for one more; a new mesocycle starts further away and asks for fewer.
+     One rep of the round is carried over it: else a round that climbs from the restart to the top of the range would start the same way again, and the load never goes up */
   const step = ref.rir == null ? 1 : ref.rir - o.rir;
-  const raw = ref.reps + (step >= 0 ? Math.max(1, step) : step) - (o.sore ? 1 : 0);
+  const raw = ref.reps + (step >= 0 ? Math.max(1, step) : step + 1) - (o.sore ? 1 : 0);
   const modeOf = (r) => (r > ref.reps ? 'reps' : r === ref.reps ? 'hold' : 'base');
   if (!load) return { kg: ref.kg == null ? null : ref.kg, reps: Math.max(1, raw), mode: modeOf(raw) };
   if (raw > hi) {
@@ -1373,10 +1378,12 @@ function nextTarget(ref, o) {
   }
   if (raw < lo) {
     /* too few reps to stay in the range at this load: bring the load down so the set lands inside it */
-    if (o.inv) return { kg: roundTo(ref.kg + (lo - raw) * 2.5, inc, 1), reps: lo, mode: 'base' };
+    /* a new round says so; in the middle of one it is a step down after a weak workout */
+    const fresh = step < 0, md = fresh ? 'base' : 'down';
+    if (o.inv) return { kg: roundTo(ref.kg + (lo - raw) * 2.5, inc, 1), reps: lo, mode: md };
     const e = e1rm(ref.kg, Math.max(1, raw)), down = roundTo(e / (1 + lo / 30), inc, -1);
-    if (down <= 0 || down >= ref.kg) return { kg: ref.kg, reps: lo, mode: 'base' };
-    return { kg: down, reps: clamp(Math.floor((e / down - 1) * 30 + 1e-6), lo, hi), mode: 'base' };
+    if (down <= 0 || down >= ref.kg) return { kg: ref.kg, reps: lo, mode: fresh ? 'base' : 'hold' };
+    return { kg: down, reps: clamp(Math.floor((e / down - 1) * 30 + 1e-6), lo, hi), mode: md };
   }
   return { kg: ref.kg, reps: raw, mode: modeOf(raw) };
 }
@@ -1390,13 +1397,25 @@ function adjustTarget(T, last, o) {
   const want = clamp(T ? T.reps : last.tr != null ? last.tr : last.reps, lo, hi);
   if (load && !o.dl && last.reps < lo) {
     const kg = o.inv ? Math.max(roundTo(last.kg * 1.1, inc, 1), roundTo(last.kg + inc, inc, 0)) : Math.min(roundTo(last.kg * 0.9, inc, -1), roundTo(Math.max(0, last.kg - inc), inc, 0));
+    /* already at the lightest step: no load is lighter, and a set with no weight would lose it for good */
+    if (!o.inv && !(kg > 0)) return { kg: last.kg, reps: want, mode: 'hold' };
     return { kg, reps: want, mode: 'down' };
   }
   const beat = last.tk != null && last.tr != null && (o.inv ? last.kg <= last.tk : last.kg >= last.tk) && last.reps >= last.tr + Math.max(3, Math.round(last.tr * 0.25));
   if (load && !o.dl && beat) {
     let kg;
     if (o.inv) { kg = roundTo(Math.max(0, last.kg - (last.reps - want) * 2.5), inc, 1); if (kg >= last.kg) kg = roundTo(Math.max(0, last.kg - inc), inc, 0); }
-    else { kg = roundTo((last.kg * (1 + (last.reps + rir) / 30)) / (1 + (want + rir) / 30), inc, 0); if (kg <= last.kg) kg = roundTo(last.kg + inc, inc, 0); }
+    else {
+      /* the set just done says how strong the lifter is today; the reps are those that strength gives at the load that can really be loaded */
+      const e = last.kg * (1 + (last.reps + rir) / 30), at = (k) => Math.floor((e / k - 1) * 30 + 1e-6) - rir;
+      kg = roundTo(e / (1 + (want + rir) / 30), inc, 0);
+      if (kg <= last.kg) {
+        /* the strength rounds back to the same load: one full step up, with the reps that step allows. Too big a step for the range: stay, and ask for the reps it was done with */
+        kg = roundTo(last.kg + inc, inc, 0);
+        if (at(kg) < lo) return { kg: last.kg, reps: clamp(last.reps, lo, hi), mode: 'hold' };
+        return { kg, reps: clamp(at(kg), lo, hi), mode: 'cal' };
+      }
+    }
     return { kg, reps: want, mode: 'cal' };
   }
   if (!T) return { kg: last.kg == null ? null : last.kg, reps: clamp(last.reps, lo, Math.max(hi, lo)), mode: 'hold' };
@@ -1442,21 +1461,33 @@ function cleanSlot(v) {
    so a restored backup or a second device shows the same level. */
 const XP = { set: 10, pr: 30, done: 100 };
 /* what one workout is worth: sets, personal bests, kilograms moved and the points for them */
+/* an assisted movement's weight is help, not load: it is no kilogram lifted (less help would count as less work) */
+function helpOf(s, id) {
+  const pe = typeof SLOT !== 'undefined' ? SLOT[id] : null, mv = (s && s.mv && s.mv[id]) || (pe ? pe.a : null);
+  return isMv(mv) && !!LIB[mv].inv;
+}
 function tally(s) {
   let sets = 0, prs = 0, kg = 0;
-  for (const a of Object.values((s && s.sets) || {})) for (const r of a || []) {
-    if (!r || !r.done) continue;
-    sets++; if (r.pr) prs++;
-    if (r.kg != null && r.reps != null) kg += r.kg * r.reps;
+  for (const [id, a] of Object.entries((s && s.sets) || {})) {
+    const help = helpOf(s, id);
+    for (const r of a || []) {
+      if (!r || !r.done) continue;
+      sets++; if (r.pr) prs++;
+      if (!help && r.kg != null && r.reps != null) kg += r.kg * r.reps;
+    }
   }
   return { sets, prs, kg: Math.round(kg), xp: sets * XP.set + prs * XP.pr + (sets && s.end ? XP.done : 0) };
 }
 /* points needed to leave a level: 200 for the first, 40 more for each one after it. The first week of the plan is a level per workout */
 const xpStep = (lvl) => 200 + 40 * (lvl - 1);
+/* the points to reach level n+1 add up to 20n² + 180n, so the level comes straight from the points, without counting up one level at a time */
+const xpTo = (n) => 20 * n * n + 180 * n;
 function levelOf(xp) {
-  let left = xp > 0 ? Math.floor(xp) : 0, lvl = 1;
-  while (left >= xpStep(lvl)) { left -= xpStep(lvl); lvl++; }
-  return { lvl, into: left, need: xpStep(lvl) };
+  const t = xp > 0 && isFinite(xp) ? Math.floor(xp) : 0;
+  let n = Math.max(0, Math.floor((Math.sqrt(32400 + 80 * t) - 180) / 40));
+  for (let i = 0; i < 3 && n > 0 && xpTo(n) > t; i++) n--;
+  for (let i = 0; i < 3 && xpTo(n + 1) <= t; i++) n++;
+  return { lvl: n + 1, into: t - xpTo(n), need: xpStep(n + 1) };
 }
 const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 5, he: 'מתמיד', en: 'Regular' }, { at: 10, he: 'ספורטאי', en: 'Athlete' }, { at: 15, he: 'מכונה', en: 'Machine' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 30, he: 'אלוף', en: 'Champion' }, { at: 40, he: 'אגדה', en: 'Legend' }];
 function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
@@ -1490,7 +1521,11 @@ function totalsOf(list, arch) {
 /* fold finished workouts beyond the newest `keep` into the archive. Returns the new archive, or null when there is nothing to fold */
 function archiveStep(list, arch, keep) {
   const open = list.filter((s) => !s.end && s.ts > arch.until).reduce((m, s) => Math.min(m, s.ts), Infinity);
-  const old = list.filter((s) => s.end && s.ts > arch.until).sort((a, b) => b.ts - a.ts).slice(keep).filter((s) => s.ts < open).reverse();
+  const fin = list.filter((s) => s.end && s.ts > arch.until).sort((a, b) => b.ts - a.ts);
+  let old = fin.slice(keep).filter((s) => s.ts < open);
+  /* the archive ends at a moment: a kept workout that starts at that very moment would be left out of every total, so it goes in with the rest */
+  if (old.length) { const top = old[0].ts; old = fin.filter((s) => s.ts <= top && s.ts < open); }
+  old.reverse();
   if (!old.length) return null;
   const a = Object.assign({}, arch);
   for (const s of old) {
@@ -1611,9 +1646,6 @@ function solve(p) {
   const foot = (lg, f) => ({ a: lg.c, f: f === 'p' ? lg.a2 + 90 : f });
   return { p, hip, mid, sh, head, shN, shF, hpN, hpF, armN, armF, legN, legF, footN: foot(legN, p.footN), footF: foot(legF, p.footF) };
 }
-/* point on the sole under the ball of the foot, and the ankle that puts the ball at a fixed spot */
-const ballOf = (ft) => add(add(ft.a, dir(ft.f), 14), dir(ft.f - 90), LEN.ankle);
-const ankleFor = (ball, f) => add(add(ball, dir(f), -14), dir(f - 90), -LEN.ankle);
 
 /* ---- primitives ---- */
 function capsule(g, a, b, w, col) { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }
@@ -1868,7 +1900,7 @@ const K = {
     for (let i = 0; i < n; i++) { const y = top + i * 6.2 - (i < 4 ? lift || 0 : 0); box(g, x, y + 2.4, 18, 4.8, 0, i < 4 ? C.plate : C.eq2, 1.4); }
     ring(g, [x + 5, top + 3 * 6.2 + 2.4 - (lift || 0)], 1.5, C.accent);
   },
-  pulley(g, C, c, r) { r = r || 6; ring(g, c, r, C.eq2); ring(g, c, r - 2.3, C.stage); ring(g, c, 1.7, C.eq2); },
+  pulley(g, C, c, r) { r = r || 6; ring(g, c, r, C.eq2); ring(g, c, r - 2.3, C.bg || C.stage); ring(g, c, 1.7, C.eq2); },
   cable(g, C, pts) { g.strokeStyle = C.cable; g.lineWidth = 1.5; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]))); g.stroke(); },
   /* cable column with a weight stack; the pulley sits on an arm */
   tower(g, C, x, o) {
@@ -2252,7 +2284,8 @@ function avatarSVG(look, lvl, o) {
   const body = '<g class="av-bod">' + (tank ? P(torso, skin) + P(tankTop, shirt) : P(torso, shirt)) + pecs + belt +
     '<rect x="' + X(-nw) + '" y="74" width="' + (nw * 2).toFixed(1) + '" height="20" rx="5" fill="' + skin + '"/><ellipse cx="100" cy="83.5" rx="' + nw + '" ry="4.2" fill="' + shd + '"/>' +
     (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + medal + head + arm(-1) + arm(1) + '</g>';
-  if (o.bust) return '<svg class="av bust' + (o.flex ? ' flex' : '') + (o.grin ? ' grin' : '') + '" viewBox="58 14 84 84" aria-hidden="true">' + backHair + body + '</svg>';
+  /* a bust is cut round under the hair: with the crown on, the frame takes in its points */
+  if (o.bust) return '<svg class="av bust' + (o.flex ? ' flex' : '') + (o.grin ? ' grin' : '') + '" viewBox="' + (crown ? '51 -1 98 98' : '58 14 84 84') + '" aria-hidden="true">' + backHair + body + '</svg>';
 
   const legs = [-1, 1].map((d) => ln(X(d * 11.5), 170, X(d * 12.5), 231, lg, skin)).join('') +
     [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="#3A4152"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="#E7E9ED"/>'; }).join('') +
@@ -2302,7 +2335,8 @@ function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
   const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), arch: {}, badges: {} };
-  for (const k of Object.keys(d.arch)) out.arch[k] = pos(a[k]);
+  /* an archive from a file is held to real sizes: a total no lifter reaches, or an end in the future, would hide the log or stall the page */
+  for (const k of Object.keys(d.arch)) out.arch[k] = Math.min(pos(a[k]), k === 'until' ? Date.now() + 864e5 : k === 'kg' ? 1e10 : 1e7);
   for (const x of BADGES) if (pos(b[x.id])) out.badges[x.id] = b[x.id];
   return out;
 }
@@ -2684,7 +2718,7 @@ function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 6
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
 const rirText = (r) => (r == null ? '' : r >= 4 ? say('רחוק מכשל', 'Far from failure') : r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה אחת לפני כשל', '1 rep before failure') : r + say(' חזרות לפני כשל', ' reps before failure'));
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
-function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
+function volume(s) { let v = 0; for (const [id, a] of Object.entries(s.sets || {})) { if (helpOf(s, id)) continue; for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; } return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
 function prCount(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.pr) n++; return n; }
 function ago(ts) { const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : d === 2 ? say('לפני יומיים', '2 days ago') : say('לפני ' + d + ' ימים', d + ' days ago'); }
@@ -2969,7 +3003,8 @@ function paintStage(t) {
 }
 function frame(now) {
   /* out of sight (another tab of the app, scrolled away): no more frames are asked for until it is seen again */
-  if (!player.cv || !player.playing || !player.visible) { player.raf = 0; return; }
+  /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
+  if (!player.cv || !player.playing || !player.visible || chat.modal) { player.raf = 0; return; }
   player.raf = requestAnimationFrame(frame);
   const dt = Math.min(80, now - (player.last || now)); player.last = now;
   player.clock += dt;
@@ -2981,17 +3016,20 @@ function frame(now) {
 /* the demo is one button: a tap stops it, another starts it again */
 function setPlaying(on) {
   player.playing = on; cancelAnimationFrame(player.raf); player.raf = 0;
-  if (player.btn) { player.btn.setAttribute('aria-pressed', String(!on)); player.btn.setAttribute('aria-label', on ? say('השהה את ההדמיה', 'Pause the demo') : say('נגן את ההדמיה', 'Play the demo')); }
+  /* one name and one state: 'pause', pressed while it is paused (a name that changes with the state would say 'play, pressed' while it does not play) */
+  if (player.btn) { player.btn.setAttribute('aria-pressed', String(!on)); player.btn.setAttribute('aria-label', say('השהה את ההדמיה', 'Pause the demo')); }
   if (on) { player.last = 0; player.raf = requestAnimationFrame(frame); } else paintStage(player.lastT);
 }
 function startPlayer(cv, key, body) {
   stopPlayer();
   Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: 0.5, clock: 0, visible: true });
   fitCanvas(cv, cv.getBoundingClientRect().width || 340);
-  if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); if (!player.playing) paintStage(player.lastT); }); player.ro.observe(cv); }
+  if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); paintStage(player.lastT); }); player.ro.observe(cv); }
   if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; if (player.visible && player.playing && player.cv && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }); player.io.observe(cv); }
   setPlaying(player.playing);
 }
+/* the demo goes on where it stopped, once it can be seen again */
+function wakePlayer() { if (player.cv && player.playing && player.visible && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }
 function stopPlayer() {
   cancelAnimationFrame(player.raf); player.raf = 0;
   if (player.ro) player.ro.disconnect(); if (player.io) player.io.disconnect();
@@ -3180,7 +3218,7 @@ function openHow(id) {
   S.sheet = 'how';
   sh.innerHTML = '<div class="sheet-in hw" role="dialog" aria-modal="true" aria-label="' + say('איך עושים', 'How to do it') + '"><div class="ed-h"><div><p class="kicker">' + say('איך עושים', 'How to do it') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c.replace(/\d+(?:[.,]\d+)?(?:\s?[–\-×]\s?\d+(?:[.,]\d+)?)+°?/g, (m) => Ltr(m)) + '</li>').join('') + '</ul>' +
-    (e.a !== e.mv ? '<p class="fine">' + say('ההדמיה מראה תנועה דומה.', 'The demo shows a similar movement.') + '</p>' : '') + (LANG === 'he' ? '<p class="en-name">' + Ltr(esc(e.name)) + '</p>' : '') + '</div>';
+    (e.a !== e.mv || LIB[e.mv].near ? '<p class="fine">' + say('ההדמיה מראה תנועה דומה.', 'The demo shows a similar movement.') + '</p>' : '') + (LANG === 'he' ? '<p class="en-name" lang="en">' + Ltr(esc(e.name)) + '</p>' : '') + '</div>';
   sh.hidden = false;
 }
 /* ---- one tap away: the lifter's note, what happened before, and the less common actions ---- */
@@ -3676,7 +3714,7 @@ async function exportCsv() {
   if (!S.dl) return;
   const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', lines = ['date,workout,exercise,set,kg,reps,week,deload,rir,target_kg,target_reps'];
   for (const s of sorted().reverse()) for (const e of exList(s.w, s)) rowsOf(s, e.id).forEach((r, i) => { if (isDone(r)) lines.push([isoDay(new Date(s.ts)), q(PLAN[s.w].name), q(e.name), i + 1, r.kg == null ? '' : r.kg, r.reps == null ? '' : r.reps, s.wk || '', s.dl ? 1 : '', s.rir == null ? '' : s.rir, r.tk == null ? '' : r.tk, r.tr == null ? '' : r.tr].join(',')); });
-  try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') { S.dl = null; renderBackup(); } }
+  try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited' && e.code !== 'write_failed') { S.dl = null; renderBackup(); } }
 }
 function onRemoteChange() {
   const a = document.activeElement;
@@ -3951,7 +3989,9 @@ function wireFeel() {
     const b = t.closest && t.closest('button,[role="button"],a[href],select,summary,label.chat-ctx'); if (!b || b.disabled) return;
     primeAudio();
     /* under a clear label the finger has already been answered by the phone itself */
-    if (!(HX.on && t.className === 'hx')) haptic(touchOf(b));
+    /* a stepper was already felt when the finger came down on it (pointerdown below): once is enough */
+    const k = touchOf(b);
+    if (!(HX.on && t.className === 'hx') && !(k === 'step' && ev.detail > 0 && b.closest('.step,.rstep'))) haptic(k);
     if (b.matches(YES)) sfx('set');
   }, true);
   /* a weight or a number that is held down keeps ticking as it runs */
@@ -4047,7 +4087,7 @@ function builderHTML(w) {
     return '<div class="bl-row"><span class="bl-n"><b>' + e.nm + '</b><small>' + muName(LIB[e.mv].p) + ' · ' + Ltr(e.reps) + '</small></span>' +
       (k < 0 ? '<small class="bl-once">' + say('רק היום', 'Today only') + '</small>'
         : ed ? '<div class="bl-ed"><button type="button" data-mvs="' + e.id + '" data-d="-1" aria-label="' + say('הזז למעלה', 'Move up') + '"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.up + '</button><button type="button" data-mvs="' + e.id + '" data-d="1" aria-label="' + say('הזז למטה', 'Move down') + '"' + (k >= ids.length - 1 ? ' disabled' : '') + '>' + ICON.down + '</button><button class="rm" type="button" data-rm="' + e.id + '" aria-label="' + say('הסר את ', 'Remove ') + e.nm + '"' + (ids.length <= 1 ? ' disabled' : '') + '>' + ICON.x + '</button></div>'
-        : '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (dl || e.n0 <= 1 ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div>') + '</div>';
+        : '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (dl || e.n0 <= Math.max(1, rowsOf(s, e.id).filter(isDone).length) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div>') + '</div>';
   }).join('') + '</div><div class="bl-act"><button class="link" type="button" data-addw="' + w + '">' + say('+ הוסף תרגיל', '+ Add exercise') + '</button><button class="link" type="button" data-bled="' + w + '">' + (ed ? say('סיום', 'Done') : say('סידור והסרה', 'Reorder and remove')) + '</button></div>';
 }
 /* The plan opens as a short menu: where the round stands, the four workouts, and the few things that can be set.
@@ -4062,7 +4102,7 @@ function renderMeso() {
   else if (pg === 'inc') sh.innerHTML = page(say('קפיצת משקל', 'Weight step'), '<p>' + say('בכמה המשקל עולה בכל פעם, לפי הציוד.', 'How much the weight goes up each time, by equipment.') + '</p><div class="inc">' + Object.keys(EQUIP).map((k) => '<label class="inc-row"><span>' + eqName(k) + '</span><select data-inc="' + k + '">' + INC_CHOICES.map((v) => '<option value="' + v + '"' + (v === (+S.cfg.inc[k] || EQUIP[k].inc) ? ' selected' : '') + '>' + v + say(' ק״ג', ' kg') + '</option>').join('') + '</select></label>').join('') + '</div>');
   else {
     let strip = '';
-    for (let k = 1; k <= W; k++) { const d = k === W, cur = P.dl ? d : k === P.wk; strip += '<li class="' + (cur ? 'cur' : '') + (d ? ' dl' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><small>' + say('שבוע ', 'Week ') + k + '</small><b>' + (d ? say('שבוע קל', 'Easy week') : ((r) => (r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה 1', '1 rep') : r + say(' חזרות', ' reps')))(rirFor(k, W))) + '</b></li>'; }
+    for (let k = 1; k <= W; k++) { const d = k === W, cur = P.dl ? d : k === P.wk; strip += '<li class="' + (cur ? 'cur' : '') + (d ? ' dl' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><small>' + say('שבוע ', 'Week ') + k + '</small><b>' + (d ? say('שבוע קל', 'Easy week') : ((r) => (r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה אחת', '1 rep') : r + say(' חזרות', ' reps')))(rirFor(k, W))) + '</b></li>'; }
     const row = (attr, title, val, warn) => '<li><button class="m-row" type="button" ' + attr + '><span>' + title + '</span>' + (val ? '<small' + (warn ? ' class="warn"' : '') + '>' + val + '</small>' : '') + ICON.fwd + '</button></li>';
     /* the last mesocycle is complete and the next workout opens a new one: nothing to steer until then */
     const over = mesoDone(M), off = P.dl ? 0 : volWarn(), ask = (q, yes, id) => '<span class="confirm"><span>' + q + '</span><button class="btn primary" id="' + id + '" type="button">' + yes + '</button><button class="btn" id="msNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
@@ -4208,7 +4248,7 @@ function renderMe() {
 function playerHTML(P) {
   const me = S.cfg.me;
   return '<button class="player" id="playerBtn" type="button" aria-label="' + say('הפרופיל שלי: רמה ', 'My profile: level ') + P.L.lvl + ', ' + nm(P.rank) + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
-    '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + esc(me.name) : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
+    '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi>' : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
     (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + flameSVG() + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
 function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
@@ -4220,7 +4260,7 @@ function renderProfile(P) {
   /* the achievements in short: the last ones that were earned, then the next to go for. All of them are a tap away */
   const got = BADGES.filter((b) => have.has(b.id)), todo = BADGES.filter((b) => !have.has(b.id)), few = todo.length ? got.slice(-3).concat(todo).slice(0, 4) : got.slice(-4);
   $('#profile').innerHTML = '<section class="pf-top">' + (me.made ? '<button class="icon-btn pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '') +
-    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? esc(me.name) : say('הדמות שלי', 'My character')) + '</h1>' +
+    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? '<bdi>' + esc(me.name) + '</bdi>' : say('הדמות שלי', 'My character')) + '</h1>' +
     '<p class="pf-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
     '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + (nx ? ' · ' + say('ברמה ' + nx.at + ': ', 'At level ' + nx.at + ': ') + nm(nx) : '') + '</p></div>' +
     (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') +
@@ -4248,17 +4288,19 @@ function openSettings() { S.sheet = 'set'; S.backupNote = ''; renderSettings(); 
 
 /* ---- the character sheet: name and looks; every choice is saved at once ---- */
 function lookRows() {
-  const k = S.cfg.me.look, sw = (key, list, hex) => '<div class="lk-opts" role="group">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + say('אפשרות ', 'Option ') + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
-  const seg = (key, list) => '<div class="seg" role="group">' + list.map((t, i) => '<button type="button" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '">' + t + '</button>').join('') + '</div>';
-  const row = (label, body) => '<div class="lk-row col"><span>' + label + '</span>' + body + '</div>';
-  return row(say('עור', 'Skin'), sw('skin', SKIN, (c) => c[0])) + row(say('שיער', 'Hair'), seg('hair', HAIRS())) + row(say('צבע שיער', 'Hair colour'), sw('hc', HAIRC, (c) => c)) + row(say('זקן', 'Beard'), seg('beard', BEARDS())) + row(say('חולצה', 'Shirt'), sw('shirt', SHIRT, (c) => c));
+  /* each row is a named group, and each colour says what it is the colour of: 'Shirt 3', not 'Option 3' three times over */
+  const k = S.cfg.me.look, sw = (key, list, hex, label) => '<div class="lk-opts" role="group" aria-label="' + label + '">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
+  const seg = (key, list, label) => '<div class="seg" role="group" aria-label="' + label + '">' + list.map((t, i) => '<button type="button" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '">' + t + '</button>').join('') + '</div>';
+  const row = (label, body) => '<div class="lk-row col"><span aria-hidden="true">' + label + '</span>' + body + '</div>';
+  const L = { skin: say('עור', 'Skin'), hair: say('שיער', 'Hair'), hc: say('צבע שיער', 'Hair colour'), beard: say('זקן', 'Beard'), shirt: say('חולצה', 'Shirt') };
+  return row(L.skin, sw('skin', SKIN, (c) => c[0], L.skin)) + row(L.hair, seg('hair', HAIRS(), L.hair)) + row(L.hc, sw('hc', HAIRC, (c) => c, L.hc)) + row(L.beard, seg('beard', BEARDS(), L.beard)) + row(L.shirt, sw('shirt', SHIRT, (c) => c, L.shirt));
 }
 function openLook() {
   const me = S.cfg.me, sh = $('#sheet');
   S.sheet = 'look';
   sh.innerHTML = '<div class="sheet-in lk" role="dialog" aria-modal="true" aria-label="' + say('הדמות שלי', 'My character') + '"><div class="ed-h"><div><h2>' + say('הדמות שלי', 'My character') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div>' +
-    '<label class="lk-row" for="lkName"><span>' + say('שם', 'Name') + '</span><input id="lkName" type="text" maxlength="16" autocomplete="off" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(me.name) + '"></label>' +
+    '<label class="lk-row" for="lkName"><span>' + say('שם', 'Name') + '</span><input id="lkName" type="text" dir="auto" maxlength="16" autocomplete="off" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(me.name) + '"></label>' +
     '<div id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
   sh.hidden = false;
 }
@@ -4688,7 +4730,7 @@ function openChat(exId) {
 }
 function closeChat() {
   const c = $('#chat'), was = !!chat.modal; chat.modal = false;
-  c.classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = '';
+  c.classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = ''; wakePlayer();
   c.removeAttribute('role');
   for (const el of behindChat()) el.inert = false;
   if (was) { const o = $('#chatOpen'); if (o) o.focus({ preventScroll: true }); }
@@ -4839,10 +4881,10 @@ function obHTML() {
     cta = say('בואו נתחיל', "Let's start");
     body = '<div class="ob-stage"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
       '<button class="ob-me" id="obMe" type="button" aria-label="' + say('הדמות שלך. כל הקשה מעלה אותה רמה', 'Your character. Every tap takes it up a level') + '"><span class="ob-rings" aria-hidden="true"><i></i><i></i></span><span class="ob-av" id="obAv">' + avatar(lvl) + '</span>' +
-      '<span class="lv-badge ob-lv" id="obLv" aria-hidden="true">' + say('רמה ', 'Level ') + lvl + '</span><span class="ob-tap" aria-hidden="true">' + say('הקש עליי', 'Tap me') + '</span></button>' +
+      '<span class="lv-badge ob-lv" id="obLv" aria-hidden="true">' + say('רמה ', 'Level ') + lvl + '</span><span class="ob-tap" aria-hidden="true">' + say('הקישו עליי', 'Tap me') + '</span></button>' +
       '<div class="ob-q ob-hi"><span class="ava" aria-hidden="true">' + coachFace() + '</span><div class="ob-bub"><h1 id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1><p>' + say('אני אילון, המאמן שלך. נבנה לך תוכנית?', 'I am Eilon, your coach. Shall we build your plan?') + '</p></div></div></div>';
   } else if (st === 1) {
-    body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">' + buddy;
+    body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" dir="auto" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">' + buddy;
   } else if (st === 2) {
     body = ask(say('כמה ניסיון יש לך בחדר כושר?', 'How much gym experience do you have?')) + opts('exp', EXP(), OB.exp) + buddy; can = OB.exp != null;
   } else if (st === 3) {
@@ -4851,21 +4893,23 @@ function obHTML() {
     body = ask(say('זו הדמות שלך', 'This is your character'), say('היא מתחזקת עם כל רמה, והיא שתדגים לך את התרגילים.', 'It grows with every level, and it shows you the exercises.')) + '<div class="lk-stage" id="lkStage">' + avatar(lvl) + '</div><div id="lkRows">' + lookRows() + '</div>';
   } else if (st === 5) {
     /* the coach offers the plan, one line after the other. Each line says what the app really does */
-    const sets = Object.keys(SLOT).map((id) => (OB.exp === 0 && SLOT[id].sets >= 3 ? SLOT[id].sets - 1 : SLOT[id].sets)), lo = Math.min.apply(null, sets), hi = Math.max.apply(null, sets), wks = S.cfg.weeks;
+    /* the cut for a beginner is made only before the first logged set (applyExp): after that the plan stays as it is, and the line says so */
+    const cut = meNow().T.sets === 0, plan = (id) => { const b = S.cfg.base[id]; return b && b.n && !(cut && b.x) ? b.n : SLOT[id].sets; };
+    const sets = Object.keys(SLOT).map((id) => (cut ? (OB.exp === 0 && SLOT[id].sets >= 3 ? SLOT[id].sets - 1 : SLOT[id].sets) : plan(id))), lo = Math.min.apply(null, sets), hi = Math.max.apply(null, sets), wks = S.cfg.weeks;
     const line = (k, ic, b, sm) => '<li>' + tile(ic, k) + '<span><b>' + b + '</b><small>' + sm + '</small></span></li>';
     cta = say('נשמע טוב', 'Sounds good');
     body = ask(say('אני חושב שהתוכנית הזאת תתאים לך', 'I think this plan will suit you')) + '<ol class="ob-lines">' +
       line(0, ICON.bell, say('ארבעה אימונים בסבב', 'Four workouts in a cycle'), say('עליון, תחתון, עליון, תחתון', 'Upper, lower, upper, lower')) +
-      line(1, barsIcon((OB.exp == null ? 1 : OB.exp) + 1), lo === hi ? cnt(lo, 'סטים לתרגיל', 'סט לתרגיל', 'sets an exercise', 'set an exercise') : say(lo + '–' + hi + ' סטים לתרגיל', lo + '–' + hi + ' sets an exercise'), say('לפי הניסיון שלך', 'By your experience') + (EXP()[OB.exp] ? ': ' + EXP()[OB.exp][0] : '')) +
+      line(1, barsIcon((OB.exp == null ? 1 : OB.exp) + 1), lo === hi ? cnt(lo, 'סטים לתרגיל', 'סט לתרגיל', 'sets an exercise', 'set an exercise') : say(Ltr(lo + '–' + hi) + ' סטים לתרגיל', lo + '–' + hi + ' sets an exercise'), cut ? say('לפי הניסיון שלך', 'By your experience') + (EXP()[OB.exp] ? ': ' + EXP()[OB.exp][0] : '') : say('כמו בתוכנית שלך', 'As in your plan')) +
       line(2, glyph('bolt'), say('כל שבוע קצת יותר', 'A little more every week'), say('סבב של ' + wks + ' שבועות, והאחרון קל', 'A round of ' + wks + ' weeks, and the last one is easy')) +
       line(3, ICON.swap, say('לא מתחבר לתרגיל?', 'Not into an exercise?'), say('מחליפים אותו בלחיצה', 'Swap it with one tap')) + '</ol>' + buddy;
   } else {
-    const old = meNow().T.wk > 0;
+    const old = meNow().T.wk > 0, nm = String(OB.name || '').trim();
     cta = old ? say('קדימה', "Let's go") : say('לאימון הראשון', 'To the first workout');
-    body = '<div class="ob-hero done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><div class="ob-av">' + avatar(lvl, { flex: true }) + '</div><h1 id="obTitle">' + (OB.name ? esc(OB.name) + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
+    body = '<div class="ob-hero done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><div class="ob-av">' + avatar(lvl, { flex: true }) + '</div><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi>' + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
       '<p class="ob-note">' + say('לא תחליף לייעוץ רפואי. יש כאב או מגבלה? קודם מתייעצים עם איש מקצוע.', 'Not medical advice. Pain or a condition? Talk to a professional first.') + '</p></div>';
   }
-  const langs = '<div class="seg ob-lang" role="group" aria-label="' + LANG_LABEL + '">' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div>';
+  const langs = '<div class="seg ob-lang" role="group" aria-labelledby="obLangL"><span class="sr" id="obLangL">' + LANG_LABEL + '</span>' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div>';
   /* the first screen arrives with its whole entrance once; drawn again (a change of language) it is simply there */
   const quiet = st === 0 && OB.seen0; if (st === 0) OB.seen0 = true;
   return '<div class="ob-bg" aria-hidden="true">' + '<i></i>'.repeat(10) + '</div><div class="ob-in' + (quiet ? ' quiet' : '') + '" data-step="' + st + '"><div class="ob-top' + (st === 0 ? ' first' : '') + '">' + (st > 0 ? '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : langs) +
@@ -4886,10 +4930,12 @@ function renderOb() {
 }
 function openOb() {
   const me = S.cfg.me;
-  Object.assign(OB, { on: true, step: 0, dir: 0, seen0: false, tapT: 0, playT: 0, name: me.name || '', exp: me.exp, goal: me.goal });
+  Object.assign(OB, { on: true, step: 0, dir: 0, seen0: false, tapT: 0, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goal: me.goal });
+  /* the language shown is the one kept: a look chosen on the way must not turn an English page Hebrew on the next visit */
+  if (!S.cfg.lang) S.cfg.lang = LANG;
   $('#ob').hidden = false; document.body.style.overflow = 'hidden'; renderOb();
 }
-function closeOb() { OB.on = false; clearInterval(OB.showT); const el = $('#ob'); el.hidden = true; el.classList.remove('play'); el.innerHTML = ''; if (!$('#chat').classList.contains('open')) document.body.style.overflow = ''; }
+function closeOb() { OB.on = false; clearInterval(OB.showT); const el = $('#ob'); el.hidden = true; el.classList.remove('play'); el.innerHTML = ''; if (!(chat.modal && $('#chat').classList.contains('open'))) document.body.style.overflow = ''; }
 /* the answers are kept when the last screen is passed. skip: only remember that the screens were seen */
 function obFinish(skip) {
   const me = S.cfg.me;
@@ -4897,17 +4943,18 @@ function obFinish(skip) {
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
   closeOb(); renderAll();
 }
-function obStep(d) { const n = OB.step + d; if (n < 0) return; if (n > OB_LAST) { obFinish(false); return; } if (d > 0 && n < OB_LAST) sfx('set'); OB.step = n; OB.dir = d; renderOb(); }
+function obStep(d) { const n = OB.step + d; if (n < 0) return; OB.stepAt = Date.now(); if (n > OB_LAST) { obFinish(false); return; } if (d > 0 && n < OB_LAST) sfx('set'); OB.step = n; OB.dir = d; renderOb(); }
 /* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */
 function maybeOb() {
-  if (OB.on) { if (S.cfg.me.ob) closeOb(); return; }
+  /* passed on another device while open here: they close. Opened again from the profile, they were passed before, and stay */
+  if (OB.on) { if (S.cfg.me.ob && S.cfg.me.ob !== OB.was) closeOb(); return; }
   if (S.cfgReady && !S.cfg.me.ob && nextUp().live < 0 && $('#sheet').hidden) openOb();
 }
 function wireOb() {
   const el = $('#ob');
   el.addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
-    if (b.id === 'obNext') obStep(1);
+    if (b.id === 'obNext') { if (ev.detail !== 0 && Date.now() - (OB.stepAt || 0) < 300) return; obStep(1); }
     else if (b.id === 'obBack') obStep(-1);
     else if (b.id === 'obSkip') obFinish(true);
     else if (b.id === 'obMe') obLevel(true);

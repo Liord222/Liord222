@@ -38,7 +38,8 @@ function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
   const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), arch: {}, badges: {} };
-  for (const k of Object.keys(d.arch)) out.arch[k] = pos(a[k]);
+  /* an archive from a file is held to real sizes: a total no lifter reaches, or an end in the future, would hide the log or stall the page */
+  for (const k of Object.keys(d.arch)) out.arch[k] = Math.min(pos(a[k]), k === 'until' ? Date.now() + 864e5 : k === 'kg' ? 1e10 : 1e7);
   for (const x of BADGES) if (pos(b[x.id])) out.badges[x.id] = b[x.id];
   return out;
 }
@@ -420,7 +421,7 @@ function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 6
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
 const rirText = (r) => (r == null ? '' : r >= 4 ? say('רחוק מכשל', 'Far from failure') : r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה אחת לפני כשל', '1 rep before failure') : r + say(' חזרות לפני כשל', ' reps before failure'));
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
-function volume(s) { let v = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; return Math.round(v); }
+function volume(s) { let v = 0; for (const [id, a] of Object.entries(s.sets || {})) { if (helpOf(s, id)) continue; for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; } return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
 function prCount(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.pr) n++; return n; }
 function ago(ts) { const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : d === 2 ? say('לפני יומיים', '2 days ago') : say('לפני ' + d + ' ימים', d + ' days ago'); }

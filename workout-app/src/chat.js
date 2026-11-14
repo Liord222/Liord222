@@ -346,7 +346,7 @@ function openChat(exId) {
 }
 function closeChat() {
   const c = $('#chat'), was = !!chat.modal; chat.modal = false;
-  c.classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = '';
+  c.classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = ''; wakePlayer();
   c.removeAttribute('role');
   for (const el of behindChat()) el.inert = false;
   if (was) { const o = $('#chatOpen'); if (o) o.focus({ preventScroll: true }); }

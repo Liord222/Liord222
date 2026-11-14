@@ -15,8 +15,9 @@ export default forwardRef(function Shell({ html, onMessage, background }, ref) {
       originWhitelist={['*']}
       onMessage={(e) => { try { onMessage(JSON.parse(e.nativeEvent.data)); } catch (err) { /* not ours */ } }}
       // The system may end the page's process while the app is in the background (memory). The log lives in the
-      // page's own storage and in the phone's copy, so the page is simply loaded again instead of staying blank.
-      onContentProcessDidTerminate={() => { if (web.current) web.current.reload(); }}
+      // page's own storage and in the phone's copy, so the page is loaded again in a fresh web view: reload() of an
+      // html source on iOS leaves a blank page. The same baseUrl keeps the page's storage.
+      onContentProcessDidTerminate={() => setLife((n) => n + 1)}
       onRenderProcessGone={() => setLife((n) => n + 1)}
       javaScriptEnabled
       domStorageEnabled

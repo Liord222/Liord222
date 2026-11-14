@@ -8,7 +8,9 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
 (async () => {
   execFileSync('npx', ['expo', 'export', '--platform', 'web', '--output-dir', dist], { cwd: root, stdio: 'ignore', env: Object.assign({}, process.env, { EXPO_OFFLINE: '1', CI: '1' }) });
   const srv = http.createServer((q, r) => {
-    let f = path.join(dist, decodeURIComponent(q.url.split('?')[0])); if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) f = path.join(dist, 'index.html');
+    /* only files inside the export are served: a '..' (even written as %2e%2e or %2f) stops at its root */
+    let rel = '/'; try { rel = path.posix.normalize('/' + decodeURIComponent(q.url.split('?')[0])); } catch (e) { /* not a path */ }
+    let f = path.join(dist, rel); if (!f.startsWith(dist + path.sep) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) f = path.join(dist, 'index.html');
     r.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r);
   });
   await new Promise((res) => srv.listen(0, '127.0.0.1', res));
@@ -31,7 +33,7 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   check('a logged set is mirrored to the phone\'s storage', !!copy && copy.includes('"kg":60'), copy && copy.slice(0, 120));
   // the player: with no account to wait for, the profile counts the log at once and keeps the character on the phone
   check('the set earned its points on the phone too', (await f.evaluate(() => [meNow().T.xp, S.cfgReady].join())) === '10,true', await f.evaluate(() => meNow().T.xp));
-  check('the back button returns from the workout to today', (await f.evaluate(() => [window.gymiBack(), S.view, window.gymiBack()].join())) === 'true,home,false', 'back');
+  check('the page\'s back step (window.gymiBack, which the shell calls) returns from the workout to today', (await f.evaluate(() => [window.gymiBack(), S.view, window.gymiBack()].join())) === 'true,home,false', 'back');
   await f.click('#chatOpen'); await f.waitForTimeout(300);
   // ---- the coach: a key saved in the shell, then a question answered by Claude (the API is answered by this script) ----
   const sse = ['message_start', 'content_block_start', 'content_block_delta', 'content_block_delta', 'content_block_stop', 'message_delta', 'message_stop'];

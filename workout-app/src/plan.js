@@ -3,7 +3,7 @@
 let LANG = 'he';
 const say = (he, en) => (LANG === 'en' ? en : he);
 /* the languages, each under its own name, and the label of the choice between them (read by both kinds of reader) */
-const LANGS = [['he', 'עברית'], ['en', 'English']], LANG_LABEL = 'Language · שפה';
+const LANGS = [['he', 'עברית'], ['en', 'English']], LANG_LABEL = '<span lang="en">Language</span> · <span lang="he">שפה</span>';
 
 /* ================================================================== plan */
 /* each workout: name = the short English name kept in exports, t / te = the title shown in the app in Hebrew / English */

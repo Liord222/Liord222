@@ -37,7 +37,7 @@ const initScript = () => {
     return { text: full, truncated: false, modelTierApplied: 'default' };
   };
   sample.limits = async () => ({ maxPromptBytes: 262144, images: { maxCount: 4, maxInputBytes: 2e7, mediaTypes: ['image/jpeg', 'image/png'] } });
-  window.claude = { use: async (n) => (n === 'sample' ? sample : n === 'db' ? { doc: mkDoc, collection: mkCol } : n === 'user' ? { id: async () => 'u_test' } : n === 'downloads' ? { save: async (r) => { window.__saved.push(r.filename + ':' + r.data.length); return { status: 'saved' }; } } : null) };
+  window.claude = { use: async (n) => (n === 'sample' ? sample : n === 'db' ? { doc: mkDoc, collection: mkCol } : n === 'user' ? { id: async () => 'u_test' } : n === 'downloads' ? { save: async (r) => { window.__saved.push(r.filename + ':' + r.data.length); (window.__files = window.__files || []).push(r); return { status: 'saved' }; } } : null) };
 };
 const pages = [];
 async function device(b, scheme) {
@@ -47,7 +47,7 @@ async function device(b, scheme) {
   p.on('console', (m) => { if (m.type() === 'error') errs.push('CONSOLE ' + m.text()); });
   await p.exposeFunction('__cloudSet', (k, v) => {
     if (v === null) delete cloud[k]; else cloud[k] = JSON.parse(v);
-    if (v !== null) for (const o of pages) if (o !== p) o.evaluate(([kk, vv]) => window.__remote && window.__remote(kk, vv), [k, v]).catch(() => {});
+    if (v !== null) for (const o of pages) if (o !== p) o.evaluate(([kk, vv]) => window.__remote && window.__remote(kk, vv), [k, v]).catch((e) => { if (!/closed|Target/i.test(e.message)) ERR.push(['REMOTE ' + e.message.split('\n')[0]]); });
   });
   await p.exposeFunction('__cloudAll', () => JSON.stringify(cloud));
   await p.addInitScript(initScript);
@@ -56,7 +56,7 @@ async function device(b, scheme) {
   return { p, errs };
 }
 const ok = [], bad = [], ERR = [];
-const report = () => { if (process.env.LIST) console.log(ok.join('\n')); console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (ERR.map((e) => e.join(' | ')).filter(Boolean).join(' | ') || 'none')); };
+const report = () => { process.exitCode = bad.length || ERR.some((e) => e.length) ? 1 : 0; if (process.env.LIST) console.log(ok.join('\n')); console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (ERR.map((e) => e.join(' | ')).filter(Boolean).join(' | ') || 'none')); };
 const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'number').map((k) => cloud[k]);
 (async () => {
   const scheme = process.argv[2] || 'light', b = await chromium.launch(), A = await device(b, scheme), p = A.p; ERR.push(A.errs);
@@ -136,7 +136,7 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   const obA = await p.evaluate(() => { const m = S.cfg.me; return [m.name, m.exp, m.goal, m.look.hair, m.ob > 0, m.made > 0, S.cfg.lang, document.querySelector('#ob').hidden, planned(0, {}).ua1].join(); });
   check('the answers are kept and the app opens', obA === 'ליאור,1,0,2,true,true,he,true,3' && !!cloud[cfgK] && cloud[cfgK].me.ob > 0 && cloud[cfgK].me.exp === 1 && cloud[cfgK].lang === 'he', [obA, cloud[cfgK] && cloud[cfgK].me]);
   // ---------- first workout, nothing logged before ----------
-  check('today stays quiet: the warning about weekly sets waits in the plan', !(await p.$('#home .warn-pill')) && (await p.evaluate(() => volWarn())) > 0, await txt('#home .week'));
+  check('today stays quiet: the warning about weekly sets waits in the plan', !(await txt('#home')).includes('מחוץ לטווח') && (await p.evaluate(() => volWarn())) > 0, await txt('#home .week'));
   check('the top of the page is the logo alone, centred', (await p.evaluate(() => { const l = document.querySelector('.logo').getBoundingClientRect(); return Math.abs(l.left + l.width / 2 - innerWidth / 2) < 2 && !document.querySelector('.credit') && getComputedStyle(document.querySelector('#syncNote')).display === 'none'; })), 'logo');
   check('opens on today, with the next workout and the week', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('אימון ראשון') && (await txt('#home .next')).includes('גוף עליון A') && (await cur(p)) === 'אימון ראשון – גוף עליון A, הבא', [await txt('#home'), await cur(p)]);
   check('the whole page is in Hebrew: no English workout or exercise names on screen', !/Upper|Lower|Press|Curl|Squat|Row/.test(await txt('#home')) && !/[A-Za-z]{4,}/.test((await p.evaluate(() => [...document.querySelectorAll('.ex-name')].map((x) => x.textContent).join(' ')))), await txt('#home'));
@@ -383,6 +383,9 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   await q.click('#exportBtn'); await q.waitForTimeout(200); await q.click('#sheet [data-close]'); await q.waitForTimeout(250);
   await tab(q, 'home'); await q.click('#homeGo'); await q.waitForTimeout(400);
   check('export offers a csv', (await q.evaluate(() => window.__saved.length)) === 1, 'saved');
+  /* and what is in it: the header, and the first set of the oldest workout, dated by the lifter's own day */
+  const csv = await q.evaluate(() => { const f = window.__files[0], L = f.data.replace(/^\ufeff/, '').split('\r\n'), s = sorted().slice().reverse().find(hasDone); return { name: f.filename, head: L[0], row: L[1] || '', day: isoDay(new Date(s.ts)), n: L.length }; });
+  check('the csv holds the log: a header, then one line a set, dated by the local day', csv.name === 'gymi-log.csv' && csv.head === 'date,workout,exercise,set,kg,reps,week,deload,rir,target_kg,target_reps' && csv.row.startsWith(csv.day + ',"') && /^\d{4}-\d\d-\d\d,"[^"]+","[^"]+",1,[\d.]*,\d+,/.test(csv.row) && csv.n > 2, csv);
 
   // ---------- swap inside the same movement pattern ----------
   await go(q, 'ua5');
@@ -476,7 +479,7 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   check('still sore: one set off and one more rep in reserve', (await rx('la3')) === '2×10–15' && (await rx('la1')) === '3×6–10' && (await txt('#pre')).includes('סט פחות: לחיצת רגליים') && (await txt('#pre')).includes('חזרה פחות לארבע ראשי') && (await p.evaluate(() => rirOf(findEx('la1'), live(1)))) === 3, [await rx('la3'), await txt('#pre')]);
   await p.click('#pre [data-mu="hams"][data-v="0"]'); await p.waitForTimeout(250);
   check('never sore after easy work: one set added', (await rx('la2')) === '4×8–10' && (await txt('#pre')).includes('סט נוסף'), [await rx('la2'), await txt('#pre')]);
-  await p.click('#pre [data-mu="calves"][data-v="1"]'); await p.click('#pre [data-mu="abs"][data-v="1"]').catch(() => {}); await p.waitForTimeout(250);
+  await p.click('#pre [data-mu="calves"][data-v="1"]'); await p.click('#pre [data-mu="abs"][data-v="1"]'); await p.waitForTimeout(250);
   check('what the old "muscle feel" answer fed is gone with the question', (await p.evaluate(() => typeof lowPump)) === 'undefined' && (await p.evaluate(() => 'top' in mesoSummary(S.cfg.meso.id))) === false, 'lowPump');
   await p.click('#preDone'); await p.waitForTimeout(400);
   check('"continue" closes the recovery step with the answers kept', !(await p.isVisible('#pre')) && (await p.isVisible('#dkHit')) && (await rx('la3')) === '2×10–15' && (await rx('la2')) === '4×8–10', [await rx('la3'), await rx('la2')]);

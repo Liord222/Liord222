@@ -2,7 +2,7 @@
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = process.argv[2] || path.join(__dirname, '..', 'src');
 const GAME = ['rxOf', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned'];
-const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => { try { return fs.readFileSync(path.join(src, f), 'utf8'); } catch (e) { return ''; } }).join('\n') +
+const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') +
   '\n;globalThis.X = { PLAN, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
   '\n;globalThis.G = {' + GAME.map((k) => k + ': typeof ' + k + " === 'undefined' ? undefined : " + k).join(', ') + '};';
 vm.runInThisContext(code);
@@ -35,7 +35,11 @@ eq('jump too big keeps reps', nextTarget({ kg: 20, reps: 15, rir: 3 }, O({ lo: 1
 // still sore: hold instead of progressing
 eq('sore holds', nextTarget({ kg: 60, reps: 8, rir: 3 }, O({ sore: 1 })), { kg: 60, reps: 8, mode: 'hold' });
 // new mesocycle: 0 RIR last time, 3 RIR now
-eq('new meso, inside the range', nextTarget({ kg: 62.5, reps: 9, rir: 0 }, O({ rir: 3 })), { kg: 62.5, reps: 6, mode: 'base' });
+eq('new meso, inside the range: one rep of the last round is kept', nextTarget({ kg: 62.5, reps: 9, rir: 0 }, O({ rir: 3 })), { kg: 62.5, reps: 7, mode: 'base' });
+/* a lifter who reaches the top of the range every round gets more load: 60x10 at the end of round 1 leads to 62.5 by the end of round 2 */
+{ let r = { kg: 60, reps: 10, rir: 0 }; for (let wk = 1; wk <= 4; wk++) { const t = nextTarget(r, O({ rir: rirFor(wk, 5) })); r = { kg: t.kg, reps: t.reps, rir: rirFor(wk, 5) }; } eq('five-week rounds still raise the load', r.kg > 60, true); }
+eq('deload at the lightest step lowers the reps, not to 0 kg', nextTarget({ kg: 5, reps: 12, rir: 0 }, O({ dl: true, rir: 4, lo: 12, hi: 20, inc: 5 })), { kg: 5, reps: 7, mode: 'deload' });
+eq('a weak workout mid-round is a step down, not a new round', nextTarget({ kg: 60, reps: 4, rir: 2 }, O({ rir: 1, lo: 6, hi: 10 })).mode, 'down');
 const nm = nextTarget({ kg: 60, reps: 9, rir: 0 }, O({ rir: 3, lo: 8, hi: 12 }));
 eq('new meso, under the range lowers the load', [nm.kg < 60, nm.reps >= 8 && nm.reps <= 12, nm.mode], [true, true, 'base']);
 // deload: 15% lighter, same reps
@@ -50,6 +54,8 @@ eq('no reference', nextTarget(null, O()), null);
 
 // down-set: under the range on the previous set, 10% off
 eq('down-set', adjustTarget({ kg: 60, reps: 8, mode: 'reps' }, { kg: 60, reps: 4, tk: 60, tr: 9 }, O()), { kg: 52.5, reps: 8, mode: 'down' });
+eq('down-set at the lightest step keeps the weight', adjustTarget({ kg: 5, reps: 15, mode: 'reps' }, { kg: 5, reps: 9, tk: 5, tr: 15 }, O({ lo: 12, hi: 20, inc: 5 })), { kg: 5, reps: 15, mode: 'hold' });
+eq('recalibration on big steps: the reps fit the load, or the load stays', adjustTarget({ kg: 20, reps: 13, mode: 'reps' }, { kg: 20, reps: 18, tk: 20, tr: 13 }, O({ lo: 12, hi: 15, inc: 5, rir: 0 })), { kg: 20, reps: 15, mode: 'hold' });
 eq('down-set always drops at least a step', adjustTarget({ kg: 10, reps: 12, mode: 'reps' }, { kg: 10, reps: 7, tk: 10, tr: 12 }, O({ lo: 10, hi: 15, inc: 5 })), { kg: 5, reps: 12, mode: 'down' });
 eq('assisted down-set adds help', adjustTarget({ kg: 40, reps: 8, mode: 'reps' }, { kg: 40, reps: 3, tk: 40, tr: 9 }, O({ inv: true, inc: 5 })), { kg: 45, reps: 8, mode: 'down' });
 // calibration: 15 reps where 10 were predicted at 2 RIR
@@ -122,6 +128,9 @@ t('totals of two workouts', () => G.totalsOf([ses({ sets: three }), ses({ id: 's
 t('archived workouts are not counted twice', () => G.totalsOf([ses({ sets: three }), ses({ id: 's2', ts: 3000, end: 4000, sets: three })], Object.assign(zero(), { until: 1500, xp: 5000, wk: 20, sets: 400, prs: 30, kg: 90000 })), { xp: 5160, wk: 21, sets: 403, prs: 31, kg: 90900 });
 const many = (n) => Array.from({ length: n }, (_, i) => ses({ id: 's' + (i + 1), ts: (i + 1) * 864e5 * 2, end: (i + 1) * 864e5 * 2 + 1, sets: { ua1: [{ kg: 50, reps: 10, done: true }] } }));
 t('nothing to archive while the log is short', () => G.archiveStep(many(40), zero(), 40), null);
+t('two workouts at the very moment the archive ends both go in, and none drops out of the totals', () => { const l = many(42); l[1].ts = l[2].ts; const a = G.archiveStep(l, zero(), 40), t2 = G.totalsOf(l, a); return [t2.wk, t2.sets]; }, [42, 42]);
+t('help on an assisted movement is no kilogram lifted', () => { const inv = Object.keys(LIB).find((k) => LIB[k].inv); return G.tally({ end: 1, mv: { s1: inv }, sets: { s1: [{ kg: 40, reps: 8, done: true }], s2: [{ kg: 50, reps: 10, done: true }] } }).kg; }, 500);
+t('the level comes straight from the points, even for a total no one reaches', () => [G.levelOf(199).lvl, G.levelOf(200).lvl, G.levelOf(440).lvl, G.levelOf(1e300).lvl > 1], [1, 2, 3, true]);
 t('the oldest workouts move into the archive', () => { const a = G.archiveStep(many(45), zero(), 40); return [a.until, a.xp, a.wk, a.sets, a.kg]; }, [5 * 864e5 * 2, 550, 5, 5, 2500]);
 t('archiving never changes the totals', () => { const l = many(45), a = G.archiveStep(l, zero(), 40); return [G.totalsOf(l, a), G.archiveStep(l, a, 40)]; }, [G.totalsOf ? G.totalsOf(many(45), zero()) : 0, null]);
 t('a workout that is still open is never archived over', () => { const l = many(45); l[2].end = 0; const a = G.archiveStep(l, zero(), 40); return [a.until, a.wk]; }, [2 * 864e5 * 2, 2]);

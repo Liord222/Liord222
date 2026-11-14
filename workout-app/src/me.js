@@ -37,7 +37,7 @@ function renderMe() {
 function playerHTML(P) {
   const me = S.cfg.me;
   return '<button class="player" id="playerBtn" type="button" aria-label="' + say('הפרופיל שלי: רמה ', 'My profile: level ') + P.L.lvl + ', ' + nm(P.rank) + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
-    '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + esc(me.name) : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
+    '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi>' : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
     (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + flameSVG() + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
 function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
@@ -49,7 +49,7 @@ function renderProfile(P) {
   /* the achievements in short: the last ones that were earned, then the next to go for. All of them are a tap away */
   const got = BADGES.filter((b) => have.has(b.id)), todo = BADGES.filter((b) => !have.has(b.id)), few = todo.length ? got.slice(-3).concat(todo).slice(0, 4) : got.slice(-4);
   $('#profile').innerHTML = '<section class="pf-top">' + (me.made ? '<button class="icon-btn pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '') +
-    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? esc(me.name) : say('הדמות שלי', 'My character')) + '</h1>' +
+    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? '<bdi>' + esc(me.name) + '</bdi>' : say('הדמות שלי', 'My character')) + '</h1>' +
     '<p class="pf-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
     '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + (nx ? ' · ' + say('ברמה ' + nx.at + ': ', 'At level ' + nx.at + ': ') + nm(nx) : '') + '</p></div>' +
     (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') +
@@ -77,17 +77,19 @@ function openSettings() { S.sheet = 'set'; S.backupNote = ''; renderSettings(); 
 
 /* ---- the character sheet: name and looks; every choice is saved at once ---- */
 function lookRows() {
-  const k = S.cfg.me.look, sw = (key, list, hex) => '<div class="lk-opts" role="group">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + say('אפשרות ', 'Option ') + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
-  const seg = (key, list) => '<div class="seg" role="group">' + list.map((t, i) => '<button type="button" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '">' + t + '</button>').join('') + '</div>';
-  const row = (label, body) => '<div class="lk-row col"><span>' + label + '</span>' + body + '</div>';
-  return row(say('עור', 'Skin'), sw('skin', SKIN, (c) => c[0])) + row(say('שיער', 'Hair'), seg('hair', HAIRS())) + row(say('צבע שיער', 'Hair colour'), sw('hc', HAIRC, (c) => c)) + row(say('זקן', 'Beard'), seg('beard', BEARDS())) + row(say('חולצה', 'Shirt'), sw('shirt', SHIRT, (c) => c));
+  /* each row is a named group, and each colour says what it is the colour of: 'Shirt 3', not 'Option 3' three times over */
+  const k = S.cfg.me.look, sw = (key, list, hex, label) => '<div class="lk-opts" role="group" aria-label="' + label + '">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
+  const seg = (key, list, label) => '<div class="seg" role="group" aria-label="' + label + '">' + list.map((t, i) => '<button type="button" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '">' + t + '</button>').join('') + '</div>';
+  const row = (label, body) => '<div class="lk-row col"><span aria-hidden="true">' + label + '</span>' + body + '</div>';
+  const L = { skin: say('עור', 'Skin'), hair: say('שיער', 'Hair'), hc: say('צבע שיער', 'Hair colour'), beard: say('זקן', 'Beard'), shirt: say('חולצה', 'Shirt') };
+  return row(L.skin, sw('skin', SKIN, (c) => c[0], L.skin)) + row(L.hair, seg('hair', HAIRS(), L.hair)) + row(L.hc, sw('hc', HAIRC, (c) => c, L.hc)) + row(L.beard, seg('beard', BEARDS(), L.beard)) + row(L.shirt, sw('shirt', SHIRT, (c) => c, L.shirt));
 }
 function openLook() {
   const me = S.cfg.me, sh = $('#sheet');
   S.sheet = 'look';
   sh.innerHTML = '<div class="sheet-in lk" role="dialog" aria-modal="true" aria-label="' + say('הדמות שלי', 'My character') + '"><div class="ed-h"><div><h2>' + say('הדמות שלי', 'My character') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div>' +
-    '<label class="lk-row" for="lkName"><span>' + say('שם', 'Name') + '</span><input id="lkName" type="text" maxlength="16" autocomplete="off" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(me.name) + '"></label>' +
+    '<label class="lk-row" for="lkName"><span>' + say('שם', 'Name') + '</span><input id="lkName" type="text" dir="auto" maxlength="16" autocomplete="off" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(me.name) + '"></label>' +
     '<div id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
   sh.hidden = false;
 }

@@ -3,7 +3,7 @@
 // keeps the owner's Anthropic API key in the phone's secure storage for the coach, and answers the page's requests
 // for haptics, a screen that stays awake, file export and the back button.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BackHandler, KeyboardAvoidingView, Modal, Platform, Pressable, Text, TextInput, View, useColorScheme } from 'react-native';
+import { BackHandler, I18nManager, KeyboardAvoidingView, Modal, Platform, Pressable, Text, TextInput, View, useColorScheme } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -45,7 +45,9 @@ async function exportFile(filename, data) {
   const file = new File(Paths.cache, name);
   file.create({ overwrite: true });
   await file.write(data);
-  if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(file.uri, { mimeType: mime, UTI: json ? 'public.json' : 'public.comma-separated-values-text', dialogTitle: 'gymi' });
+  /* a file left in the cache is no backup: with no way to hand it on, the page hears that it failed */
+  if (!(await Sharing.isAvailableAsync())) throw new Error('sharing is not available');
+  await Sharing.shareAsync(file.uri, { mimeType: mime, UTI: json ? 'public.json' : 'public.comma-separated-values-text', dialogTitle: 'gymi' });
 }
 
 /* the shell's own texts, in the language the page is in */
@@ -67,7 +69,9 @@ function KeySheet({ open, hasKey, lang, c, onSave, onRemove, onClose }) {
   const [value, setValue] = useState('');
   useEffect(() => { if (open) setValue(''); }, [open]);
   const ok = value.trim().length >= 20, T = TEXT[lang] || TEXT.he;
-  const rtl = lang === 'en' ? { writingDirection: 'ltr', textAlign: 'left' } : { writingDirection: 'rtl', textAlign: 'right' };
+  /* in a right-to-left layout (a Hebrew phone) React Native swaps left and right in textAlign: ask for the side that lands where it should */
+  const side = (s) => (I18nManager.isRTL ? (s === 'left' ? 'right' : 'left') : s);
+  const rtl = lang === 'en' ? { writingDirection: 'ltr', textAlign: side('left') } : { writingDirection: 'rtl', textAlign: side('right') };
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(8,10,14,0.45)' }}>
@@ -79,7 +83,7 @@ function KeySheet({ open, hasKey, lang, c, onSave, onRemove, onClose }) {
           <TextInput
             testID="keyInput" value={value} onChangeText={setValue} placeholder="sk-ant-..." placeholderTextColor={c.ink2}
             secureTextEntry autoCapitalize="none" autoCorrect={false} accessibilityLabel={T.field}
-            style={{ height: 52, borderRadius: 16, paddingHorizontal: 16, backgroundColor: c.field, color: c.ink, fontSize: 16, textAlign: 'left' }}
+            style={{ height: 52, borderRadius: 16, paddingHorizontal: 16, backgroundColor: c.field, color: c.ink, fontSize: 16, textAlign: side('left') }}
           />
           <Pressable testID="keySave" accessibilityRole="button" disabled={!ok} onPress={() => onSave(value.trim())} style={{ height: 58, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: c.accent, opacity: ok ? 1 : 0.4 }}>
             <Text style={{ color: c.onAccent, fontSize: 18, fontWeight: '700' }}>{hasKey ? T.replace : T.save}</Text>
@@ -100,7 +104,8 @@ function KeySheet({ open, hasKey, lang, c, onSave, onRemove, onClose }) {
 
 export default function App() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
-  const first = useRef(scheme);
+  const first = useRef(scheme), schemeNow = useRef(scheme);
+  schemeNow.current = scheme;
   const shell = useRef(null);
   const [html, setHtml] = useState(null);
   const [hasKey, setHasKey] = useState(false);
@@ -141,13 +146,18 @@ export default function App() {
     if (m.type === 'save' && typeof m.data === 'string') AsyncStorage.setItem(STORE, m.data).catch(() => {});
     else if (m.type === 'haptic') hapticOf(m.kind || (m.strong ? 'success' : 'tap')).catch(() => {});
     else if (m.type === 'awake') (m.on ? activateKeepAwakeAsync('gymi') : deactivateKeepAwake('gymi')).catch(() => {});
-    else if (m.type === 'export') exportFile(m.filename, String(m.data || '')).catch(() => {});
+    else if (m.type === 'export') {
+      const reply = (v) => { if (shell.current && typeof m.id === 'string') shell.current.run('window.__gymiReply(' + JSON.stringify(m.id) + ',' + JSON.stringify(v) + ')'); };
+      exportFile(m.filename, String(m.data || '')).then(() => reply({ ok: true }), (e) => reply({ ok: false, error: String((e && e.message) || e) }));
+    }
     else if (m.type === 'key-get' && typeof m.id === 'string') keyStore.get().catch(() => null).then((key) => { if (shell.current) shell.current.run('window.__gymiReply(' + JSON.stringify(m.id) + ',' + JSON.stringify(key || null) + ')'); });
     else if (m.type === 'key-edit') setKeyOpen(true);
     else if (m.type === 'lang') {
       setLang(m.lang === 'en' ? 'en' : 'he');
       /* the page says its language every time it starts, also after the system reloaded it: tell it whether a key is saved now */
       if (shell.current) shell.current.run('if(window.gymiCoach&&window.GYMI_COACH!==' + keyNow.current + ')window.gymiCoach(' + keyNow.current + ')');
+      /* and the light or dark the phone is in now: a fresh web view starts from the theme of the launch */
+      if (shell.current) shell.current.run("document.documentElement.setAttribute('data-theme'," + JSON.stringify(schemeNow.current) + ')');
     }
     else if (m.type === 'back' && !m.handled) BackHandler.exitApp();
   }, []);

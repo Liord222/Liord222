@@ -11,7 +11,12 @@ function codeOf(e) {
   if (e instanceof Anthropic.AuthenticationError || e instanceof Anthropic.PermissionDeniedError) return 'bad_key';
   if (e instanceof Anthropic.RateLimitError) return 'rate_limited';
   if (e instanceof Anthropic.APIConnectionError) return 'offline';
-  if (e instanceof Anthropic.APIError) return e.status >= 500 ? 'upstream_error' : 'api_error';
+  if (e instanceof Anthropic.APIError) {
+    /* an error event in the middle of a stream (overloaded, api_error) comes with no status: the service had trouble, and the part already written stays */
+    if (e.status === undefined || e.status >= 500) return 'upstream_error';
+    if (e.status === 413) return 'prompt_too_large';
+    return 'api_error';
+  }
   return 'upstream_error';
 }
 

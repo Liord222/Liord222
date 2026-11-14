@@ -4,21 +4,33 @@
    so a restored backup or a second device shows the same level. */
 const XP = { set: 10, pr: 30, done: 100 };
 /* what one workout is worth: sets, personal bests, kilograms moved and the points for them */
+/* an assisted movement's weight is help, not load: it is no kilogram lifted (less help would count as less work) */
+function helpOf(s, id) {
+  const pe = typeof SLOT !== 'undefined' ? SLOT[id] : null, mv = (s && s.mv && s.mv[id]) || (pe ? pe.a : null);
+  return isMv(mv) && !!LIB[mv].inv;
+}
 function tally(s) {
   let sets = 0, prs = 0, kg = 0;
-  for (const a of Object.values((s && s.sets) || {})) for (const r of a || []) {
-    if (!r || !r.done) continue;
-    sets++; if (r.pr) prs++;
-    if (r.kg != null && r.reps != null) kg += r.kg * r.reps;
+  for (const [id, a] of Object.entries((s && s.sets) || {})) {
+    const help = helpOf(s, id);
+    for (const r of a || []) {
+      if (!r || !r.done) continue;
+      sets++; if (r.pr) prs++;
+      if (!help && r.kg != null && r.reps != null) kg += r.kg * r.reps;
+    }
   }
   return { sets, prs, kg: Math.round(kg), xp: sets * XP.set + prs * XP.pr + (sets && s.end ? XP.done : 0) };
 }
 /* points needed to leave a level: 200 for the first, 40 more for each one after it. The first week of the plan is a level per workout */
 const xpStep = (lvl) => 200 + 40 * (lvl - 1);
+/* the points to reach level n+1 add up to 20n² + 180n, so the level comes straight from the points, without counting up one level at a time */
+const xpTo = (n) => 20 * n * n + 180 * n;
 function levelOf(xp) {
-  let left = xp > 0 ? Math.floor(xp) : 0, lvl = 1;
-  while (left >= xpStep(lvl)) { left -= xpStep(lvl); lvl++; }
-  return { lvl, into: left, need: xpStep(lvl) };
+  const t = xp > 0 && isFinite(xp) ? Math.floor(xp) : 0;
+  let n = Math.max(0, Math.floor((Math.sqrt(32400 + 80 * t) - 180) / 40));
+  for (let i = 0; i < 3 && n > 0 && xpTo(n) > t; i++) n--;
+  for (let i = 0; i < 3 && xpTo(n + 1) <= t; i++) n++;
+  return { lvl: n + 1, into: t - xpTo(n), need: xpStep(n + 1) };
 }
 const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 5, he: 'מתמיד', en: 'Regular' }, { at: 10, he: 'ספורטאי', en: 'Athlete' }, { at: 15, he: 'מכונה', en: 'Machine' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 30, he: 'אלוף', en: 'Champion' }, { at: 40, he: 'אגדה', en: 'Legend' }];
 function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
@@ -52,7 +64,11 @@ function totalsOf(list, arch) {
 /* fold finished workouts beyond the newest `keep` into the archive. Returns the new archive, or null when there is nothing to fold */
 function archiveStep(list, arch, keep) {
   const open = list.filter((s) => !s.end && s.ts > arch.until).reduce((m, s) => Math.min(m, s.ts), Infinity);
-  const old = list.filter((s) => s.end && s.ts > arch.until).sort((a, b) => b.ts - a.ts).slice(keep).filter((s) => s.ts < open).reverse();
+  const fin = list.filter((s) => s.end && s.ts > arch.until).sort((a, b) => b.ts - a.ts);
+  let old = fin.slice(keep).filter((s) => s.ts < open);
+  /* the archive ends at a moment: a kept workout that starts at that very moment would be left out of every total, so it goes in with the rest */
+  if (old.length) { const top = old[0].ts; old = fin.filter((s) => s.ts <= top && s.ts < open); }
+  old.reverse();
   if (!old.length) return null;
   const a = Object.assign({}, arch);
   for (const s of old) {

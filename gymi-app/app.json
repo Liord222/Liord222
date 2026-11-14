@@ -41,6 +41,19 @@
           "faceIDPermission": false
         }
       ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#F2F3F5",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#0B0C0F"
+          }
+        }
+      ],
       "./plugins/withCameraQuery"
     ],
     "locales": {

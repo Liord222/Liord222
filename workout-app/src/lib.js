@@ -87,7 +87,9 @@ const LIB = {
 const EN = {};
 for (const w of PLAN) for (const e of w.ex) if (!EN[e.a]) EN[e.a] = e.name;
 for (const k of Object.keys(LIB)) if (LIB[k].en) EN[k] = LIB[k].en;
-const animOf = (mv) => LIB[mv].an || mv;
+/* a movement name that the library really has (not a name every object carries, such as constructor) */
+const isMv = (k) => typeof k === 'string' && Object.prototype.hasOwnProperty.call(LIB, k);
+const animOf = (mv) => (isMv(mv) && LIB[mv].an) || mv;
 
 /* English for the muscle lines and the form cues, by their Hebrew text */
 const EN_TEXT = {

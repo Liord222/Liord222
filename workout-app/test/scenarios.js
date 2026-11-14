@@ -177,12 +177,12 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
     out.started = Object.keys(S.sessions).length - before;
     const r = applyLog('@@LOG {"ex":"ua2","sets":[[-5,8],[0,9],["40",8],[40.25,7.6],[40,8],[40,8]]}');
     out.idx = r && r.idx.join(); out.rows = live(0).sets.ua2.map((x) => (x.kg == null ? '-' : x.kg) + 'x' + x.reps).join();
-    out.bad = [applyLog('@@LOG {"ex":"nope","sets":[[40,8]]}'), applyLog('@@LOG {"ex":"ua2","sets":"all"}'), applyLog('@@LOG not json'), applyLog('no line here')].join();
+    out.bad = JSON.stringify([applyLog('@@LOG {"ex":"nope","sets":[[40,8]]}'), applyLog('@@LOG {"ex":"ua2","sets":"all"}'), applyLog('@@LOG not json'), applyLog('no line here')]);
     return out;
   });
-  check('a line from the coach with nothing real in it writes nothing and starts no workout', logged.none === null && logged.started === 0, logged);
+  check('a line from the coach with nothing real in it writes nothing and starts no workout', logged.none && logged.none.none === true && logged.started === 0, logged);
   check('a set with a weight that is no weight is left out, zero means no weight, and the rest is written in order', logged.idx === '0,1,2' && logged.rows === '-x9,40x8,40.25x8', logged);
-  check('a line that names no exercise or holds no sets is ignored', logged.bad === ',,,', logged.bad);
+  check('a line that names no exercise or holds no sets writes nothing, and says so', logged.bad === '[{"none":true},{"none":true},null,null]', logged.bad);
   await p.click('#listBtn'); await p.waitForTimeout(250); await p.click('#finishBtn'); await p.waitForTimeout(500); await p.click('#sheetClose'); await p.waitForTimeout(250);
   await p.click('#tabbar [data-view="progress"]'); await p.waitForTimeout(250); await p.click('#history [data-edit]'); await p.waitForTimeout(300);
   await p.fill('#sheet .ed-row[data-ex="ua1"][data-i="0"] [data-k="kg"]', '99999'); await p.fill('#sheet .ed-row[data-ex="ua1"][data-i="0"] [data-k="reps"]', '9999'); await p.waitForTimeout(150);
@@ -240,7 +240,7 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
     for (let i = 1; i <= 70; i++) { const ts = now - (80 - i) * day; all['K' + i] = { id: 'K' + i, v: 3, w: i % 4, ts, end: ts + 3e6, mt: ts, upd: ts, ft: ts, m: 'm1', wk: 1, dl: 0, rir: 3, n: {}, mv: {}, sore: {}, cut: {}, fb: {}, sets: { [['ua1', 'la1', 'ub1', 'lb1'][i % 4]]: [{ kg: 50, reps: 8, done: true, t: ts }] } }; }
     /* one more workout that only this device has (it was never sent), newer than anything in the account */
     const local = Object.assign({}, all, { Knew: Object.assign({}, all.K70, { id: 'Knew', ts: now - 3e7, end: now - 2.7e7, upd: now - 2.7e7 }) });
-    await q.addInitScript(([store, cloud]) => {
+    const fake = ([store, cloud]) => {
       if (!localStorage.getItem('ul4:v1')) localStorage.setItem('ul4:v1', store);
       window.__sets = [];
       /* the account as the runtime serves it: the newest 60 are a window, and a workout that leaves it is reported as removed */
@@ -258,7 +258,8 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
           onSnapshot(next) { setTimeout(() => next({ id, exists: false, data: () => undefined }), 5); return () => {}; } }),
         onSnapshot(next) { listener = next; setTimeout(emit, 5); return () => {}; } };
       window.claude = { use: async (n) => (n === 'user' ? { id: async () => 'u1' } : n === 'db' ? { collection: () => col } : null) };
-    }, [JSON.stringify({ sound: false, dirty: [], gone: [], sessions: local, cfg: { upd: 3, me: { ob: 1 } } }), JSON.stringify(Object.values(all))]);
+    };
+    await q.addInitScript(fake, [JSON.stringify({ sound: false, dirty: [], gone: [], sessions: local, cfg: { upd: 3, me: { ob: 1 } } }), JSON.stringify(Object.values(all))]);
     await q.goto(PREVIEW); await q.waitForTimeout(2500);
     const sent = (await q.evaluate(() => window.__sets)).filter((x) => x !== 'cfg');
     check('workouts older than what the account sent are not written to it again on every visit', sent.filter((x) => x !== 'Knew').length === 0, sent);
@@ -267,6 +268,19 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
     /* another device deletes a workout that is inside the window: it goes from here too */
     await q.evaluate(() => window.__drop('K40')); await q.waitForTimeout(400);
     check('a workout deleted on another device goes from this one too', (await q.evaluate(() => !S.sessions.K40 && Object.keys(S.sessions).length === 70)), await q.evaluate(() => Object.keys(S.sessions).length));
+    /* next visit: while this device was away, another one deleted K50, and is in the middle of a workout this device last saw hours ago */
+    const knew = await q.evaluate(() => Object.assign({ id: 'Knew' }, docOf(S.sessions.Knew)));
+    await q.close();
+    const q2 = await ctx.newPage();
+    q2.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
+    const open5 = { id: 'Kopen', v: 3, w: 1, ts: now - 5 * 3600e3, end: 0, mt: 0, upd: now - 5 * 3600e3, ft: 0, m: 'm1', wk: 1, dl: 0, rir: 3, sets: { la1: [{ kg: 60, reps: 8, done: true, t: now - 5 * 3600e3 }] } };
+    const openNow = Object.assign({}, open5, { upd: now - 6e4, sets: { la1: [{ kg: 60, reps: 8, done: true, t: now - 5 * 3600e3 }, { kg: 60, reps: 8, done: true, t: now - 6e4 }] } });
+    await q2.addInitScript((o) => { const d = JSON.parse(localStorage.getItem('ul4:v1')); d.sessions.Kopen = JSON.parse(o); localStorage.setItem('ul4:v1', JSON.stringify(d)); }, JSON.stringify(open5));
+    await q2.addInitScript(fake, ['', JSON.stringify(Object.values(all).filter((d) => d.id !== 'K40' && d.id !== 'K50').concat([knew, openNow]))]);
+    await q2.goto(PREVIEW); await q2.waitForTimeout(2500);
+    const sent2 = (await q2.evaluate(() => window.__sets)).filter((x) => x !== 'cfg');
+    check('a workout deleted on another device while this one was away is not sent back to the account', !sent2.includes('K50') && (await q2.evaluate(() => !S.sessions.K50)), sent2);
+    check('a workout still running on another device is not closed here on the copy from hours ago', await q2.evaluate(() => !!S.sessions.Kopen && !S.sessions.Kopen.end && S.sessions.Kopen.sets.la1.length === 2), await q2.evaluate(() => JSON.stringify(S.sessions.Kopen)));
     await ctx.close();
   }
 

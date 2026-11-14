@@ -65,6 +65,9 @@ function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || 
 function saveLocal() {
   try {
     const keep = Object.values(S.sessions).sort((a, b) => b.ts - a.ts).slice(0, 80);
+    /* what waits to be sent: only workouts that are still here (or deleted), and the newest deletions */
+    for (const id of S.dirty) if (id !== 'cfg' && !S.sessions[id] && !S.gone.has(id)) S.dirty.delete(id);
+    if (S.gone.size > 300) S.gone = new Set(Array.from(S.gone).slice(-300));
     localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, cb: S.cfgBase, pre: S.pre }));
   } catch (e) { /* storage unavailable: keep working in memory */ }
 }
@@ -96,7 +99,7 @@ function sessSlots(s) {
   return ids.map(planEx);
 }
 /* the movement done in a plan slot: a workout remembers its own, the next one follows the saved swaps */
-const moveOf = (pe, s) => { const k = s ? s.mv && s.mv[pe.id] : S.cfg.swap[pe.id]; return k && LIB[k] ? k : pe.a; };
+const moveOf = (pe, s) => { const k = s ? s.mv && s.mv[pe.id] : S.cfg.swap[pe.id]; return isMv(k) ? k : pe.a; };
 const incOf = (mv) => { const q = LIB[mv].eq, v = +S.cfg.inc[q]; return v > 0 ? v : EQUIP[q].inc; };
 
 /* ---- mesocycle: a week is one pass through the four workouts; the last week is a deload ---- */
@@ -154,7 +157,7 @@ function stamp(s) {
   if (P.fresh) newMeso();
   s.m = P.m; s.wk = P.wk; s.dl = P.dl ? 1 : 0; s.rir = P.rir; s.sore = Object.assign({}, preOf(s.w)); s.mv = {}; s.fb = {}; s.cut = {};
   s.o = planIds(s.w);
-  for (const pe of planSlots(s.w)) { const k = S.cfg.swap[pe.id]; if (k && LIB[k] && k !== pe.a) s.mv[pe.id] = k; }
+  for (const pe of planSlots(s.w)) { const k = S.cfg.swap[pe.id]; if (isMv(k) && k !== pe.a) s.mv[pe.id] = k; }
   s.n = planned(s.w, s.sore); s.ft = Date.now(); s.v = 3;
   delete S.pre[s.w];
 }
@@ -165,13 +168,16 @@ function ensure(w) {
 }
 function lastT(s) { let t = s.ts; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (r && r.t > t) t = r.t; return t; }
 /* a workout left open for hours is closed at its last logged set, so "next up" moves on by itself */
+/* a workout left open is closed for the lifter after STALE — but only once this device knows the account's copy of it
+   (or knows there is none): a workout still running on another device would be closed, or thrown away, on the old copy here */
 function sweep() {
+  if (!S.synced) return false;
   let changed = false;
   for (const s of Object.values(S.sessions)) {
     if (s.end) continue;
     const idle = Date.now() - Math.max(lastT(s), s.upd || 0);
     if (idle < STALE) continue;
-    if (hasDone(s)) { s.end = lastT(s); s.mt = Date.now(); touch(s, true); } else { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); schedule(s.id); }
+    if (hasDone(s)) { s.end = lastT(s); touch(s, true); } else { delete S.sessions[s.id]; S.gone.add(s.id); S.dirty.add(s.id); schedule(s.id); }
     changed = true;
   }
   if (changed) saveLocal();
@@ -286,7 +292,7 @@ function gentleAlt(e) { const used = exList(wkOf(e.id)).map((x) => x.mv), o = sw
 /* returns true when today's workout switched, false when the change waits for the next one */
 function swapTo(exId, mv, always) {
   const pe = planEx(exId), w = wkOf(exId);
-  if (!pe || !LIB[mv]) return false;
+  if (!pe || !isMv(mv)) return false;
   if (always) { if (mv === pe.a) delete S.cfg.swap[exId]; else S.cfg.swap[exId] = mv; saveCfg(); }
   let s = live(w);
   if (!s && !always) s = ensure(w);
@@ -347,8 +353,16 @@ function replaceSlot(exId, mv) {
 }
 /* back to the plan as it was written: its own exercises, in its own order */
 function resetPlan() {
+  const was = S.cfg.swap;
   S.cfg.order = {}; S.cfg.swap = {}; saveCfg();
-  for (let w = 0; w < PLAN.length; w++) { const s = live(w); if (s && s.o) { s.o = sessSlots(Object.assign({}, s, { o: null })).map((pe) => pe.id); s.ft = Date.now(); touch(s); } }
+  for (let w = 0; w < PLAN.length; w++) {
+    const s = live(w); if (!s) continue;
+    let ch = false;
+    if (s.o) { s.o = sessSlots(Object.assign({}, s, { o: null })).map((pe) => pe.id); ch = true; }
+    /* a saved swap that reached today's workout goes with the plan, where no set of it is done yet */
+    if (s.mv) for (const id of Object.keys(s.mv)) if (was[id] === s.mv[id] && !rowsOf(s, id).some(isDone)) { s.mv = Object.assign({}, s.mv); delete s.mv[id]; ch = true; }
+    if (ch) { s.ft = Date.now(); touch(s); }
+  }
 }
 const planChanged = () => Object.keys(S.cfg.order).length > 0 || Object.keys(S.cfg.swap).length > 0;
 /* one past the last set that is done: a set count lower than that would hide a done set that still counts */
@@ -423,7 +437,7 @@ function setSync(state) {
   if (t) { S.syncT = t; $('#syncNote').textContent = t; const n = $('#syncNote2'); if (n) n.textContent = t; $('#app').dataset.sync = S.syncState === 'slow' || S.syncState === 'error' ? 'off' : 'on'; }
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
-function schedule(id, ms) { const w = W(id); clearTimeout(w.timer); w.timer = setTimeout(() => flush(id), ms == null ? 800 : ms); }
+function schedule(id, ms) { const w = W(id); if (w.busy) w.again = true; clearTimeout(w.timer); w.timer = setTimeout(() => flush(id), ms == null ? 800 : ms); }
 const XK = ['m', 'wk', 'dl', 'rir', 'n', 'o', 'mv', 'sore', 'cut', 'fb'];
 function docOf(s) { const d = { v: s.v || 2, w: s.w, ts: s.ts, end: s.end || 0, mt: s.mt || 0, upd: s.upd || s.ts, ft: s.ft || 0, sets: s.sets || {} }; for (const k of XK) if (s[k] != null) d[k] = s[k]; return clone(d); }
 const cfgDoc = () => clone(Object.assign({ kind: 'cfg' }, S.cfg));
@@ -437,6 +451,7 @@ async function flush(id) {
   const s = S.sessions[id];
   try {
     if (id === 'cfg') { const doc = cfgDoc(); S.cfgFly = doc.upd; await S.col.doc(id).set(doc); S.cfgBase = normCfg(doc); } else if (s) await S.col.doc(id).set(docOf(s)); else await S.col.doc(id).delete();
+    if (s) s.cl = 1;
     if (!w.again) { S.dirty.delete(id); if (!s) S.gone.delete(id); }
     w.fail = 0; saveLocal(); setSync('cloud');
   } catch (e) {
@@ -489,15 +504,17 @@ function mergeCfg(was, mine, theirs) {
 function backupData() { return JSON.stringify({ app: 'gymi', v: 1, at: Date.now(), sessions: S.sessions, cfg: S.cfg }); }
 const numOr = (v, d) => (typeof v === 'number' && isFinite(v) ? v : d);
 /* a workout read from a file is rebuilt field by field, so nothing but numbers and known keys gets in */
+/* a time from a file: a real date, from 2001 to tomorrow. Anything else would break every date the app shows */
+const okT = (v, d) => (typeof v === 'number' && isFinite(v) && v > 1e12 && v <= Date.now() + 864e5 ? v : d);
 function cleanSession(v, id) {
-  if (!v || typeof v !== 'object' || !PLAN[v.w] || !(numOr(v.ts, 0) > 0)) return null;
-  const slots = PLAN[v.w].ex.map((pe) => pe.id).concat(Object.keys(S.cfg.slots).filter((k) => S.cfg.slots[k].w === v.w)), s = { id, v: numOr(v.v, 1), w: v.w, ts: v.ts, end: numOr(v.end, 0), mt: numOr(v.mt, 0), upd: numOr(v.upd, v.ts), ft: numOr(v.ft, 0), sets: {} };
+  if (!v || typeof v !== 'object' || !PLAN[v.w] || !okT(v.ts, 0)) return null;
+  const slots = PLAN[v.w].ex.map((pe) => pe.id).concat(Object.keys(S.cfg.slots).filter((k) => S.cfg.slots[k].w === v.w)), s = { id, v: numOr(v.v, 1), w: v.w, ts: v.ts, end: okT(v.end, 0), mt: okT(v.mt, 0), upd: okT(v.upd, v.ts), ft: okT(v.ft, 0), sets: {} };
   const each = (o, fn) => { const out = {}; if (o && typeof o === 'object') for (const k of Object.keys(o)) { const r = fn(k, o[k]); if (r !== undefined) out[k] = r; } return out; };
   for (const k of slots) {
     const rows = v.sets && v.sets[k]; if (!Array.isArray(rows)) continue;
     s.sets[k] = rows.slice(0, MAX_SETS).map((r) => {
       r = r || {};
-      const o = { kg: capKg(numOr(r.kg, 0)), reps: capReps(numOr(r.reps, 0)), done: false, t: numOr(r.t, v.ts) };
+      const o = { kg: capKg(numOr(r.kg, 0)), reps: capReps(numOr(r.reps, 0)), done: false, t: okT(r.t, v.ts) };
       o.done = !!r.done && o.reps != null; if (r.pr && o.done) o.pr = true;
       if (typeof r.tk === 'number') o.tk = capKg(numOr(r.tk, 0)); if (typeof r.tr === 'number' && capReps(numOr(r.tr, 0)) != null) o.tr = capReps(r.tr);
       return o;
@@ -507,7 +524,7 @@ function cleanSession(v, id) {
     s.m = v.m; s.wk = clamp(Math.round(numOr(v.wk, 1)), 1, 12); s.dl = v.dl ? 1 : 0; s.rir = typeof v.rir === 'number' ? clamp(Math.round(v.rir), 0, 4) : null;
     s.n = each(v.n, (k, x) => (slots.includes(k) && numOr(x, 0) >= 1 ? clamp(Math.round(x), 1, MAX_SETS) : undefined));
     if (Array.isArray(v.o)) { const o = v.o.filter((k, i) => typeof k === 'string' && slots.includes(k) && v.o.indexOf(k) === i).slice(0, 40); if (o.length) s.o = o; }
-    s.mv = each(v.mv, (k, x) => (slots.includes(k) && typeof x === 'string' && LIB[x] ? x : undefined));
+    s.mv = each(v.mv, (k, x) => (slots.includes(k) && isMv(x) ? x : undefined));
     s.sore = each(v.sore, (k, x) => (MUSCLE[k] && [0, 1, 2].includes(x) ? x : undefined));
     s.cut = each(v.cut, (k, x) => (slots.includes(k) && slots.includes(x) ? x : undefined));
     const lvl = (x) => ([0, 1, 2].includes(x) ? x : null);
@@ -518,11 +535,12 @@ function cleanSession(v, id) {
 function cleanCfg(v) {
   const mid = (x) => typeof x === 'string' && /^m\d{1,4}$/.test(x), o = normCfg(v), slot = (k) => !!SLOT[k] || !!o.slots[k], pick = (src, fn) => { const out = {}; for (const k of Object.keys(src)) { const r = fn(k, src[k]); if (r !== undefined) out[k] = r; } return out; };
   o.inc = pick(o.inc, (k, x) => (EQUIP[k] && numOr(+x, 0) > 0 ? +x : undefined));
-  o.swap = pick(o.swap, (k, x) => (slot(k) && typeof x === 'string' && LIB[x] ? x : undefined));
-  o.notes = pick(o.notes, (k, x) => (LIB[k] && typeof x === 'string' && x.trim() ? x.slice(0, 200) : undefined));
+  o.swap = pick(o.swap, (k, x) => (slot(k) && isMv(x) ? x : undefined));
+  o.notes = pick(o.notes, (k, x) => (isMv(k) && typeof x === 'string' && x.trim() ? x.slice(0, 200) : undefined));
   o.base = pick(o.base, (k, x) => (slot(k) && x && numOr(x.n, 0) >= 1 ? { n: clamp(Math.round(x.n), 1, MAX_SETS), t: numOr(x.t, 0) } : undefined));
   o.order = pick(o.order, (k, x) => { const w = +k, own = (id) => SLOT[id] ? SLOT[id].w === w : !!o.slots[id] && o.slots[id].w === w; if (!PLAN[w] || !Array.isArray(x)) return undefined; const ids = x.filter((id, i) => typeof id === 'string' && own(id) && x.indexOf(id) === i).slice(0, 40); return ids.length ? ids : undefined; });
   if (!mid(o.meso.id)) o.meso = cfgDef().meso;
+  o.upd = okT(o.upd, 0); o.meso.start = okT(o.meso.start, 0);
   o.past = o.past.filter((p) => p && mid(p.id)).map((p) => ({ id: p.id, n: numOr(p.n, 1), end: numOr(p.end, 0) }));
   return o;
 }
@@ -566,12 +584,13 @@ function restoreData(text) {
 async function initCloud(onChange) {
   /* the settings are known for sure once the account answered, or once it is clear there is no account to wait for */
   const known = () => { if (!S.cfgReady) { S.cfgReady = true; onChange(); } };
-  if (!window.claude || typeof window.claude.use !== 'function') { setSync('local'); known(); return; }
+  const local = () => { setSync('local'); if (!S.synced) { S.synced = true; if (sweep()) onChange(); } known(); };
+  if (!window.claude || typeof window.claude.use !== 'function') { local(); return; }
   let slow = 0, first = true;
   try {
     const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
     const uid = db && user ? await user.id() : null;
-    if (!uid) { setSync('local'); known(); return; }
+    if (!uid) { local(); return; }
     const col = db.collection('data/users/' + uid), seen = new Set(), win = new Map(), NEWEST = 60;
     slow = setTimeout(() => setSync('slow'), 10000);
     col.orderBy('ts', 'desc').limit(NEWEST).onSnapshot((snap) => {
@@ -590,7 +609,7 @@ async function initCloud(onChange) {
         const before = sig(S.sessions[id]), r = { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, ft: v.ft || 0, sets: clone(v.sets || {}) };
         for (const k of XK) if (v[k] != null) r[k] = clone(v[k]);
         const [m, newer] = mergeSession(S.sessions[id], r);
-        S.sessions[id] = m;
+        S.sessions[id] = m; m.cl = 1;
         if (sig(m) !== before) changed = true;
         if (newer) { S.dirty.add(id); schedule(id, 400); }
       }
@@ -603,12 +622,18 @@ async function initCloud(onChange) {
         /* a workout the account did not send is new to it and goes up — unless the answer was full and the workout is older than all of it:
            then it is simply past the newest ones the page asked for, and the account has it already */
         const past = (s) => got >= NEWEST && s.ts < oldest;
-        for (const s of Object.values(S.sessions)) if (!seen.has(s.id) && hasDone(s) && !past(s)) S.dirty.add(s.id);
+        for (const s of Object.values(S.sessions)) {
+          if (seen.has(s.id) || past(s)) continue;
+          /* the account had it once and has it no more, and nothing changed here since: it was deleted on another device */
+          if (s.cl && !S.dirty.has(s.id)) { delete S.sessions[s.id]; changed = true; continue; }
+          if (hasDone(s)) S.dirty.add(s.id);
+        }
         for (const id of S.dirty) schedule(id, 200);
+        S.synced = true; if (sweep()) changed = true;
       }
       saveLocal(); setSync('cloud');
       if (changed) onChange();
-    }, () => { clearTimeout(slow); setSync('local'); known(); });
+    }, () => { clearTimeout(slow); local(); });
     /* settings and the mesocycle live in one document: the copy that was changed last wins */
     col.doc('cfg').onSnapshot((d) => {
       const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0, mine = S.cfg;
@@ -634,6 +659,6 @@ async function initCloud(onChange) {
       else if (up < mine.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }
       known();
     }, () => known());
-  } catch (e) { clearTimeout(slow); setSync('local'); known(); }
+  } catch (e) { clearTimeout(slow); local(); }
 }
 window.addEventListener('online', () => { for (const id of S.dirty) schedule(id, 200); });

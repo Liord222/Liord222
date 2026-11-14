@@ -30,5 +30,5 @@ function boot(data) {
 (function () {
   const hot = window.claude && window.claude.hot;
   try { if (hot && typeof hot.snapshot === 'function') hot.snapshot(() => ({ view: S.view, tab: S.tab, open: S.open, turns: chat.turns.slice(-16), msgs: chat.msgs.filter((m) => !m.live).slice(-24).map((m) => ({ role: m.role, text: m.text, hadImg: !!m.hadImg, ctx: m.ctx || '', note: m.note || '' })) })); } catch (e) { /* no live update here */ }
-  try { if (hot && typeof hot.ready === 'function') { hot.ready(boot); setTimeout(() => boot({}), 1200); } else boot((hot && hot.data) || {}); } catch (e) { boot({}); }
+  try { if (hot && typeof hot.ready === 'function') { hot.ready(boot); setTimeout(() => boot({}), 1200); } else boot((hot && hot.data) || {}); } catch (e) { console.error('gymi: boot failed', e); if (!booted) boot({}); }
 })();

@@ -85,7 +85,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('after the deload: next workout is week 1 of mesocycle 2', (await p.evaluate(() => { const P = phaseNext(0); return [P.n, P.wk, P.rir].join(); })) === '2,1,3' && (await txt('#home .week h2')).includes('השבוע') && !(await txt('#home .week h2')).includes('מתוך'), await txt('#home .week'));
   const t1 = await p.evaluate(() => { const e = findEx('ua1', null), t = targetOf(e, 0, null); return [t.kg, t.reps, t.mode, e.sets]; });
   check('new mesocycle starts further from failure, sets back to base', t1[2] === 'base' && t1[1] >= 6 && t1[1] <= 10 && t1[0] <= 62.5 && t1[3] === 3, t1);
-  check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('שריון'), await txt('#home'));
+  check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('אימון 1'), await txt('#home'));
   await p.click('#planBtn'); await p.waitForTimeout(300); await adv(p);
   check('between rounds the plan says so and offers the summary, with nothing to steer', (await txt('.ms-act')).includes('סבב 1 הושלם') && (await txt('#sheet [data-sum="m1"]')).includes('סיכום הסבב') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('#sheet'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
@@ -96,7 +96,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
 
   // ---- 4. backup and restore: the whole log moves to an empty copy of the app through one file ----
   /* the player in this copy: a character that was set up, and an archive of four workouts older than anything in the log */
-  const me = { name: 'ליאור', look: { skin: 2, hair: 3, hc: 1, beard: 2, shirt: 4 }, made: 7, arch: { until: now - 100 * day, xp: 1000, wk: 4, sets: 60, prs: 3, kg: 30000, sw: 2, lw: 1 }, badges: { first: 5 } };
+  const me = { name: 'ליאור', look: { skin: 2, hair: 3, hc: 1, beard: 2, shirt: 4, body: 0 }, made: 7, arch: { until: now - 100 * day, xp: 1000, wk: 4, sets: 60, prs: 3, kg: 30000, sw: 2, lw: 1 }, badges: { first: 5 } };
   /* the plan in this copy was changed: an added exercise in the second workout, and a workout that used it */
   const slots = { cabc12345: { w: 1, a: 'legExt', sets: 3, reps: '12–15', rest: [75, 75] } }, order = { 1: ['la1', 'cabc12345', 'la2', 'la3', 'la4', 'la5'] };
   const withAdded = Object.assign({}, ses, { cs1: Object.assign(mk('cs1', 1, 2 * day, 4, 0, 0, { cabc12345: [R(30, 12, now - 2 * day)], la1: [R(100, 8, now - 2 * day)] }), { o: order[1].slice() }) });
@@ -118,7 +118,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   const got = await p.evaluate(() => ({ n: Object.keys(S.sessions).length, weeks: S.cfg.weeks, note: S.cfg.notes.hackSquat, swap: S.cfg.swap.ua5, base: S.cfg.base, evil: S.sessions.evil && S.sessions.evil.sets.la1.map((r) => [r.kg, r.reps, r.done]), evilN: S.sessions.evil && S.sessions.evil.n, evilMv: S.sessions.evil && S.sessions.evil.mv, img: document.querySelectorAll('img[src="x"]').length, fb: S.sessions.s01.fb.ua1 }));
   const pl = await p.evaluate(() => ({ slots: Object.keys(S.cfg.slots).join(), order: JSON.stringify(S.cfg.order), plan: planSlots(1).map((x) => x.a).join(), row: S.sessions.cs1 && S.sessions.cs1.sets.cabc12345 && S.sessions.cs1.sets.cabc12345[0].kg, o: S.sessions.cs1 && S.sessions.cs1.o.join(), list: exList(1, S.sessions.cs1).map((e) => e.mv).join() }));
   check('restore brings back the changed plan, and the workout that used the added exercise', pl.slots === 'cabc12345' && pl.order === '{"1":["la1","cabc12345","la2","la3","la4","la5"]}' && pl.plan === 'hackSquat,legExt,rdl,legPress,seatedLegCurl,standingCalf' && pl.row === 30 && pl.o === 'la1,cabc12345,la2,la3,la4,la5' && pl.list.startsWith('hackSquat,legExt'), pl);
-  check('restore brings back the workouts and the settings', got.n === Object.keys(withAdded).length + 1 && got.weeks === 6 && got.note === 'מושב 4' && got.swap === 'inclineDb' && got.fb.pump === 2 && (await txt('#backup')).includes('אימונים שוחזרו') && (await txt('#history')).includes('זינוק'), [got.n, got.weeks, await txt('#backup')]);
+  check('restore brings back the workouts and the settings', got.n === Object.keys(withAdded).length + 1 && got.weeks === 6 && got.note === 'מושב 4' && got.swap === 'inclineDb' && got.fb.pump === 2 && (await txt('#backup')).includes('אימונים שוחזרו') && (await txt('#history')).includes('אימון 4'), [got.n, got.weeks, await txt('#backup')]);
   /* the tampered workout adds one finished workout of one set (110 points) to what the source copy had */
   const back = await p.evaluate(() => { const P = meNow(), m = S.cfg.me; return { xp: P.T.xp, wk: P.T.wk, name: m.name, look: m.look, made: m.made, first: m.badges.first, until: m.arch.until > 0 }; }), s0 = src.split(',').map(Number);
   check('restore brings the player back: character, archive and level', back.name === 'ליאור' && JSON.stringify(back.look) === JSON.stringify(me.look) && back.made === 7 && back.first === 5 && back.until && back.xp === s0[0] + 110 && back.wk === s0[1] + 1 && (await txt('#playerBtn')).includes('היי, ליאור'), [back, src]);
@@ -133,7 +133,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   check('(the settings close and the profile is there)', (await p.evaluate(() => S.view + ':' + S.sheet)) === 'profile:null', await p.evaluate(() => S.view + ':' + S.sheet));
   const ev = await p.evaluate(() => ({ me: S.cfg.me, img: document.querySelectorAll('img[src="x"]').length, name: document.querySelector('.pf-name').textContent }));
-  check('player fields from a file are cleaned too', ev.img === 0 && ev.name === '<img src=x onerr' && JSON.stringify(ev.me.look) === '{"skin":1,"hair":1,"hc":0,"beard":0,"shirt":3}' && ev.me.arch.xp === 1000 && ev.me.badges.nope === undefined && ev.me.badges.first === 5, ev);
+  check('player fields from a file are cleaned too', ev.img === 0 && ev.name === '<img src=x onerr' && JSON.stringify(ev.me.look) === '{"skin":1,"hair":1,"hc":0,"beard":0,"shirt":3,"body":0}' && ev.me.arch.xp === 1000 && ev.me.badges.nope === undefined && ev.me.badges.first === 5, ev);
   await p.context().close();
 
   // ---- 5. a long log: workouts beyond the newest forty move into the archive, and the profile still counts them ----
@@ -165,7 +165,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await obWalk(p, { name: 'Sam', exp: 0, goals: [2], time: 30, eq: 1 }, 'plan', async (k) => { const t = await p.evaluate(() => { const c = document.querySelector('#ob').cloneNode(true); for (const x of c.querySelectorAll('.ob-lang')) x.remove(); return c.textContent; }); if (/[\u0590-\u05FF]/.test(t)) heb6.push(k + ': ' + t.slice(0, 80)); });
   await snap(p, 'h6-plan-en');
   const off6 = await p.evaluate(() => ({ title: document.querySelector('#obTitle').textContent, stats: [...document.querySelectorAll('.ob-stats li')].map((x) => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent).join('|'), wks: [...document.querySelectorAll('.ob-wks li')].map((x) => x.querySelector('b').textContent).join('|') }));
-  check('the plan is offered in English, with the lighter start a beginner gets and the half hour that was asked for', off6.title === 'Your plan is ready' && off6.stats === '5 exercises a workout|2 sets each|30 minutes a workout' && off6.wks === 'Armor|Bedrock|Wings|Launch' && heb6.length === 0, [off6, heb6]);
+  check('the plan is offered in English, with the lighter start a beginner gets and the half hour that was asked for', off6.title === 'Your plan is ready' && off6.stats === '5 exercises a workout|2 sets each|30 minutes a workout' && off6.wks === 'Workout 1|Workout 2|Workout 3|Workout 4' && heb6.length === 0, [off6, heb6]);
   await p.click('#obNext'); await p.waitForTimeout(500);
   await snap(p, 'h6-ready-en');
   check('the last screen is in English too', (await txt('#obTitle')) === 'Sam, you are all set!' && (await txt('#obNext')) === 'To the first workout' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
@@ -301,7 +301,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.evaluate(() => { openWorkout(2, true); }); await p.waitForTimeout(400); await gate(p);
   await p.evaluate(() => { S.open = 'ub9'; renderAll(); }); await p.waitForTimeout(300);
   const bw = await p.evaluate(() => ({ kg: document.querySelector('#dkKg').innerText.replace(/\s+/g, ' '), say: document.querySelector('#dkKg').getAttribute('aria-label'), badge: document.querySelector('.dk-top .goal').textContent, cells: [...document.querySelectorAll('.ex.open .setp')].map((x) => x.innerText.replace(/\s+/g, ' ').trim()).join(), dash: document.querySelector('#dock').innerText.includes('—') }));
-  check('a movement done with the body\'s own weight says so: no dash, and no weight made up for it', bw.kg === 'גוף משקל גוף' && bw.say.startsWith('משקל: בלי משקל') && bw.badge === 'התחלה' && !bw.dash && /^12 חז׳,12 חז׳,12 חז׳$/.test(bw.cells), bw);
+  check('a movement done with the body\'s own weight says so: no dash, and no weight made up for it', bw.kg === 'גוף משקל גוף' && bw.say.startsWith('משקל: בלי משקל') && bw.badge === 'התחלה' && !bw.dash && /^12 חזרות,12 חזרות,12 חזרות$/.test(bw.cells), bw);
   await p.dispatchEvent('.step[data-d="1"]', 'pointerdown'); await p.dispatchEvent('.step[data-d="1"]', 'pointerup');
   check('weight can still be added to it', (await txt('#dkKg')).replace(/\s+/g, ' ') === '2 ק״ג', await txt('#dkKg'));
   await p.evaluate(() => { S.open = 'ub1'; renderAll(); }); await p.waitForTimeout(300);
@@ -533,7 +533,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     check('the points that were earned are coins, and the profile\'s tab is marked while they can buy something that was not looked at yet', s0.bal === 100 && s0.dot && s0.own === '', s0);
     await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(300); await p.click('#shopBtn'); await p.waitForTimeout(400);
     const k0 = await p.evaluate(() => ({ tiles: [...document.querySelectorAll('#sheet .ks-it')].map((x) => x.dataset.shop + ':' + (x.classList.contains('far') ? 'far' : 'can')).join(), say: document.querySelector('#sheet .ks-say').innerText.replace(/\s+/g, ' '), fits: document.documentElement.scrollWidth <= innerWidth, tap: Math.min.apply(null, [...document.querySelectorAll('#sheet .ks-it')].map((x) => x.getBoundingClientRect().height)) }));
-    check('the kiosk shows what the coins can buy and what they cannot buy yet, and the mark on the tab is gone once it was looked at', k0.tiles === 'towel:can,kicksW:can,cap:can,gloves:can,shades:can,watch:far,kicksP:far,phones:far,chain:far' && k0.say.includes('מה בא לך?') && k0.fits && k0.tap >= 44 && !(await st()).dot, k0);
+    check('the kiosk shows what the coins can buy and what they cannot buy yet, and the mark on the tab is gone once it was looked at', k0.tiles === 'towel:can,sweat:can,towelP:can,kicksW:can,cap:can,capR:can,glasses:can,shaker:can,gloves:can,kicksK:can,capK:can,beanie:can,glovesR:can,shades:can,kicksR:can,tag:can,watch:far,buds:far,kicksP:far,phones:far,chain:far,watchG:far' && k0.say.includes('מה בא לך?') && k0.fits && k0.tap >= 44 && !(await st()).dot, k0);
     await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
     const tr = await p.evaluate(() => ({ fig: document.querySelector('#sheet .ks-fig svg').outerHTML.includes('#F4F4F6'), buy: (document.querySelector('#shopBuy') || { innerText: '' }).innerText.replace(/\s+/g, ' ').trim(), own: S.cfg.me.shop.own.length, face: document.querySelector('#tbMe svg').outerHTML.includes('#F4F4F6') }));
     check('a tap tries a thing on: the figure on the stage wears it, nothing is bought, and its price stands on the button', tr.fig && tr.buy === 'קנה ב- 30' && tr.own === 0 && !tr.face, tr);
@@ -589,22 +589,22 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     const add = (list) => p.evaluate((list) => { for (const x of list) { S.sessions[x.id] = x; touch(x); } S.touched = false; S.tab = nextUp().next; renderAll(); }, list);
     const st = await p.evaluate(() => ({ lock: !!document.querySelector('#lock'), pin: S.cfg.me.pin, days: S.cfg.me.days, week: week().join() }));
     check('a code from an older version is let go, and there is no door', !st.lock && st.pin === undefined, JSON.stringify(st));
-    check('three days a week: three whole-body workouts, each with a name of its own and what it trains', st.days === 3 && st.week === '4,5,6' && (await rows()).join() === 'מנוע:next,סערה:todo,להבה:todo' && (await txt('#tabs')).includes('כל הגוף'), JSON.stringify(await rows()));
-    check('a workout from before the days changed keeps its name', (await p.evaluate(() => wkName(S.sessions.o1.w))) === 'שריון');
+    check('three days a week: three whole-body workouts, each with a name of its own and what it trains', st.days === 3 && st.week === '4,5,6' && (await rows()).join() === 'אימון 1:next,אימון 2:todo,אימון 3:todo' && (await txt('#tabs')).includes('כל הגוף'), JSON.stringify(await rows()));
+    check('a workout from before the days changed, no longer in the week, is called by what it trains', (await p.evaluate(() => wkName(S.sessions.o1.w))) === 'חזה · גב · זרועות', await p.evaluate(() => wkName(S.sessions.o1.w)));
     /* the three of the week, one after the other: then the first comes round again */
     await add([mk('a1', 4, 1, 'fa1'), mk('a2', 5, 2, 'fb1')]);
-    check('after the first two, the third is next, and the first two are done', (await rows()).join() === 'מנוע:done,סערה:done,להבה:next' && (await txt('#home .next h2')) === 'להבה' && (await txt('#home .next .k')) === 'אימון שלישי', JSON.stringify(await rows()));
+    check('after the first two, the third is next, and the first two are done', (await rows()).join() === 'אימון 1:done,אימון 2:done,אימון 3:next' && (await txt('#home .next h2')) === 'אימון 3' && (await txt('#home .next .k')) === 'האימון הבא', JSON.stringify(await rows()));
     await add([mk('a3', 6, 3, 'fc1')]);
-    check('and after the third, the week starts again from the first', (await p.evaluate(() => nextUp().next)) === 4 && (await txt('#home .next h2')) === 'מנוע', await txt('#home .next'));
+    check('and after the third, the week starts again from the first', (await p.evaluate(() => nextUp().next)) === 4 && (await txt('#home .next h2')) === 'אימון 1', await txt('#home .next'));
     /* five days, from the settings: the week grows, the plan sheet follows it */
     await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(250); await p.click('#setBtn'); await p.waitForTimeout(300);
     await p.click('#sheet [data-set="days"][data-v="5"]'); await p.waitForTimeout(250);
     const five = await p.evaluate(() => ({ days: S.cfg.me.days, kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.days, pressed: document.querySelector('#sheet [data-set="days"][aria-pressed="true"]').dataset.v }));
     await p.click('#sheet [data-close]'); await p.waitForTimeout(250); await p.click('#tabbar [data-view="home"]'); await p.waitForTimeout(300);
-    check('five days, set in the settings and kept: upper, lower, then push, pull and legs', five.days === 5 && five.kept === 5 && five.pressed === '5' && (await rows()).map((x) => x.split(':')[0]).join() === 'שריון,סלע,פטיש,עוגן,עמוד', JSON.stringify([five, await rows()]));
+    check('five days, set in the settings and kept: upper, lower, then push, pull and legs', five.days === 5 && five.kept === 5 && five.pressed === '5' && (await rows()).map((x) => x.split(':')[0]).join() === 'אימון 1,אימון 2,אימון 3,אימון 4,אימון 5' && (await txt('#tabs')).includes('חזה · כתפיים · טרייספס'), JSON.stringify([five, await rows()]));
     check('the meter of the week counts five', (await txt('.wk-meter b')).includes('/5') && (await p.$$('.wk-meter i')).length === 5, await txt('.week-h'));
     await p.click('#planBtn'); await p.waitForTimeout(350);
-    check('the plan shows the five workouts of the week, and no drawings of clothes', (await p.$$('#sheet .pl-card')).length === 5 && (await txt('#sheet .pl-cards')).includes('פטיש') && !(await p.$('#sheet .pl-ic svg')), await txt('#sheet .pl-cards'));
+    check('the plan shows the five workouts of the week, and no drawings of clothes', (await p.$$('#sheet .pl-card')).length === 5 && (await txt('#sheet .pl-cards')).includes('אימון 5') && (await txt('#sheet .pl-cards')).includes('גב · ביספס · בטן') && !(await p.$('#sheet .pl-ic svg')), await txt('#sheet .pl-cards'));
     await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
     await p.context().close();
   }

@@ -20,6 +20,8 @@
   --muscle:#E0452B; --muscle-ink:#C93A1F; --muscle-soft:#FDE8E2; --warn:#A44A10; --warn-soft:#FBEBDD;
   --ok:#5A2FCC; --ok-soft:#EEE8FF; --on-ok:#FFFFFF; --rest:#8A5A00; --rest-soft:#FFF1D1;
   --xp:#8F5B00; --xp-soft:#FFF0CC; --xp-fill:#F2B02E;
+  /* the kiosk is red and white, as a kiosk is */
+  --ks:#D7263D; --ks-ink:#B3132A; --ks-soft:#FFF0F1; --ks-w:#FFFFFF;
   --stage:#F5F6F8; --grid:#ECEEF2; --grid-2:#E1E4EA; --floor:#ECEEF2; --ground:#A3A9B5; --shadow:#DDE0E6;
   --fig:#6B7280; --fig-hi:#9097A3; --fig-lo:#4B5260; --fig-far:#B9BEC8; --cloth:#6D3FE0; --cloth-far:#C3B1F5;
   --shoe:#1B1F27; --shoe-far:#8A909C; --sole:#F4F5F7; --hair:#1B1F27;
@@ -35,6 +37,7 @@
     --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
     --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
     --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
+    --ks:#E5484D; --ks-ink:#FF9295; --ks-soft:#2B1417; --ks-w:#F1EFF4;
     --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E; --calm:#9CC2FF; --calm-soft:#14233F; --coin:#2C2A36; --coin-lip:#18161F;
     --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2; --w4-soft:#1B2142; --w4-ink:#AEB8FF;
     --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
@@ -50,6 +53,7 @@
   --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
   --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
   --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
+  --ks:#E5484D; --ks-ink:#FF9295; --ks-soft:#2B1417; --ks-w:#F1EFF4;
   --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E; --calm:#9CC2FF; --calm-soft:#14233F; --coin:#2C2A36; --coin-lip:#18161F;
   --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2; --w4-soft:#1B2142; --w4-ink:#AEB8FF;
   --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
@@ -338,19 +342,10 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .jr-lv .xpbar i{background:var(--gold)}
 .jr-nx{display:grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:99px;background:rgb(255 255 255 / .2);font-size:14.5px;font-weight:800}
 .jr-line{margin-top:6px;font-size:14.5px;font-weight:500;color:rgb(255 255 255 / .72)}
-.road.jr{padding-top:16px}
-.road.jr .stop b{width:max-content;max-width:150px;border-radius:12px;white-space:normal;text-align:center;font-size:13.5px;line-height:1.3}
-.road.jr .stop.next .dot{font-size:28px}
-.road.jr .stop.done .dot{font-size:25px}
-.road.jr .stop.later .dot{background:var(--surface-3);color:var(--ink-3);box-shadow:0 6px 0 var(--coin-lip)}
-.road.jr .stop.top .dot{width:92px;height:92px;margin:-8px 0;font-size:30px}
-.road.jr .stop.top.later .dot{background:var(--xp-soft);color:var(--xp);box-shadow:0 6px 0 color-mix(in srgb,var(--xp-fill) 45%,var(--lip))}
-.road.jr .stop.top b{color:var(--ink);font-weight:800}
 .lv:active{transform:none}
 .lv:active .dot{transform:scale(.93)}
 .pal.pv .pal-fig{width:66px}
 .pal.pv{top:-14px}
-.jr-after{margin:6px 0 10px;text-align:center;font-size:15px;font-weight:600;color:var(--ink-3)}
 /* a stop of the journey, opened: the character at that level, on the dark stage */
 .sheet-in.lvs{gap:14px}
 .lvs-stage{display:grid;place-items:center;padding:14px 0 6px;border-radius:24px;background:radial-gradient(120% 90% at 50% 34%,#3B2477 0%,#1A1038 56%,#0B0716 100%)}
@@ -775,17 +770,24 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .view.enter .pf-nums li{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 60ms + 220ms)}
 .view.enter .kiosk{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .18s both}
 .view.enter .pf-sec{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .28s both}
-/* the kiosk on the profile: the purple card, with the coins and the next things on the shelf */
+/* the kiosk on the profile: a white card under a red and white awning, with the coins and the next things on the shelf */
 .coin{flex:none;width:18px;height:18px}
-.coin-tag{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border-radius:99px;background:rgb(0 0 0 / .24);color:#fff;font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr}
+.coin-tag{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border-radius:99px;background:var(--xp-soft);color:var(--xp);font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr;flex:none}
 .coin-tag.dark{background:var(--xp-soft);color:var(--xp)}
-.card.kiosk h2{font-size:30px}
-.card.kiosk .meta{padding-bottom:12px}
-.ks-peek{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.ks-peek li{display:grid;justify-items:center;gap:5px;padding:8px 4px 9px;border-radius:18px;background:rgb(255 255 255 / .14);font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
-.ks-peek .ks-pic{width:100%;max-width:78px;background:#EEE8FF}
+.ks-awn{position:relative;height:30px;background:repeating-linear-gradient(90deg,var(--ks) 0 26px,var(--ks-w) 26px 52px);box-shadow:inset 0 -3px 0 rgb(0 0 0 / .08)}
+.ks-awn i{position:absolute;inset-inline:0;top:100%;height:11px;background:radial-gradient(circle at 13px 0,var(--ks) 12.5px,transparent 13px) 0 0/52px 11px repeat-x,radial-gradient(circle at 39px 0,var(--ks-w) 12.5px,transparent 13px) 0 0/52px 11px repeat-x;filter:drop-shadow(0 2px 1.5px rgb(0 0 0 / .14))}
+.card.kiosk{padding:0;overflow:hidden;background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 12px 28px -20px rgb(20 10 40 / .35)}
+.ks-card-in{display:grid;gap:10px;padding:24px 18px 18px}
+.ks-card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ks-k{margin:0 0 2px;font-size:13px;font-weight:800;letter-spacing:.04em;color:var(--ks-ink)}
+.card.kiosk h2{margin:0;font-size:24px;font-weight:800;line-height:1.15;letter-spacing:-.02em;color:var(--ink)}
+.card.kiosk .meta{margin:0;padding:0;font-size:14.5px;font-weight:500;color:var(--ink-2)}
+.ks-peek{list-style:none;margin:2px 0 4px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ks-peek li{display:grid;justify-items:center;gap:6px;padding:8px 4px 9px;border-radius:16px;background:var(--ks-soft);color:var(--ink);font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
+.ks-peek .ks-pic{width:100%;max-width:80px;background:var(--surface)}
 .ks-peek span.pr{display:inline-flex;align-items:center;gap:4px;direction:ltr}
 .ks-peek .coin{width:15px;height:15px}
+.btn.ks-go{background:var(--ks);color:#fff;font-weight:800;box-shadow:0 8px 18px -10px var(--ks)}
 .ks-pic{display:block;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--accent-soft)}
 .ks-pic .av{display:block;width:100%;height:100%}
 /* the medals, small: a row of four with their names, and all of them a tap away */
@@ -876,35 +878,43 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .tabbar button.new{position:relative}
 .tabbar button.new::after{content:"";position:absolute;top:6px;inset-inline-start:calc(50% + 10px);width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--surface)}
 /* ---- the kiosk: the character tries a thing on over the shelf; a thing that is owned goes on and off with a tap ---- */
-.sheet-in.ks{gap:12px;height:100%}
-.ks-stage{position:sticky;top:-2px;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:6px;padding:8px 14px;border-radius:24px;color:#fff;background:radial-gradient(130% 110% at 30% 30%,#3B2477 0%,#1A1038 58%,#0B0716 100%)}
-[dir="rtl"] .ks-stage{background:radial-gradient(130% 110% at 70% 30%,#3B2477 0%,#1A1038 58%,#0B0716 100%)}
+.sheet-in.ks{gap:12px;height:100%;padding-top:0}
+.sheet-in.ks > .ks-awn{margin:0 -20px 8px;height:34px;flex:none}
+.ks .ed-h .kicker{color:var(--ks-ink)}
+.ks-stage{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:6px;padding:8px 14px;border-radius:20px;color:var(--ink);background:var(--ks-soft);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ks) 22%,transparent)}
 .ks-fig{display:block;width:100%;max-width:150px;justify-self:center}
 .ks-fig .av{display:block;width:100%;height:auto;overflow:visible}
 .ks-fig .av-aura,.ks-fig .av-glow{display:none}
-.ks-fig .av-shadow{fill:rgb(0 0 0 / .32)}
+.ks-fig .av-shadow{fill:rgb(0 0 0 / .16)}
 .ks-fig.pump .av{animation:pump .65s cubic-bezier(.3,1.5,.5,1)}
 .ks-say{display:grid;gap:8px;min-width:0;text-align:start}
-.ks-say b{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
-.ks-say p{font-size:14px;font-weight:500;line-height:1.35;color:rgb(255 255 255 / .74)}
-.ks-say .btn{justify-self:start;min-height:46px;padding:0 16px;border-radius:15px;background:#fff;color:#2A1866;font-size:16px;font-weight:800;white-space:nowrap}
+.ks-say b{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.01em;color:var(--ink)}
+.ks-say p{font-size:14.5px;font-weight:500;line-height:1.4;color:var(--ink-2)}
+.ks-say .btn{justify-self:start;min-height:46px;padding:0 16px;border-radius:14px;background:var(--ks);color:#fff;font-size:16px;font-weight:800;white-space:nowrap;box-shadow:0 8px 16px -10px var(--ks)}
 .ks-say .btn .coin{width:17px;height:17px}
-.ks-say .btn[disabled]{opacity:1;background:rgb(255 255 255 / .16);color:rgb(255 255 255 / .8)}
+.ks-say .btn[disabled]{opacity:1;background:var(--surface-3);color:var(--ink-2);box-shadow:none}
+/* the shelves: all, or one part of the body */
+.ks-shelf{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px}
+.ks-shelf::-webkit-scrollbar{display:none}
+.ks-shelf button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:14.5px;font-weight:700}
+.ks-shelf small{font-size:12px;font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.ks-shelf button[aria-checked="true"]{background:var(--ks);border-color:var(--ks);color:#fff}
+.ks-shelf button[aria-checked="true"] small{color:rgb(255 255 255 / .82)}
 .ks-grid{list-style:none;margin:0;padding:0 0 8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.ks-it{display:grid;justify-items:center;gap:6px;width:100%;padding:8px 6px 10px;border:0;border-radius:20px;background:var(--surface-2);color:var(--ink);text-align:center}
-.ks-it .ks-pic{width:100%;background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface))}
-.ks-it b{font-size:13.5px;font-weight:700;line-height:1.25;min-height:34px;display:grid;align-items:center}
+.ks-it{display:grid;justify-items:center;gap:6px;width:100%;padding:8px 6px 10px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:center}
+.ks-it .ks-pic{width:100%;border-radius:12px;background:var(--ks-soft)}
+.ks-it b{font-size:13.5px;font-weight:700;line-height:1.25;min-height:34px;display:grid;align-items:center;color:var(--ink)}
 .ks-pr,.ks-st{display:inline-flex;align-items:center;gap:4px;min-height:26px;padding:0 10px;border-radius:99px;font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
-.ks-pr{background:var(--xp-soft);color:var(--xp);direction:ltr}
+.ks-pr{background:var(--ks);color:#fff;direction:ltr}
 .ks-pr .coin{width:15px;height:15px}
-.ks-it.far .ks-pr{background:var(--surface-3);color:var(--ink-3)}
-.ks-it.far .ks-pr .coin{filter:grayscale(1);opacity:.7}
-.ks-st{background:var(--surface-3);color:var(--ink-2)}
-.ks-it.on{background:var(--accent-soft);box-shadow:inset 0 0 0 2.5px var(--accent)}
-.ks-it.on .ks-st{background:var(--accent);color:var(--on-accent)}
+.ks-it.far .ks-pr{background:var(--surface-3);color:var(--ink-2)}
+.ks-it.far .ks-pr .coin{filter:grayscale(1);opacity:.8}
+.ks-st{background:var(--surface-3);color:var(--ink)}
+.ks-it.on{border-color:var(--ks);background:var(--ks-soft)}
+.ks-it.on .ks-st{background:var(--ks);color:#fff}
 .ks-st svg{width:14px;height:14px;stroke-width:3}
-.ks-it.try{box-shadow:inset 0 0 0 2.5px var(--gold)}
-.ks-it.on.try{box-shadow:inset 0 0 0 2.5px var(--accent)}
+.ks-it.try{border-color:var(--gold);box-shadow:inset 0 0 0 1.5px var(--gold)}
+.ks-it.on.try{border-color:var(--ks);box-shadow:inset 0 0 0 1.5px var(--ks)}
 .pf-sec{display:grid;gap:8px}
 .badges{list-style:none;margin:0;padding:18px 6px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 2px;background:var(--surface);border-radius:var(--r)}
 .bdg{display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;font-size:11.5px;font-weight:600;line-height:1.25;color:var(--ink-3)}
@@ -1636,3 +1646,88 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 @keyframes xi-time{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media (prefers-reduced-motion: reduce){.xi::before,.xi-wave{display:none}.xi-k,.xi-ring,.xi-t,.xi-m,.xi-rx,.xi-tap{animation:none}.xi-ring .f{animation:none;stroke-dashoffset:var(--to)}.xi-bar::after{animation-duration:1.4s}}
 @media (max-height:600px){.xi-ring{width:128px;height:128px}.xi-n{font-size:48px}.xi-t{font-size:24px}}
+/* a set on its button: the weight over the reps, each with its word */
+.setp .v,.setp .hint{display:grid;justify-items:center;gap:1px;line-height:1.1;direction:inherit}
+.sv{display:inline-flex;align-items:baseline;gap:3px;white-space:nowrap}
+.sv b{font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.sv small{font-size:11px;font-weight:600;color:var(--ink-3)}
+.setp .hint .sv b{font-weight:700;color:var(--ink-3)}
+.setp{min-height:52px}
+/* a workout's own name, on its page of the plan */
+.bl-name{display:grid;gap:6px;margin-bottom:4px}
+.bl-name>span{font-size:13.5px;font-weight:700;color:var(--ink-2)}
+.bl-name input{height:50px;padding:0 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface-2);color:var(--ink);font:inherit;font-size:17px;font-weight:700}
+.bl-name input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.bl-name small{font-size:12.5px;color:var(--ink-3)}
+/* the opening's plan: the workouts are numbered, and can be named */
+.ob-wk-tip{position:relative;display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;font-weight:600;color:rgb(255 255 255 / .86)}
+.ob-wk-tip svg{flex:none;width:16px;height:16px}
+/* ---- the journey's map: four worlds of colour down the screen, the levels as medallions on a path, and the summit at 100 ---- */
+.jr-map{position:relative;border-radius:28px;overflow:hidden;background:#120C33;color:#fff;box-shadow:0 18px 40px -26px rgb(30 10 80 / .6)}
+.jr-map-h{padding:22px 20px 0;background:#7B4DFF;text-align:center}
+.jr-map-h h2{font-size:24px;font-weight:800;letter-spacing:-.015em;line-height:1.2}
+.jr-map-h p{margin-top:3px;font-size:14.5px;font-weight:500;color:rgb(255 255 255 / .8)}
+.jr-road{position:relative}
+.jr-band{position:absolute;inset-inline:0;overflow:hidden}
+.jr-band::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,rgb(255 255 255 / .55) 1.3px,transparent 1.8px),radial-gradient(circle,rgb(255 255 255 / .35) 1px,transparent 1.5px);background-size:92px 92px,57px 57px;background-position:14px 34px,41px 9px;opacity:.45}
+.jr-band.b0{background:linear-gradient(#7B4DFF,#6034E0)}
+.jr-band.b1{background:linear-gradient(#4F47E8,#3A31C4)}
+.jr-band.b2{background:linear-gradient(#A646E2,#8526C0)}
+.jr-band.b3{background:linear-gradient(#2B1F6E,#120C33 70%)}
+.jr-band.b3::before{opacity:.95;background-size:70px 70px,43px 43px}
+.jr-hill{position:absolute;bottom:-1px;inset-inline:0;width:100%;height:52px}
+.jr-hill .bk{fill:rgb(255 255 255 / .1)}
+.b0 .jr-hill .f{fill:#4F47E8}
+.b1 .jr-hill .f{fill:#A646E2}
+.b2 .jr-hill .f{fill:#2B1F6E}
+.jr-peak{position:absolute;inset-inline:0;bottom:-1px;width:100%;height:auto}
+.jr-map .pw-road{z-index:2}
+.jr-map .pw-trail path{stroke:rgb(255 255 255 / .42)}
+.jr-map .pw-trail path.on{stroke:#FFD23F}
+/* the sign that opens a world: its number and levels, its name, and how much of it is open */
+.jr-sign{position:absolute;z-index:3;left:50%;translate:-50% 0;display:grid;justify-items:center;gap:2px;min-width:224px;padding:10px 20px 11px;border-radius:16px;background:rgb(10 4 30 / .3);color:#fff;text-align:center;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .2);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.jr-sign small{font-size:12.5px;font-weight:700;color:rgb(255 255 255 / .78)}
+.jr-sign b{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.jr-got{position:absolute;top:-11px;inset-inline-end:-11px;display:grid;place-items:center;min-width:34px;height:26px;padding:0 8px;border-radius:99px;background:#fff;color:#1E1450;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;box-shadow:0 3px 8px rgb(0 0 0 / .25)}
+.jr-got svg{width:15px;height:15px;stroke-width:3.2}
+.jr-sign.done .jr-got{background:#FFD23F;color:#5C3A00}
+.jr-sign.here{box-shadow:inset 0 0 0 2px #fff,0 0 0 6px rgb(255 255 255 / .12)}
+/* the levels: gold once reached, white and pulsing when next, glass when still ahead */
+.jr-map .stop .dot{width:72px;height:72px;background:rgb(255 255 255 / .16);color:#fff;font-size:24px;box-shadow:inset 0 0 0 3px rgb(255 255 255 / .3),0 5px 0 rgb(0 0 0 / .24)}
+.jr-map .stop.done .dot{background:radial-gradient(circle at 34% 28%,#FFEBA6,#F2B02E 60%,#D58F0E);color:#5C3A00;box-shadow:inset 0 0 0 3px rgb(255 255 255 / .5),0 5px 0 #A86E06}
+.jr-map .stop.done .dot svg{width:32px;height:32px;stroke-width:3.4}
+.jr-map .stop.next .dot{width:84px;height:84px;margin:-6px 0;background:#fff;color:#4A22C8;font-size:28px;box-shadow:0 0 0 7px rgb(255 255 255 / .2),0 6px 0 rgb(0 0 0 / .28)}
+.jr-map .stop.next .dot::after{border-color:#fff}
+.jr-map .stop.top .dot{width:96px;height:96px;margin:-6px 0;font-size:30px;background:radial-gradient(circle at 34% 28%,rgb(255 230 150 / .45),rgb(242 176 46 / .22));color:#FFE08A;box-shadow:inset 0 0 0 3px #F2B02E,0 0 30px rgb(242 176 46 / .45),0 6px 0 rgb(0 0 0 / .3)}
+.jr-map .stop.top.done .dot{background:radial-gradient(circle at 34% 28%,#FFEBA6,#F2B02E 60%,#D58F0E);color:#5C3A00}
+.jr-crown{position:absolute;z-index:2;top:-22px;left:50%;width:40px;margin-left:-20px;filter:drop-shadow(0 2px 3px rgb(0 0 0 / .35))}
+.jr-map .stop b{width:max-content;max-width:150px;padding:3px 10px;border-radius:10px;background:rgb(10 4 30 / .32);color:#fff;font-size:13.5px;font-weight:700;line-height:1.3;white-space:normal;text-align:center}
+.jr-map .stop.done b,.jr-map .stop.next b{background:#fff;color:#16102E}
+.jr-map .stop.top b{background:#FFD23F;color:#3D2600;font-weight:800}
+.jr-map .go-chip{background:#fff;color:#3A1AA8;box-shadow:0 3px 0 rgb(0 0 0 / .2),0 10px 20px rgb(0 0 0 / .25)}
+.jr-map .go-chip::after{box-shadow:none}
+.jr-map .pal-fig .av-shadow{fill:rgb(0 0 0 / .28)}
+.jr-map .pal-say{background:#fff;color:#16102E;box-shadow:0 3px 10px rgb(0 0 0 / .25)}
+.jr-map .pal.me .pal-say{font-weight:800}
+.jr-after{position:absolute;z-index:3;bottom:22px;inset-inline:0;display:grid;justify-items:center;gap:8px;margin:0;text-align:center;font-size:15px;font-weight:700;color:rgb(255 255 255 / .88)}
+.jr-after::before{content:"";width:0;height:34px;border-inline-start:4px dotted rgb(255 255 255 / .45)}
+.view.enter .jr-sign{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .2s both}
+/* the kiosk's red buttons and its shelves: after the general button styles, so that they keep their colour */
+.card.kiosk .btn.ks-go,.card.kiosk .btn.ks-go:hover{background:var(--ks);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--ks) 70%,#000)}
+.sheet-in.ks .ks-say .btn{background:var(--ks);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--ks) 70%,#000)}
+.sheet-in.ks .ks-say .btn[disabled]{background:var(--surface-3);color:var(--ink-2);box-shadow:none}
+.sheet-in.ks .ks-shelf{min-height:46px;overflow-y:hidden}
+/* the journey's medallions ahead are solid, so the path does not show through them */
+.jr-map .stop.later.j0 .dot{background:#8D67FF}
+.jr-map .stop.later.j1 .dot{background:#625AEE}
+.jr-map .stop.later.j2 .dot{background:#B565E9}
+.jr-map .stop.later.j3 .dot{background:#3A2D85}
+.jr-map .stop.top.later .dot{background:radial-gradient(circle at 34% 28%,#6A4A2A,#3A2D85 70%)}
+/* the figure: a boy and a girl, whole, side by side */
+.lk-cuts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lk-bod .lk-face{width:110px;height:150px;border-radius:16px;background:var(--surface-3)}
+.lk-bod .lk-face .av{width:100%;height:100%}
+.lk-bod .av-aura,.lk-bod .av-glow{display:none}
+/* on the narrowest phones the sixteen haircuts sit a little closer, so the look still fits on one screen */
+@media (max-width:340px){.lk-cuts{gap:4px}.lk-cut{padding:4px 0 5px;gap:2px}.lk-face{width:38px;height:38px}}
+.week-h h2{white-space:nowrap}

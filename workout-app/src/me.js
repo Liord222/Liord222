@@ -47,7 +47,7 @@ function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" ari
 /* a coin of the kiosk */
 const COIN = '<svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="#F2B02E" stroke="#C98A12" stroke-width="1.6"/><path d="M10 5.5l1.35 2.75 3.05.45-2.2 2.15.5 3-2.7-1.45-2.7 1.45.5-3-2.2-2.15 3.05-.45z" fill="#C98A12"/></svg>';
 /* the part of the figure that a thing of the kiosk is worn on, as a close view of the lifter's own character with that thing alone */
-const CROP = { head: '56 4 88 88', eyes: '60 14 80 80', ears: '54 4 92 92', neck: '58 58 84 84', wrist: '104 112 80 80', hands: '104 124 80 80', feet: '56 176 88 88' };
+const CROP = { head: '56 2 88 88', eyes: '60 14 80 80', ears: '54 4 92 92', neck: '58 58 84 84', wrist: '104 112 80 80', hands: '104 124 80 80', hold: '18 126 80 80', feet: '56 176 88 88' };
 const cropFig = (it, lvl) => avatarSVG(Object.assign({}, S.cfg.me.look, { wear: [it.id], gear: false }), lvl, { crop: CROP[it.slot], base: EXP_BASE[expNow()] || 0 });
 /* the profile: the character on its stage with where it stands in the game, the kiosk, and the achievements, small */
 function renderProfile(P) {
@@ -65,10 +65,11 @@ function renderProfile(P) {
     '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + (nx ? ' · ' + say('ברמה ' + nx.at + ': ', 'At level ' + nx.at + ': ') + nm(nx) : '') + '</p></div>' +
     (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') +
     '<ul class="pf-nums">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</ul></section>' +
-    '<section class="card next w0 kiosk" aria-label="' + say('הקיוסק', 'The kiosk') + '"><div class="next-top"><p class="k">' + say('הקיוסק', 'The kiosk') + '</p><span class="coin-tag" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span></div>' +
-    '<h2>' + say('ציוד לדמות שלך', 'Gear for your character') + '</h2><p class="meta">' + say('כל אימון מוסיף מטבעות', 'Every workout adds coins') + '</p>' +
+    '<section class="card kiosk" aria-label="' + say('הקיוסק', 'The kiosk') + '">' + '<div class="ks-awn" aria-hidden="true"><i></i></div>' + '<div class="ks-card-in"><div class="ks-card-h"><div><p class="ks-k">' + say('הקיוסק', 'The kiosk') + '</p>' +
+    '<h2>' + say('ציוד לדמות שלך', 'Gear for your character') + '</h2></div><span class="coin-tag" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span></div>' +
+    '<p class="meta">' + say(SHOP.length + ' פריטים על המדף. כל אימון מוסיף מטבעות', SHOP.length + ' things on the shelf. Every workout adds coins') + '</p>' +
     '<ul class="ks-peek" aria-hidden="true">' + peek.map((it) => '<li><span class="ks-pic">' + cropFig(it, L.lvl) + '</span><span class="pr">' + COIN + it.cost + '</span></li>').join('') + '</ul>' +
-    '<button class="btn primary big" id="shopBtn" type="button">' + say('לקיוסק', 'To the kiosk') + '</button></section>' +
+    '<button class="btn ks-go big" id="shopBtn" type="button">' + say('לקיוסק', 'To the kiosk') + '</button></div></section>' +
     '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
     '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>';
 }
@@ -87,10 +88,13 @@ function renderShop(pump) {
     return '<li><button class="ks-it' + (on ? ' on' : o ? ' own' : bal >= x.cost ? '' : ' far') + (S.shopTry === x.id ? ' try' : '') + '" type="button" data-shop="' + x.id + '" aria-pressed="' + on + '" aria-label="' + nm(x) + ', ' + (on ? say('עליך', 'on') : o ? say('בארון', 'owned') : x.cost + say(' מטבעות', ' coins')) + '">' +
       '<span class="ks-pic">' + cropFig(x, P.L.lvl) + '</span><b>' + nm(x) + '</b>' + (on ? '<span class="ks-st">' + ICON.check + say('עליך', 'On') + '</span>' : o ? '<span class="ks-st">' + say('ללבוש', 'Put on') + '</span>' : '<span class="ks-pr">' + COIN + x.cost + '</span>') + '</button></li>';
   };
-  sh.innerHTML = '<div class="sheet-in ks" role="dialog" aria-modal="true" aria-label="' + say('הקיוסק', 'The kiosk') + '"><div class="ed-h"><div><p class="kicker">' + say('הקיוסק', 'The kiosk') + '</p><h2>' + say('ציוד לדמות', 'Gear for the character') + '</h2></div>' +
+  /* the shelves: all of it, or one part of the body */
+  const shelf = SHELF.some((x) => x[0] === S.shelf) ? S.shelf : '', onShelf = SHOP.filter((x) => !shelf || shelfOf(x) === shelf);
+  const chips = '<div class="ks-shelf" role="radiogroup" aria-label="' + say('מדפים', 'Shelves') + '">' + SHELF.map((x) => '<button type="button" role="radio" data-shelf="' + x[0] + '" aria-checked="' + (x[0] === shelf) + '">' + say(x[1], x[2]) + '<small>' + SHOP.filter((y) => !x[0] || shelfOf(y) === x[0]).length + '</small></button>').join('') + '</div>';
+  sh.innerHTML = '<div class="sheet-in ks" role="dialog" aria-modal="true" aria-label="' + say('הקיוסק', 'The kiosk') + '">' + '<div class="ks-awn" aria-hidden="true"><i></i></div>' + '<div class="ed-h"><div><p class="kicker">' + say('הקיוסק', 'The kiosk') + '</p><h2>' + say('ציוד לדמות', 'Gear for the character') + '</h2></div>' +
     '<span class="coin-tag dark" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="ks-stage"><span class="ks-fig' + (pump ? ' pump' : '') + '" aria-hidden="true">' + avatarSVG(Object.assign({}, me.look, { wear: worn }), P.L.lvl, { base: EXP_BASE[expNow()] || 0 }) + '</span><div class="ks-say" aria-live="polite">' + word + '</div></div>' +
-    '<ul class="ks-grid">' + SHOP.map(tile).join('') + '</ul>' +
+    chips + '<ul class="ks-grid">' + onShelf.map(tile).join('') + '</ul>' +
     '<p class="ms-sub">' + say('כל 10 נקודות באימון הן מטבע. הרמה שלך לא יורדת כשקונים.', 'Every 10 points in a workout are a coin. Your level never drops when you buy.') + '</p></div>';
   $('.sheet-in', sh).scrollTop = top;
 }
@@ -106,7 +110,7 @@ function shopBuyNow(id) {
   feel('coin', 'success'); renderMe(); renderShop(true);
   toast(COIN + '<b>' + say('שלך: ', 'Yours: ') + nm(shopItem(id)) + '</b>');
 }
-function openShop() { S.sheet = 'shop'; S.shopTry = null; renderShop(); $('#sheet').hidden = false; S.shopBal = coinsLeft(meNow().T.xp, S.cfg.me.shop); saveLocal(); markShop(); }
+function openShop() { S.sheet = 'shop'; S.shopTry = null; S.shelf = ''; renderShop(); $('#sheet').hidden = false; S.shopBal = coinsLeft(meNow().T.xp, S.cfg.me.shop); saveLocal(); markShop(); }
 /* the profile's tab is marked once the coins have grown enough to buy something since the kiosk was last looked at */
 function markShop() {
   const me = S.cfg.me, bal = coinsLeft(meNow().T.xp, me.shop), b = $('#tabbar [data-view="profile"]');
@@ -114,21 +118,39 @@ function markShop() {
 }
 /* ---- the journey: the levels as a road, from the first to the hundredth. Every stop is a level that opens something, and on the
    wide sides of the road stands the player's own character, dressed as it will be there ---- */
-const J_PITCH = 140, J_TOP = 44;
+const J_PITCH = 128, J_HEAD = 104;
+/* the journey crosses four worlds, each with its levels, its name and the colour of its land. The last climbs to the summit */
+const WORLDS = [{ to: 10, he: 'הצעדים הראשונים', en: 'First steps' }, { to: 20, he: 'בונים כוח', en: 'Building strength' }, { to: 50, he: 'דרגות האלופים', en: 'The champion ranks' }, { to: 100, he: 'אל הפסגה', en: 'To the summit' }];
+const worldOf = (at) => { const k = WORLDS.findIndex((w) => at <= w.to); return k < 0 ? WORLDS.length - 1 : k; };
 const toGo = (n) => (n === 1 ? say('עוד רמה אחת', '1 level to go') : say('עוד ' + n + ' רמות', n + ' levels to go'));
+const CROWN = '<svg class="jr-crown" viewBox="0 0 26 18" aria-hidden="true"><path d="M2.5 15.5L1.5 3.5l6.5 4.6L13 1.5l5 6.6 6.5-4.6-1 12z" fill="#FFD23F" stroke="#C98F1C" stroke-width="1.4" stroke-linejoin="round"/><circle cx="13" cy="10.6" r="1.8" fill="#D7263D"/></svg>';
 function renderJourney(P) {
   P = P || meNow();
-  const L = P.L, lvl = L.lvl, top = REWARDS[REWARDS.length - 1].at, nx = nextReward(lvl), N = REWARDS.length, H = J_TOP + (N - 1) * J_PITCH + 132;
+  const L = P.L, lvl = L.lvl, top = REWARDS[REWARDS.length - 1].at, nx = nextReward(lvl), N = REWARDS.length;
   const cap = (a, b) => '<figcaption><b>' + a + '</b><span>' + b + '</span></figcaption>';
-  let stops = '', trail = '';
+  /* the map, world after world, top to bottom: each world opens with its sign, then its levels, then a hill down into the next */
+  const pos = []; let y = 0, bands = '', signs = '', stops = '', trail = '';
+  WORLDS.forEach((W, k) => {
+    const items = REWARDS.map((r, i) => i).filter((i) => worldOf(REWARDS[i].at) === k), from = k ? WORLDS[k - 1].to + 1 : 1, y0 = y, last = k === WORLDS.length - 1;
+    const got = items.filter((i) => lvl >= REWARDS[i].at).length, here = items.some((i) => nx && REWARDS[i].at === nx.at);
+    y += J_HEAD;
+    items.forEach((i, n) => { pos[i] = { x: REWARDS[i].at === top ? 50 : 50 + STOP_X[i % 4] * AMP, y }; y += n < items.length - 1 ? J_PITCH : 0; });
+    y += last ? 330 : 168;
+    signs += '<div class="jr-sign' + (got === items.length ? ' done' : here ? ' here' : '') + '" style="top:' + (y0 + 22) + 'px"><small>' + say('עולם ' + (k + 1) + ' · רמות ' + from + '–' + W.to, 'World ' + (k + 1) + ' · levels ' + from + '–' + W.to) + '</small><b>' + say(W.he, W.en) + '</b>' +
+      '<span class="jr-got" aria-label="' + say(got + ' מתוך ' + items.length + ' נפתחו', got + ' of ' + items.length + ' open') + '">' + (got === items.length ? ICON.check : got + '/' + items.length) + '</span></div>';
+    bands += '<div class="jr-band b' + k + '" style="top:' + y0 + 'px;height:' + (y - y0 + 1) + 'px" aria-hidden="true">' + (last
+      ? '<svg class="jr-peak" style="top:' + (pos[items[items.length - 1]].y - y0 + 112) + 'px" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100V72L16 52L27 62L50 0L73 60L85 47L100 70V100Z" fill="#3B2C90"/><path d="M50 0L41.5 25L46.5 21L50 28L53.5 21L58.5 25Z" fill="#F4F2FF"/><path d="M0 100V86Q22 72 46 84T100 80V100Z" fill="#1B1347"/></svg>'
+      : '<svg class="jr-hill" viewBox="0 0 100 40" preserveAspectRatio="none"><path class="bk" d="M0 40V22Q16 6 34 16T66 14T100 18V40Z"/><path class="f" d="M0 40V30Q20 18 42 28T78 24T100 28V40Z"/></svg>') + '</div>';
+  });
+  const H = y;
   REWARDS.forEach((r, i) => {
-    const x = 50 + STOP_X[i % 4] * AMP, y = J_TOP + i * J_PITCH, s = lvl >= r.at ? 'done' : nx && nx.at === r.at ? 'next' : 'later', side = STOP_X[i % 4] > 0 ? 'l' : 'r';
-    stops += '<li class="stop ' + s + (r.at === top ? ' top' : '') + '" style="top:' + y + 'px;left:' + x + '%;--i:' + Math.min(i, 6) + '">' +
+    const x = pos[i].x, s = lvl >= r.at ? 'done' : nx && nx.at === r.at ? 'next' : 'later', side = STOP_X[i % 4] > 0 ? 'l' : r.at === top ? 'r' : STOP_X[i % 4] < 0 ? 'r' : i % 8 < 4 ? 'r' : 'l';
+    stops += '<li class="stop ' + s + ' j' + worldOf(r.at) + (r.at === top ? ' top' : '') + '" style="top:' + pos[i].y + 'px;left:' + x + '%;--i:' + Math.min(i, 6) + '">' +
       '<button class="lv" type="button" data-lv="' + r.at + '" aria-label="' + say('רמה ', 'Level ') + r.at + ': ' + nm(r) + (s === 'done' ? say(', הושג', ', reached') : '') + '">' +
-      (s === 'next' ? '<span class="go-chip" aria-hidden="true">' + toGo(r.at - lvl) + '</span>' : '') + '<span class="dot" aria-hidden="true">' + r.at + '</span><b>' + nm(r) + '</b></button>' +
-      /* every second stop has a wide side: there the character stands as it will look at that level */
-      (i % 2 && r.at !== top ? palHTML(side, avatar(r.at, { still: true }), '', 'pv') : '') + '</li>';
-    if (i < N - 1) trail += trailSeg(x, y + 38, 50 + STOP_X[(i + 1) % 4] * AMP, y + 38 + J_PITCH, lvl >= REWARDS[i + 1].at);
+      (s === 'next' ? '<span class="go-chip" aria-hidden="true">' + toGo(r.at - lvl) + '</span>' : '') + (r.at === top ? CROWN : '') + '<span class="dot" aria-hidden="true">' + (s === 'done' && r.at !== top ? ICON.check : r.at) + '</span><b>' + nm(r) + '</b></button>' +
+      /* the lifter stands at the stop that is next; at every second stop beside it, the character as it will look at that level */
+      (s === 'next' ? palHTML(side, avatar(lvl, { still: true }), say('אתה כאן', 'You are here'), 'me') : i % 2 && r.at !== top ? palHTML(side, avatar(r.at, { still: true }), '', 'pv') : '') + '</li>';
+    if (i < N - 1) trail += trailSeg(x, pos[i].y + 38, pos[i + 1].x, pos[i + 1].y + 38, lvl >= REWARDS[i + 1].at);
   });
   $('#journey').innerHTML = '<section class="jr-hero" aria-label="' + say('המסע שלי', 'My journey') + '"><p class="jr-k">' + say('המסע שלך', 'Your journey') + '</p>' +
     '<h1>' + (lvl >= top ? say('רמה ' + lvl + '. מעבר לפסגה.', 'Level ' + lvl + '. Past the summit.') : say('מרמה ' + lvl + ' עד רמה ' + top, 'From level ' + lvl + ' to level ' + top)) + '</h1>' +
@@ -136,9 +158,10 @@ function renderJourney(P) {
     (lvl >= top ? '' : '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span><figure class="max"><span class="ob-fig">' + avatar(top) + '</span>' + cap(say('רמה ', 'Level ') + top, say('המטרה', 'The goal')) + '</figure>') + '</div>' +
     '<div class="jr-lv"><span class="lv-badge">' + say('רמה ', 'Level ') + lvl + '</span>' + xpBar(pctOf(L)) + '<span class="jr-nx" aria-hidden="true">' + (lvl + 1) + '</span></div>' +
     '<p class="jr-line">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ' + (lvl + 1), nf(L.need - L.into) + ' points to level ' + (lvl + 1)) + '</p></section>' +
-    '<section class="road jr" aria-label="' + say('מה נפתח בדרך', 'What opens on the way') + '"><div class="road-h"><div><h2>' + say('מה נפתח בדרך', 'What opens on the way') + '</h2><p>' + say('כל סט שווה נקודות, והנקודות מעלות רמה', 'Every set earns points, and points raise the level') + '</p></div></div>' +
-    '<div class="pw"><div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol></div></div>' +
-    '<p class="jr-after">' + say('ואחרי רמה 100? ממשיכים לעלות.', 'And after level 100? The levels keep going.') + '</p></section>';
+    '<section class="jr-map" aria-label="' + say('מה נפתח בדרך', 'What opens on the way') + '"><div class="jr-map-h"><h2>' + say('מה נפתח בדרך', 'What opens on the way') + '</h2><p>' + say('כל סט שווה נקודות, והנקודות מעלות רמה', 'Every set earns points, and points raise the level') + '</p></div>' +
+    '<div class="jr-road" style="height:' + H + 'px">' + bands +
+    '<div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol></div>' + signs +
+    '<p class="jr-after">' + say('ואחרי רמה 100? ממשיכים לעלות.', 'And after level 100? The levels keep going.') + '</p></div></section>';
 }
 /* a stop of the journey, opened: the character as it will stand at that level */
 function openLevel(at) {
@@ -242,7 +265,7 @@ function afterWipe() {
 /* ---- the character editor: name and looks; every choice is saved at once. One kind of choice is on screen at a time,
    picked from a row of tabs, so that the whole editor fits on one screen with the character above it ---- */
 const LK = { tab: 'skin', busy: false, note: '' };
-const LOOK_TABS = () => [['skin', say('עור', 'Skin')], ['hair', say('תספורת', 'Haircut')], ['hc', say('צבע שיער', 'Hair colour')], ['beard', say('זקן', 'Beard')], ['shirt', say('חולצה', 'Shirt')]];
+const LOOK_TABS = () => [['body', say('דמות', 'Figure')], ['skin', say('עור', 'Skin')], ['hair', say('תספורת', 'Haircut')], ['hc', say('צבע שיער', 'Hair colour')]].concat(S.cfg.me.look.body === 1 ? [] : [['beard', say('זקן', 'Beard')]]).concat([['shirt', say('חולצה', 'Shirt')]]);
 /* a T-shirt, for the shirt colours: a colour is easier to choose on the thing it colours */
 const TEE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 3.6c.7 1.3 1.9 2 3.4 2s2.7-.7 3.4-2l5.1 2.3-1.9 4.3-2.3-.9v11.2H7.7V9.3l-2.3.9-1.9-4.3z"/></svg>';
 function lookRows() {
@@ -251,8 +274,9 @@ function lookRows() {
   const sw = (list, hex) => '<div class="lk-opts" style="--n:' + list.length + '">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
   const face = (look, i, name) => '<button type="button" class="lk-cut" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '"><span class="lk-face" aria-hidden="true">' + avatarSVG(look, 1, { bust: true }) + '</span><small>' + name + '</small></button>';
   let body;
-  if (key === 'skin') body = sw(SKIN, (c) => c[0]);
-  else if (key === 'hair') body = '<div class="lk-cuts">' + HAIR_ORDER.map((i) => face(Object.assign({}, k, { hair: i }), i, hairName(i))).join('') + '</div>';
+  if (key === 'body') body = '<div class="lk-cuts two">' + BODY().map((t, i) => '<button type="button" class="lk-cut lk-bod" data-look="body" data-v="' + i + '" aria-pressed="' + ((k.body | 0) === i) + '"><span class="lk-face" aria-hidden="true">' + avatarSVG(bodyLook(k, i), 1, { still: true }) + '</span><small>' + t + '</small></button>').join('') + '</div>';
+  else if (key === 'skin') body = sw(SKIN, (c) => c[0]);
+  else if (key === 'hair') body = '<div class="lk-cuts">' + (k.body === 1 ? HAIR_ORDER_F : HAIR_ORDER).map((i) => face(Object.assign({}, k, { hair: i }), i, hairName(i))).join('') + '</div>';
   else if (key === 'hc') body = sw(HAIRC, (c) => c);
   else if (key === 'beard') body = '<div class="lk-cuts three">' + BEARDS().map((t, i) => face(Object.assign({}, k, { beard: i }), i, t)).join('') + '</div>';
   else body = '<div class="lk-tees">' + SHIRT.map((c, i) => '<button type="button" class="lk-tee" data-look="shirt" data-v="' + i + '" aria-pressed="' + (k.shirt === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + c + '">' + TEE + '</button>').join('') + '</div>';
@@ -283,18 +307,22 @@ function openLook() {
     '<div class="lk-ed" id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
   sh.hidden = false;
 }
+/* a look as it becomes with a figure chosen: a girl keeps no beard, and the plain short cut she started with becomes a ponytail */
+function bodyLook(k, v) { const o = Object.assign({}, k, { body: v }); if (v === 1) { o.beard = 0; if (k.body !== 1 && k.hair === 1) o.hair = 9; } return o; }
 function setLook(key, v) {
   const me = S.cfg.me; if (!(key in me.look)) return;
+  if (key === 'body') { if ((me.look.body | 0) === v) return; Object.assign(me.look, bodyLook(me.look, v)); me.made = me.made || Date.now(); saveCfg(); lookDraw(true); return; }
   me.look[key] = v; me.made = me.made || Date.now(); saveCfg();
   lookDraw(false);
 }
 /* ---- the character from a photo: Eilon looks at it once and picks the closest of each choice. The photo is not kept ---- */
 const LOOK_ASK = 'You are setting up a simple cartoon avatar for a fitness app. Look at the main person in the photo and pick the closest option in each list. ' +
-  'Reply with one line of JSON and nothing else: {"skin":N,"hair":N,"hc":N,"beard":N}\n' +
+  'Reply with one line of JSON and nothing else: {"body":N,"skin":N,"hair":N,"hc":N,"beard":N}\n' +
+  'body, the figure: 0 a man or a boy, 1 a woman or a girl.\n' +
   'skin, the tone from light to deep: 0 very fair, 1 fair, 2 light tan, 3 tan or olive, 4 brown, 5 deep brown.\n' +
-  'hair, the cut: 0 bald or shaved, 1 short, 2 swept up, 3 curly, 4 long (past the chin), 5 a fringe over the forehead, 6 buzz cut, 7 side part, 8 medium (over the ears).\n' +
+  'hair, the cut: 0 bald or shaved, 1 short, 2 swept up, 3 curly, 4 long and loose (past the chin), 5 a fringe over the forehead, 6 buzz cut, 7 side part, 8 medium (over the ears), 9 a ponytail, 10 a bun on top, 11 two braids, 12 a bob (to the chin), 13 an afro, 14 a mohawk, 15 two pigtails.\n' +
   'hc, the hair colour: 0 black, 1 dark brown, 2 brown, 3 light brown, 4 dark blond, 5 blond, 6 red or ginger, 7 grey or white.\n' +
-  'beard: 0 none, 1 stubble or a short beard, 2 a full beard.\n' +
+  'beard: 0 none, 1 stubble or a short beard, 2 a full beard (always 0 for body 1).\n' +
   'If no person can be seen in the photo, reply {"none":true}.';
 async function lookFromPhoto(file) {
   if (!file || LK.busy) return;
@@ -308,8 +336,9 @@ async function lookFromPhoto(file) {
     try { o = m ? JSON.parse(m[0]) : null; } catch (e) { o = null; }
     LK.busy = false;
     if (o && o.none) { say2(say('לא מצאתי פנים בתמונה. אפשר לנסות תמונה אחרת.', 'I could not find a face in the photo. Try another one.')); return; }
-    const me = S.cfg.me, lim = { skin: SKIN.length, hair: HAIR.length, hc: HAIRC.length, beard: BEARD.length }; let n = 0;
+    const me = S.cfg.me, lim = { body: 2, skin: SKIN.length, hair: HAIR.length, hc: HAIRC.length, beard: BEARD.length }; let n = 0;
     if (o) for (const key of Object.keys(lim)) if (Number.isInteger(o[key]) && o[key] >= 0 && o[key] < lim[key]) { me.look[key] = o[key]; n++; }
+    if (me.look.body === 1) me.look.beard = 0;
     if (!o || !n) { say2(say('לא הצלחתי לקרוא את התמונה. אפשר לנסות שוב.', 'I could not read the photo. Try again.')); return; }
     me.made = me.made || Date.now(); saveCfg(); LK.note = say('הנה. אפשר לשנות כל פרט.', 'There. Every detail can still be changed.'); lookDraw(true); feel('set', 'success');
   } catch (e) {
@@ -324,6 +353,7 @@ function meSheetClick(ev) {
   if (ev.target.closest('#lkPhoto')) { $('#lkFile').click(); return true; }
   const buy = ev.target.closest('[data-buy]'); if (buy) { shopBuyNow(buy.dataset.buy); return true; }
   const thing = ev.target.closest('[data-shop]'); if (thing) { shopTap(thing.dataset.shop); return true; }
+  const shelfB = ev.target.closest('[data-shelf]'); if (shelfB) { S.shelf = shelfB.dataset.shelf; haptic('select'); renderShop(); return true; }
   if (S.sheet !== 'set') return false;
   const pg = ev.target.closest('[data-setpg]'); if (pg) { S.setPg = pg.dataset.setpg || null; S.del = null; renderSettings(); return true; }
   const b = ev.target.closest('button'); if (!b) return false;

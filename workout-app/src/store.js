@@ -39,12 +39,18 @@ const ICON = {
    days (how many workouts a week: 2 to 5, or null before it was asked, which keeps the four),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, days: null, fb: 2, tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0, body: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, days: null, names: {}, fb: 2, tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
+/* the lifter's own names for the workouts, by their place in PLAN: short, trimmed, and only for workouts that exist */
+function cleanNames(v) {
+  const out = {}; if (!v || typeof v !== 'object') return out;
+  for (const k of Object.keys(v)) { const w = +k, t = typeof v[k] === 'string' ? v[k].replace(/\s+/g, ' ').trim().slice(0, 18) : ''; if (Number.isInteger(w) && w >= 0 && w < PLAN.length && t) out[w] = t; }
+  return out;
+}
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), days: DAYS_OK.includes(v.days) ? v.days : null, fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0), body: pick(l.body, 2, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), days: DAYS_OK.includes(v.days) ? v.days : null, names: cleanNames(v.names), fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
   out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
@@ -508,6 +514,8 @@ function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) f
 function prCount(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.pr) n++; return n; }
 function ago(ts) { const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : d === 2 ? say('לפני יומיים', '2 days ago') : say('לפני ' + d + ' ימים', d + ' days ago'); }
 const fmtKg = (kg) => (kg == null ? '' : String(Math.round(kg * 100) / 100));
+/* a set in words, as it is shown: "35 ק״ג · 7 חזרות" (fmtRow, short, is for Eilon's context) */
+const rowWords = (r) => (r.kg != null ? fmtKg(r.kg) + say(' ק״ג', ' kg') + ' · ' : '') + (r.reps != null ? r.reps : '–') + say(' חזרות', ' reps');
 const fmtRow = (r) => (r.kg != null ? fmtKg(r.kg) + '×' : '') + (r.reps != null ? r.reps : '–');
 const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
 
@@ -611,7 +619,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'days', 'fb', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'days', 'names', 'fb', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;

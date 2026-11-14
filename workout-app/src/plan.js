@@ -113,12 +113,14 @@ const inWeek = (w) => week().includes(w);
 /* a workout's place in the week (0 for the first), and the colour that goes with that place */
 const posOf = (w) => Math.max(0, week().indexOf(w));
 const wkTone = (w) => 'w' + (posOf(w) % 5);
-/* how a workout is called in the app: a name of its own ("שריון"), the muscles it trains, and its place in the week ("אימון ראשון") */
+/* how a workout is called in the app: by its place in the week ("אימון 1"), or by the name the lifter gave it. A workout that is
+   not in the week any more (the days changed) is called by what it trains. Under the name, always, the muscles it trains */
 const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי'];
-const wkName = (w) => say(PLAN[w].t, PLAN[w].te);
+const ownName = (w) => { const n = typeof S !== 'undefined' && S.cfg && S.cfg.me && S.cfg.me.names; return (n && typeof n[w] === 'string' && n[w]) || ''; };
 const wkMus = (w) => say(PLAN[w].m, PLAN[w].me);
-const wkOrd = (w) => say('אימון ' + ORD[posOf(w)], 'Workout ' + (posOf(w) + 1));
-const wkFull = (w) => wkOrd(w) + ' – ' + wkName(w);
+const wkOrd = (w) => say('אימון ' + (posOf(w) + 1), 'Workout ' + (posOf(w) + 1));
+const wkName = (w) => ownName(w) || (inWeek(w) ? wkOrd(w) : wkMus(w));
+const wkFull = (w) => (ownName(w) ? wkOrd(w) + ' – ' + ownName(w) : wkName(w));
 const wkShort = (w) => wkName(w);
 /* a count with its noun: "3 סטים" / "3 sets", "סט אחד" / "1 set" */
 const cnt = (n, heN, he1, enN, en1) => (LANG === 'en' ? n + ' ' + (n === 1 ? en1 : enN) : n === 1 ? he1 : n + ' ' + heN);

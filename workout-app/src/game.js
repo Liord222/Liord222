@@ -50,10 +50,18 @@ const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);
 /* ---- the kiosk: what the character can wear beyond what the levels open. Every ten points earned are a coin, and coins buy.
    slot: one thing of a slot is worn at a time. The level and its points are never spent: the coins are counted beside them */
 const SHOP = [
-  { id: 'towel', slot: 'neck', cost: 30, he: 'מגבת', en: 'Towel' }, { id: 'kicksW', slot: 'feet', cost: 50, he: 'נעליים לבנות', en: 'White sneakers' }, { id: 'cap', slot: 'head', cost: 60, he: 'כובע מצחייה', en: 'Cap' },
-  { id: 'gloves', slot: 'hands', cost: 70, he: 'כפפות אימון', en: 'Training gloves' }, { id: 'shades', slot: 'eyes', cost: 90, he: 'משקפי שמש', en: 'Sunglasses' }, { id: 'watch', slot: 'wrist', cost: 110, he: 'שעון ספורט', en: 'Sports watch' },
+  { id: 'towel', slot: 'neck', cost: 30, he: 'מגבת', en: 'Towel' }, { id: 'sweat', slot: 'wrist', cost: 35, he: 'מגני זיעה', en: 'Sweatbands' }, { id: 'towelP', slot: 'neck', cost: 45, he: 'מגבת סגולה', en: 'Purple towel' },
+  { id: 'kicksW', slot: 'feet', cost: 50, he: 'נעליים לבנות', en: 'White sneakers' }, { id: 'cap', slot: 'head', cost: 60, he: 'כובע מצחייה', en: 'Cap' }, { id: 'capR', slot: 'head', cost: 60, he: 'כובע אדום', en: 'Red cap' },
+  { id: 'glasses', slot: 'eyes', cost: 60, he: 'משקפיים', en: 'Glasses' }, { id: 'shaker', slot: 'hold', cost: 65, he: 'שייקר', en: 'Shaker' }, { id: 'gloves', slot: 'hands', cost: 70, he: 'כפפות אימון', en: 'Training gloves' },
+  { id: 'kicksK', slot: 'feet', cost: 70, he: 'נעליים שחורות', en: 'Black sneakers' }, { id: 'capK', slot: 'head', cost: 75, he: 'כובע שחור', en: 'Black cap' }, { id: 'beanie', slot: 'head', cost: 80, he: 'כובע גרב', en: 'Beanie' },
+  { id: 'glovesR', slot: 'hands', cost: 85, he: 'כפפות אדומות', en: 'Red gloves' }, { id: 'shades', slot: 'eyes', cost: 90, he: 'משקפי שמש', en: 'Sunglasses' }, { id: 'kicksR', slot: 'feet', cost: 95, he: 'נעליים אדומות', en: 'Red sneakers' },
+  { id: 'tag', slot: 'neck', cost: 100, he: 'דסקית', en: 'Dog tag' }, { id: 'watch', slot: 'wrist', cost: 110, he: 'שעון ספורט', en: 'Sports watch' }, { id: 'buds', slot: 'ears', cost: 110, he: 'אוזניות אלחוטיות', en: 'Earbuds' },
   { id: 'kicksP', slot: 'feet', cost: 120, he: 'נעליים סגולות', en: 'Purple sneakers' }, { id: 'phones', slot: 'ears', cost: 150, he: 'אוזניות', en: 'Headphones' }, { id: 'chain', slot: 'neck', cost: 200, he: 'שרשרת זהב', en: 'Gold chain' },
+  { id: 'watchG', slot: 'wrist', cost: 220, he: 'שעון זהב', en: 'Gold watch' },
 ];
+/* the kiosk's shelves: what a thing is worn on, gathered as a shop would */
+const SHELF = [['', 'הכול', 'All'], ['head', 'ראש', 'Head'], ['face', 'פנים', 'Face'], ['body', 'גוף', 'Body'], ['feet', 'רגליים', 'Feet']];
+const shelfOf = (it) => (it.slot === 'head' ? 'head' : it.slot === 'eyes' || it.slot === 'ears' ? 'face' : it.slot === 'feet' ? 'feet' : 'body');
 const shopItem = (id) => SHOP.find((x) => x.id === id) || null;
 const coinsOf = (xp) => Math.floor((xp > 0 && isFinite(xp) ? xp : 0) / 10);
 /* a wardrobe read from a file or from the account: only things the kiosk sells, each owned once, and of the worn ones one to a slot */

@@ -1,5 +1,5 @@
 /* ================================================================== workout UI */
-const valHTML = (r) => Ltr(r.kg != null ? Ltr(fmtKg(r.kg)) + '<small><bdi>' + say(' ק״ג', ' kg') + '</bdi></small>' + Ltr(' × ' + (r.reps != null ? r.reps : '–')) : Ltr(r.reps != null ? r.reps : '–') + '<small><bdi>' + say(' חז׳', ' reps') + '</bdi></small>');
+const valHTML = (r) => (r.kg != null ? Ltr(fmtKg(r.kg)) + '<small>' + say(' ק״ג', ' kg') + '</small> · ' : '') + Ltr(r.reps != null ? r.reps : '–') + '<small>' + say(' חזרות', ' reps') + '</small>';
 /* what today's set is trying to beat */
 const MODE = () => ({ reps: [say('יותר חזרות', 'More reps'), 'g-reps'], weight: [say('יותר משקל', 'More weight'), 'g-wt'], hold: [say('כמו בפעם הקודמת', 'Same as last time'), ''], base: [say('התחלה חדשה', 'Fresh start'), ''], deload: [say('שבוע קל', 'Easy week'), ''], down: [say('פחות משקל', 'Less weight'), 'g-down'], cal: [say('משקל מעודכן', 'New weight'), 'g-cal'], start: [say('משקל התחלתי', 'Starting weight'), 'g-start'] });
 function badge(T, e) {
@@ -10,7 +10,7 @@ function badge(T, e) {
 }
 /* why the target is what it is, in one sentence */
 function whyText(T, e) {
-  const last = T.ref ? Ltr(fmtRow(T.ref)) : '', inv = LIB[e.mv].inv;
+  const last = T.ref ? '<bdi>' + rowWords(T.ref) + '</bdi>' : '', inv = LIB[e.mv].inv;
   if (T.mode === 'reps') return last ? say('בפעם הקודמת עשית ' + last + '. היום מנסים יותר חזרות.', 'Last time you did ' + last + '. Today, more reps.') : say('היום מנסים יותר חזרות.', 'Today, more reps.');
   if (T.mode === 'weight') return inv ? say('הגעת לראש טווח החזרות, אז הסיוע יורד.', 'You reached the top of the rep range, so the help comes down.') : say('הגעת לראש טווח החזרות, אז המשקל עולה.', 'You reached the top of the rep range, so the weight goes up.');
   if (T.mode === 'hold') return last ? say('חוזרים על מה שעשית בפעם הקודמת: ' + last + '.', 'Repeat what you did last time: ' + last + '.') : say('ממשיכים עם מה שעשית בסט הקודם.', 'Carry on with what you did in the last set.');
@@ -127,7 +127,7 @@ function renderHome() {
   const total = list.reduce((n, e) => n + e.sets, 0), dn = s ? list.reduce((n, e) => n + doneCount(s, e), 0) : 0, Wm = weekModel(nu);
   for (const x of Wm.items) x.cur = x.i === w;
   $('#home').innerHTML = playerHTML(me) + bannerHTML() +
-    '<section class="card next ' + wkTone(w) + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
+    '<section class="card next ' + wkTone(w) + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + (ownName(w) ? wkOrd(w) : s ? say('באמצע', 'In progress') : say('האימון הבא', 'Up next')) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
     '<p class="mus">' + wkMus(w) + '</p>' +
     '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
@@ -157,18 +157,18 @@ function rowHTML(e, i, s) {
     '<button class="ex-head" type="button">' +
     '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span>' +
     '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (e.cut ? '<span class="ex-sub">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + '</span>' +
-    '<span class="ex-rx' + (part ? ' part' : '') + '">' + Ltr(part ? dn + '/' + e.sets : (off ? e.n0 : e.sets) + ' × ' + e.reps) + '</span>' +
+    '<span class="ex-rx' + (part ? ' part' : '') + '">' + (part ? Ltr(dn + '/' + e.sets) : cnt(off ? e.n0 : e.sets, 'סטים', 'סט אחד', 'sets', 'set') + ' · ' + Ltr(e.reps) + say(' חז׳', ' reps')) + '</span>' +
     '</button></li>';
 }
-/* a set in short: weight × reps, or the reps alone with their unit when there is no weight */
-const setVal = (r) => Ltr(fmtRow(r)) + (r.kg == null ? '<small> ' + say('חז׳', 'reps') + '</small>' : '');
+/* a set on its button: the weight over the reps, each with its word; the reps alone when there is no weight */
+const setVal = (r) => (r.kg != null ? '<span class="sv"><b>' + Ltr(fmtKg(r.kg)) + '</b><small>' + say('ק״ג', 'kg') + '</small></span>' : '') + '<span class="sv"><b>' + (r.reps != null ? r.reps : '–') + '</b><small>' + say('חזרות', 'reps') + '</small></span>';
 /* the sets of the exercise on screen as one slim row: what was lifted, then what is aimed for */
 function setsHTML(e) {
   const s = live(S.tab), r = rowsOf(s, e.id), cur = cursor(), fu = firstUndone(s, e), T0 = fu >= 0 ? targetOf(e, fu, s) : null;
   let h = '';
   for (let i = 0; i < e.sets; i++) {
     const row = r[i], on = isDone(row), isCur = !S.edit && !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s), ed = on && !!S.edit && S.edit.ex === e.id && S.edit.i === i;
-    const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + fmtRow(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + fmtRow(T) : '');
+    const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + rowWords(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + rowWords(T) : '');
     const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
       (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + (T ? setVal(T) : '–') + '</span>') + '</button>';
@@ -254,7 +254,7 @@ function renderMore() {
   const e = S.open && findEx(S.open), sh = $('#sheet'); if (!e) { closeSheet(); return; }
   const s = live(S.tab), ref = refRow(e, 0, s), tr = trendHTML(e), fu = firstUndone(s, e), T = fu >= 0 ? targetOf(e, fu, s) : null, fill = fu >= 0 && e.sets - fu > 0 && !!T && T.mode !== 'start', rated = !!s && rowsOf(s, e.id).some(isDone);
   const dl = phase(S.tab, s).dl, inPlan = planIds(S.tab).includes(e.id), started = rowsOf(s, e.id).some(isDone), alone = exList(S.tab, s).length < 2;
-  const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>' : '') + tr;
+  const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => '<bdi>' + rowWords(x) + '</bdi>').join(' · ') + '</p>' : '') + tr;
   const row = (id, ic, t, sub) => '<button class="mr-row" id="' + id + '" type="button"><i aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + ICON.fwd + '</button>';
   sh.innerHTML = '<div class="sheet-in mr" role="dialog" aria-modal="true" aria-label="' + say('עוד', 'More') + '"><div class="ed-h"><div><p class="kicker">' + say('עוד', 'More') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="mr-rows">' + row('moreSwap', ICON.swap, say('החלף תרגיל', 'Swap exercise'), say('תרגיל אחר לאותו שריר', 'Another exercise for the same muscle')) +
@@ -490,7 +490,7 @@ function renderDock() {
        the question about a finished exercise, and at the foot what comes next and the way on */
     const L = rest.last; cls += ' rest';
     h = '<div class="rt-top"><button class="rt-undo" id="rtUndo" type="button" aria-label="' + say('ביטול הסט שנרשם', 'Take back the set that was logged') + '"' + (L ? '' : ' hidden') + '>' + ICON.undo + '</button>' +
-      (L ? '<span class="rt-log' + (L.pr ? ' pr' : '') + '">' + (L.pr ? glyph('star') : ICON.check) + '<b>' + Ltr(fmtRow(L)) + '</b>' + (L.pr ? '<i>' + say('שיא אישי', 'Personal best') + '</i>' : '') + '</span>' : '<span></span>') + '<span class="rt-sp"></span></div>' +
+      (L ? '<span class="rt-log' + (L.pr ? ' pr' : '') + '">' + (L.pr ? glyph('star') : ICON.check) + '<b><bdi>' + rowWords(L) + '</bdi></b>' + (L.pr ? '<i>' + say('שיא אישי', 'Personal best') + '</i>' : '') + '</span>' : '<span></span>') + '<span class="rt-sp"></span></div>' +
       '<div class="rt"><div class="rt-ring"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="t" cx="100" cy="100" r="90"/><circle class="f" id="rtFill" cx="100" cy="100" r="90" pathLength="100"/></svg>' +
       '<div class="rt-mid"><div class="rt-time" id="rtTime">0:00</div><div class="rt-word" id="rtWord"></div></div></div>' +
       '<div class="rt-adj"><button type="button" id="rtMinus" aria-label="' + say('הפחת 15 שניות', '15 seconds less') + '">' + Ltr('−15') + '</button><button type="button" id="rtPlus" aria-label="' + say('הוסף 15 שניות', '15 seconds more') + '">' + Ltr('+15') + '</button></div></div>' +
@@ -672,7 +672,7 @@ function exIntro(e, first) {
     '<span class="xi-n">' + Ltr((i + 1) + '<small>/' + list.length + '</small>') + '</span></div>' +
     '<h2 class="xi-t">' + e.nm + '</h2><p class="xi-m">' + mus + '</p>' +
     '<p class="xi-rx">' + chip(e.sets, say(' סטים', ' sets')) + chip(Ltr(e.reps), say(' חזרות', ' reps')) + chip(Ltr(restPlain(e)), say(' מנוחה', ' rest')) + '</p>' +
-    '<p class="xi-tap">' + say('נגיעה כדי להמשיך', 'Tap to go on') + '</p><i class="xi-bar" aria-hidden="true"></i></div>';
+    '<i class="xi-bar" aria-hidden="true"></i></div>';
   box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(exIntroOff, reduced ? 1400 : 2300);
@@ -1055,7 +1055,7 @@ function wireApp() {
   };
   const watch = new MutationObserver(modal);
   for (const el of [sheet, ob, tour]) watch.observe(el, { attributes: true, attributeFilter: ['hidden'] });
-  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); else if (ev.target.id === 'delName' && S.del) { S.del.v = ev.target.value; const b = $('#delYes'); if (b) b.disabled = S.del.busy || !sameWord(S.del.v, delWord()); } });
+  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); else if (ev.target.id === 'wkNameIn') setWkName(+ev.target.dataset.w, ev.target.value); else if (ev.target.id === 'delName' && S.del) { S.del.v = ev.target.value; const b = $('#delYes'); if (b) b.disabled = S.del.busy || !sameWord(S.del.v, delWord()); } });
   sheet.addEventListener('change', (ev) => {
     if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }
     const inp = ev.target.closest('.ed-row input');

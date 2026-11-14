@@ -109,7 +109,9 @@ function volHTML(dl) {
 /* one workout as a list: set counts by default; "reorder and remove" turns the rows into arrows and a cross; adding opens the picker */
 function builderHTML(w) {
   const s = live(w), dl = phase(w, s).dl, ids = planIds(w), ed = S.blEdit === w;
-  return (dl ? '<p class="ms-sub">' + say('שבוע קל: חצי מהסטים.', 'Easy week: half the sets.') + '</p>' : '') + '<div class="bl-w">' + exList(w, s, true).map((e) => {
+  const nm0 = ownName(w);
+  return '<label class="bl-name"><span>' + say('שם האימון', 'Name of the workout') + '</span><input id="wkNameIn" data-w="' + w + '" type="text" maxlength="18" autocomplete="off" enterkeyhint="done" placeholder="' + esc(wkOrd(w)) + '" value="' + esc(nm0) + '"><small>' + say('אפשר לתת לו שם משלך, למשל "יום חזה"', 'Give it a name of your own, like "Chest day"') + '</small></label>' +
+    (dl ? '<p class="ms-sub">' + say('שבוע קל: חצי מהסטים.', 'Easy week: half the sets.') + '</p>' : '') + '<div class="bl-w">' + exList(w, s, true).map((e) => {
     const k = ids.indexOf(e.id);
     return '<div class="bl-row"><span class="bl-n"><b>' + e.nm + '</b><small>' + muName(LIB[e.mv].p) + ' · ' + Ltr(e.reps) + '</small></span>' +
       (k < 0 ? '<small class="bl-once">' + say('רק היום', 'Today only') + '</small>'
@@ -222,7 +224,16 @@ function coachSheetClick(ev, id) {
   if (id === 'dlYes') { startDeload(); closeSheet(); return true; }
   return false;
 }
+/* a workout's own name, kept as it is typed; an empty one gives back "Workout N" */
+function setWkName(w, v) {
+  const me = S.cfg.me, t = String(v || '').replace(/\s+/g, ' ').trim().slice(0, 18), names = Object.assign({}, me.names);
+  if (t && t !== wkOrd(w)) names[w] = t; else delete names[w];
+  if (JSON.stringify(names) === JSON.stringify(me.names || {})) return;
+  me.names = names; saveCfg(); renderAll();
+  const h = $('#sheet .ms.pg h2'); if (h) h.textContent = wkName(w);
+}
 function coachSheetChange(ev) {
+  if (ev.target.id === 'wkNameIn') { setWkName(+ev.target.dataset.w, ev.target.value); return; }
   const sel = ev.target.closest('select[data-inc]'); if (!sel) return;
   const k = sel.dataset.inc, v = +sel.value;
   if (!EQUIP[k] || !(v > 0)) return;

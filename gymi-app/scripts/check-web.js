@@ -23,7 +23,7 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   check('a new phone is met by the opening screens', await f.isVisible('#ob'), 'ob');
   await f.click('#obSkip'); await f.waitForTimeout(300);
   const txt = (sel) => f.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
-  check('the page boots inside the shell', (await txt('#home .next')).includes('שריון') && (await txt('#playerBtn')).includes('רמה 1') && (await f.evaluate(() => window.GYMI_NATIVE)) === 'web', await txt('#home'));
+  check('the page boots inside the shell', (await txt('#home .next')).includes('אימון 1') && (await txt('#playerBtn')).includes('רמה 1') && (await f.evaluate(() => window.GYMI_NATIVE)) === 'web', await txt('#home'));
   check('the shell passes the phone\'s dark mode to the page', (await f.evaluate(() => document.documentElement.getAttribute('data-theme'))) === 'dark', 'theme');
   check('the page says it is saved on this device', (await txt('#syncNote')).includes('במכשיר'), await txt('#syncNote'));
   await f.click('#homeGo'); await f.waitForTimeout(600);

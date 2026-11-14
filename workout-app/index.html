@@ -24,6 +24,8 @@
   --muscle:#E0452B; --muscle-ink:#C93A1F; --muscle-soft:#FDE8E2; --warn:#A44A10; --warn-soft:#FBEBDD;
   --ok:#5A2FCC; --ok-soft:#EEE8FF; --on-ok:#FFFFFF; --rest:#8A5A00; --rest-soft:#FFF1D1;
   --xp:#8F5B00; --xp-soft:#FFF0CC; --xp-fill:#F2B02E;
+  /* the kiosk is red and white, as a kiosk is */
+  --ks:#D7263D; --ks-ink:#B3132A; --ks-soft:#FFF0F1; --ks-w:#FFFFFF;
   --stage:#F5F6F8; --grid:#ECEEF2; --grid-2:#E1E4EA; --floor:#ECEEF2; --ground:#A3A9B5; --shadow:#DDE0E6;
   --fig:#6B7280; --fig-hi:#9097A3; --fig-lo:#4B5260; --fig-far:#B9BEC8; --cloth:#6D3FE0; --cloth-far:#C3B1F5;
   --shoe:#1B1F27; --shoe-far:#8A909C; --sole:#F4F5F7; --hair:#1B1F27;
@@ -39,6 +41,7 @@
     --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
     --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
     --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
+    --ks:#E5484D; --ks-ink:#FF9295; --ks-soft:#2B1417; --ks-w:#F1EFF4;
     --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E; --calm:#9CC2FF; --calm-soft:#14233F; --coin:#2C2A36; --coin-lip:#18161F;
     --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2; --w4-soft:#1B2142; --w4-ink:#AEB8FF;
     --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
@@ -54,6 +57,7 @@
   --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
   --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
   --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
+  --ks:#E5484D; --ks-ink:#FF9295; --ks-soft:#2B1417; --ks-w:#F1EFF4;
   --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E; --calm:#9CC2FF; --calm-soft:#14233F; --coin:#2C2A36; --coin-lip:#18161F;
   --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2; --w4-soft:#1B2142; --w4-ink:#AEB8FF;
   --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
@@ -342,19 +346,10 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .jr-lv .xpbar i{background:var(--gold)}
 .jr-nx{display:grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:99px;background:rgb(255 255 255 / .2);font-size:14.5px;font-weight:800}
 .jr-line{margin-top:6px;font-size:14.5px;font-weight:500;color:rgb(255 255 255 / .72)}
-.road.jr{padding-top:16px}
-.road.jr .stop b{width:max-content;max-width:150px;border-radius:12px;white-space:normal;text-align:center;font-size:13.5px;line-height:1.3}
-.road.jr .stop.next .dot{font-size:28px}
-.road.jr .stop.done .dot{font-size:25px}
-.road.jr .stop.later .dot{background:var(--surface-3);color:var(--ink-3);box-shadow:0 6px 0 var(--coin-lip)}
-.road.jr .stop.top .dot{width:92px;height:92px;margin:-8px 0;font-size:30px}
-.road.jr .stop.top.later .dot{background:var(--xp-soft);color:var(--xp);box-shadow:0 6px 0 color-mix(in srgb,var(--xp-fill) 45%,var(--lip))}
-.road.jr .stop.top b{color:var(--ink);font-weight:800}
 .lv:active{transform:none}
 .lv:active .dot{transform:scale(.93)}
 .pal.pv .pal-fig{width:66px}
 .pal.pv{top:-14px}
-.jr-after{margin:6px 0 10px;text-align:center;font-size:15px;font-weight:600;color:var(--ink-3)}
 /* a stop of the journey, opened: the character at that level, on the dark stage */
 .sheet-in.lvs{gap:14px}
 .lvs-stage{display:grid;place-items:center;padding:14px 0 6px;border-radius:24px;background:radial-gradient(120% 90% at 50% 34%,#3B2477 0%,#1A1038 56%,#0B0716 100%)}
@@ -779,17 +774,24 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .view.enter .pf-nums li{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 60ms + 220ms)}
 .view.enter .kiosk{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .18s both}
 .view.enter .pf-sec{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .28s both}
-/* the kiosk on the profile: the purple card, with the coins and the next things on the shelf */
+/* the kiosk on the profile: a white card under a red and white awning, with the coins and the next things on the shelf */
 .coin{flex:none;width:18px;height:18px}
-.coin-tag{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border-radius:99px;background:rgb(0 0 0 / .24);color:#fff;font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr}
+.coin-tag{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border-radius:99px;background:var(--xp-soft);color:var(--xp);font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr;flex:none}
 .coin-tag.dark{background:var(--xp-soft);color:var(--xp)}
-.card.kiosk h2{font-size:30px}
-.card.kiosk .meta{padding-bottom:12px}
-.ks-peek{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.ks-peek li{display:grid;justify-items:center;gap:5px;padding:8px 4px 9px;border-radius:18px;background:rgb(255 255 255 / .14);font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
-.ks-peek .ks-pic{width:100%;max-width:78px;background:#EEE8FF}
+.ks-awn{position:relative;height:30px;background:repeating-linear-gradient(90deg,var(--ks) 0 26px,var(--ks-w) 26px 52px);box-shadow:inset 0 -3px 0 rgb(0 0 0 / .08)}
+.ks-awn i{position:absolute;inset-inline:0;top:100%;height:11px;background:radial-gradient(circle at 13px 0,var(--ks) 12.5px,transparent 13px) 0 0/52px 11px repeat-x,radial-gradient(circle at 39px 0,var(--ks-w) 12.5px,transparent 13px) 0 0/52px 11px repeat-x;filter:drop-shadow(0 2px 1.5px rgb(0 0 0 / .14))}
+.card.kiosk{padding:0;overflow:hidden;background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 12px 28px -20px rgb(20 10 40 / .35)}
+.ks-card-in{display:grid;gap:10px;padding:24px 18px 18px}
+.ks-card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ks-k{margin:0 0 2px;font-size:13px;font-weight:800;letter-spacing:.04em;color:var(--ks-ink)}
+.card.kiosk h2{margin:0;font-size:24px;font-weight:800;line-height:1.15;letter-spacing:-.02em;color:var(--ink)}
+.card.kiosk .meta{margin:0;padding:0;font-size:14.5px;font-weight:500;color:var(--ink-2)}
+.ks-peek{list-style:none;margin:2px 0 4px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ks-peek li{display:grid;justify-items:center;gap:6px;padding:8px 4px 9px;border-radius:16px;background:var(--ks-soft);color:var(--ink);font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
+.ks-peek .ks-pic{width:100%;max-width:80px;background:var(--surface)}
 .ks-peek span.pr{display:inline-flex;align-items:center;gap:4px;direction:ltr}
 .ks-peek .coin{width:15px;height:15px}
+.btn.ks-go{background:var(--ks);color:#fff;font-weight:800;box-shadow:0 8px 18px -10px var(--ks)}
 .ks-pic{display:block;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--accent-soft)}
 .ks-pic .av{display:block;width:100%;height:100%}
 /* the medals, small: a row of four with their names, and all of them a tap away */
@@ -880,35 +882,43 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .tabbar button.new{position:relative}
 .tabbar button.new::after{content:"";position:absolute;top:6px;inset-inline-start:calc(50% + 10px);width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--surface)}
 /* ---- the kiosk: the character tries a thing on over the shelf; a thing that is owned goes on and off with a tap ---- */
-.sheet-in.ks{gap:12px;height:100%}
-.ks-stage{position:sticky;top:-2px;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:6px;padding:8px 14px;border-radius:24px;color:#fff;background:radial-gradient(130% 110% at 30% 30%,#3B2477 0%,#1A1038 58%,#0B0716 100%)}
-[dir="rtl"] .ks-stage{background:radial-gradient(130% 110% at 70% 30%,#3B2477 0%,#1A1038 58%,#0B0716 100%)}
+.sheet-in.ks{gap:12px;height:100%;padding-top:0}
+.sheet-in.ks > .ks-awn{margin:0 -20px 8px;height:34px;flex:none}
+.ks .ed-h .kicker{color:var(--ks-ink)}
+.ks-stage{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:6px;padding:8px 14px;border-radius:20px;color:var(--ink);background:var(--ks-soft);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ks) 22%,transparent)}
 .ks-fig{display:block;width:100%;max-width:150px;justify-self:center}
 .ks-fig .av{display:block;width:100%;height:auto;overflow:visible}
 .ks-fig .av-aura,.ks-fig .av-glow{display:none}
-.ks-fig .av-shadow{fill:rgb(0 0 0 / .32)}
+.ks-fig .av-shadow{fill:rgb(0 0 0 / .16)}
 .ks-fig.pump .av{animation:pump .65s cubic-bezier(.3,1.5,.5,1)}
 .ks-say{display:grid;gap:8px;min-width:0;text-align:start}
-.ks-say b{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
-.ks-say p{font-size:14px;font-weight:500;line-height:1.35;color:rgb(255 255 255 / .74)}
-.ks-say .btn{justify-self:start;min-height:46px;padding:0 16px;border-radius:15px;background:#fff;color:#2A1866;font-size:16px;font-weight:800;white-space:nowrap}
+.ks-say b{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.01em;color:var(--ink)}
+.ks-say p{font-size:14.5px;font-weight:500;line-height:1.4;color:var(--ink-2)}
+.ks-say .btn{justify-self:start;min-height:46px;padding:0 16px;border-radius:14px;background:var(--ks);color:#fff;font-size:16px;font-weight:800;white-space:nowrap;box-shadow:0 8px 16px -10px var(--ks)}
 .ks-say .btn .coin{width:17px;height:17px}
-.ks-say .btn[disabled]{opacity:1;background:rgb(255 255 255 / .16);color:rgb(255 255 255 / .8)}
+.ks-say .btn[disabled]{opacity:1;background:var(--surface-3);color:var(--ink-2);box-shadow:none}
+/* the shelves: all, or one part of the body */
+.ks-shelf{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px}
+.ks-shelf::-webkit-scrollbar{display:none}
+.ks-shelf button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:14.5px;font-weight:700}
+.ks-shelf small{font-size:12px;font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.ks-shelf button[aria-checked="true"]{background:var(--ks);border-color:var(--ks);color:#fff}
+.ks-shelf button[aria-checked="true"] small{color:rgb(255 255 255 / .82)}
 .ks-grid{list-style:none;margin:0;padding:0 0 8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.ks-it{display:grid;justify-items:center;gap:6px;width:100%;padding:8px 6px 10px;border:0;border-radius:20px;background:var(--surface-2);color:var(--ink);text-align:center}
-.ks-it .ks-pic{width:100%;background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface))}
-.ks-it b{font-size:13.5px;font-weight:700;line-height:1.25;min-height:34px;display:grid;align-items:center}
+.ks-it{display:grid;justify-items:center;gap:6px;width:100%;padding:8px 6px 10px;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:center}
+.ks-it .ks-pic{width:100%;border-radius:12px;background:var(--ks-soft)}
+.ks-it b{font-size:13.5px;font-weight:700;line-height:1.25;min-height:34px;display:grid;align-items:center;color:var(--ink)}
 .ks-pr,.ks-st{display:inline-flex;align-items:center;gap:4px;min-height:26px;padding:0 10px;border-radius:99px;font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
-.ks-pr{background:var(--xp-soft);color:var(--xp);direction:ltr}
+.ks-pr{background:var(--ks);color:#fff;direction:ltr}
 .ks-pr .coin{width:15px;height:15px}
-.ks-it.far .ks-pr{background:var(--surface-3);color:var(--ink-3)}
-.ks-it.far .ks-pr .coin{filter:grayscale(1);opacity:.7}
-.ks-st{background:var(--surface-3);color:var(--ink-2)}
-.ks-it.on{background:var(--accent-soft);box-shadow:inset 0 0 0 2.5px var(--accent)}
-.ks-it.on .ks-st{background:var(--accent);color:var(--on-accent)}
+.ks-it.far .ks-pr{background:var(--surface-3);color:var(--ink-2)}
+.ks-it.far .ks-pr .coin{filter:grayscale(1);opacity:.8}
+.ks-st{background:var(--surface-3);color:var(--ink)}
+.ks-it.on{border-color:var(--ks);background:var(--ks-soft)}
+.ks-it.on .ks-st{background:var(--ks);color:#fff}
 .ks-st svg{width:14px;height:14px;stroke-width:3}
-.ks-it.try{box-shadow:inset 0 0 0 2.5px var(--gold)}
-.ks-it.on.try{box-shadow:inset 0 0 0 2.5px var(--accent)}
+.ks-it.try{border-color:var(--gold);box-shadow:inset 0 0 0 1.5px var(--gold)}
+.ks-it.on.try{border-color:var(--ks);box-shadow:inset 0 0 0 1.5px var(--ks)}
 .pf-sec{display:grid;gap:8px}
 .badges{list-style:none;margin:0;padding:18px 6px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 2px;background:var(--surface);border-radius:var(--r)}
 .bdg{display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;font-size:11.5px;font-weight:600;line-height:1.25;color:var(--ink-3)}
@@ -1640,6 +1650,91 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 @keyframes xi-time{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media (prefers-reduced-motion: reduce){.xi::before,.xi-wave{display:none}.xi-k,.xi-ring,.xi-t,.xi-m,.xi-rx,.xi-tap{animation:none}.xi-ring .f{animation:none;stroke-dashoffset:var(--to)}.xi-bar::after{animation-duration:1.4s}}
 @media (max-height:600px){.xi-ring{width:128px;height:128px}.xi-n{font-size:48px}.xi-t{font-size:24px}}
+/* a set on its button: the weight over the reps, each with its word */
+.setp .v,.setp .hint{display:grid;justify-items:center;gap:1px;line-height:1.1;direction:inherit}
+.sv{display:inline-flex;align-items:baseline;gap:3px;white-space:nowrap}
+.sv b{font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.sv small{font-size:11px;font-weight:600;color:var(--ink-3)}
+.setp .hint .sv b{font-weight:700;color:var(--ink-3)}
+.setp{min-height:52px}
+/* a workout's own name, on its page of the plan */
+.bl-name{display:grid;gap:6px;margin-bottom:4px}
+.bl-name>span{font-size:13.5px;font-weight:700;color:var(--ink-2)}
+.bl-name input{height:50px;padding:0 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface-2);color:var(--ink);font:inherit;font-size:17px;font-weight:700}
+.bl-name input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.bl-name small{font-size:12.5px;color:var(--ink-3)}
+/* the opening's plan: the workouts are numbered, and can be named */
+.ob-wk-tip{position:relative;display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;font-weight:600;color:rgb(255 255 255 / .86)}
+.ob-wk-tip svg{flex:none;width:16px;height:16px}
+/* ---- the journey's map: four worlds of colour down the screen, the levels as medallions on a path, and the summit at 100 ---- */
+.jr-map{position:relative;border-radius:28px;overflow:hidden;background:#120C33;color:#fff;box-shadow:0 18px 40px -26px rgb(30 10 80 / .6)}
+.jr-map-h{padding:22px 20px 0;background:#7B4DFF;text-align:center}
+.jr-map-h h2{font-size:24px;font-weight:800;letter-spacing:-.015em;line-height:1.2}
+.jr-map-h p{margin-top:3px;font-size:14.5px;font-weight:500;color:rgb(255 255 255 / .8)}
+.jr-road{position:relative}
+.jr-band{position:absolute;inset-inline:0;overflow:hidden}
+.jr-band::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,rgb(255 255 255 / .55) 1.3px,transparent 1.8px),radial-gradient(circle,rgb(255 255 255 / .35) 1px,transparent 1.5px);background-size:92px 92px,57px 57px;background-position:14px 34px,41px 9px;opacity:.45}
+.jr-band.b0{background:linear-gradient(#7B4DFF,#6034E0)}
+.jr-band.b1{background:linear-gradient(#4F47E8,#3A31C4)}
+.jr-band.b2{background:linear-gradient(#A646E2,#8526C0)}
+.jr-band.b3{background:linear-gradient(#2B1F6E,#120C33 70%)}
+.jr-band.b3::before{opacity:.95;background-size:70px 70px,43px 43px}
+.jr-hill{position:absolute;bottom:-1px;inset-inline:0;width:100%;height:52px}
+.jr-hill .bk{fill:rgb(255 255 255 / .1)}
+.b0 .jr-hill .f{fill:#4F47E8}
+.b1 .jr-hill .f{fill:#A646E2}
+.b2 .jr-hill .f{fill:#2B1F6E}
+.jr-peak{position:absolute;inset-inline:0;bottom:-1px;width:100%;height:auto}
+.jr-map .pw-road{z-index:2}
+.jr-map .pw-trail path{stroke:rgb(255 255 255 / .42)}
+.jr-map .pw-trail path.on{stroke:#FFD23F}
+/* the sign that opens a world: its number and levels, its name, and how much of it is open */
+.jr-sign{position:absolute;z-index:3;left:50%;translate:-50% 0;display:grid;justify-items:center;gap:2px;min-width:224px;padding:10px 20px 11px;border-radius:16px;background:rgb(10 4 30 / .3);color:#fff;text-align:center;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .2);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.jr-sign small{font-size:12.5px;font-weight:700;color:rgb(255 255 255 / .78)}
+.jr-sign b{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.jr-got{position:absolute;top:-11px;inset-inline-end:-11px;display:grid;place-items:center;min-width:34px;height:26px;padding:0 8px;border-radius:99px;background:#fff;color:#1E1450;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;box-shadow:0 3px 8px rgb(0 0 0 / .25)}
+.jr-got svg{width:15px;height:15px;stroke-width:3.2}
+.jr-sign.done .jr-got{background:#FFD23F;color:#5C3A00}
+.jr-sign.here{box-shadow:inset 0 0 0 2px #fff,0 0 0 6px rgb(255 255 255 / .12)}
+/* the levels: gold once reached, white and pulsing when next, glass when still ahead */
+.jr-map .stop .dot{width:72px;height:72px;background:rgb(255 255 255 / .16);color:#fff;font-size:24px;box-shadow:inset 0 0 0 3px rgb(255 255 255 / .3),0 5px 0 rgb(0 0 0 / .24)}
+.jr-map .stop.done .dot{background:radial-gradient(circle at 34% 28%,#FFEBA6,#F2B02E 60%,#D58F0E);color:#5C3A00;box-shadow:inset 0 0 0 3px rgb(255 255 255 / .5),0 5px 0 #A86E06}
+.jr-map .stop.done .dot svg{width:32px;height:32px;stroke-width:3.4}
+.jr-map .stop.next .dot{width:84px;height:84px;margin:-6px 0;background:#fff;color:#4A22C8;font-size:28px;box-shadow:0 0 0 7px rgb(255 255 255 / .2),0 6px 0 rgb(0 0 0 / .28)}
+.jr-map .stop.next .dot::after{border-color:#fff}
+.jr-map .stop.top .dot{width:96px;height:96px;margin:-6px 0;font-size:30px;background:radial-gradient(circle at 34% 28%,rgb(255 230 150 / .45),rgb(242 176 46 / .22));color:#FFE08A;box-shadow:inset 0 0 0 3px #F2B02E,0 0 30px rgb(242 176 46 / .45),0 6px 0 rgb(0 0 0 / .3)}
+.jr-map .stop.top.done .dot{background:radial-gradient(circle at 34% 28%,#FFEBA6,#F2B02E 60%,#D58F0E);color:#5C3A00}
+.jr-crown{position:absolute;z-index:2;top:-22px;left:50%;width:40px;margin-left:-20px;filter:drop-shadow(0 2px 3px rgb(0 0 0 / .35))}
+.jr-map .stop b{width:max-content;max-width:150px;padding:3px 10px;border-radius:10px;background:rgb(10 4 30 / .32);color:#fff;font-size:13.5px;font-weight:700;line-height:1.3;white-space:normal;text-align:center}
+.jr-map .stop.done b,.jr-map .stop.next b{background:#fff;color:#16102E}
+.jr-map .stop.top b{background:#FFD23F;color:#3D2600;font-weight:800}
+.jr-map .go-chip{background:#fff;color:#3A1AA8;box-shadow:0 3px 0 rgb(0 0 0 / .2),0 10px 20px rgb(0 0 0 / .25)}
+.jr-map .go-chip::after{box-shadow:none}
+.jr-map .pal-fig .av-shadow{fill:rgb(0 0 0 / .28)}
+.jr-map .pal-say{background:#fff;color:#16102E;box-shadow:0 3px 10px rgb(0 0 0 / .25)}
+.jr-map .pal.me .pal-say{font-weight:800}
+.jr-after{position:absolute;z-index:3;bottom:22px;inset-inline:0;display:grid;justify-items:center;gap:8px;margin:0;text-align:center;font-size:15px;font-weight:700;color:rgb(255 255 255 / .88)}
+.jr-after::before{content:"";width:0;height:34px;border-inline-start:4px dotted rgb(255 255 255 / .45)}
+.view.enter .jr-sign{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .2s both}
+/* the kiosk's red buttons and its shelves: after the general button styles, so that they keep their colour */
+.card.kiosk .btn.ks-go,.card.kiosk .btn.ks-go:hover{background:var(--ks);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--ks) 70%,#000)}
+.sheet-in.ks .ks-say .btn{background:var(--ks);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--ks) 70%,#000)}
+.sheet-in.ks .ks-say .btn[disabled]{background:var(--surface-3);color:var(--ink-2);box-shadow:none}
+.sheet-in.ks .ks-shelf{min-height:46px;overflow-y:hidden}
+/* the journey's medallions ahead are solid, so the path does not show through them */
+.jr-map .stop.later.j0 .dot{background:#8D67FF}
+.jr-map .stop.later.j1 .dot{background:#625AEE}
+.jr-map .stop.later.j2 .dot{background:#B565E9}
+.jr-map .stop.later.j3 .dot{background:#3A2D85}
+.jr-map .stop.top.later .dot{background:radial-gradient(circle at 34% 28%,#6A4A2A,#3A2D85 70%)}
+/* the figure: a boy and a girl, whole, side by side */
+.lk-cuts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lk-bod .lk-face{width:110px;height:150px;border-radius:16px;background:var(--surface-3)}
+.lk-bod .lk-face .av{width:100%;height:100%}
+.lk-bod .av-aura,.lk-bod .av-glow{display:none}
+/* on the narrowest phones the sixteen haircuts sit a little closer, so the look still fits on one screen */
+@media (max-width:340px){.lk-cuts{gap:4px}.lk-cut{padding:4px 0 5px;gap:2px}.lk-face{width:38px;height:38px}}
+.week-h h2{white-space:nowrap}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -1835,12 +1930,14 @@ const inWeek = (w) => week().includes(w);
 /* a workout's place in the week (0 for the first), and the colour that goes with that place */
 const posOf = (w) => Math.max(0, week().indexOf(w));
 const wkTone = (w) => 'w' + (posOf(w) % 5);
-/* how a workout is called in the app: a name of its own ("שריון"), the muscles it trains, and its place in the week ("אימון ראשון") */
+/* how a workout is called in the app: by its place in the week ("אימון 1"), or by the name the lifter gave it. A workout that is
+   not in the week any more (the days changed) is called by what it trains. Under the name, always, the muscles it trains */
 const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי'];
-const wkName = (w) => say(PLAN[w].t, PLAN[w].te);
+const ownName = (w) => { const n = typeof S !== 'undefined' && S.cfg && S.cfg.me && S.cfg.me.names; return (n && typeof n[w] === 'string' && n[w]) || ''; };
 const wkMus = (w) => say(PLAN[w].m, PLAN[w].me);
-const wkOrd = (w) => say('אימון ' + ORD[posOf(w)], 'Workout ' + (posOf(w) + 1));
-const wkFull = (w) => wkOrd(w) + ' – ' + wkName(w);
+const wkOrd = (w) => say('אימון ' + (posOf(w) + 1), 'Workout ' + (posOf(w) + 1));
+const wkName = (w) => ownName(w) || (inWeek(w) ? wkOrd(w) : wkMus(w));
+const wkFull = (w) => (ownName(w) ? wkOrd(w) + ' – ' + ownName(w) : wkName(w));
 const wkShort = (w) => wkName(w);
 /* a count with its noun: "3 סטים" / "3 sets", "סט אחד" / "1 set" */
 const cnt = (n, heN, he1, enN, en1) => (LANG === 'en' ? n + ' ' + (n === 1 ? en1 : enN) : n === 1 ? he1 : n + ' ' + heN);
@@ -2375,10 +2472,18 @@ const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);
 /* ---- the kiosk: what the character can wear beyond what the levels open. Every ten points earned are a coin, and coins buy.
    slot: one thing of a slot is worn at a time. The level and its points are never spent: the coins are counted beside them */
 const SHOP = [
-  { id: 'towel', slot: 'neck', cost: 30, he: 'מגבת', en: 'Towel' }, { id: 'kicksW', slot: 'feet', cost: 50, he: 'נעליים לבנות', en: 'White sneakers' }, { id: 'cap', slot: 'head', cost: 60, he: 'כובע מצחייה', en: 'Cap' },
-  { id: 'gloves', slot: 'hands', cost: 70, he: 'כפפות אימון', en: 'Training gloves' }, { id: 'shades', slot: 'eyes', cost: 90, he: 'משקפי שמש', en: 'Sunglasses' }, { id: 'watch', slot: 'wrist', cost: 110, he: 'שעון ספורט', en: 'Sports watch' },
+  { id: 'towel', slot: 'neck', cost: 30, he: 'מגבת', en: 'Towel' }, { id: 'sweat', slot: 'wrist', cost: 35, he: 'מגני זיעה', en: 'Sweatbands' }, { id: 'towelP', slot: 'neck', cost: 45, he: 'מגבת סגולה', en: 'Purple towel' },
+  { id: 'kicksW', slot: 'feet', cost: 50, he: 'נעליים לבנות', en: 'White sneakers' }, { id: 'cap', slot: 'head', cost: 60, he: 'כובע מצחייה', en: 'Cap' }, { id: 'capR', slot: 'head', cost: 60, he: 'כובע אדום', en: 'Red cap' },
+  { id: 'glasses', slot: 'eyes', cost: 60, he: 'משקפיים', en: 'Glasses' }, { id: 'shaker', slot: 'hold', cost: 65, he: 'שייקר', en: 'Shaker' }, { id: 'gloves', slot: 'hands', cost: 70, he: 'כפפות אימון', en: 'Training gloves' },
+  { id: 'kicksK', slot: 'feet', cost: 70, he: 'נעליים שחורות', en: 'Black sneakers' }, { id: 'capK', slot: 'head', cost: 75, he: 'כובע שחור', en: 'Black cap' }, { id: 'beanie', slot: 'head', cost: 80, he: 'כובע גרב', en: 'Beanie' },
+  { id: 'glovesR', slot: 'hands', cost: 85, he: 'כפפות אדומות', en: 'Red gloves' }, { id: 'shades', slot: 'eyes', cost: 90, he: 'משקפי שמש', en: 'Sunglasses' }, { id: 'kicksR', slot: 'feet', cost: 95, he: 'נעליים אדומות', en: 'Red sneakers' },
+  { id: 'tag', slot: 'neck', cost: 100, he: 'דסקית', en: 'Dog tag' }, { id: 'watch', slot: 'wrist', cost: 110, he: 'שעון ספורט', en: 'Sports watch' }, { id: 'buds', slot: 'ears', cost: 110, he: 'אוזניות אלחוטיות', en: 'Earbuds' },
   { id: 'kicksP', slot: 'feet', cost: 120, he: 'נעליים סגולות', en: 'Purple sneakers' }, { id: 'phones', slot: 'ears', cost: 150, he: 'אוזניות', en: 'Headphones' }, { id: 'chain', slot: 'neck', cost: 200, he: 'שרשרת זהב', en: 'Gold chain' },
+  { id: 'watchG', slot: 'wrist', cost: 220, he: 'שעון זהב', en: 'Gold watch' },
 ];
+/* the kiosk's shelves: what a thing is worn on, gathered as a shop would */
+const SHELF = [['', 'הכול', 'All'], ['head', 'ראש', 'Head'], ['face', 'פנים', 'Face'], ['body', 'גוף', 'Body'], ['feet', 'רגליים', 'Feet']];
+const shelfOf = (it) => (it.slot === 'head' ? 'head' : it.slot === 'eyes' || it.slot === 'ears' ? 'face' : it.slot === 'feet' ? 'feet' : 'body');
 const shopItem = (id) => SHOP.find((x) => x.id === id) || null;
 const coinsOf = (xp) => Math.floor((xp > 0 && isFinite(xp) ? xp : 0) / 10);
 /* a wardrobe read from a file or from the account: only things the kiosk sells, each owned once, and of the worn ones one to a slot */
@@ -3117,9 +3222,13 @@ def('seatedCalf', {
    so a class on the root is enough to move between standing and flexing. */
 const SKIN = [['#F8DEC9', '#E8BEA0'], ['#EFC4A0', '#D7A07A'], ['#DDAA80', '#C0885E'], ['#C18A5B', '#A06C42'], ['#8F5C38', '#714525'], ['#5F3C25', '#472B18']];
 /* a haircut is drawn by its number; the list shows them in this order, each by the name a barber would use */
-const HAIR = ['קרחת', 'קצר', 'מורם', 'מתולתל', 'ארוך', 'פוני', 'קצוץ', 'שביל בצד', 'בינוני'];
-const HAIR_EN = ['Bald', 'Short', 'Swept up', 'Curly', 'Long', 'Fringe', 'Buzz cut', 'Side part', 'Medium'];
-const HAIR_ORDER = [1, 6, 7, 5, 2, 3, 8, 4, 0];
+const HAIR = ['קרחת', 'קצר', 'מורם', 'מתולתל', 'ארוך', 'פוני', 'קצוץ', 'שביל בצד', 'בינוני', 'קוקו', 'פקעת', 'צמות', 'קארה', 'אפרו', 'מוהוק', 'קוקיות'];
+const HAIR_EN = ['Bald', 'Short', 'Swept up', 'Curly', 'Long', 'Fringe', 'Buzz cut', 'Side part', 'Medium', 'Ponytail', 'Bun', 'Braids', 'Bob', 'Afro', 'Mohawk', 'Pigtails'];
+/* the haircuts in the order they are offered: a boy's and a girl's, each list with every cut in it */
+const HAIR_ORDER = [1, 6, 7, 5, 2, 3, 8, 13, 14, 4, 10, 9, 12, 11, 15, 0];
+const HAIR_ORDER_F = [9, 10, 11, 12, 4, 15, 3, 13, 8, 5, 1, 7, 2, 6, 14, 0];
+/* the figure: a boy's or a girl's build */
+const BODY = () => [say('בן', 'Boy'), say('בת', 'Girl')];
 const hairName = (i) => (LANG === 'en' ? HAIR_EN[i] : HAIR[i]);
 const BEARDS = () => (LANG === 'en' ? ['None', 'Stubble', 'Full'] : BEARD);
 const HAIRC = ['#1E1A18', '#3A2A21', '#5E4130', '#8A6446', '#B89058', '#DDBB78', '#A9502C', '#9B9AA0'];
@@ -3138,7 +3247,10 @@ function avatarSVG(look, lvl, o) {
   const wear = (k) => Array.isArray(look.wear) && look.wear.includes(k);
   const b = Math.max(buildOf(lvl), o.base || 0), L = (a, z) => +(a + (z - a) * b).toFixed(1), has = (k) => look.gear !== false && REWARDS.some((r) => r.k === k && r.at <= lvl);
   const sk = SKIN[look.skin] || SKIN[1], skin = sk[0], shd = sk[1], hc = ownHex(look.hairC) || HAIRC[look.hc] || HAIRC[0], shirt = ownHex(look.shirtC) || SHIRT[look.shirt] || SHIRT[0], shirt2 = tone(shirt, -0.18);
-  const sw = L(31, 43), cw = L(27, 39), ww = L(22, 25), nw = L(8, 11.5), ua = L(12, 19), fa = L(10, 14.5), lg = L(16, 21), sy = L(96, 93.5), tank = has('tank');
+  /* a girl's figure: narrower shoulders, a waist and hips, slimmer arms; she grows strong with the levels just the same */
+  const fem = look.body === 1;
+  const sw = fem ? L(27, 36) : L(31, 43), cw = fem ? L(25, 33) : L(27, 39), ww = fem ? L(19, 21.5) : L(22, 25), nw = fem ? L(7.2, 9.2) : L(8, 11.5), ua = fem ? L(11, 15.5) : L(12, 19), fa = fem ? L(9.4, 12.4) : L(10, 14.5), lg = fem ? L(16, 19.5) : L(16, 21), sy = L(96, 93.5), tank = has('tank'), hip = fem ? 6.5 : 1.5;
+  const glove = wear('gloves') ? ['#1E1D24', '#6D3FE0'] : wear('glovesR') ? ['#D7263D', '#FFFFFF'] : null;
   const ln = (x1, y1, x2, y2, w, c) => '<path d="M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2 + '" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="round" fill="none"/>';
   const dot = (x, y, r, c) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + c + '"/>';
   const P = (d, c, extra) => '<path d="' + d + '" fill="' + c + '"' + (extra || '') + '/>';
@@ -3147,23 +3259,38 @@ function avatarSVG(look, lvl, o) {
   /* the torso outline, shared by the shirt and (under a tank top) the bare chest */
   const torso = 'M' + X(-nw - 2) + ' 89L' + X(-sw + 7) + ' ' + sy + 'Q' + X(-sw - 1) + ' ' + (sy + 1) + ' ' + X(-sw - 1) + ' 106L' + X(-cw) + ' 120Q' + X(-ww - 1) + ' 140 ' + X(-ww) + ' 156L' + X(ww) + ' 156Q' + X(ww + 1) + ' 140 ' + X(cw) + ' 120L' + X(sw + 1) + ' 106Q' + X(sw + 1) + ' ' + (sy + 1) + ' ' + X(sw - 7) + ' ' + sy + 'L' + X(nw + 2) + ' 89Q100 97 ' + X(-nw - 2) + ' 89Z';
   const tankTop = 'M' + X(-nw - 6) + ' 91Q' + X(-nw - 5) + ' 112 ' + X(-cw + 1) + ' 121Q' + X(-ww - 1) + ' 140 ' + X(-ww) + ' 156L' + X(ww) + ' 156Q' + X(ww + 1) + ' 140 ' + X(cw - 1) + ' 121Q' + X(nw + 5) + ' 112 ' + X(nw + 6) + ' 91L' + X(nw + 1) + ' 91Q100 108 ' + X(-nw - 1) + ' 91Z';
-  const pecs = b > 0.3 ? '<path d="M' + X(-cw * 0.74) + ' 119Q' + X(-cw * 0.38) + ' 127 99 121M' + X(cw * 0.74) + ' 119Q' + X(cw * 0.38) + ' 127 101 121" stroke="' + (tank ? shd : shirt2) + '" stroke-width="1.7" stroke-linecap="round" fill="none" opacity="' + Math.min(0.75, (b - 0.3) * 1.4).toFixed(2) + '"/>' : '';
+  const pecs = fem ? '<path d="M' + X(-cw * 0.74) + ' 111Q' + X(-cw * 0.38) + ' 125 99.4 116.5M' + X(cw * 0.74) + ' 111Q' + X(cw * 0.38) + ' 125 100.6 116.5" stroke="' + (tank ? shd : shirt2) + '" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".6"/>' : b > 0.3 ? '<path d="M' + X(-cw * 0.74) + ' 119Q' + X(-cw * 0.38) + ' 127 99 121M' + X(cw * 0.74) + ' 119Q' + X(cw * 0.38) + ' 127 101 121" stroke="' + (tank ? shd : shirt2) + '" stroke-width="1.7" stroke-linecap="round" fill="none" opacity="' + Math.min(0.75, (b - 0.3) * 1.4).toFixed(2) + '"/>' : '';
   const arm = (d) => {
     const sx = X(d * sw), bi = X(d * (sw + ua * 0.34));
     return '<g class="av-arm ' + (d < 0 ? 'l' : 'r') + '" style="transform-origin:' + sx + 'px 104px">' + ln(sx, 104, sx, 139, ua, skin) +
       '<ellipse class="av-bi" style="transform-origin:' + sx + 'px 122px" cx="' + bi + '" cy="122" rx="' + (ua * 0.44).toFixed(1) + '" ry="' + L(9, 12.5) + '" fill="' + skin + '"/>' +
       (tank ? dot(sx, 104, +(ua / 2 + 1.5).toFixed(1), skin) : ln(sx, 104, sx, 118, ua + 4, shirt)) +
       '<g class="av-fore" style="transform-origin:' + sx + 'px 139px">' + ln(sx, 139, sx, 169, fa, skin) + (has('wraps') ? ln(sx, 161, sx, 168, fa + 1.8, '#ECEEF2') + ln(sx, 164.5, sx, 164.6, fa + 1.8, '#C9CED8') : '') +
-      (d > 0 && wear('watch') ? ln(sx, 153.6, sx, 156.4, fa + 1.6, '#1E1D24') + '<rect x="' + (sx - 3.6).toFixed(1) + '" y="151.4" width="7.2" height="7.2" rx="2" fill="#EDEBFA" stroke="#1E1D24" stroke-width="1.5"/>' : '') +
-      (wear('gloves') ? dot(sx, 175, L(6.9, 8.5), '#1E1D24') + ln(sx, 169.4, sx, 170.6, fa + 1.4, '#6D3FE0') : dot(sx, 175, L(6.6, 8.2), skin)) + '</g></g>';
+      (wear('sweat') ? ln(sx, 161.6, sx, 167.6, fa + 2.6, '#D7263D') + '<rect x="' + (sx - (fa + 2.6) / 2).toFixed(1) + '" y="163.8" width="' + (fa + 2.6).toFixed(1) + '" height="1.7" fill="#fff"/>' : '') +
+      (d > 0 && (wear('watch') || wear('watchG')) ? (wear('watchG') ? ln(sx, 153.6, sx, 156.4, fa + 1.6, '#C98F1C') + '<rect x="' + (sx - 3.8).toFixed(1) + '" y="151.2" width="7.6" height="7.6" rx="2.2" fill="#FFF6DC" stroke="#C98F1C" stroke-width="1.6"/>' + dot(sx, 155, 1, '#C98F1C')
+        : ln(sx, 153.6, sx, 156.4, fa + 1.6, '#1E1D24') + '<rect x="' + (sx - 3.6).toFixed(1) + '" y="151.4" width="7.2" height="7.2" rx="2" fill="#EDEBFA" stroke="#1E1D24" stroke-width="1.5"/>') : '') +
+      (d < 0 && wear('shaker') ? '<rect x="' + (sx - 6.5).toFixed(1) + '" y="170" width="13" height="25" rx="3.6" fill="#F4F4F6" stroke="#B9BEC9" stroke-width="1.2"/><rect x="' + (sx - 6.5).toFixed(1) + '" y="180" width="13" height="7" fill="#6D3FE0"/><rect x="' + (sx - 5.4).toFixed(1) + '" y="165.6" width="10.8" height="5.4" rx="1.6" fill="#D7263D"/>' : '') +
+      (glove ? dot(sx, 175, L(6.9, 8.5), glove[0]) + ln(sx, 169.4, sx, 170.6, fa + 1.4, glove[1]) : dot(sx, 175, L(6.6, 8.2), skin)) + '</g></g>';
   };
 
   /* head: back hair first, so long hair falls behind the shoulders */
   const hair = look.hair | 0, hasHair = hair > 0, browC = hasHair ? tone(hc, -0.15) : '#4A3A30';
-  const backHair = hair === 4 ? P('M72 52C67 30 83 18 100 18C117 18 133 30 128 52L131 93C124 100 116 98 114 91L114 70L86 70L86 91C84 98 76 100 69 93Z', hc) : '';
+  const backHair = hair === 9 ? P('M114 33C133 36 140 62 133.5 88C131.5 96 124.5 97.5 122.4 91C127 74 125 54 112.5 40Z', hc) + '<path d="M120 46Q129 62 126 84" stroke="' + tone(hc, 0.2) + '" stroke-width="1.4" fill="none" opacity=".6"/>'
+    : hair === 12 ? P('M71.4 54C67.6 30 83.6 18 100 18C116.4 18 132.4 30 128.6 54L130.4 79C125.6 86 118.6 85 116.6 78L116.6 62L83.4 62L83.4 78C81.4 85 74.4 86 69.6 79Z', hc)
+    : hair === 13 ? '<ellipse cx="100" cy="42" rx="36.5" ry="31.5" fill="' + hc + '"/>' + [[67, 38, 8], [72, 22, 8.5], [85, 12, 9], [100, 9, 9], [115, 12, 9], [128, 22, 8.5], [133, 38, 8], [131, 53, 7], [69, 53, 7]].map((c) => dot(c[0], c[1], c[2], hc)).join('')
+    : hair === 4 ? P('M72 52C67 30 83 18 100 18C117 18 133 30 128 52L131 93C124 100 116 98 114 91L114 70L86 70L86 91C84 98 76 100 69 93Z', hc) : '';
   const cap = 'M74 54C70.5 33 84 20 100 20C116 20 129.5 33 126 54C124 46 119.5 40 112 38.5C104 37 96 37 88 38.5C80.5 40 76 46 74 54Z';
   let topHair = '';
-  if (hair === 1 || hair === 4) topHair = P(cap, hc);
+  const tie = (x, y) => '<ellipse cx="' + x + '" cy="' + y + '" rx="3.2" ry="2.4" fill="#D7263D"/>';
+  if (hair === 1 || hair === 4 || hair === 9) topHair = P(cap, hc) + (hair === 9 ? '<path d="M84 25Q100 18 118 27" stroke="' + tone(hc, 0.22) + '" stroke-width="1.5" stroke-linecap="round" fill="none"/>' + tie(119.5, 35.5) : '');
+  else if (hair === 10) topHair = dot(100, 15.5, 10.5, hc) + '<path d="M93 12Q100 7.5 107 12" stroke="' + tone(hc, 0.24) + '" stroke-width="1.5" stroke-linecap="round" fill="none"/>' + '<rect x="93" y="22" width="14" height="4" rx="2" fill="#D7263D"/>' + P(cap, hc);
+  else if (hair === 11) topHair = P(cap, hc) + '<path d="M100 21.5V35" stroke="' + tone(hc, -0.25) + '" stroke-width="1.3" stroke-linecap="round"/>' +
+    [-1, 1].map((d) => [0, 1, 2, 3, 4, 5].map((k) => '<ellipse cx="' + X(d * (26.4 - k * 0.5)) + '" cy="' + (60 + k * 9) + '" rx="' + (5.6 - k * 0.25).toFixed(2) + '" ry="5.6" fill="' + (k % 2 ? tone(hc, 0.08) : hc) + '"/>').join('') + tie(X(d * 23.6), 113)).join('');
+  else if (hair === 12) topHair = P(cap, hc) + P('M75 47C78 32 92 25 108 27C96 30 88 37 84 47Z', tone(hc, 0.06));
+  else if (hair === 13) topHair = P(cap, hc) + [[80, 40, 4.6], [88, 35.5, 4.6], [96, 34, 4.6], [104, 34, 4.6], [112, 35.5, 4.6], [120, 40, 4.6]].map((c) => dot(c[0], c[1], c[2], hc)).join('');
+  else if (hair === 14) topHair = P('M75.4 50.5C74.8 33 87 24.4 100 24.4C113 24.4 125.2 33 124.6 50.5C122.4 43.4 116.4 39.6 108.4 38.7C102.6 38 97.4 38 91.6 38.7C83.6 39.6 77.6 43.4 75.4 50.5Z', hc, ' opacity=".42"') +
+    P('M92.6 39C91.4 24 94.6 11 100 4.5C105.4 11 108.6 24 107.4 39Q100 37 92.6 39Z', hc) + '<path d="M100 9V36" stroke="' + tone(hc, 0.2) + '" stroke-width="1.4" fill="none" opacity=".7"/>';
+  else if (hair === 15) topHair = P(cap, hc) + [-1, 1].map((d) => P('M' + X(d * 22) + ' 37C' + X(d * 38) + ' 39 ' + X(d * 43) + ' 62 ' + X(d * 36) + ' 82C' + X(d * 31.5) + ' 70 ' + X(d * 29.5) + ' 54 ' + X(d * 21) + ' 45Z', hc) + tie(X(d * 26), 39.5)).join('');
   else if (hair === 2) topHair = P(cap, hc) + P('M80 31C83 15 110 9 124 25C116 22.5 108 25 100 29.5C93 33.5 86 34.5 80 31Z', hc) + '<path d="M90 24Q101 17 114 21" stroke="' + tone(hc, 0.22) + '" stroke-width="1.6" stroke-linecap="round" fill="none"/>';
   else if (hair === 3) topHair = P(cap, hc) + [[78, 41, 8], [84, 31, 8.5], [93, 25, 8.5], [103, 23, 8.5], [113, 26, 8.5], [121, 33, 8], [124.5, 43, 7], [76, 50, 5.5]].map((c) => dot(c[0], c[1], c[2], hc)).join('');
   else if (hair === 6) topHair = P('M75.4 50.5C74.8 33 87 24.4 100 24.4C113 24.4 125.2 33 124.6 50.5C122.4 43.4 116.4 39.6 108.4 38.7C102.6 38 97.4 38 91.6 38.7C83.6 39.6 77.6 43.4 75.4 50.5Z', hc, ' opacity=".82"');
@@ -3175,17 +3302,23 @@ function avatarSVG(look, lvl, o) {
   else if (hair === 5) topHair = P('M73.6 54C70 39 74.5 24 86 18.5Q91 13.8 97 16.6Q102.5 12.6 109.5 16.2C121.5 19.5 130.2 38 126.4 54C125.2 50 124 46.8 121.8 45Q119.6 47.8 116.2 47.4Q115.4 45 114.2 43.2Q111.8 47.6 107.6 48.2Q106.6 45.4 105.6 43.4Q103 48 98.6 48.6Q97.4 45.8 96.4 43.6Q94.2 47.4 89.8 47.8Q88.6 45.2 87.6 43Q85.6 46.2 81.6 46.4Q80.4 44.6 79.6 43.2Q77.4 46 75.6 50Q74.4 52 73.6 54Z', hc) +
     '<path d="M112.6 25.5Q116.4 34 115.6 44M102.6 20.5Q106.2 31 106.6 44.2M93.4 21Q95.2 32 97.4 44.4M85 26.5Q86.2 35 88.6 43.8" stroke="' + tone(hc, 0.24) + '" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".75"/>';
   const beardD = 'M75.5 55C75.5 72 86 85.5 100 85.5C114 85.5 124.5 72 124.5 55C121.5 62 117 64.5 112 64.5C108 61 92 61 88 64.5C83 64.5 78.5 62 75.5 55Z';
-  const beard = look.beard === 2 ? P(beardD, hasHair ? hc : '#4A3A30') + '<ellipse cx="100" cy="69.3" rx="7.4" ry="3.9" fill="' + skin + '"/>' : look.beard === 1 ? P(beardD, hasHair ? hc : '#4A3A30', ' opacity=".26"') : '';
+  const beard = fem ? '' : look.beard === 2 ? P(beardD, hasHair ? hc : '#4A3A30') + '<ellipse cx="100" cy="69.3" rx="7.4" ry="3.9" fill="' + skin + '"/>' : look.beard === 1 ? P(beardD, hasHair ? hc : '#4A3A30', ' opacity=".26"') : '';
   /* gear is won in the game, so it is gold */
   const bandC = '#F2B93B';
-  const capOn = wear('cap');
+  const capC = wear('cap') ? ['#5229C4', '#3B1E96'] : wear('capR') ? ['#D7263D', '#9E1328'] : wear('capK') ? ['#2A2933', '#121117'] : null, beanie = wear('beanie'), capOn = !!capC || beanie;
   const band = has('band') && !capOn ? P('M74.6 44.5C83 38.5 117 38.5 125.4 44.5L125.6 38.5C117 32 83 32 74.4 38.5Z', bandC) + P('M125 39.5L134 35.5L131 42.5ZM125 42L134.5 46L128.5 48.5Z', tone(bandC, -0.12)) : '';
   const crown = has('crown') && !capOn ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#6D3FE0') + '</g>' : '';
-  const hat = capOn ? P('M73.2 47C71.4 28.5 84.6 17 100 17C115.4 17 128.6 28.5 126.8 47Q100 39.5 73.2 47Z', '#5229C4') + P('M69.6 47.4Q100 36.6 130.4 47.4Q132 50.8 128.6 52Q100 43.4 71.4 52Q68 50.8 69.6 47.4Z', '#3B1E96') + dot(100, 17.6, 2.1, '#3B1E96') + '<path d="M100 19.5V38" stroke="#3B1E96" stroke-width="1.2" opacity=".55"/>' : '';
+  const hat = capC ? P('M73.2 47C71.4 28.5 84.6 17 100 17C115.4 17 128.6 28.5 126.8 47Q100 39.5 73.2 47Z', capC[0]) + P('M69.6 47.4Q100 36.6 130.4 47.4Q132 50.8 128.6 52Q100 43.4 71.4 52Q68 50.8 69.6 47.4Z', capC[1]) + dot(100, 17.6, 2.1, capC[1]) + '<path d="M100 19.5V38" stroke="' + capC[1] + '" stroke-width="1.2" opacity=".55"/>'
+    : beanie ? P('M73 45C71.6 26.5 85 15.5 100 15.5C115 15.5 128.4 26.5 127 45Z', '#4A4857') + '<path d="M86 22.5Q84 33 84.6 42M100 16.5V42M114 22.5Q116 33 115.4 42" stroke="#5E5C6C" stroke-width="2" fill="none"/>' +
+      P('M71.4 40.6Q100 34 128.6 40.6L129.2 50Q100 43.2 70.8 50Z', '#3A3845') + '<path d="M78 41v6.4M85 39.6v6.6M92 38.8v6.6M100 38.5v6.6M108 38.8v6.6M115 39.6v6.6M122 41v6.4" stroke="#4F4D5C" stroke-width="2.2" stroke-linecap="round"/>' + dot(100, 13.6, 5.6, '#ECEBF0') : '';
+  const glasses = wear('glasses') ? '<g fill="none" stroke="#2A2833" stroke-width="1.9"><circle cx="90.2" cy="56" r="6.8" fill="#fff" fill-opacity=".22"/><circle cx="109.8" cy="56" r="6.8" fill="#fff" fill-opacity=".22"/><path d="M97 55.2Q100 53.4 103 55.2M83.4 54.8L76 53.4M116.6 54.8L124 53.4" stroke-linecap="round"/></g>' : '';
+  const buds = wear('buds') ? [73.4, 126.6].map((x) => '<ellipse cx="' + x + '" cy="55.2" rx="3.5" ry="3.9" fill="#F4F4F6" stroke="#B9BEC9" stroke-width="1"/><path d="M' + x + ' 58.6v6.6" stroke="#F4F4F6" stroke-width="2.8" stroke-linecap="round"/>').join('') : '';
   const shades = wear('shades') ? '<g><path d="M82 54L75.6 53M118 54L124.4 53" stroke="#15131C" stroke-width="2" stroke-linecap="round"/><rect x="81.8" y="50" width="16.6" height="11.4" rx="4.8" fill="#15131C"/><rect x="101.6" y="50" width="16.6" height="11.4" rx="4.8" fill="#15131C"/><path d="M98 54.4h4" stroke="#15131C" stroke-width="2"/><path d="M85.6 52.6l3.4 5.4M105.4 52.6l3.4 5.4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".3"/></g>' : '';
   const phones = wear('phones') ? '<path d="M72.6 52C70.4 26.5 85.5 13.6 100 13.6C114.5 13.6 129.6 26.5 127.4 52" stroke="#1E1D24" stroke-width="4.4" stroke-linecap="round" fill="none"/><rect x="66.6" y="46" width="10.4" height="20" rx="5" fill="#1E1D24"/><rect x="123" y="46" width="10.4" height="20" rx="5" fill="#1E1D24"/><rect x="68.6" y="50" width="3.6" height="12" rx="1.8" fill="#6D3FE0"/><rect x="127.8" y="50" width="3.6" height="12" rx="1.8" fill="#6D3FE0"/>' : '';
   /* round the neck: a towel that hangs down both sides of the chest, or a gold chain */
-  const towel = wear('towel') ? [-1, 1].map((d) => P('M' + X(d * (nw + 3.6)) + ' 87.5L' + X(d * (nw + 7.2)) + ' 127Q' + X(d * (nw + 2)) + ' 129.4 ' + X(d * (nw - 3.4)) + ' 127.4L' + X(d * (nw - 2.6)) + ' 89.5Z', '#F4F4F6', ' stroke="#D9DAE0" stroke-width="1" stroke-linejoin="round"') + ln(X(d * (nw + 5.6)), 121, X(d * (nw - 2.6)), 121.4, 1.6, '#C9B8F5')).join('') : '';
+  const twC = wear('towel') ? ['#F4F4F6', '#D9DAE0', '#C9B8F5'] : wear('towelP') ? ['#7C55E8', '#5229C4', '#FFFFFF'] : null;
+  const towel = twC ? [-1, 1].map((d) => P('M' + X(d * (nw + 3.6)) + ' 87.5L' + X(d * (nw + 7.2)) + ' 127Q' + X(d * (nw + 2)) + ' 129.4 ' + X(d * (nw - 3.4)) + ' 127.4L' + X(d * (nw - 2.6)) + ' 89.5Z', twC[0], ' stroke="' + twC[1] + '" stroke-width="1" stroke-linejoin="round"') + ln(X(d * (nw + 5.6)), 121, X(d * (nw - 2.6)), 121.4, 1.6, twC[2])).join('') : '';
+  const tag = wear('tag') ? '<path d="M' + X(-nw + 1) + ' 90.5Q100 106 ' + X(nw - 1) + ' 90.5" stroke="#AEB4C0" stroke-width="2.2" stroke-dasharray="0.1 3.1" stroke-linecap="round" fill="none"/><rect x="95.4" y="99.6" width="9.2" height="13.4" rx="3.2" fill="#D5D9E1" stroke="#8E95A3" stroke-width="1.2"/><path d="M97.8 105h4.4M97.8 108h3" stroke="#8E95A3" stroke-width="1" stroke-linecap="round"/>' : '';
   const chain = wear('chain') ? '<path d="M' + X(-nw + 1) + ' 90.5Q100 110 ' + X(nw - 1) + ' 90.5" stroke="#F2B93B" stroke-width="2.6" stroke-linecap="round" fill="none"/><circle cx="100" cy="101.4" r="3.3" fill="#FFD76A" stroke="#C98F1C" stroke-width="1.3"/>' : '';
   const medal = has('medal') ? '<path d="M' + X(-nw + 1) + ' 91L100 113L' + X(nw - 1) + ' 91" stroke="#6D3FE0" stroke-width="3.4" stroke-linejoin="round" fill="none"/><circle cx="100" cy="117" r="7.4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.6"/><path d="M100 113.2l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#C98F1C"/>' : '';
   /* the lifting belt turns into a title belt: gold, with a plate in the middle */
@@ -3195,7 +3328,7 @@ function avatarSVG(look, lvl, o) {
   const cape = has('cape') ? P('M' + X(-sw + 3) + ' ' + (sy + 2) + 'Q' + X(-sw - 17) + ' 150 ' + X(-sw - 11) + ' 210Q100 224 ' + X(sw + 11) + ' 210Q' + X(sw + 17) + ' 150 ' + X(sw - 3) + ' ' + (sy + 2) + 'Z', '#3B1E96', ' stroke="#F2B93B" stroke-width="2.2" stroke-linejoin="round"') +
     '<path d="M' + X(-sw - 12) + ' 178Q100 194 ' + X(sw + 12) + ' 178" stroke="#2A1470" stroke-width="2" fill="none" opacity=".55"/>' : '';
   const clasp = cape ? dot(X(-nw - 5), 93.5, 2.7, '#F2B93B') + dot(X(nw + 5), 93.5, 2.7, '#F2B93B') : '';
-  const shoe = wear('kicksW') ? ['#F4F4F6', '#C9CED8'] : wear('kicksP') ? ['#6D3FE0', '#F4F4F6'] : has('kicks') ? ['#F2B93B', '#FFF6DC'] : ['#3A4152', '#E7E9ED'], glow = has('glow') ? '<g class="av-glow"><circle cx="100" cy="116" r="97" fill="#F2B93B" opacity=".1"/><circle cx="100" cy="116" r="80" fill="#F2B93B" opacity=".12"/><circle cx="100" cy="116" r="62" fill="#F2B93B" opacity=".14"/></g>' : '';
+  const shoe = wear('kicksW') ? ['#F4F4F6', '#C9CED8'] : wear('kicksP') ? ['#6D3FE0', '#F4F4F6'] : wear('kicksR') ? ['#D7263D', '#F4F4F6'] : wear('kicksK') ? ['#22212A', '#F4F4F6'] : has('kicks') ? ['#F2B93B', '#FFF6DC'] : ['#3A4152', '#E7E9ED'], glow = has('glow') ? '<g class="av-glow"><circle cx="100" cy="116" r="97" fill="#F2B93B" opacity=".1"/><circle cx="100" cy="116" r="80" fill="#F2B93B" opacity=".12"/><circle cx="100" cy="116" r="62" fill="#F2B93B" opacity=".14"/></g>' : '';
   const star4 = (x, y, r, d) => '<path class="av-spark" style="animation-delay:' + d + 's" d="M' + x + ' ' + (y - r) + 'Q' + x + ' ' + y + ' ' + (x + r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y + r) + 'Q' + x + ' ' + y + ' ' + (x - r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y - r) + 'Z" fill="#FFD76A"/>';
   const stars = has('stars') ? star4(24, 56, 7, 0) + star4(176, 44, 6, 0.5) + star4(13, 138, 5, 1) + star4(187, 128, 7, 1.4) + star4(36, 208, 5, 0.8) + star4(167, 214, 6, 0.3) : '';
 
@@ -3204,20 +3337,21 @@ function avatarSVG(look, lvl, o) {
     '<g class="av-eyes"><ellipse cx="90.2" cy="56" rx="2.7" ry="3.1" fill="#1B1F27"/><ellipse cx="109.8" cy="56" rx="2.7" ry="3.1" fill="#1B1F27"/><circle cx="91.1" cy="54.9" r=".9" fill="#fff"/><circle cx="110.7" cy="54.9" r=".9" fill="#fff"/></g>' +
     '<path d="M85.4 49.8q4.6-3 9.4-.7M105.2 49.1q4.8-2.3 9.4.7" stroke="' + browC + '" stroke-width="2.1" stroke-linecap="round" fill="none"/>' +
     '<path d="M100 59.5q-2.6 3.4 0 4.6" stroke="' + shd + '" stroke-width="1.7" stroke-linecap="round" fill="none"/>' +
-    '<path class="av-smile" d="M92.6 68Q100 74 107.4 68" stroke="#1B1F27" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
+    (fem ? '<path d="M87.4 53.6l-2.8-2M87 55.6l-3 -.6M112.6 53.6l2.8-2M113 55.6l3-.6" stroke="#1B1F27" stroke-width="1.3" stroke-linecap="round"/>' : '') +
+    '<path class="av-smile" d="M92.6 68Q100 74 107.4 68" stroke="' + (fem ? '#A8475C' : '#1B1F27') + '" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
     '<g class="av-grin"><path d="M91.6 66.6Q100 78 108.4 66.6Z" fill="#1B1F27" stroke="#1B1F27" stroke-width="1.6" stroke-linejoin="round"/><path d="M94.4 67.3h11.2q-1 2.6-5.6 2.6t-5.6-2.6z" fill="#fff"/></g>' +
-    topHair + band + crown + hat + shades + phones +
+    topHair + band + crown + hat + shades + glasses + phones + buds +
     (look.stud ? '<circle cx="127.6" cy="58.2" r="1.35" fill="#C9CED8" stroke="#7C8492" stroke-width=".6"/><circle cx="126.8" cy="61.3" r="1.15" fill="#C9CED8" stroke="#7C8492" stroke-width=".6"/>' : '');
 
   const body = '<g class="av-bod">' + (tank ? P(torso, skin) + P(tankTop, shirt) : P(torso, shirt)) + pecs + belt +
     '<rect x="' + X(-nw) + '" y="74" width="' + (nw * 2).toFixed(1) + '" height="20" rx="5" fill="' + skin + '"/><ellipse cx="100" cy="83.5" rx="' + nw + '" ry="4.2" fill="' + shd + '"/>' +
-    (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + clasp + medal + chain + towel + head + arm(-1) + arm(1) + '</g>';
+    (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + clasp + medal + chain + tag + towel + head + arm(-1) + arm(1) + '</g>';
   /* a bust is cut round under the hair: with the crown on, the frame takes in its points */
   if (o.bust) return '<svg class="av bust' + (o.flex ? ' flex' : '') + (o.grin ? ' grin' : '') + '" viewBox="' + (crown ? '51 -1 98 98' : '58 14 84 84') + '" aria-hidden="true">' + backHair + body + '</svg>';
 
   const legs = [-1, 1].map((d) => ln(X(d * 11.5), 170, X(d * 12.5), 231, lg, skin)).join('') +
     [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="' + shoe[0] + '"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="' + shoe[1] + '"/>'; }).join('') +
-    P('M' + X(-ww - 1.5) + ' 149L' + X(ww + 1.5) + ' 149L' + X(13 + lg / 2 + 2.5) + ' 190L102.5 190L100 177L97.5 190L' + X(-13 - lg / 2 - 2.5) + ' 190Z', '#39415A', ' stroke="#39415A" stroke-width="4" stroke-linejoin="round"');
+    P('M' + X(-ww - hip) + ' 149L' + X(ww + hip) + ' 149L' + X(13 + lg / 2 + 2.5) + ' 190L102.5 190L100 177L97.5 190L' + X(-13 - lg / 2 - 2.5) + ' 190Z', '#39415A', ' stroke="#39415A" stroke-width="4" stroke-linejoin="round"');
   if (o.crop) return '<svg class="av still" viewBox="' + o.crop + '" aria-hidden="true"><g class="av-fig">' + backHair + legs + body + '</g></svg>';
   return '<svg class="av' + (o.flex ? ' flex' : '') + (o.still ? ' still' : '') + '" viewBox="0 -6 200 258" role="img" aria-label="' + say('הדמות שלי, רמה ', 'My character, level ') + lvl + '">' +
     '<circle class="av-aura r' + rankOf(lvl).i + '" cx="100" cy="116" r="90"/>' + glow + '<ellipse class="av-shadow" cx="100" cy="247" rx="48" ry="4.6"/>' +
@@ -3265,12 +3399,18 @@ const ICON = {
    days (how many workouts a week: 2 to 5, or null before it was asked, which keeps the four),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, days: null, fb: 2, tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0, body: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, days: null, names: {}, fb: 2, tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
+/* the lifter's own names for the workouts, by their place in PLAN: short, trimmed, and only for workouts that exist */
+function cleanNames(v) {
+  const out = {}; if (!v || typeof v !== 'object') return out;
+  for (const k of Object.keys(v)) { const w = +k, t = typeof v[k] === 'string' ? v[k].replace(/\s+/g, ' ').trim().slice(0, 18) : ''; if (Number.isInteger(w) && w >= 0 && w < PLAN.length && t) out[w] = t; }
+  return out;
+}
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), days: DAYS_OK.includes(v.days) ? v.days : null, fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0), body: pick(l.body, 2, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), days: DAYS_OK.includes(v.days) ? v.days : null, names: cleanNames(v.names), fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
   out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
@@ -3734,6 +3874,8 @@ function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) f
 function prCount(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.pr) n++; return n; }
 function ago(ts) { const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : d === 2 ? say('לפני יומיים', '2 days ago') : say('לפני ' + d + ' ימים', d + ' days ago'); }
 const fmtKg = (kg) => (kg == null ? '' : String(Math.round(kg * 100) / 100));
+/* a set in words, as it is shown: "35 ק״ג · 7 חזרות" (fmtRow, short, is for Eilon's context) */
+const rowWords = (r) => (r.kg != null ? fmtKg(r.kg) + say(' ק״ג', ' kg') + ' · ' : '') + (r.reps != null ? r.reps : '–') + say(' חזרות', ' reps');
 const fmtRow = (r) => (r.kg != null ? fmtKg(r.kg) + '×' : '') + (r.reps != null ? r.reps : '–');
 const mmss = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
 
@@ -3837,7 +3979,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'days', 'fb', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'days', 'names', 'fb', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;
@@ -4111,7 +4253,7 @@ function onTheme() { readColors(); drawThumbs(); if (player.cv && !player.playin
 
 
 /* ================================================================== workout UI */
-const valHTML = (r) => Ltr(r.kg != null ? Ltr(fmtKg(r.kg)) + '<small><bdi>' + say(' ק״ג', ' kg') + '</bdi></small>' + Ltr(' × ' + (r.reps != null ? r.reps : '–')) : Ltr(r.reps != null ? r.reps : '–') + '<small><bdi>' + say(' חז׳', ' reps') + '</bdi></small>');
+const valHTML = (r) => (r.kg != null ? Ltr(fmtKg(r.kg)) + '<small>' + say(' ק״ג', ' kg') + '</small> · ' : '') + Ltr(r.reps != null ? r.reps : '–') + '<small>' + say(' חזרות', ' reps') + '</small>';
 /* what today's set is trying to beat */
 const MODE = () => ({ reps: [say('יותר חזרות', 'More reps'), 'g-reps'], weight: [say('יותר משקל', 'More weight'), 'g-wt'], hold: [say('כמו בפעם הקודמת', 'Same as last time'), ''], base: [say('התחלה חדשה', 'Fresh start'), ''], deload: [say('שבוע קל', 'Easy week'), ''], down: [say('פחות משקל', 'Less weight'), 'g-down'], cal: [say('משקל מעודכן', 'New weight'), 'g-cal'], start: [say('משקל התחלתי', 'Starting weight'), 'g-start'] });
 function badge(T, e) {
@@ -4122,7 +4264,7 @@ function badge(T, e) {
 }
 /* why the target is what it is, in one sentence */
 function whyText(T, e) {
-  const last = T.ref ? Ltr(fmtRow(T.ref)) : '', inv = LIB[e.mv].inv;
+  const last = T.ref ? '<bdi>' + rowWords(T.ref) + '</bdi>' : '', inv = LIB[e.mv].inv;
   if (T.mode === 'reps') return last ? say('בפעם הקודמת עשית ' + last + '. היום מנסים יותר חזרות.', 'Last time you did ' + last + '. Today, more reps.') : say('היום מנסים יותר חזרות.', 'Today, more reps.');
   if (T.mode === 'weight') return inv ? say('הגעת לראש טווח החזרות, אז הסיוע יורד.', 'You reached the top of the rep range, so the help comes down.') : say('הגעת לראש טווח החזרות, אז המשקל עולה.', 'You reached the top of the rep range, so the weight goes up.');
   if (T.mode === 'hold') return last ? say('חוזרים על מה שעשית בפעם הקודמת: ' + last + '.', 'Repeat what you did last time: ' + last + '.') : say('ממשיכים עם מה שעשית בסט הקודם.', 'Carry on with what you did in the last set.');
@@ -4239,7 +4381,7 @@ function renderHome() {
   const total = list.reduce((n, e) => n + e.sets, 0), dn = s ? list.reduce((n, e) => n + doneCount(s, e), 0) : 0, Wm = weekModel(nu);
   for (const x of Wm.items) x.cur = x.i === w;
   $('#home').innerHTML = playerHTML(me) + bannerHTML() +
-    '<section class="card next ' + wkTone(w) + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
+    '<section class="card next ' + wkTone(w) + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + (ownName(w) ? wkOrd(w) : s ? say('באמצע', 'In progress') : say('האימון הבא', 'Up next')) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
     '<p class="mus">' + wkMus(w) + '</p>' +
     '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
@@ -4269,18 +4411,18 @@ function rowHTML(e, i, s) {
     '<button class="ex-head" type="button">' +
     '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span>' +
     '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (e.cut ? '<span class="ex-sub">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + '</span>' +
-    '<span class="ex-rx' + (part ? ' part' : '') + '">' + Ltr(part ? dn + '/' + e.sets : (off ? e.n0 : e.sets) + ' × ' + e.reps) + '</span>' +
+    '<span class="ex-rx' + (part ? ' part' : '') + '">' + (part ? Ltr(dn + '/' + e.sets) : cnt(off ? e.n0 : e.sets, 'סטים', 'סט אחד', 'sets', 'set') + ' · ' + Ltr(e.reps) + say(' חז׳', ' reps')) + '</span>' +
     '</button></li>';
 }
-/* a set in short: weight × reps, or the reps alone with their unit when there is no weight */
-const setVal = (r) => Ltr(fmtRow(r)) + (r.kg == null ? '<small> ' + say('חז׳', 'reps') + '</small>' : '');
+/* a set on its button: the weight over the reps, each with its word; the reps alone when there is no weight */
+const setVal = (r) => (r.kg != null ? '<span class="sv"><b>' + Ltr(fmtKg(r.kg)) + '</b><small>' + say('ק״ג', 'kg') + '</small></span>' : '') + '<span class="sv"><b>' + (r.reps != null ? r.reps : '–') + '</b><small>' + say('חזרות', 'reps') + '</small></span>';
 /* the sets of the exercise on screen as one slim row: what was lifted, then what is aimed for */
 function setsHTML(e) {
   const s = live(S.tab), r = rowsOf(s, e.id), cur = cursor(), fu = firstUndone(s, e), T0 = fu >= 0 ? targetOf(e, fu, s) : null;
   let h = '';
   for (let i = 0; i < e.sets; i++) {
     const row = r[i], on = isDone(row), isCur = !S.edit && !!cur && cur.e.id === e.id && cur.i === i, T = on ? null : i === fu ? T0 : targetOf(e, i, s), ed = on && !!S.edit && S.edit.ex === e.id && S.edit.i === i;
-    const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + fmtRow(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + fmtRow(T) : '');
+    const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + rowWords(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + rowWords(T) : '');
     const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
       (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + (T ? setVal(T) : '–') + '</span>') + '</button>';
@@ -4366,7 +4508,7 @@ function renderMore() {
   const e = S.open && findEx(S.open), sh = $('#sheet'); if (!e) { closeSheet(); return; }
   const s = live(S.tab), ref = refRow(e, 0, s), tr = trendHTML(e), fu = firstUndone(s, e), T = fu >= 0 ? targetOf(e, fu, s) : null, fill = fu >= 0 && e.sets - fu > 0 && !!T && T.mode !== 'start', rated = !!s && rowsOf(s, e.id).some(isDone);
   const dl = phase(S.tab, s).dl, inPlan = planIds(S.tab).includes(e.id), started = rowsOf(s, e.id).some(isDone), alone = exList(S.tab, s).length < 2;
-  const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>' : '') + tr;
+  const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => '<bdi>' + rowWords(x) + '</bdi>').join(' · ') + '</p>' : '') + tr;
   const row = (id, ic, t, sub) => '<button class="mr-row" id="' + id + '" type="button"><i aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + ICON.fwd + '</button>';
   sh.innerHTML = '<div class="sheet-in mr" role="dialog" aria-modal="true" aria-label="' + say('עוד', 'More') + '"><div class="ed-h"><div><p class="kicker">' + say('עוד', 'More') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="mr-rows">' + row('moreSwap', ICON.swap, say('החלף תרגיל', 'Swap exercise'), say('תרגיל אחר לאותו שריר', 'Another exercise for the same muscle')) +
@@ -4602,7 +4744,7 @@ function renderDock() {
        the question about a finished exercise, and at the foot what comes next and the way on */
     const L = rest.last; cls += ' rest';
     h = '<div class="rt-top"><button class="rt-undo" id="rtUndo" type="button" aria-label="' + say('ביטול הסט שנרשם', 'Take back the set that was logged') + '"' + (L ? '' : ' hidden') + '>' + ICON.undo + '</button>' +
-      (L ? '<span class="rt-log' + (L.pr ? ' pr' : '') + '">' + (L.pr ? glyph('star') : ICON.check) + '<b>' + Ltr(fmtRow(L)) + '</b>' + (L.pr ? '<i>' + say('שיא אישי', 'Personal best') + '</i>' : '') + '</span>' : '<span></span>') + '<span class="rt-sp"></span></div>' +
+      (L ? '<span class="rt-log' + (L.pr ? ' pr' : '') + '">' + (L.pr ? glyph('star') : ICON.check) + '<b><bdi>' + rowWords(L) + '</bdi></b>' + (L.pr ? '<i>' + say('שיא אישי', 'Personal best') + '</i>' : '') + '</span>' : '<span></span>') + '<span class="rt-sp"></span></div>' +
       '<div class="rt"><div class="rt-ring"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="t" cx="100" cy="100" r="90"/><circle class="f" id="rtFill" cx="100" cy="100" r="90" pathLength="100"/></svg>' +
       '<div class="rt-mid"><div class="rt-time" id="rtTime">0:00</div><div class="rt-word" id="rtWord"></div></div></div>' +
       '<div class="rt-adj"><button type="button" id="rtMinus" aria-label="' + say('הפחת 15 שניות', '15 seconds less') + '">' + Ltr('−15') + '</button><button type="button" id="rtPlus" aria-label="' + say('הוסף 15 שניות', '15 seconds more') + '">' + Ltr('+15') + '</button></div></div>' +
@@ -4784,7 +4926,7 @@ function exIntro(e, first) {
     '<span class="xi-n">' + Ltr((i + 1) + '<small>/' + list.length + '</small>') + '</span></div>' +
     '<h2 class="xi-t">' + e.nm + '</h2><p class="xi-m">' + mus + '</p>' +
     '<p class="xi-rx">' + chip(e.sets, say(' סטים', ' sets')) + chip(Ltr(e.reps), say(' חזרות', ' reps')) + chip(Ltr(restPlain(e)), say(' מנוחה', ' rest')) + '</p>' +
-    '<p class="xi-tap">' + say('נגיעה כדי להמשיך', 'Tap to go on') + '</p><i class="xi-bar" aria-hidden="true"></i></div>';
+    '<i class="xi-bar" aria-hidden="true"></i></div>';
   box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(exIntroOff, reduced ? 1400 : 2300);
@@ -5167,7 +5309,7 @@ function wireApp() {
   };
   const watch = new MutationObserver(modal);
   for (const el of [sheet, ob, tour]) watch.observe(el, { attributes: true, attributeFilter: ['hidden'] });
-  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); else if (ev.target.id === 'delName' && S.del) { S.del.v = ev.target.value; const b = $('#delYes'); if (b) b.disabled = S.del.busy || !sameWord(S.del.v, delWord()); } });
+  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); else if (ev.target.id === 'wkNameIn') setWkName(+ev.target.dataset.w, ev.target.value); else if (ev.target.id === 'delName' && S.del) { S.del.v = ev.target.value; const b = $('#delYes'); if (b) b.disabled = S.del.busy || !sameWord(S.del.v, delWord()); } });
   sheet.addEventListener('change', (ev) => {
     if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }
     const inp = ev.target.closest('.ed-row input');
@@ -5418,7 +5560,9 @@ function volHTML(dl) {
 /* one workout as a list: set counts by default; "reorder and remove" turns the rows into arrows and a cross; adding opens the picker */
 function builderHTML(w) {
   const s = live(w), dl = phase(w, s).dl, ids = planIds(w), ed = S.blEdit === w;
-  return (dl ? '<p class="ms-sub">' + say('שבוע קל: חצי מהסטים.', 'Easy week: half the sets.') + '</p>' : '') + '<div class="bl-w">' + exList(w, s, true).map((e) => {
+  const nm0 = ownName(w);
+  return '<label class="bl-name"><span>' + say('שם האימון', 'Name of the workout') + '</span><input id="wkNameIn" data-w="' + w + '" type="text" maxlength="18" autocomplete="off" enterkeyhint="done" placeholder="' + esc(wkOrd(w)) + '" value="' + esc(nm0) + '"><small>' + say('אפשר לתת לו שם משלך, למשל "יום חזה"', 'Give it a name of your own, like "Chest day"') + '</small></label>' +
+    (dl ? '<p class="ms-sub">' + say('שבוע קל: חצי מהסטים.', 'Easy week: half the sets.') + '</p>' : '') + '<div class="bl-w">' + exList(w, s, true).map((e) => {
     const k = ids.indexOf(e.id);
     return '<div class="bl-row"><span class="bl-n"><b>' + e.nm + '</b><small>' + muName(LIB[e.mv].p) + ' · ' + Ltr(e.reps) + '</small></span>' +
       (k < 0 ? '<small class="bl-once">' + say('רק היום', 'Today only') + '</small>'
@@ -5531,7 +5675,16 @@ function coachSheetClick(ev, id) {
   if (id === 'dlYes') { startDeload(); closeSheet(); return true; }
   return false;
 }
+/* a workout's own name, kept as it is typed; an empty one gives back "Workout N" */
+function setWkName(w, v) {
+  const me = S.cfg.me, t = String(v || '').replace(/\s+/g, ' ').trim().slice(0, 18), names = Object.assign({}, me.names);
+  if (t && t !== wkOrd(w)) names[w] = t; else delete names[w];
+  if (JSON.stringify(names) === JSON.stringify(me.names || {})) return;
+  me.names = names; saveCfg(); renderAll();
+  const h = $('#sheet .ms.pg h2'); if (h) h.textContent = wkName(w);
+}
 function coachSheetChange(ev) {
+  if (ev.target.id === 'wkNameIn') { setWkName(+ev.target.dataset.w, ev.target.value); return; }
   const sel = ev.target.closest('select[data-inc]'); if (!sel) return;
   const k = sel.dataset.inc, v = +sel.value;
   if (!EQUIP[k] || !(v > 0)) return;
@@ -5603,7 +5756,7 @@ function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" ari
 /* a coin of the kiosk */
 const COIN = '<svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="#F2B02E" stroke="#C98A12" stroke-width="1.6"/><path d="M10 5.5l1.35 2.75 3.05.45-2.2 2.15.5 3-2.7-1.45-2.7 1.45.5-3-2.2-2.15 3.05-.45z" fill="#C98A12"/></svg>';
 /* the part of the figure that a thing of the kiosk is worn on, as a close view of the lifter's own character with that thing alone */
-const CROP = { head: '56 4 88 88', eyes: '60 14 80 80', ears: '54 4 92 92', neck: '58 58 84 84', wrist: '104 112 80 80', hands: '104 124 80 80', feet: '56 176 88 88' };
+const CROP = { head: '56 2 88 88', eyes: '60 14 80 80', ears: '54 4 92 92', neck: '58 58 84 84', wrist: '104 112 80 80', hands: '104 124 80 80', hold: '18 126 80 80', feet: '56 176 88 88' };
 const cropFig = (it, lvl) => avatarSVG(Object.assign({}, S.cfg.me.look, { wear: [it.id], gear: false }), lvl, { crop: CROP[it.slot], base: EXP_BASE[expNow()] || 0 });
 /* the profile: the character on its stage with where it stands in the game, the kiosk, and the achievements, small */
 function renderProfile(P) {
@@ -5621,10 +5774,11 @@ function renderProfile(P) {
     '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + (nx ? ' · ' + say('ברמה ' + nx.at + ': ', 'At level ' + nx.at + ': ') + nm(nx) : '') + '</p></div>' +
     (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') +
     '<ul class="pf-nums">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</ul></section>' +
-    '<section class="card next w0 kiosk" aria-label="' + say('הקיוסק', 'The kiosk') + '"><div class="next-top"><p class="k">' + say('הקיוסק', 'The kiosk') + '</p><span class="coin-tag" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span></div>' +
-    '<h2>' + say('ציוד לדמות שלך', 'Gear for your character') + '</h2><p class="meta">' + say('כל אימון מוסיף מטבעות', 'Every workout adds coins') + '</p>' +
+    '<section class="card kiosk" aria-label="' + say('הקיוסק', 'The kiosk') + '">' + '<div class="ks-awn" aria-hidden="true"><i></i></div>' + '<div class="ks-card-in"><div class="ks-card-h"><div><p class="ks-k">' + say('הקיוסק', 'The kiosk') + '</p>' +
+    '<h2>' + say('ציוד לדמות שלך', 'Gear for your character') + '</h2></div><span class="coin-tag" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span></div>' +
+    '<p class="meta">' + say(SHOP.length + ' פריטים על המדף. כל אימון מוסיף מטבעות', SHOP.length + ' things on the shelf. Every workout adds coins') + '</p>' +
     '<ul class="ks-peek" aria-hidden="true">' + peek.map((it) => '<li><span class="ks-pic">' + cropFig(it, L.lvl) + '</span><span class="pr">' + COIN + it.cost + '</span></li>').join('') + '</ul>' +
-    '<button class="btn primary big" id="shopBtn" type="button">' + say('לקיוסק', 'To the kiosk') + '</button></section>' +
+    '<button class="btn ks-go big" id="shopBtn" type="button">' + say('לקיוסק', 'To the kiosk') + '</button></div></section>' +
     '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
     '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>';
 }
@@ -5643,10 +5797,13 @@ function renderShop(pump) {
     return '<li><button class="ks-it' + (on ? ' on' : o ? ' own' : bal >= x.cost ? '' : ' far') + (S.shopTry === x.id ? ' try' : '') + '" type="button" data-shop="' + x.id + '" aria-pressed="' + on + '" aria-label="' + nm(x) + ', ' + (on ? say('עליך', 'on') : o ? say('בארון', 'owned') : x.cost + say(' מטבעות', ' coins')) + '">' +
       '<span class="ks-pic">' + cropFig(x, P.L.lvl) + '</span><b>' + nm(x) + '</b>' + (on ? '<span class="ks-st">' + ICON.check + say('עליך', 'On') + '</span>' : o ? '<span class="ks-st">' + say('ללבוש', 'Put on') + '</span>' : '<span class="ks-pr">' + COIN + x.cost + '</span>') + '</button></li>';
   };
-  sh.innerHTML = '<div class="sheet-in ks" role="dialog" aria-modal="true" aria-label="' + say('הקיוסק', 'The kiosk') + '"><div class="ed-h"><div><p class="kicker">' + say('הקיוסק', 'The kiosk') + '</p><h2>' + say('ציוד לדמות', 'Gear for the character') + '</h2></div>' +
+  /* the shelves: all of it, or one part of the body */
+  const shelf = SHELF.some((x) => x[0] === S.shelf) ? S.shelf : '', onShelf = SHOP.filter((x) => !shelf || shelfOf(x) === shelf);
+  const chips = '<div class="ks-shelf" role="radiogroup" aria-label="' + say('מדפים', 'Shelves') + '">' + SHELF.map((x) => '<button type="button" role="radio" data-shelf="' + x[0] + '" aria-checked="' + (x[0] === shelf) + '">' + say(x[1], x[2]) + '<small>' + SHOP.filter((y) => !x[0] || shelfOf(y) === x[0]).length + '</small></button>').join('') + '</div>';
+  sh.innerHTML = '<div class="sheet-in ks" role="dialog" aria-modal="true" aria-label="' + say('הקיוסק', 'The kiosk') + '">' + '<div class="ks-awn" aria-hidden="true"><i></i></div>' + '<div class="ed-h"><div><p class="kicker">' + say('הקיוסק', 'The kiosk') + '</p><h2>' + say('ציוד לדמות', 'Gear for the character') + '</h2></div>' +
     '<span class="coin-tag dark" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="ks-stage"><span class="ks-fig' + (pump ? ' pump' : '') + '" aria-hidden="true">' + avatarSVG(Object.assign({}, me.look, { wear: worn }), P.L.lvl, { base: EXP_BASE[expNow()] || 0 }) + '</span><div class="ks-say" aria-live="polite">' + word + '</div></div>' +
-    '<ul class="ks-grid">' + SHOP.map(tile).join('') + '</ul>' +
+    chips + '<ul class="ks-grid">' + onShelf.map(tile).join('') + '</ul>' +
     '<p class="ms-sub">' + say('כל 10 נקודות באימון הן מטבע. הרמה שלך לא יורדת כשקונים.', 'Every 10 points in a workout are a coin. Your level never drops when you buy.') + '</p></div>';
   $('.sheet-in', sh).scrollTop = top;
 }
@@ -5662,7 +5819,7 @@ function shopBuyNow(id) {
   feel('coin', 'success'); renderMe(); renderShop(true);
   toast(COIN + '<b>' + say('שלך: ', 'Yours: ') + nm(shopItem(id)) + '</b>');
 }
-function openShop() { S.sheet = 'shop'; S.shopTry = null; renderShop(); $('#sheet').hidden = false; S.shopBal = coinsLeft(meNow().T.xp, S.cfg.me.shop); saveLocal(); markShop(); }
+function openShop() { S.sheet = 'shop'; S.shopTry = null; S.shelf = ''; renderShop(); $('#sheet').hidden = false; S.shopBal = coinsLeft(meNow().T.xp, S.cfg.me.shop); saveLocal(); markShop(); }
 /* the profile's tab is marked once the coins have grown enough to buy something since the kiosk was last looked at */
 function markShop() {
   const me = S.cfg.me, bal = coinsLeft(meNow().T.xp, me.shop), b = $('#tabbar [data-view="profile"]');
@@ -5670,21 +5827,39 @@ function markShop() {
 }
 /* ---- the journey: the levels as a road, from the first to the hundredth. Every stop is a level that opens something, and on the
    wide sides of the road stands the player's own character, dressed as it will be there ---- */
-const J_PITCH = 140, J_TOP = 44;
+const J_PITCH = 128, J_HEAD = 104;
+/* the journey crosses four worlds, each with its levels, its name and the colour of its land. The last climbs to the summit */
+const WORLDS = [{ to: 10, he: 'הצעדים הראשונים', en: 'First steps' }, { to: 20, he: 'בונים כוח', en: 'Building strength' }, { to: 50, he: 'דרגות האלופים', en: 'The champion ranks' }, { to: 100, he: 'אל הפסגה', en: 'To the summit' }];
+const worldOf = (at) => { const k = WORLDS.findIndex((w) => at <= w.to); return k < 0 ? WORLDS.length - 1 : k; };
 const toGo = (n) => (n === 1 ? say('עוד רמה אחת', '1 level to go') : say('עוד ' + n + ' רמות', n + ' levels to go'));
+const CROWN = '<svg class="jr-crown" viewBox="0 0 26 18" aria-hidden="true"><path d="M2.5 15.5L1.5 3.5l6.5 4.6L13 1.5l5 6.6 6.5-4.6-1 12z" fill="#FFD23F" stroke="#C98F1C" stroke-width="1.4" stroke-linejoin="round"/><circle cx="13" cy="10.6" r="1.8" fill="#D7263D"/></svg>';
 function renderJourney(P) {
   P = P || meNow();
-  const L = P.L, lvl = L.lvl, top = REWARDS[REWARDS.length - 1].at, nx = nextReward(lvl), N = REWARDS.length, H = J_TOP + (N - 1) * J_PITCH + 132;
+  const L = P.L, lvl = L.lvl, top = REWARDS[REWARDS.length - 1].at, nx = nextReward(lvl), N = REWARDS.length;
   const cap = (a, b) => '<figcaption><b>' + a + '</b><span>' + b + '</span></figcaption>';
-  let stops = '', trail = '';
+  /* the map, world after world, top to bottom: each world opens with its sign, then its levels, then a hill down into the next */
+  const pos = []; let y = 0, bands = '', signs = '', stops = '', trail = '';
+  WORLDS.forEach((W, k) => {
+    const items = REWARDS.map((r, i) => i).filter((i) => worldOf(REWARDS[i].at) === k), from = k ? WORLDS[k - 1].to + 1 : 1, y0 = y, last = k === WORLDS.length - 1;
+    const got = items.filter((i) => lvl >= REWARDS[i].at).length, here = items.some((i) => nx && REWARDS[i].at === nx.at);
+    y += J_HEAD;
+    items.forEach((i, n) => { pos[i] = { x: REWARDS[i].at === top ? 50 : 50 + STOP_X[i % 4] * AMP, y }; y += n < items.length - 1 ? J_PITCH : 0; });
+    y += last ? 330 : 168;
+    signs += '<div class="jr-sign' + (got === items.length ? ' done' : here ? ' here' : '') + '" style="top:' + (y0 + 22) + 'px"><small>' + say('עולם ' + (k + 1) + ' · רמות ' + from + '–' + W.to, 'World ' + (k + 1) + ' · levels ' + from + '–' + W.to) + '</small><b>' + say(W.he, W.en) + '</b>' +
+      '<span class="jr-got" aria-label="' + say(got + ' מתוך ' + items.length + ' נפתחו', got + ' of ' + items.length + ' open') + '">' + (got === items.length ? ICON.check : got + '/' + items.length) + '</span></div>';
+    bands += '<div class="jr-band b' + k + '" style="top:' + y0 + 'px;height:' + (y - y0 + 1) + 'px" aria-hidden="true">' + (last
+      ? '<svg class="jr-peak" style="top:' + (pos[items[items.length - 1]].y - y0 + 112) + 'px" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100V72L16 52L27 62L50 0L73 60L85 47L100 70V100Z" fill="#3B2C90"/><path d="M50 0L41.5 25L46.5 21L50 28L53.5 21L58.5 25Z" fill="#F4F2FF"/><path d="M0 100V86Q22 72 46 84T100 80V100Z" fill="#1B1347"/></svg>'
+      : '<svg class="jr-hill" viewBox="0 0 100 40" preserveAspectRatio="none"><path class="bk" d="M0 40V22Q16 6 34 16T66 14T100 18V40Z"/><path class="f" d="M0 40V30Q20 18 42 28T78 24T100 28V40Z"/></svg>') + '</div>';
+  });
+  const H = y;
   REWARDS.forEach((r, i) => {
-    const x = 50 + STOP_X[i % 4] * AMP, y = J_TOP + i * J_PITCH, s = lvl >= r.at ? 'done' : nx && nx.at === r.at ? 'next' : 'later', side = STOP_X[i % 4] > 0 ? 'l' : 'r';
-    stops += '<li class="stop ' + s + (r.at === top ? ' top' : '') + '" style="top:' + y + 'px;left:' + x + '%;--i:' + Math.min(i, 6) + '">' +
+    const x = pos[i].x, s = lvl >= r.at ? 'done' : nx && nx.at === r.at ? 'next' : 'later', side = STOP_X[i % 4] > 0 ? 'l' : r.at === top ? 'r' : STOP_X[i % 4] < 0 ? 'r' : i % 8 < 4 ? 'r' : 'l';
+    stops += '<li class="stop ' + s + ' j' + worldOf(r.at) + (r.at === top ? ' top' : '') + '" style="top:' + pos[i].y + 'px;left:' + x + '%;--i:' + Math.min(i, 6) + '">' +
       '<button class="lv" type="button" data-lv="' + r.at + '" aria-label="' + say('רמה ', 'Level ') + r.at + ': ' + nm(r) + (s === 'done' ? say(', הושג', ', reached') : '') + '">' +
-      (s === 'next' ? '<span class="go-chip" aria-hidden="true">' + toGo(r.at - lvl) + '</span>' : '') + '<span class="dot" aria-hidden="true">' + r.at + '</span><b>' + nm(r) + '</b></button>' +
-      /* every second stop has a wide side: there the character stands as it will look at that level */
-      (i % 2 && r.at !== top ? palHTML(side, avatar(r.at, { still: true }), '', 'pv') : '') + '</li>';
-    if (i < N - 1) trail += trailSeg(x, y + 38, 50 + STOP_X[(i + 1) % 4] * AMP, y + 38 + J_PITCH, lvl >= REWARDS[i + 1].at);
+      (s === 'next' ? '<span class="go-chip" aria-hidden="true">' + toGo(r.at - lvl) + '</span>' : '') + (r.at === top ? CROWN : '') + '<span class="dot" aria-hidden="true">' + (s === 'done' && r.at !== top ? ICON.check : r.at) + '</span><b>' + nm(r) + '</b></button>' +
+      /* the lifter stands at the stop that is next; at every second stop beside it, the character as it will look at that level */
+      (s === 'next' ? palHTML(side, avatar(lvl, { still: true }), say('אתה כאן', 'You are here'), 'me') : i % 2 && r.at !== top ? palHTML(side, avatar(r.at, { still: true }), '', 'pv') : '') + '</li>';
+    if (i < N - 1) trail += trailSeg(x, pos[i].y + 38, pos[i + 1].x, pos[i + 1].y + 38, lvl >= REWARDS[i + 1].at);
   });
   $('#journey').innerHTML = '<section class="jr-hero" aria-label="' + say('המסע שלי', 'My journey') + '"><p class="jr-k">' + say('המסע שלך', 'Your journey') + '</p>' +
     '<h1>' + (lvl >= top ? say('רמה ' + lvl + '. מעבר לפסגה.', 'Level ' + lvl + '. Past the summit.') : say('מרמה ' + lvl + ' עד רמה ' + top, 'From level ' + lvl + ' to level ' + top)) + '</h1>' +
@@ -5692,9 +5867,10 @@ function renderJourney(P) {
     (lvl >= top ? '' : '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span><figure class="max"><span class="ob-fig">' + avatar(top) + '</span>' + cap(say('רמה ', 'Level ') + top, say('המטרה', 'The goal')) + '</figure>') + '</div>' +
     '<div class="jr-lv"><span class="lv-badge">' + say('רמה ', 'Level ') + lvl + '</span>' + xpBar(pctOf(L)) + '<span class="jr-nx" aria-hidden="true">' + (lvl + 1) + '</span></div>' +
     '<p class="jr-line">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ' + (lvl + 1), nf(L.need - L.into) + ' points to level ' + (lvl + 1)) + '</p></section>' +
-    '<section class="road jr" aria-label="' + say('מה נפתח בדרך', 'What opens on the way') + '"><div class="road-h"><div><h2>' + say('מה נפתח בדרך', 'What opens on the way') + '</h2><p>' + say('כל סט שווה נקודות, והנקודות מעלות רמה', 'Every set earns points, and points raise the level') + '</p></div></div>' +
-    '<div class="pw"><div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol></div></div>' +
-    '<p class="jr-after">' + say('ואחרי רמה 100? ממשיכים לעלות.', 'And after level 100? The levels keep going.') + '</p></section>';
+    '<section class="jr-map" aria-label="' + say('מה נפתח בדרך', 'What opens on the way') + '"><div class="jr-map-h"><h2>' + say('מה נפתח בדרך', 'What opens on the way') + '</h2><p>' + say('כל סט שווה נקודות, והנקודות מעלות רמה', 'Every set earns points, and points raise the level') + '</p></div>' +
+    '<div class="jr-road" style="height:' + H + 'px">' + bands +
+    '<div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol></div>' + signs +
+    '<p class="jr-after">' + say('ואחרי רמה 100? ממשיכים לעלות.', 'And after level 100? The levels keep going.') + '</p></div></section>';
 }
 /* a stop of the journey, opened: the character as it will stand at that level */
 function openLevel(at) {
@@ -5798,7 +5974,7 @@ function afterWipe() {
 /* ---- the character editor: name and looks; every choice is saved at once. One kind of choice is on screen at a time,
    picked from a row of tabs, so that the whole editor fits on one screen with the character above it ---- */
 const LK = { tab: 'skin', busy: false, note: '' };
-const LOOK_TABS = () => [['skin', say('עור', 'Skin')], ['hair', say('תספורת', 'Haircut')], ['hc', say('צבע שיער', 'Hair colour')], ['beard', say('זקן', 'Beard')], ['shirt', say('חולצה', 'Shirt')]];
+const LOOK_TABS = () => [['body', say('דמות', 'Figure')], ['skin', say('עור', 'Skin')], ['hair', say('תספורת', 'Haircut')], ['hc', say('צבע שיער', 'Hair colour')]].concat(S.cfg.me.look.body === 1 ? [] : [['beard', say('זקן', 'Beard')]]).concat([['shirt', say('חולצה', 'Shirt')]]);
 /* a T-shirt, for the shirt colours: a colour is easier to choose on the thing it colours */
 const TEE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 3.6c.7 1.3 1.9 2 3.4 2s2.7-.7 3.4-2l5.1 2.3-1.9 4.3-2.3-.9v11.2H7.7V9.3l-2.3.9-1.9-4.3z"/></svg>';
 function lookRows() {
@@ -5807,8 +5983,9 @@ function lookRows() {
   const sw = (list, hex) => '<div class="lk-opts" style="--n:' + list.length + '">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
   const face = (look, i, name) => '<button type="button" class="lk-cut" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '"><span class="lk-face" aria-hidden="true">' + avatarSVG(look, 1, { bust: true }) + '</span><small>' + name + '</small></button>';
   let body;
-  if (key === 'skin') body = sw(SKIN, (c) => c[0]);
-  else if (key === 'hair') body = '<div class="lk-cuts">' + HAIR_ORDER.map((i) => face(Object.assign({}, k, { hair: i }), i, hairName(i))).join('') + '</div>';
+  if (key === 'body') body = '<div class="lk-cuts two">' + BODY().map((t, i) => '<button type="button" class="lk-cut lk-bod" data-look="body" data-v="' + i + '" aria-pressed="' + ((k.body | 0) === i) + '"><span class="lk-face" aria-hidden="true">' + avatarSVG(bodyLook(k, i), 1, { still: true }) + '</span><small>' + t + '</small></button>').join('') + '</div>';
+  else if (key === 'skin') body = sw(SKIN, (c) => c[0]);
+  else if (key === 'hair') body = '<div class="lk-cuts">' + (k.body === 1 ? HAIR_ORDER_F : HAIR_ORDER).map((i) => face(Object.assign({}, k, { hair: i }), i, hairName(i))).join('') + '</div>';
   else if (key === 'hc') body = sw(HAIRC, (c) => c);
   else if (key === 'beard') body = '<div class="lk-cuts three">' + BEARDS().map((t, i) => face(Object.assign({}, k, { beard: i }), i, t)).join('') + '</div>';
   else body = '<div class="lk-tees">' + SHIRT.map((c, i) => '<button type="button" class="lk-tee" data-look="shirt" data-v="' + i + '" aria-pressed="' + (k.shirt === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + c + '">' + TEE + '</button>').join('') + '</div>';
@@ -5839,18 +6016,22 @@ function openLook() {
     '<div class="lk-ed" id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
   sh.hidden = false;
 }
+/* a look as it becomes with a figure chosen: a girl keeps no beard, and the plain short cut she started with becomes a ponytail */
+function bodyLook(k, v) { const o = Object.assign({}, k, { body: v }); if (v === 1) { o.beard = 0; if (k.body !== 1 && k.hair === 1) o.hair = 9; } return o; }
 function setLook(key, v) {
   const me = S.cfg.me; if (!(key in me.look)) return;
+  if (key === 'body') { if ((me.look.body | 0) === v) return; Object.assign(me.look, bodyLook(me.look, v)); me.made = me.made || Date.now(); saveCfg(); lookDraw(true); return; }
   me.look[key] = v; me.made = me.made || Date.now(); saveCfg();
   lookDraw(false);
 }
 /* ---- the character from a photo: Eilon looks at it once and picks the closest of each choice. The photo is not kept ---- */
 const LOOK_ASK = 'You are setting up a simple cartoon avatar for a fitness app. Look at the main person in the photo and pick the closest option in each list. ' +
-  'Reply with one line of JSON and nothing else: {"skin":N,"hair":N,"hc":N,"beard":N}\n' +
+  'Reply with one line of JSON and nothing else: {"body":N,"skin":N,"hair":N,"hc":N,"beard":N}\n' +
+  'body, the figure: 0 a man or a boy, 1 a woman or a girl.\n' +
   'skin, the tone from light to deep: 0 very fair, 1 fair, 2 light tan, 3 tan or olive, 4 brown, 5 deep brown.\n' +
-  'hair, the cut: 0 bald or shaved, 1 short, 2 swept up, 3 curly, 4 long (past the chin), 5 a fringe over the forehead, 6 buzz cut, 7 side part, 8 medium (over the ears).\n' +
+  'hair, the cut: 0 bald or shaved, 1 short, 2 swept up, 3 curly, 4 long and loose (past the chin), 5 a fringe over the forehead, 6 buzz cut, 7 side part, 8 medium (over the ears), 9 a ponytail, 10 a bun on top, 11 two braids, 12 a bob (to the chin), 13 an afro, 14 a mohawk, 15 two pigtails.\n' +
   'hc, the hair colour: 0 black, 1 dark brown, 2 brown, 3 light brown, 4 dark blond, 5 blond, 6 red or ginger, 7 grey or white.\n' +
-  'beard: 0 none, 1 stubble or a short beard, 2 a full beard.\n' +
+  'beard: 0 none, 1 stubble or a short beard, 2 a full beard (always 0 for body 1).\n' +
   'If no person can be seen in the photo, reply {"none":true}.';
 async function lookFromPhoto(file) {
   if (!file || LK.busy) return;
@@ -5864,8 +6045,9 @@ async function lookFromPhoto(file) {
     try { o = m ? JSON.parse(m[0]) : null; } catch (e) { o = null; }
     LK.busy = false;
     if (o && o.none) { say2(say('לא מצאתי פנים בתמונה. אפשר לנסות תמונה אחרת.', 'I could not find a face in the photo. Try another one.')); return; }
-    const me = S.cfg.me, lim = { skin: SKIN.length, hair: HAIR.length, hc: HAIRC.length, beard: BEARD.length }; let n = 0;
+    const me = S.cfg.me, lim = { body: 2, skin: SKIN.length, hair: HAIR.length, hc: HAIRC.length, beard: BEARD.length }; let n = 0;
     if (o) for (const key of Object.keys(lim)) if (Number.isInteger(o[key]) && o[key] >= 0 && o[key] < lim[key]) { me.look[key] = o[key]; n++; }
+    if (me.look.body === 1) me.look.beard = 0;
     if (!o || !n) { say2(say('לא הצלחתי לקרוא את התמונה. אפשר לנסות שוב.', 'I could not read the photo. Try again.')); return; }
     me.made = me.made || Date.now(); saveCfg(); LK.note = say('הנה. אפשר לשנות כל פרט.', 'There. Every detail can still be changed.'); lookDraw(true); feel('set', 'success');
   } catch (e) {
@@ -5880,6 +6062,7 @@ function meSheetClick(ev) {
   if (ev.target.closest('#lkPhoto')) { $('#lkFile').click(); return true; }
   const buy = ev.target.closest('[data-buy]'); if (buy) { shopBuyNow(buy.dataset.buy); return true; }
   const thing = ev.target.closest('[data-shop]'); if (thing) { shopTap(thing.dataset.shop); return true; }
+  const shelfB = ev.target.closest('[data-shelf]'); if (shelfB) { S.shelf = shelfB.dataset.shelf; haptic('select'); renderShop(); return true; }
   if (S.sheet !== 'set') return false;
   const pg = ev.target.closest('[data-setpg]'); if (pg) { S.setPg = pg.dataset.setpg || null; S.del = null; renderSettings(); return true; }
   const b = ev.target.closest('button'); if (!b) return false;
@@ -6621,7 +6804,7 @@ function obHTML() {
     body = ask(say('התוכנית שלך מוכנה', 'Your plan is ready'), say('בניתי אותה לפי מה שסיפרת לי', 'I built it from what you told me')) +
       '<section class="card next w0 ob-plan' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '"><p class="k">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + obWeek().length + say(' אימונים בשבוע', ' workouts a week') + '</h2>' +
       '<ul class="ob-stats">' + stat(P.ex, say('תרגילים באימון', 'exercises a workout')) + stat(P.sets, say('סטים לתרגיל', 'sets each')) + stat(P.mins, say('דקות לאימון', 'minutes a workout')) + '</ul>' +
-      '<ol class="ob-wks">' + obWeek().map((w, k) => '<li><span class="w-dot w' + k + '"></span><b>' + wkName(w) + '</b><small>' + wkMus(w) + '</small></li>').join('') + '</ol><i class="ob-shine" aria-hidden="true"></i></section>' +
+      '<ol class="ob-wks">' + obWeek().map((w, k) => '<li><span class="w-dot w' + k + '"></span><b>' + say('אימון ', 'Workout ') + (k + 1) + '</b><small>' + wkMus(w) + '</small></li>').join('') + '</ol><p class="ob-wk-tip">' + glyph('pen') + '<span>' + say('אפשר לתת לכל אימון שם משלך, בתוכנית', 'You can give each workout a name of your own, in the plan') + '</span></p><i class="ob-shine" aria-hidden="true"></i></section>' +
       '<div class="ob-fb"><span><b>' + say('אילון ישאל איך היה', 'Eilon asks how it went') + '</b><small>' + say('שאלה קצרה אחרי כל תרגיל, כדי לכוון את המשקל', 'A quick question after each exercise, to tune the weight') + '</small></span><button type="button" class="tog" role="switch" id="obFb" aria-checked="' + (OB.fb > 0) + '" aria-label="' + say('אילון ישאל איך היה', 'Eilon asks how it went') + '"><i></i></button></div>';
   } else {
     const old = meNow().T.wk > 0, cap = (a, b) => '<figcaption>' + a + '<b>' + b + '</b></figcaption>';

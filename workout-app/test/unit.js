@@ -1,7 +1,7 @@
 // Unit checks for the pure parts: the progression engine (plan.js + lib.js + prog.js) and the game layer (game.js): node test/unit.js
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = process.argv[2] || path.join(__dirname, '..', 'src');
-const GAME = ['rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'startKg', 'stepUp', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned', 'SHOP', 'shopItem', 'coinsOf', 'cleanShop', 'spentOf', 'coinsLeft', 'shopWear', 'shopBuy'];
+const GAME = ['SHELF', 'shelfOf', 'wkName', 'ownName', 'rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'startKg', 'stepUp', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned', 'SHOP', 'shopItem', 'coinsOf', 'cleanShop', 'spentOf', 'coinsLeft', 'shopWear', 'shopBuy'];
 const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') +
   '\n;globalThis.X = { PLAN, WEEKS, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
   '\n;globalThis.G = {' + GAME.map((k) => k + ': typeof ' + k + " === 'undefined' ? undefined : " + k).join(', ') + '};';
@@ -105,8 +105,10 @@ const three = { ua1: [{ kg: 60, reps: 8, done: true }, { kg: 60, reps: 7, done: 
 // workout names in Hebrew, the way the owner asked for them
 t('workout titles', () => PLAN.map((w) => w.t), ['שריון', 'סלע', 'כנפיים', 'זינוק', 'מנוע', 'סערה', 'להבה', 'פטיש', 'עוגן', 'עמוד']);
 t('every workout says what it trains, in both languages', () => PLAN.every((w) => !!w.m && !!w.me && !!w.te), true);
-t('workout ordinals', () => [0, 1, 2, 3].map((w) => G.wkOrd(w)), ['אימון ראשון', 'אימון שני', 'אימון שלישי', 'אימון רביעי']);
-t('full workout name', () => G.wkFull(1), 'אימון שני – סלע');
+t('workouts are numbered by their place in the week', () => [0, 1, 2, 3].map((w) => G.wkOrd(w)), ['אימון 1', 'אימון 2', 'אימון 3', 'אימון 4']);
+t('a workout with no name of its own is called by its number', () => [G.wkFull(1), G.wkName(1)], ['אימון 2', 'אימון 2']);
+t('a workout the lifter named is called by that name, with its number beside it where there is room', () => { globalThis.S = { cfg: { me: { names: { 1: 'יום רגליים' } } } }; const r = [G.wkFull(1), G.wkName(1), G.wkName(0)]; delete globalThis.S; return r; }, ['אימון 2 – יום רגליים', 'יום רגליים', 'אימון 1']);
+t('a workout that is not in the week is called by what it trains', () => G.wkName(7), PLAN[7].m);
 
 // points: 10 a set, 30 more for a personal best, 100 for finishing
 t('points of a finished workout', () => G.tally(ses({ sets: three })), { sets: 3, prs: 1, kg: 900, xp: 160 });
@@ -134,7 +136,8 @@ t('the body grows with the level', () => [G.buildOf(1), G.buildOf(30), G.buildOf
 
 // the kiosk: coins, buying and wearing
 t('every ten points are a coin, and odd totals are no coins at all', () => [0, 9, 10, 315, -40, NaN, Infinity].map((x) => G.coinsOf(x)), [0, 0, 1, 31, 0, 0, 0]);
-t('the kiosk sells each thing once, at a price, for one slot, with a name in both languages', () => [G.SHOP.length, new Set(G.SHOP.map((x) => x.id)).size, G.SHOP.every((x) => x.cost > 0 && x.slot && x.he && x.en && !/[\u0590-\u05FF]/.test(x.en))], [9, 9, true]);
+t('the kiosk sells each thing once, at a price, for one slot, with a name in both languages', () => [G.SHOP.length, new Set(G.SHOP.map((x) => x.id)).size, G.SHOP.every((x) => x.cost > 0 && x.slot && x.he && x.en && !/[\u0590-\u05FF]/.test(x.en)), G.SHOP.every((x, i) => !i || G.SHOP[i - 1].cost <= x.cost)], [22, 22, true, true]);
+t('every thing of the kiosk stands on a shelf, and every shelf has things', () => [G.SHOP.every((x) => G.SHELF.some((s) => s[0] === G.shelfOf(x))), G.SHELF.slice(1).every((s) => G.SHOP.some((x) => G.shelfOf(x) === s[0]))], [true, true]);
 t('a first workout buys the first thing on the shelf', () => { const xp = 310, shop = G.shopBuy({ own: [], on: [] }, 'towel', xp); return [shop, G.coinsLeft(xp, shop), G.shopBuy(shop, 'towel', xp), G.shopBuy(shop, 'cap', xp)]; }, [{ own: ['towel'], on: ['towel'] }, 1, null, null]);
 t('a thing that is put on takes the place of what its slot held, and can be taken off', () => { let s = { own: ['towel', 'chain', 'cap'], on: ['towel', 'cap'] }; const a = G.shopWear(s, 'chain', true), b = G.shopWear(a, 'chain', false); return [a.on, b.on, G.shopWear(s, 'shades', true), s.on]; }, [['cap', 'chain'], ['cap'], null, ['towel', 'cap']]);
 t('what was spent is the price of all that is owned, and the coins left never go under zero', () => [G.spentOf({ own: ['towel', 'cap'], on: [] }), G.coinsLeft(1000, { own: ['towel', 'cap'], on: [] }), G.coinsLeft(200, { own: ['chain'], on: [] })], [90, 10, 0]);
@@ -238,7 +241,8 @@ t('in Hebrew the cues and the muscle line are the Hebrew ones', () => [L('mvCues
 t('every muscle and every kind of equipment has an English name', () => inEn(() => Object.keys(MUSCLE).map((k) => L('muName')(k)).concat(Object.keys(EQUIP).map((k) => L('eqName')(k))).filter((x) => !x || HEB.test(x))), []);
 t('a muscle inside an English sentence is in lower case', () => inEn(() => [L('muLow')('chest'), L('muLow')('quads')]), ['chest', 'quads']);
 t('every note of the plan has its English', () => inEn(() => { const out = []; for (const w of PLAN) for (const e of w.ex) for (const x of [e.int, e.suf]) if (x && HEB.test(L('planNote')(x))) out.push(x); return out; }), []);
-t('a workout is named in the language of the page', () => [G.wkFull(1), L('wkShort')(1), inEn(() => G.wkFull(1)), inEn(() => L('wkShort')(3))], ['אימון שני – סלע', 'סלע', 'Workout 2 – Bedrock', 'Launch']);
+t('a workout is named in the language of the page', () => [G.wkFull(1), L('wkShort')(1), inEn(() => G.wkFull(1)), inEn(() => L('wkShort')(3))], ['אימון 2', 'אימון 2', 'Workout 2', 'Workout 4']);
+t('every haircut and every world of the journey has its English name', () => { const lit = (file, name) => { const t = fs.readFileSync(path.join(src, file), 'utf8'), m = t.match(new RegExp('\\nconst ' + name + ' = (\\[.*\\]);')); return m ? vm.runInNewContext(m[1]) : null; }, he = lit('avatar.js', 'HAIR'), en = lit('avatar.js', 'HAIR_EN'), wd = lit('me.js', 'WORLDS'); return [!!he && !!en && he.length === en.length && en.every((x) => x && !HEB.test(x)), !!wd && wd.length === 4 && wd.every((w) => w.he && w.en && !HEB.test(w.en))]; }, [true, true]);
 t('ranks, rewards and achievements have English names', () => inEn(() => G.RANKS.concat(G.REWARDS, G.BADGES).map((x) => L('nm')(x)).filter((x) => !x || HEB.test(x))), []);
 t('the rank of a level carries both names', () => [L('nm')(G.rankOf(12)), inEn(() => L('nm')(G.rankOf(12)))], ['ספורטאי', 'Athlete']);
 t('a count takes the singular for one', () => [L("cnt(1, 'סטים', 'סט אחד', 'sets', 'set')"), L("cnt(3, 'סטים', 'סט אחד', 'sets', 'set')"), inEn(() => L("cnt(1, 'סטים', 'סט אחד', 'sets', 'set')")), inEn(() => L("cnt(3, 'סטים', 'סט אחד', 'sets', 'set')"))], ['סט אחד', '3 סטים', '1 set', '3 sets']);
@@ -247,7 +251,7 @@ t('"from, to" points the way the page is read', () => [L('arrow')(), inEn(() => 
 // ---- a guard: in the files that draw the screens, every Hebrew text sits inside say(...) or cnt(...), so that it has an English twin.
 // The few texts that are Hebrew on purpose are listed here.
 (() => {
-  const KEEP = { 'chat.js': ['מתאים', 'מתאים חלקית'], 'avatar.js': ['קרחת', 'קצר', 'מורם', 'מתולתל', 'ארוך', 'פוני', 'קצוץ', 'שביל בצד', 'בינוני', 'בלי', 'זיפים', 'זקן מלא'] };
+  const KEEP = { 'chat.js': ['מתאים', 'מתאים חלקית'], 'avatar.js': ['קרחת', 'קצר', 'מורם', 'מתולתל', 'ארוך', 'פוני', 'קצוץ', 'שביל בצד', 'בינוני', 'קוקו', 'פקעת', 'צמות', 'קארה', 'אפרו', 'מוהוק', 'קוקיות', 'בלי', 'זיפים', 'זקן מלא'], 'me.js': ['הצעדים הראשונים', 'בונים כוח', 'דרגות האלופים', 'אל הפסגה'] };
   const spans = (s, re, firstArgOnly) => { const out = []; let m; while ((m = re.exec(s))) { let i = re.lastIndex, depth = 0, q = null; const a = i; for (; i < s.length; i++) { const c = s[i]; if (q) { if (c === '\\') i++; else if (c === q) q = null; } else if (c === "'" || c === '"' || c === '`') q = c; else if ('([{'.includes(c)) depth++; else if (')]}'.includes(c)) { if (!depth) break; depth--; } else if (c === ',' && !depth && firstArgOnly) break; } out.push([a, i]); } return out; };
   const open = [];
   for (const file of ['app.js', 'coach.js', 'me.js', 'chat.js', 'store.js', 'stage.js', 'onboard.js', 'boot.js', 'moves.js', 'avatar.js', 'prog.js', 'rig.js']) {

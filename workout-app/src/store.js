@@ -45,8 +45,11 @@ function normMe(v) {
 /* S.cfg.slots: exercises the lifter added to the plan, { id: { w, a, sets, reps, rest } }. They are never removed, so old workouts stay readable.
    S.cfg.order: { workout: [slot ids] } for a workout whose list was changed; a workout that is not there follows the plan */
 const cfgDef = () => ({ upd: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
-const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, buzz: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), pre: {}, fbFor: null };
+const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, buzz: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), cfgBase: null, cfgIn: false, cfgFly: 0, pre: {}, fbFor: null };
 const clone = (x) => JSON.parse(JSON.stringify(x));
+/* two values are the same whatever order their keys were written in */
+const canon = (x) => JSON.stringify(x, (k, v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((o, key) => { o[key] = v[key]; return o; }, {}) : v));
+const same = (a, b) => canon(a) === canon(b);
 const SLOT_ID = /^c[a-z0-9]{4,20}$/;
 function cleanSlots(v) { const out = {}; if (v && typeof v === 'object') for (const id of Object.keys(v).slice(0, 400)) { const c = SLOT_ID.test(id) ? cleanSlot(v[id]) : null; if (c) out[id] = c; } return out; }
 function normCfg(v) {
@@ -62,7 +65,7 @@ function loadLocal() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || 
 function saveLocal() {
   try {
     const keep = Object.values(S.sessions).sort((a, b) => b.ts - a.ts).slice(0, 80);
-    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, pre: S.pre }));
+    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, cb: S.cfgBase, pre: S.pre }));
   } catch (e) { /* storage unavailable: keep working in memory */ }
 }
 function saveCfg() { S.cfg.upd = Date.now(); S.dirty.add('cfg'); saveLocal(); schedule('cfg'); }
@@ -416,17 +419,19 @@ const cfgDoc = () => clone(Object.assign({ kind: 'cfg' }, S.cfg));
 async function flush(id) {
   const w = W(id);
   if (!S.col || !S.dirty.has(id)) return;
+  /* the settings are never written before the account's copy was read: they would replace it */
+  if (id === 'cfg' && !S.cfgIn) return;
   if (w.busy) { w.again = true; return; }
   w.busy = true;
   const s = S.sessions[id];
   try {
-    if (id === 'cfg') await S.col.doc(id).set(cfgDoc()); else if (s) await S.col.doc(id).set(docOf(s)); else await S.col.doc(id).delete();
+    if (id === 'cfg') { const doc = cfgDoc(); S.cfgFly = doc.upd; await S.col.doc(id).set(doc); S.cfgBase = normCfg(doc); } else if (s) await S.col.doc(id).set(docOf(s)); else await S.col.doc(id).delete();
     if (!w.again) { S.dirty.delete(id); if (!s) S.gone.delete(id); }
     w.fail = 0; saveLocal(); setSync('cloud');
   } catch (e) {
     w.fail++; setSync('error');
     if (w.fail < 4) schedule(id, 2500 * w.fail + Math.random() * 900);
-  } finally { w.busy = false; if (w.again) { w.again = false; schedule(id, 300); } }
+  } finally { w.busy = false; if (id === 'cfg') S.cfgFly = 0; if (w.again) { w.again = false; schedule(id, 300); } }
 }
 const sig = (s) => !s ? '' : s.ts + '|' + (s.end || 0) + '|' + (s.ft || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
 /* merge set by set: the row with the later timestamp wins, so two devices never wipe each other */
@@ -449,6 +454,25 @@ function mergeSession(a, b) {
     out.sets[k] = arr;
   }
   return [out, newer];
+}
+/* settings this device changed on top of an older copy of the account's: the account's copy as it is now, and over it
+   every field this device changed since the copy both last held (was). An added exercise is never dropped; the archive
+   that reaches further and every achievement are kept */
+function mergeCfg(was, mine, theirs) {
+  const out = clone(theirs);
+  for (const k of ['lang', 'weeks', 'meso', 'past']) if (!same(mine[k], was[k])) out[k] = clone(mine[k]);
+  for (const k of ['inc', 'swap', 'notes', 'base', 'order', 'slots']) {
+    const m = mine[k], b = was[k];
+    for (const id of new Set(Object.keys(m).concat(Object.keys(b)))) {
+      if (same(m[id], b[id])) continue;
+      if (m[id] !== undefined) out[k][id] = clone(m[id]); else if (k !== 'slots') delete out[k][id];
+    }
+  }
+  const me = out.me, mm = mine.me, bm = was.me;
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
+  me.badges = Object.assign({}, mm.badges, me.badges);
+  return out;
 }
 /* ---- backup: the whole log and the settings as one file, to carry between gymi inside Claude and the phone app ---- */
 function backupData() { return JSON.stringify({ app: 'gymi', v: 1, at: Date.now(), sessions: S.sessions, cfg: S.cfg }); }
@@ -496,6 +520,8 @@ function restoreData(text) {
   let d; try { d = JSON.parse(text); } catch (e) { return null; }
   if (!d || d.app !== 'gymi' || !d.sessions || typeof d.sessions !== 'object') return null;
   let n = 0, cfg = false;
+  /* a copy with no set logged yet (a fresh one, or one just past the opening screens, which save the settings) takes the file's settings whatever their date */
+  const fresh = !Object.values(S.sessions).some(hasDone);
   /* exercises that were added on the other side come first, so that the workouts that use them can be read */
   const theirSlots = cleanSlots(d.cfg && d.cfg.slots), mySlots = S.cfg.slots;
   let added = false;
@@ -510,7 +536,11 @@ function restoreData(text) {
   /* the player's side: the character follows the newer settings like everything else, but one that was set up is never replaced by none.
      The archive that reaches further and every achievement are kept whichever side wins */
   const mine = S.cfg.me, theirs = d.cfg && typeof d.cfg === 'object' ? normMe(d.cfg.me) : null;
-  if (d.cfg && typeof d.cfg === 'object' && (+d.cfg.upd || 0) > S.cfg.upd) { S.cfg = cleanCfg(d.cfg); S.cfg.slots = Object.assign({}, mySlots, S.cfg.slots); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
+  const has = !!d.cfg && typeof d.cfg === 'object', take = has && (fresh || (+d.cfg.upd || 0) > S.cfg.upd);
+  /* settings in the file that differ from this device's newer ones: they stay, and the note says so */
+  const plan = (c) => canon([c.weeks, c.inc, c.swap, c.notes, c.base, c.order, c.meso.id]), kept = has && !take && plan(cleanCfg(d.cfg)) !== plan(S.cfg);
+  /* taken in, they are the newest change to the settings: the account and the other devices follow them */
+  if (take) { S.cfg = cleanCfg(d.cfg); S.cfg.slots = Object.assign({}, mySlots, S.cfg.slots); S.cfg.upd = Math.max(Date.now(), S.cfg.upd); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   else if (added) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   if (theirs) {
     const me = S.cfg.me, before = JSON.stringify(me), made = me.made ? null : mine.made ? mine : theirs.made ? theirs : null;
@@ -520,7 +550,7 @@ function restoreData(text) {
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }
   saveLocal();
-  return { n, cfg };
+  return { n, cfg, kept };
 }
 async function initCloud(onChange) {
   /* the settings are known for sure once the account answered, or once it is clear there is no account to wait for */
@@ -564,17 +594,27 @@ async function initCloud(onChange) {
     }, () => { clearTimeout(slow); setSync('local'); known(); });
     /* settings and the mesocycle live in one document: the copy that was changed last wins */
     col.doc('cfg').onSnapshot((d) => {
-      const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0;
-      if (up > S.cfg.upd) {
-        const mine = S.cfg.me, slots = S.cfg.slots; S.cfg = normCfg(v); S.dirty.delete('cfg');
+      const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0, mine = S.cfg;
+      S.cfgIn = true;
+      /* the account holds what this device holds, or what it has just sent: the next change is measured from that copy */
+      if (v && (up === mine.upd || up === S.cfgFly)) S.cfgBase = normCfg(v);
+      /* this device changed the settings since the copy it last shared, and the account's copy is no longer that one: a new
+         device used before the account answered, or one that was offline while another changed things. Its changes go onto
+         the account's copy instead of replacing it. (A copy saved before this was kept has no such copy yet: the newer side wins) */
+      const merge = !!v && !!S.cfgBase && S.dirty.has('cfg') && up !== mine.upd;
+      if (merge || up > mine.upd) {
+        const theirs = normCfg(v);
+        S.cfg = merge ? mergeCfg(S.cfgBase, mine, theirs) : theirs; S.cfgBase = clone(theirs);
+        let send = merge && !same(Object.assign({}, S.cfg, { upd: 0 }), Object.assign({}, theirs, { upd: 0 }));
         /* an exercise added on this device is never dropped: workouts already point at it */
-        const lost = Object.keys(slots).filter((id) => !S.cfg.slots[id]);
-        if (lost.length) { for (const id of lost) S.cfg.slots[id] = slots[id]; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
+        for (const id of Object.keys(mine.slots)) if (!S.cfg.slots[id]) { S.cfg.slots[id] = mine.slots[id]; send = true; }
         /* a copy of the page from before the profile existed saves the settings without the player: keep ours and send it back */
-        if (!v.me && (mine.made || mine.ob || mine.arch.until || Object.keys(mine.badges).length)) { S.cfg.me = mine; S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); }
+        const me = mine.me;
+        if (!v.me && (me.made || me.ob || me.arch.until || Object.keys(me.badges).length)) { S.cfg.me = me; send = true; }
+        if (send) { S.cfg.upd = Math.max(Date.now(), up + 1); S.dirty.add('cfg'); schedule('cfg', 600); } else S.dirty.delete('cfg');
         saveLocal(); onChange();
       }
-      else if (up < S.cfg.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }
+      else if (up < mine.upd) { S.dirty.add('cfg'); schedule('cfg', 600); }
       known();
     }, () => known());
   } catch (e) { clearTimeout(slow); setSync('local'); known(); }

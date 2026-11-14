@@ -227,7 +227,8 @@ function importBackup(file) {
   const rd = new FileReader();
   rd.onload = () => {
     const r = restoreData(String(rd.result || ''));
-    S.backupNote = !r ? say('זה לא קובץ גיבוי של gymi.', 'This is not a gymi backup file.') : r.n || r.cfg ? (r.n ? (r.n === 1 ? say('אימון אחד שוחזר.', '1 workout was restored.') : r.n + say(' אימונים שוחזרו.', ' workouts were restored.')) : say('ההגדרות שוחזרו.', 'The settings were restored.')) : say('אין בקובץ שום דבר חדש.', 'Nothing new in this file.');
+    const kept = r && r.kept ? say('ההגדרות שבמכשיר הזה חדשות יותר מאלה שבקובץ, ולכן הן נשארו.', "This device's settings are newer than the file's, so they were kept.") : '';
+    S.backupNote = !r ? say('זה לא קובץ גיבוי של gymi.', 'This is not a gymi backup file.') : r.n ? (r.n === 1 ? say('אימון אחד שוחזר.', '1 workout was restored.') : r.n + say(' אימונים שוחזרו.', ' workouts were restored.')) + (kept && ' ' + kept) : kept || (r.cfg ? say('ההגדרות שוחזרו.', 'The settings were restored.') : say('אין בקובץ שום דבר חדש.', 'Nothing new in this file.'));
     if (r) { sweep(); meSync(); if (!S.touched) S.tab = nextUp().next; S.open = null; }
     renderAll();
   };

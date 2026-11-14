@@ -295,6 +295,63 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
     check('a text link has a tap area of a finger\'s size', tapH >= 44, tapH);
     await ctx.close();
   }
+  // ---- 14. the settings meet the account's copy: a fresh device used before that copy arrives, a device that was offline
+  //      while another one changed things, and a backup restored right after the opening screens ----
+  {
+    /* an account with a whole profile in it. Its settings arrive late; every write is kept with what was written */
+    const acct = { kind: 'cfg', upd: now - 3 * day, lang: 'he', weeks: 6, inc: {}, swap: { ua5: 'inclineDb' }, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm3', n: 3, start: now - 9 * day, early: 0, asked: '' }, past: [],
+      me: { name: 'ליאור', look: { skin: 2, hair: 3, hc: 1, beard: 2, shirt: 4 }, made: now - 60 * day, ob: now - 60 * day, exp: 1, goal: 0, badges: { first: now - 50 * day } } };
+    const withAccount = async (store, cfgAt) => {
+      const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'he-IL' }), q = await ctx.newPage();
+      q.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
+      await q.addInitScript(([s, cloud, at]) => {
+        if (s && !localStorage.getItem('ul4:v1')) localStorage.setItem('ul4:v1', s);
+        window.__w = []; window.__cfgAt = Infinity;
+        const col = { orderBy() { return col; }, limit() { return col; },
+          doc: (id) => ({ async set(v) { window.__w.push({ id, at: Date.now(), v: JSON.parse(JSON.stringify(v)) }); }, async delete() {},
+            onSnapshot(next) { setTimeout(() => { window.__cfgAt = Date.now(); next({ id, exists: true, data: () => JSON.parse(cloud) }); }, at); return () => {}; } }),
+          onSnapshot(next) { setTimeout(() => next({ docChanges: () => [] }), 5); return () => {}; } };
+        window.claude = { use: async (n) => (n === 'user' ? { id: async () => 'u1' } : n === 'db' ? { collection: () => col } : null) };
+      }, [store ? JSON.stringify(store) : '', JSON.stringify(acct), cfgAt]);
+      await q.goto(PREVIEW);
+      return q;
+    };
+    const state = (q) => q.evaluate(() => { const c = S.cfg, w = window.__w.filter((x) => x.id === 'cfg'), last = w.length ? w[w.length - 1].v : null, pick = (x) => x && { weeks: x.weeks, meso: x.meso.id, name: x.me.name, swap: x.swap.ua5, note: x.notes.hackSquat };
+      return { now: pick(c), sent: pick(last), early: w.filter((x) => x.at < window.__cfgAt).length, ob: !document.querySelector('#ob').hidden }; });
+    const whole = (x, note) => !!x && x.weeks === 6 && x.meso === 'm3' && x.name === 'ליאור' && x.swap === 'inclineDb' && x.note === note;
+
+    /* a new device: a note is written before the account answered */
+    let q = await withAccount(null, 2000);
+    await q.waitForTimeout(400);
+    await q.evaluate(() => { S.cfg.notes.hackSquat = 'מושב 3'; saveCfg(); });
+    await q.waitForTimeout(3200);
+    let st = await state(q);
+    check('a new device writes no settings to the account before the account\'s copy has arrived', st.early === 0, st);
+    check('the account keeps its whole profile, and the note written before it arrived is added to it', whole(st.now, 'מושב 3') && whole(st.sent, 'מושב 3') && !st.ob, st);
+    await q.context().close();
+
+    /* a device that was offline: it wrote a note on the copy it last had, while another device set a swap */
+    const old = Object.assign({}, acct, { upd: now - 5 * day, swap: {} });
+    q = await withAccount({ sound: false, dirty: ['cfg'], gone: [], sessions: {}, cfg: Object.assign({}, old, { upd: now - day, notes: { hackSquat: 'מושב 3' } }), cb: old }, 50);
+    await q.waitForTimeout(1500);
+    st = await state(q);
+    check('a device that was offline keeps the other device\'s change and adds its own', whole(st.now, 'מושב 3') && whole(st.sent, 'מושב 3'), st);
+    await q.context().close();
+
+    /* the phone app, fresh: the opening screens were just passed (they save the settings), then the backup is restored */
+    /* the file was saved days ago; the screens saved this copy's settings a moment ago, so they are the newer ones */
+    const t = Date.now(), bak = JSON.parse(JSON.stringify(file)); bak.cfg.upd = now - 5 * day;
+    p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: t, lang: 'he', me: { name: 'Sam', made: t, ob: t, exp: 0, goal: 1 } } }, true); txt = T(p);
+    await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(200); await p.click('#setBtn'); await p.waitForTimeout(250);
+    await p.setInputFiles('#restoreFile', { name: 'gymi-backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(bak)) }); await p.waitForTimeout(500);
+    const fr = await p.evaluate(() => ({ weeks: S.cfg.weeks, note: S.cfg.notes.hackSquat, swap: S.cfg.swap.ua5, name: S.cfg.me.name, look: S.cfg.me.look, ob: S.cfg.me.ob > 0, n: Object.keys(S.sessions).length }));
+    check('a backup restored right after the opening screens brings its settings and its character', fr.weeks === 6 && fr.note === 'מושב 4' && fr.swap === 'inclineDb' && fr.name === 'ליאור' && JSON.stringify(fr.look) === JSON.stringify(me.look) && fr.ob && fr.n > 0, fr);
+    /* now the device has its workouts, and its settings are newer than this older file: they stay, and the note says so */
+    const older = JSON.parse(JSON.stringify(bak)); older.cfg.weeks = 4;
+    await p.setInputFiles('#restoreFile', { name: 'older.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(older)) }); await p.waitForTimeout(400);
+    check('an older file does not replace newer settings, and the note says they were kept', (await p.evaluate(() => S.cfg.weeks)) === 6 && (await txt('#backup')).includes('ההגדרות שבמכשיר הזה חדשות יותר'), await txt('#backup'));
+    await p.context().close();
+  }
   console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (errs.join(' | ') || 'none'));
   await b.close();
 })().catch((e) => { console.log('PASS ' + ok.length, 'FAIL', bad); console.log('CRASH', e.message.split('\n').slice(0, 5).join('\n')); process.exit(1); });

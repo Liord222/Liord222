@@ -10,6 +10,8 @@ function boot(data) {
   if (Array.isArray(d.dirty)) S.dirty = new Set(d.dirty);
   if (Array.isArray(d.gone)) S.gone = new Set(d.gone);
   if (d.cfg) S.cfg = normCfg(d.cfg);
+  /* the copy of the settings this device last shared with the account: a fresh copy starts from its defaults; one saved before this was kept has none until the account answers */
+  S.cfgBase = d.cfg ? (d.cb ? normCfg(d.cb) : null) : clone(S.cfg);
   if (d.pre && typeof d.pre === 'object') S.pre = d.pre;
   sweep();
   /* a workout that was already running before mesocycles existed joins the current one where it stands */

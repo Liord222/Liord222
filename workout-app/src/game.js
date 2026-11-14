@@ -72,7 +72,7 @@ function cleanShop(v) {
 }
 const spentOf = (shop) => shop.own.reduce((n, id) => n + shopItem(id).cost, 0);
 /* what is left to spend: never under zero, even when a deleted workout took points away after they were spent */
-const coinsLeft = (xp, shop) => Math.max(0, coinsOf(xp) - spentOf(shop));
+const coinsLeft = (xp, shop, ch) => Math.max(0, coinsOf(xp) + (ch > 0 && isFinite(ch) ? Math.floor(ch) : 0) - spentOf(shop));
 /* putting a thing on takes off what was worn in its slot; null when it is not owned */
 function shopWear(shop, id, on) {
   const it = shopItem(id); if (!it || !shop.own.includes(id)) return null;
@@ -80,8 +80,8 @@ function shopWear(shop, id, on) {
   return { own: shop.own.slice(), on: on ? rest.concat(id) : rest };
 }
 /* buying: the coins must be there and the thing not owned yet. It is put on at once. null when it cannot be bought */
-function shopBuy(shop, id, xp) {
-  const it = shopItem(id); if (!it || shop.own.includes(id) || coinsLeft(xp, shop) < it.cost) return null;
+function shopBuy(shop, id, xp, ch) {
+  const it = shopItem(id); if (!it || shop.own.includes(id) || coinsLeft(xp, shop, ch) < it.cost) return null;
   return shopWear({ own: shop.own.concat(id), on: shop.on }, id, true);
 }
 /* how muscular the character is drawn: 0 at level 1, fully built at level 30 */
@@ -91,13 +91,13 @@ function weekIdx(ts) { const d = new Date(ts); return Math.floor((Math.floor((ts
 
 /* The device keeps only the latest workouts, so the profile cannot be recounted from the log forever. Older workouts are
    folded into an archive: their totals up to the moment `until`, and the run of consecutive weeks (sw) ending in week lw. */
-const archZero = () => ({ until: 0, xp: 0, wk: 0, sets: 0, prs: 0, kg: 0, sw: 0, lw: 0 });
+const archZero = () => ({ until: 0, xp: 0, wk: 0, sets: 0, prs: 0, kg: 0, sw: 0, lw: 0, ch: 0 });
 function totalsOf(list, arch) {
-  const t = { xp: arch.xp, wk: arch.wk, sets: arch.sets, prs: arch.prs, kg: arch.kg };
+  const t = { xp: arch.xp, wk: arch.wk, sets: arch.sets, prs: arch.prs, kg: arch.kg, ch: arch.ch || 0 };
   for (const s of list) {
     if (s.ts <= arch.until) continue;
     const y = tally(s); if (!y.sets) continue;
-    t.xp += y.xp; t.sets += y.sets; t.prs += y.prs; t.kg += y.kg; if (s.end) t.wk++;
+    t.xp += y.xp; t.sets += y.sets; t.prs += y.prs; t.kg += y.kg; if (s.end) { t.wk++; t.ch += chestOf(s); }
   }
   return t;
 }
@@ -115,7 +115,7 @@ function archiveStep(list, arch, keep) {
     const y = tally(s), w = weekIdx(s.ts);
     a.until = s.ts;
     if (!y.sets) continue;
-    a.xp += y.xp; a.wk++; a.sets += y.sets; a.prs += y.prs; a.kg += y.kg;
+    a.xp += y.xp; a.wk++; a.sets += y.sets; a.prs += y.prs; a.kg += y.kg; a.ch = (a.ch || 0) + chestOf(s);
     if (!a.sw || w > a.lw + 1) a.sw = 1; else if (w === a.lw + 1) a.sw++;
     a.lw = w;
   }
@@ -129,6 +129,32 @@ function streakOf(list, arch, now) {
   let w = weeks.has(cur) ? cur : cur - 1, n = 0;
   while (weeks.has(w)) { n++; if (arch.sw && w === arch.lw) return n + arch.sw - 1; w--; }
   return n;
+}
+/* ---- what makes a finished workout feel like something (round 2). Each is honest: it tells or gives only what is true.
+   A surprise chest: about one finished workout in three ends with a chest of coins for the kiosk. Which ones, and how much, comes
+   from the workout's own id, so every device agrees and nothing has to be stored; no one can tell in advance which workout has one */
+const CHEST = [10, 10, 15, 15, 20, 20, 25, 40];
+function hashId(id) { let h = 2166136261; const t = String(id || ''); for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+function chestOf(s) {
+  if (!s || !s.end || !s.id || !tally(s).sets) return 0;
+  const h = hashId(s.id);
+  return h % 100 < 34 ? CHEST[(h >>> 8) % CHEST.length] : 0;
+}
+/* almost there: the next level in sets, the unit the lifter actually does */
+const setsToNext = (L) => Math.max(1, Math.ceil((L.need - L.into) / XP.set));
+/* what the weight lifted in a workout weighs as much as: the heaviest thing it passes */
+const LIKE = [
+  { kg: 300, he: 'דוב גריזלי', en: 'a grizzly bear' }, { kg: 500, he: 'פסנתר כנף', en: 'a grand piano' }, { kg: 1000, he: 'מכונית קטנה', en: 'a small car' },
+  { kg: 2000, he: 'טנדר', en: 'a pickup truck' }, { kg: 3000, he: 'היפופוטם', en: 'a hippo' }, { kg: 5000, he: 'פיל', en: 'an elephant' },
+  { kg: 12000, he: 'אוטובוס', en: 'a bus' }, { kg: 24000, he: 'שני אוטובוסים', en: 'two buses' },
+];
+const liftedLike = (kg) => { let o = null; for (const x of LIKE) if (kg >= x.kg) o = x; return o; };
+/* a run of weeks that this week has not kept yet: the length of the run, when it is two weeks or more and this week has no workout */
+function streakOpen(list, arch, now) {
+  const cur = weekIdx(now);
+  if (list.some((s) => s.end && s.ts > arch.until && weekIdx(s.ts) === cur && tally(s).sets)) return 0;
+  const n = streakOf(list, arch, now);
+  return n >= 2 ? n : 0;
 }
 /* every workout of one week of a round was finished (as many as the week has now, never fewer than two) */
 function fullWeek(list) {

@@ -212,7 +212,9 @@ const buildSteps = () => [
 function obHTML() {
   const st = OB_STEPS[OB.step], nm = String(OB.name || '').trim();
   /* Eilon, all of him, beside what he asks. On the first question he stands larger, above it */
-  const ask = (t, sub, big) => '<div class="ob-q' + (big ? ' big' : '') + '"><span class="ob-eilon" aria-hidden="true">' + avatarSVG(COACH, 16, {}) + '</span><div class="ob-bub"><h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
+  /* over each question, a small line that says what it is about, as the Workouts screen says "the next workout" over its name */
+  const KICK = { exp: say('הניסיון שלך', 'Your experience'), goals: say('המטרות', 'Your goals'), days: say('השבוע שלך', 'Your week'), time: say('זמן אימון', 'Workout time'), eq: say('ציוד', 'Equipment'), look: say('הדמות שלך', 'Your character'), plan: say('אילון בנה', 'Built by Eilon') };
+  const ask = (t, sub, big) => '<div class="ob-q' + (big ? ' big' : '') + '"><span class="ob-eilon" aria-hidden="true">' + avatarSVG(COACH, 16, big ? {} : { bust: true }) + '</span><div class="ob-bub">' + (!big && KICK[st] ? '<p class="ob-k">' + KICK[st] + '</p>' : '') + '<h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
   const card = (key, i, ic, t, sub, on, multi) => '<button type="button" class="ob-opt" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '" data-ob="' + key + '" data-v="' + i + '"><i class="ob-ic" aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span><i class="ob-chk" aria-hidden="true">' + ICON.check + '</i></button>';
   const group = (multi, inner) => '<div class="ob-opts" role="' + (multi ? 'group' : 'radiogroup') + '" aria-labelledby="obTitle">' + inner + '</div>';
   let body, cta = say('המשך', 'Continue'), can = true, quiet = false;

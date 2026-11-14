@@ -52,7 +52,7 @@ const cropFig = (it, lvl) => avatarSVG(Object.assign({}, S.cfg.me.look, { wear: 
 /* the profile: the character on its stage with where it stands in the game, the kiosk, and the achievements, small */
 function renderProfile(P) {
   P = P || meNow();
-  const me = S.cfg.me, L = P.L, nx = nextReward(L.lvl), have = new Set(Object.keys(me.badges).concat(earned(P.T, P.X))), bal = coinsLeft(P.T.xp, me.shop);
+  const me = S.cfg.me, L = P.L, nx = nextReward(L.lvl), have = new Set(Object.keys(me.badges).concat(earned(P.T, P.X))), bal = coinsLeft(P.T.xp, me.shop, P.T.ch);
   let si = 0; const stat = (v, k) => '<li style="--i:' + (si++) + '"><b>' + v + '</b><span>' + k + '</span></li>';
   /* the achievements in short: the last ones that were earned, then the next to go for. All of them are a tap away */
   const got = BADGES.filter((b) => have.has(b.id)), todo = BADGES.filter((b) => !have.has(b.id)), few = todo.length ? got.slice(-3).concat(todo).slice(0, 4) : got.slice(-4);
@@ -75,7 +75,7 @@ function renderProfile(P) {
 }
 /* ---- the kiosk. The character on the stage tries a thing on; coins buy it; what is owned goes on and off with a tap ---- */
 function renderShop(pump) {
-  const P = meNow(), me = S.cfg.me, shop = me.shop, bal = coinsLeft(P.T.xp, shop), sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0;
+  const P = meNow(), me = S.cfg.me, shop = me.shop, bal = coinsLeft(P.T.xp, shop, P.T.ch), sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0;
   const it = shopItem(S.shopTry), own = !!it && shop.own.includes(it.id);
   /* what the figure on the stage wears: the wardrobe, with the thing that is being tried in place of what its slot held */
   const worn = it && !own ? shop.on.filter((k) => shopItem(k).slot !== it.slot).concat(it.id) : shop.on;
@@ -105,15 +105,15 @@ function shopTap(id) {
   S.shopTry = id; renderShop(true);
 }
 function shopBuyNow(id) {
-  const me = S.cfg.me, xp = meNow().T.xp, next = shopBuy(me.shop, id, xp); if (!next) return;
-  me.shop = next; saveCfg(); S.shopTry = id; S.shopBal = coinsLeft(xp, next); saveLocal();
+  const me = S.cfg.me, T = meNow().T, next = shopBuy(me.shop, id, T.xp, T.ch); if (!next) return;
+  me.shop = next; saveCfg(); S.shopTry = id; S.shopBal = coinsLeft(T.xp, next, T.ch); saveLocal();
   feel('coin', 'success'); renderMe(); renderShop(true);
   toast(COIN + '<b>' + say('שלך: ', 'Yours: ') + nm(shopItem(id)) + '</b>');
 }
-function openShop() { S.sheet = 'shop'; S.shopTry = null; S.shelf = ''; renderShop(); $('#sheet').hidden = false; S.shopBal = coinsLeft(meNow().T.xp, S.cfg.me.shop); saveLocal(); markShop(); }
+function openShop() { S.sheet = 'shop'; S.shopTry = null; S.shelf = ''; renderShop(); $('#sheet').hidden = false; S.shopBal = (() => { const T = meNow().T; return coinsLeft(T.xp, S.cfg.me.shop, T.ch); })(); saveLocal(); markShop(); }
 /* the profile's tab is marked once the coins have grown enough to buy something since the kiosk was last looked at */
 function markShop() {
-  const me = S.cfg.me, bal = coinsLeft(meNow().T.xp, me.shop), b = $('#tabbar [data-view="profile"]');
+  const me = S.cfg.me, T = meNow().T, bal = coinsLeft(T.xp, me.shop, T.ch), b = $('#tabbar [data-view="profile"]');
   if (b) b.classList.toggle('new', bal > (S.shopBal || 0) && SHOP.some((x) => !me.shop.own.includes(x.id) && x.cost <= bal));
 }
 /* ---- the journey: the levels as a road, from the first to the hundredth. Every stop is a level that opens something, and on the

@@ -102,6 +102,8 @@ function coachSays(Wm, easy) {
   if (Wm.on) return say('יש אימון באמצע. ממשיכים מאיפה שעצרת?', 'A workout is under way. Pick up where you stopped?');
   if (Wm.first) return say('האימון הראשון מחכה. אני איתך בכל סט.', 'Your first workout is waiting. I\'m with you every set.');
   if (easy) return say('שבוע קל: פחות סטים, רחוק מכשל. הגוף בונה עכשיו.', 'Easy week: fewer sets, far from failure. This is when the body builds.');
+  const run = streakOpen(Object.values(S.sessions), S.cfg.me.arch, Date.now());
+  if (run) return say(run + ' שבועות ברצף. אימון אחד השבוע שומר על הרצף.', run + ' weeks in a row. One workout this week keeps the run going.');
   if (!Wm.dn) return say('שבוע חדש. מתחילים חזק.', 'A new week. Start strong.');
   if (left === 1) return say('עוד אימון אחד וסגרת את השבוע!', 'One more workout and the week is yours!');
   return say('עוד ' + left + ' אימונים לסגירת השבוע', left + ' more workouts to close the week');
@@ -712,8 +714,20 @@ function onFb(exId, key, v) {
    a level is passed the screen says so. What opened on the way (a personal best, a reward, an achievement) follows, one at a time.
    Nothing here is small print.
    R: { y: the workout's tally, from / to: the level before and after it, got: achievements earned now } */
+/* the chest of the summary, closed; its lid lifts when it is opened */
+const CHEST_SVG = '<svg class="chest" viewBox="0 0 96 80" aria-hidden="true"><ellipse cx="48" cy="74" rx="38" ry="5" fill="rgb(0 0 0 / .14)"/><g class="ch-body"><rect x="10" y="34" width="76" height="38" rx="6" fill="#8A4B1F"/><rect x="10" y="34" width="76" height="9" fill="#6E3A15"/><rect x="42" y="34" width="12" height="38" fill="#F2B02E"/><rect x="10" y="56" width="76" height="5" fill="#F2B02E"/><rect x="44" y="44" width="8" height="10" rx="2" fill="#5C3A00"/></g><g class="ch-lid"><path d="M10 34 V24 a18 18 0 0 1 18 -18 H68 a18 18 0 0 1 18 18 V34 Z" fill="#A65A26"/><rect x="42" y="6" width="12" height="28" fill="#F2B02E"/><path d="M10 30 H86 V34 H10 Z" fill="#F2B02E"/></g><g class="ch-shine"><circle cx="30" cy="20" r="3" fill="#FFF3C4"/><circle cx="70" cy="14" r="2" fill="#FFF3C4"/></g></svg>';
+/* the chest opens: the lid lifts, the coins fly, and the kiosk has them */
+function openChest(b) {
+  if (!b || b.classList.contains('open')) return;
+  const n = +b.dataset.n || 0;
+  b.classList.add('open'); b.setAttribute('aria-label', say('בתיבה: ', 'In the chest: ') + n + say(' מטבעות לקיוסק', ' coins for the kiosk'));
+  b.querySelector('.ch-t').innerHTML = '<b class="ch-n">' + COIN + '<bdi>+' + n + '</bdi></b><small>' + say('מטבעות לקיוסק', 'coins for the kiosk') + '</small>';
+  feel('coin', 'success');
+  const c = $('#confetti'); if (c) confetti(c, 40);
+  markShop();
+}
 function showSummary(s, R) {
-  const y = R.y, up = R.to.lvl > R.from.lvl, opened = up ? rewardsBetween(R.from.lvl, R.to.lvl) : [];
+  const y = R.y, up = R.to.lvl > R.from.lvl, opened = up ? rewardsBetween(R.from.lvl, R.to.lvl) : [], like = liftedLike(y.kg), box = chestOf(s);
   const chip = (cls, ic, t) => '<li class="' + cls + '">' + ic + '<b>' + t + '</b></li>';
   const chips = (y.prs ? [chip('gold', glyph('star'), y.prs === 1 ? say('שיא אישי', 'A personal best') : y.prs + say(' שיאים אישיים', ' personal bests'))] : [])
     .concat(opened.map((r) => chip('', glyph('gift'), say('נפתח: ', 'Unlocked: ') + nm(r))), R.got.map((id) => { const b = BADGES.find((x) => x.id === id); return chip('', glyph(b.ic), say('הישג: ', 'Achievement: ') + nm(b)); }));
@@ -724,7 +738,10 @@ function showSummary(s, R) {
     '<h2 class="sum-xp"><bdi dir="ltr" id="sumXp">+' + nf(y.xp) + '</bdi><small>' + say('נקודות', 'points') + '</small></h2>' +
     '<p class="sum-up" id="sumUp"' + (up ? '' : ' hidden') + '>' + glyph('star') + '<span>' + say('עלית לרמה ', 'You reached level ') + R.to.lvl + '</span></p>' +
     '<div class="sum-lv"><b class="lv-badge" id="sumLv">' + say('רמה ', 'Level ') + (up ? R.from.lvl : R.to.lvl) + '</b><span class="xpbar"><i id="sumBar" style="width:' + pctOf(R.from) + '%"></i></span><b class="sum-nx" id="sumNx">' + ((up ? R.from.lvl : R.to.lvl) + 1) + '</b></div>' +
+    '<p class="sum-to" id="sumTo">' + say('עוד ' + cnt(setsToNext(R.to), 'סטים', 'סט אחד', 'sets', 'set') + ' לרמה ', cnt(setsToNext(R.to), 'סטים', 'סט אחד', 'sets', 'set') + ' to level ') + (R.to.lvl + 1) + '</p>' +
     (chips.length ? '<ul class="sum-new">' + chips.join('') + '</ul>' : '') +
+    (like ? '<p class="sum-kg">' + glyph('plate') + '<span>' + say('הרמת היום ', 'You lifted ') + '<b><bdi>' + tons(y.kg) + '</bdi>' + say(' טון', ' tons') + '</b>' + say(', יותר מ' + like.he, ' today, more than ' + like.en) + '</span></p>' : '') +
+    (box ? '<button class="sum-chest" id="chestBtn" type="button" data-n="' + box + '" aria-label="' + say('תיבת הפתעה. לפתוח', 'A surprise chest. Open it') + '">' + CHEST_SVG + '<span class="ch-t"><b>' + say('תיבת הפתעה!', 'A surprise chest!') + '</b><small>' + say('לוחצים כדי לפתוח', 'Tap to open it') + '</small></span></button>' : '') +
     '<button class="btn primary big" id="sheetClose" type="button">' + say('המשך', 'Continue') + '</button></div>';
   sh.hidden = false; $('#sheetClose').focus();
   const av = () => $('#sumAv .av'), bar = () => $('#sumBar'), later = (ms, fn) => setTimeout(() => { if (S.sheet === 'sum' && $('#sumBar')) fn(); }, reduced ? 0 : ms);
@@ -1030,6 +1047,7 @@ function wireApp() {
     const id = (ev.target.closest('button') || {}).id;
     /* a double tap on Finish: the second tap lands on the summary that has just opened, which must be seen */
     if (ev.detail !== 0 && Date.now() - (S.sumAt || 0) < 400) return;
+    if (id === 'chestBtn') { openChest(ev.target.closest('button')); return; }
     if (ev.target === sheet || id === 'sheetClose' || id === 'edDone' || ev.target.closest('[data-close]')) { closeSheet(); return; }
     if (listSheetClick(ev, id) || exSheetClick(ev, id) || coachSheetClick(ev, id) || meSheetClick(ev)) return;
     if (id === 'edDelAsk' || id === 'edDelNo') { S.edDel = id === 'edDelAsk'; $('#edAct').innerHTML = editorActions(S.sessions[S.edSid]); }

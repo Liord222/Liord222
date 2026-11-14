@@ -1,7 +1,7 @@
 // Unit checks for the pure parts: the progression engine (plan.js + lib.js + prog.js) and the game layer (game.js): node test/unit.js
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = process.argv[2] || path.join(__dirname, '..', 'src');
-const GAME = ['SHELF', 'shelfOf', 'wkName', 'ownName', 'rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'startKg', 'stepUp', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned', 'SHOP', 'shopItem', 'coinsOf', 'cleanShop', 'spentOf', 'coinsLeft', 'shopWear', 'shopBuy'];
+const GAME = ['CHEST', 'chestOf', 'hashId', 'setsToNext', 'LIKE', 'liftedLike', 'streakOpen', 'coinsLeft', 'shopBuy', 'SHELF', 'shelfOf', 'wkName', 'ownName', 'rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'startKg', 'stepUp', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned', 'SHOP', 'shopItem', 'coinsOf', 'cleanShop', 'spentOf', 'coinsLeft', 'shopWear', 'shopBuy'];
 const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') +
   '\n;globalThis.X = { PLAN, WEEKS, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
   '\n;globalThis.G = {' + GAME.map((k) => k + ': typeof ' + k + " === 'undefined' ? undefined : " + k).join(', ') + '};';
@@ -145,8 +145,24 @@ t('a wardrobe from a file is cleaned: only things that are sold, each once, worn
 
 // totals: the archive plus every workout newer than it
 const zero = () => G.archZero();
-t('totals of two workouts', () => G.totalsOf([ses({ sets: three }), ses({ id: 's2', ts: 3000, end: 0, sets: three })], zero()), { xp: 220, wk: 1, sets: 6, prs: 2, kg: 1800 });
-t('archived workouts are not counted twice', () => G.totalsOf([ses({ sets: three }), ses({ id: 's2', ts: 3000, end: 4000, sets: three })], Object.assign(zero(), { until: 1500, xp: 5000, wk: 20, sets: 400, prs: 30, kg: 90000 })), { xp: 5160, wk: 21, sets: 403, prs: 31, kg: 90900 });
+t('totals of two workouts', () => G.totalsOf([ses({ sets: three }), ses({ id: 's2', ts: 3000, end: 0, sets: three })], zero()), { xp: 220, wk: 1, sets: 6, prs: 2, kg: 1800, ch: G.chestOf(ses({ sets: three })) });
+/* ---- round 2: what makes a finished workout feel like something */
+{
+  const one = { a1: [{ kg: 50, reps: 8, done: true }] }, fin = (id) => ses({ id, sets: one }), ids = Array.from({ length: 600 }, (_, i) => 'x' + i), got = ids.map((id) => G.chestOf(fin(id)));
+  const share = got.filter(Boolean).length / ids.length;
+  t('a surprise chest: about one finished workout in three has one, with coins from the list, and the same workout always the same', () => [share > 0.25 && share < 0.43, got.every((n) => n === 0 || G.CHEST.includes(n)), ids.slice(0, 50).every((id, i) => G.chestOf(fin(id)) === got[i]), new Set(got.filter(Boolean)).size >= 4], [true, true, true, true]);
+  const hit = ids.find((id) => G.chestOf(fin(id)) > 0);
+  t('no chest for a workout that is not finished or has no set', () => [G.chestOf(ses({ id: hit, end: 0, sets: one })), G.chestOf(ses({ id: hit, sets: {} })), G.chestOf(null)], [0, 0, 0]);
+  t('the chest\'s coins are in the totals, and stay there when the workout moves to the archive', () => { const L = [fin(hit)], a = G.archiveStep(L, zero(), 0); return [G.totalsOf(L, zero()).ch, a.ch, G.totalsOf(L, a).ch]; }, [G.chestOf(fin(hit)), G.chestOf(fin(hit)), G.chestOf(fin(hit))]);
+  t('the kiosk can spend the chest\'s coins', () => [G.coinsLeft(0, { own: [], on: [] }, 25), G.coinsLeft(100, { own: [], on: [] }, 25), !!G.shopBuy({ own: [], on: [] }, 'towel', 0, 30), G.shopBuy({ own: [], on: [] }, 'towel', 0, 29), G.coinsLeft(0, { own: [], on: [] }, -5)], [25, 35, true, null, 0]);
+}
+t('almost there: the next level is said in sets', () => [G.setsToNext({ lvl: 3, into: 270, need: 280 }), G.setsToNext({ lvl: 3, into: 0, need: 280 }), G.setsToNext({ lvl: 3, into: 279, need: 280 })], [1, 28, 1]);
+t('what a workout lifted weighs as much as the heaviest thing it passes, and nothing under 300 kg', () => [G.liftedLike(299), G.liftedLike(300).en, G.liftedLike(4200).en, G.liftedLike(5000).he, G.liftedLike(90000).en], [null, 'a grizzly bear', 'a hippo', 'פיל', 'two buses']);
+{
+  const day = 864e5, now = Date.UTC(2026, 10, 18, 12), wk = (k) => ses({ id: 'k' + k, ts: now - k * 7 * day, end: now - k * 7 * day + 3600e3, sets: { a1: [{ kg: 50, reps: 8, done: true }] } });
+  t('a run of weeks this week has not kept yet is said; once this week has a workout, or the run is short, nothing is', () => [G.streakOpen([wk(1), wk(2), wk(3)], zero(), now), G.streakOpen([wk(0), wk(1), wk(2)], zero(), now), G.streakOpen([wk(1)], zero(), now), G.streakOpen([], zero(), now)], [3, 0, 0, 0]);
+}
+t('archived workouts are not counted twice', () => G.totalsOf([ses({ sets: three }), ses({ id: 's2', ts: 3000, end: 4000, sets: three })], Object.assign(zero(), { until: 1500, xp: 5000, wk: 20, sets: 400, prs: 30, kg: 90000 })), { xp: 5160, wk: 21, sets: 403, prs: 31, kg: 90900, ch: G.chestOf(ses({ id: 's2', ts: 3000, end: 4000, sets: three })) });
 const many = (n) => Array.from({ length: n }, (_, i) => ses({ id: 's' + (i + 1), ts: (i + 1) * 864e5 * 2, end: (i + 1) * 864e5 * 2 + 1, sets: { ua1: [{ kg: 50, reps: 10, done: true }] } }));
 t('nothing to archive while the log is short', () => G.archiveStep(many(40), zero(), 40), null);
 t('two workouts at the very moment the archive ends both go in, and none drops out of the totals', () => { const l = many(42); l[1].ts = l[2].ts; const a = G.archiveStep(l, zero(), 40), t2 = G.totalsOf(l, a); return [t2.wk, t2.sets]; }, [42, 42]);

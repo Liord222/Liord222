@@ -56,7 +56,7 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   check('summary numbers: weekly sets and strength change', sm.sets.start === 8 && sm.sets.peak === 8 && sm.g.length === 3 && sm.g.some((x) => x.startsWith('assistedPullup:') && !x.includes('-')) && sm.keys === 'gains,mus,n,sets', sm);
   await p.click('#sheetClose'); await p.waitForTimeout(300);
   // ---- 3. the next workout opens mesocycle 2 ----
-  check('after the deload: next workout is week 1 of mesocycle 2', (await p.evaluate(() => { const P = phaseNext(0); return [P.n, P.wk, P.rir].join(); })) === '2,1,3' && (await txt('#home .week h2')).includes('שבוע 1'), await txt('#home .week'));
+  check('after the deload: next workout is week 1 of mesocycle 2', (await p.evaluate(() => { const P = phaseNext(0); return [P.n, P.wk, P.rir].join(); })) === '2,1,3' && (await txt('#home .week h2')).includes('השבוע') && !(await txt('#home .week h2')).includes('מתוך'), await txt('#home .week'));
   const t1 = await p.evaluate(() => { const e = findEx('ua1', null), t = targetOf(e, 0, null); return [t.kg, t.reps, t.mode, e.sets]; });
   check('new mesocycle starts further from failure, sets back to base', t1[2] === 'base' && t1[1] >= 6 && t1[1] <= 10 && t1[0] <= 62.5 && t1[3] === 3, t1);
   check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('גוף עליון A'), await txt('#home'));
@@ -184,7 +184,7 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   check('a set with a weight that is no weight is left out, zero means no weight, and the rest is written in order', logged.idx === '0,1,2' && logged.rows === '-x9,40x8,40.25x8', logged);
   check('a line that names no exercise or holds no sets writes nothing, and says so', logged.bad === '[{"none":true},{"none":true},null,null]', logged.bad);
   await p.click('#listBtn'); await p.waitForTimeout(250); await p.click('#finishBtn'); await p.waitForTimeout(500); await p.click('#sheetClose'); await p.waitForTimeout(250);
-  await p.click('#tabbar [data-view="progress"]'); await p.waitForTimeout(250); await p.click('#history [data-edit]'); await p.waitForTimeout(300);
+  await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(250); await p.click('#history [data-edit]'); await p.waitForTimeout(300);
   await p.fill('#sheet .ed-row[data-ex="ua1"][data-i="0"] [data-k="kg"]', '99999'); await p.fill('#sheet .ed-row[data-ex="ua1"][data-i="0"] [data-k="reps"]', '9999'); await p.waitForTimeout(150);
   check('fixing a finished workout caps the numbers the same way', (await p.evaluate(() => { const r = Object.values(S.sessions)[0].sets.ua1[0]; return r.kg + 'x' + r.reps; })) === '1000x200', await p.evaluate(() => JSON.stringify(Object.values(S.sessions)[0].sets.ua1)));
   await p.click('#sheetClose'); await p.waitForTimeout(200);

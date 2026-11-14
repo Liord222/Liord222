@@ -71,7 +71,7 @@ const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'
   '• A good substitute keeps the same movement, the same muscles, the same rep range and the same closeness to failure.\n' +
   '• Warming up: one to three sets that climb in weight, before the first exercise of each area.\n' +
   '• Sharp pain, or pain in a joint: stop the exercise and suggest seeing a professional. You have no medical information about the user, and you do not diagnose.\n\n' +
-  'The app: four workouts in a cycle (upper and lower body). Every exercise has "Swap", "How" and "More". The "Today" tab holds the next workout and the plan, "Progress" holds the records and the workouts that were done, and "Profile" holds the character, the levels and the settings. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
+  'The app: four workouts in a cycle (upper and lower body). Every exercise has "Swap", "How" and "More". The "Workouts" tab holds the next workout and the plan, and "Profile" holds the character, the levels, the settings and the workouts that were done. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
   'The user\'s plan. The square brackets hold the id of each exercise. Use the exercise names as they are written here:\n\n' + planText() + '\n\n' +
   aboutUser() + 'The shape of the answer in special cases:\n' +
   '- When asked whether an exercise or a machine can replace an exercise from the plan, the first line is exactly one of these: "Verdict: Suitable", "Verdict: Partly suitable" or "Verdict: Not recommended". After it, a line or two: why, and what to adjust (sets, reps or one form cue).\n' +
@@ -342,7 +342,7 @@ function openChat(exId) {
     $('#chat').setAttribute('role', 'dialog'); chat.modal = true;
     for (const el of behindChat()) el.inert = true;
   }
-  $('#chatInput').focus();
+  $('#chatClose').focus({ preventScroll: true });
 }
 function closeChat() {
   const c = $('#chat'), was = !!chat.modal; chat.modal = false;

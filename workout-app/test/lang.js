@@ -59,8 +59,8 @@ const hebOn = (p) => p.evaluate(() => {
   // ---- today
   check('the language of the settings wins over the language of the phone', (await p.evaluate(() => [LANG, document.documentElement.dir, document.documentElement.lang, document.querySelector('#app').dir].join())) === 'en,ltr,en,ltr', await p.evaluate(() => LANG));
   const home = await txt('#home');
-  check('today is in English', home.includes('Hi, Sam') && home.includes('Level ') && home.includes('Workout 1') && home.includes('Upper Body A') && home.includes('8 exercises') && home.includes('Start workout') && home.includes('Week 4 of 5') && home.includes('Plan'), home);
-  check('the tabs are in English', (await txt('#tabbar')).replace(/\s+/g, ' ').trim() === 'Today Profile Progress Eilon', await txt('#tabbar'));
+  check('today is in English', home.includes('Hi, Sam') && home.includes('Level ') && home.includes('Workout 1') && home.includes('Upper Body A') && home.includes('8 exercises') && home.includes('Start workout') && home.includes('This week') && !home.includes(' of 5') && home.includes('Plan'), home);
+  check('the tabs are in English', (await txt('#tabbar')).replace(/\s+/g, ' ').trim() === 'Workouts Profile Eilon', await txt('#tabbar'));
   check('the week path uses the short English names', (await txt('#tabs')).replace(/\s+/g, ' ').includes('Upper A') && (await txt('#tabs')).includes('Lower B') && (await p.getAttribute('#tabs .tab[data-tab="0"]', 'aria-label')) === 'Workout 1 – Upper Body A, next', await txt('#tabs'));
   check('arrows that mean "onward" point right', (await p.evaluate(() => getComputedStyle(document.querySelector('#planBtn .i.dir')).transform)) === 'matrix(-1, 0, 0, 1, 0, 0)', 'transform');
   await clean('today'); await snap(p, 'en1-home', true);
@@ -100,7 +100,7 @@ const hebOn = (p) => p.evaluate(() => {
   /* a change of language reaches the timer that is already running */
   await p.evaluate(() => setLang('he')); await p.waitForTimeout(350);
   check('(the check itself sees Hebrew when there is some)', (await hebOn(p)).length > 12, (await hebOn(p)).length);
-  check('the running timer follows a change of language', (await txt('#rtState')).includes('סט 2 מתוך 3') && (await p.evaluate(() => document.documentElement.dir)) === 'rtl' && (await txt('#tabbar')).includes('היום') && (await txt('#exList .ex-name')) === 'לחיצת חזה בשיפוע עליון בסמית׳', await txt('#rtState'));
+  check('the running timer follows a change of language', (await txt('#rtState')).includes('סט 2 מתוך 3') && (await p.evaluate(() => document.documentElement.dir)) === 'rtl' && (await txt('#tabbar')).includes('אימונים') && (await txt('#exList .ex-name')) === 'לחיצת חזה בשיפוע עליון בסמית׳', await txt('#rtState'));
   await p.evaluate(() => setLang('en')); await p.waitForTimeout(350);
   check('and back', (await txt('#rtState')).includes('Next: Set 2 of 3') && (await txt('#exList .ex-name')) === 'Incline Smith Machine Press', await txt('#rtState'));
   await p.click('#rtSkip'); await p.waitForTimeout(250);
@@ -202,11 +202,11 @@ const hebOn = (p) => p.evaluate(() => {
   await tab('home');
 
   // ---- progress
-  await tab('progress');
-  const pr = await txt('.v-progress');
-  check('progress is in English', pr.includes('Progress') && /Round 1 · 13 workouts/.test(pr) && pr.includes('Your strength') && pr.includes(' → ') && pr.includes('Round summary') && pr.includes('Recent workouts') && pr.includes('More workouts') && !pr.includes('Backup') && !(await p.$('.v-progress .xp-tag')), pr.slice(0, 500));
+  await tab('profile');
+  const pr = await txt('#history');
+  check('the workouts in the profile are in English', pr.includes('Recent workouts') && pr.includes('More workouts') && !pr.includes('Backup') && !(await p.$('#history .xp-tag')), pr.slice(0, 500));
   check('dates are written in English, with the month in letters', /[A-Z][a-z]{2},? \d{1,2} [A-Z][a-z]{2} · \d+ sets · \d+ min/.test(await txt('#history .h-s')), await txt('#history .h-s'));
-  await clean('progress'); await snap(p, 'en13-progress', true);
+  await clean('profile'); await snap(p, 'en13-history', true);
   await p.click('#history [data-edit]'); await p.waitForTimeout(350);
   const ed = await txt('#sheet');
   check('fixing a finished workout is in English', ed.includes('Workout 1') && ed.includes('Upper Body A') && ed.includes('Date') && ed.includes('Set 1') && ed.includes('kg') && ed.includes('reps') && ed.includes('Delete workout') && ed.includes('Continue this workout') && ed.includes('Done') && /\d exercises that were not logged/.test(ed) && (await p.getAttribute('#sheet .ed-row input', 'aria-label')) === 'Weight in set 1', ed.slice(0, 300));
@@ -218,7 +218,7 @@ const hebOn = (p) => p.evaluate(() => {
   // ---- the profile and the character
   await tab('profile');
   const pf = await txt('#profile');
-  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('week streak') && pf.includes('PRs') && pf.includes('tons lifted') && /At level \d+: [A-Z]/.test(pf) && pf.includes('Achievements') && pf.includes('All of them') && pf.includes('Settings') && pf.includes('A set +10 · a personal best +30 · a finished workout +100') && !pf.includes('Language'), pf.slice(0, 600));
+  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('week streak') && pf.includes('PRs') && pf.includes('tons lifted') && /At level \d+: [A-Z]/.test(pf) && pf.includes('Achievements') && pf.includes('All of them') && pf.includes('Settings') && !pf.includes('A set +10') && !pf.includes('Language'), pf.slice(0, 600));
   check('an achievement is read out in English', /^[A-Za-z0-9 ]+, (earned|not yet)$/.test(await p.getAttribute('#profile .bdg', 'aria-label')), await p.getAttribute('#profile .bdg', 'aria-label'));
   await clean('the profile'); await snap(p, 'en15-profile', true);
   await p.click('#bdgAll'); await p.waitForTimeout(200);

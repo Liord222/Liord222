@@ -10,21 +10,21 @@
    around them and by hairlines before boxes, and each screen has one main thing to do. Gold belongs to the game alone:
    points, levels and rewards. The coach chat is a full sheet on phones and sits beside the page on wide screens. */
 :root{
-  --paper:#F4F6FB; --surface:#FFFFFF; --surface-2:#F1F4FA; --surface-3:#E3E8F2; --ink:#0E1116; --ink-2:#4B5261; --ink-3:#666D7A; --ink-4:#9AA1AD; --line:#E3E7F0; --lip:#D3D9E6;
-  /* one colour style. gymi is blue: the four workouts are four blues (royal, azure, indigo, navy), each with its fill,
-     its darker edge, a soft tint and the ink that reads on white. The game is gold (points, levels, medals). Warmth is the
-     one thing that stands against the blue: the streak's flame and the muscle that is working. Nothing is green */
-  --w0:#2152E0; --w0-lip:#1A40B4; --w0-soft:#E3EAFF; --w0-ink:#1D46C4;
-  --w1:#0B72C4; --w1-lip:#08579A; --w1-soft:#DDF0FF; --w1-ink:#0B5FA8;
-  --w2:#5145E0; --w2-lip:#3B31B5; --w2-soft:#E9E7FF; --w2-ink:#463BCB;
-  --w3:#17358F; --w3-lip:#0F2569; --w3-soft:#E1E7F8; --w3-ink:#1B3A9C;
-  --gold:#F2B02E; --gold-lip:#C98A12; --gold-ink:#5C3A00; --flame:#FF8A00; --flame-2:#FFD23F; --flame-ink:#B85600; --accent-lip:#1A40B4;
-  --accent:#2152E0; --on-accent:#FFFFFF; --accent-soft:#E3EAFF; --accent-ink:#1D46C4;
+  --paper:#F5F5F8; --surface:#FFFFFF; --surface-2:#F2F2F6; --surface-3:#E7E6EE; --ink:#0F0E14; --ink-2:#4D4B58; --ink-3:#686675; --ink-4:#9C9AA8; --line:#E7E6EE; --lip:#D8D6E0;
+  /* one colour style. gymi is purple on black, white and grays: the four workouts are four violets (royal, indigo, orchid,
+     night), each with its fill, its darker edge, a soft tint and the ink that reads on white. The game is gold (points,
+     levels, medals). Warmth is the one thing that stands against the purple: the streak's flame and the muscle that is working */
+  --w0:#6D3FE0; --w0-lip:#5229C4; --w0-soft:#EEE8FF; --w0-ink:#5A2FCC;
+  --w1:#4B45D6; --w1-lip:#3631AE; --w1-soft:#E7E6FF; --w1-ink:#3E38C2;
+  --w2:#9446D6; --w2-lip:#7530B3; --w2-soft:#F4E9FF; --w2-ink:#8137C2;
+  --w3:#2F2366; --w3-lip:#1E1645; --w3-soft:#ECE9F6; --w3-ink:#3B2D80;
+  --gold:#F2B02E; --gold-lip:#C98A12; --gold-ink:#5C3A00; --flame:#FF8A00; --flame-2:#FFD23F; --flame-ink:#B85600; --accent-lip:#5229C4;
+  --accent:#6D3FE0; --on-accent:#FFFFFF; --accent-soft:#EEE8FF; --accent-ink:#5A2FCC;
   --muscle:#E0452B; --muscle-ink:#C93A1F; --muscle-soft:#FDE8E2; --warn:#A44A10; --warn-soft:#FBEBDD;
-  --ok:#1D46C4; --ok-soft:#E3EAFF; --on-ok:#FFFFFF; --rest:#8A5A00; --rest-soft:#FFF1D1;
+  --ok:#5A2FCC; --ok-soft:#EEE8FF; --on-ok:#FFFFFF; --rest:#8A5A00; --rest-soft:#FFF1D1;
   --xp:#8F5B00; --xp-soft:#FFF0CC; --xp-fill:#F2B02E;
   --stage:#F5F6F8; --grid:#ECEEF2; --grid-2:#E1E4EA; --floor:#ECEEF2; --ground:#A3A9B5; --shadow:#DDE0E6;
-  --fig:#6B7280; --fig-hi:#9097A3; --fig-lo:#4B5260; --fig-far:#B9BEC8; --cloth:#2152E0; --cloth-far:#9DB2F2;
+  --fig:#6B7280; --fig-hi:#9097A3; --fig-lo:#4B5260; --fig-far:#B9BEC8; --cloth:#6D3FE0; --cloth-far:#C3B1F5;
   --shoe:#1B1F27; --shoe-far:#8A909C; --sole:#F4F5F7; --hair:#1B1F27;
   --equip:#CDD1D9; --equip-hi:#EEF0F3; --equip-2:#858C99; --pad:#2D323C; --pad-hi:#5E6573; --plate:#2D323C; --plate-hi:#858C99; --cable:#646B78;
   --f-display:"Rubik",-apple-system,"Segoe UI","Arial Hebrew",Arial,sans-serif;
@@ -33,30 +33,30 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#0B0C0F; --surface:#17191E; --surface-2:#22252C; --surface-3:#2E323A; --ink:#F4F5F7; --ink-2:#B4B9C4; --ink-3:#9299A6; --ink-4:#6B7280; --line:#2A2D35;
-    --accent:#8DAEFF; --on-accent:#081230; --accent-soft:#1B2748; --accent-ink:#A9C2FF;
+    --paper:#0B0A0F; --surface:#17161D; --surface-2:#22212A; --surface-3:#2E2C37; --ink:#F5F4F8; --ink-2:#B8B5C4; --ink-3:#9693A3; --ink-4:#6E6B7C; --line:#2B2933;
+    --accent:#A98BFF; --on-accent:#1A0B3D; --accent-soft:#251B3F; --accent-ink:#C4B0FF;
     --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
-    --ok:#A9C2FF; --ok-soft:#1B2748; --on-ok:#081230; --rest:#FFC15E; --rest-soft:#38290B;
+    --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
     --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
-    --lip:#07080A; --accent-lip:#5F82D9; --flame-ink:#FFB24D; --w3:#2A4BB5; --w3-lip:#1B3488;
-    --w0-soft:#1B2748; --w0-ink:#A9C2FF; --w1-soft:#0F2A42; --w1-ink:#8CCBFF; --w2-soft:#23204D; --w2-ink:#B9B3FF; --w3-soft:#16213F; --w3-ink:#9DB4F5;
+    --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E;
+    --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2;
     --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
-    --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#6E93FF; --cloth-far:#33467A;
+    --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#A98BFF; --cloth-far:#45367C;
     --shoe:#6A7180; --shoe-far:#3D424D; --sole:#D9DCE2; --hair:#6A7180;
     --equip:#3B404B; --equip-hi:#5E6573; --equip-2:#6F7684; --pad:#565D6B; --pad-hi:#8A91A0; --plate:#565D6B; --plate-hi:#979EAC; --cable:#858C99;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#0B0C0F; --surface:#17191E; --surface-2:#22252C; --surface-3:#2E323A; --ink:#F4F5F7; --ink-2:#B4B9C4; --ink-3:#9299A6; --ink-4:#6B7280; --line:#2A2D35;
-  --accent:#8DAEFF; --on-accent:#081230; --accent-soft:#1B2748; --accent-ink:#A9C2FF;
+  --paper:#0B0A0F; --surface:#17161D; --surface-2:#22212A; --surface-3:#2E2C37; --ink:#F5F4F8; --ink-2:#B8B5C4; --ink-3:#9693A3; --ink-4:#6E6B7C; --line:#2B2933;
+  --accent:#A98BFF; --on-accent:#1A0B3D; --accent-soft:#251B3F; --accent-ink:#C4B0FF;
   --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
-  --ok:#A9C2FF; --ok-soft:#1B2748; --on-ok:#081230; --rest:#FFC15E; --rest-soft:#38290B;
+  --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
   --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
-  --lip:#07080A; --accent-lip:#5F82D9; --flame-ink:#FFB24D; --w3:#2A4BB5; --w3-lip:#1B3488;
-  --w0-soft:#1B2748; --w0-ink:#A9C2FF; --w1-soft:#0F2A42; --w1-ink:#8CCBFF; --w2-soft:#23204D; --w2-ink:#B9B3FF; --w3-soft:#16213F; --w3-ink:#9DB4F5;
+  --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E;
+  --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2;
   --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
-  --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#6E93FF; --cloth-far:#33467A;
+  --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#A98BFF; --cloth-far:#45367C;
   --shoe:#6A7180; --shoe-far:#3D424D; --sole:#D9DCE2; --hair:#6A7180;
   --equip:#3B404B; --equip-hi:#5E6573; --equip-2:#6F7684; --pad:#565D6B; --pad-hi:#8A91A0; --plate:#565D6B; --plate-hi:#979EAC; --cable:#858C99;
   color-scheme:dark;
@@ -64,6 +64,7 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+html,body{overflow-x:clip}
 html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
@@ -111,8 +112,8 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke
 .btn.danger{color:var(--muscle-ink)}
 .btn:disabled{opacity:.4;cursor:default}
  /* every press gives under the finger, and springs back when it is let go */
-button,[role="button"]{transition:transform .22s cubic-bezier(.3,1.8,.5,1),background-color .15s,color .15s,box-shadow .15s}
-button:active:not(:disabled),[role="button"]:active{transform:scale(.94);transition-duration:.07s}
+button,[role="button"]{transition:transform .3s cubic-bezier(.34,1.45,.64,1),background-color .15s,color .15s,box-shadow .15s}
+button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transition:transform .1s ease-out,background-color .15s,color .15s,box-shadow .15s}
 .btn.big:active:not(:disabled),.hit:active,.sug:active,.m-row:active,.sw-row:active,.ex-head:active,.row-b:active,.ob-opt:active,.setp:active{transform:scale(.97)}
 .stage-wrap:active,.player:active{transform:scale(.985)}
 .tab:active .dot,.player:active .p-ava{transform:scale(.92)}
@@ -134,7 +135,8 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.94);transit
 .app[data-view="workout"] .cols{padding-bottom:calc(var(--dock-h,300px) + 36px)}
 .main{min-width:0;display:grid;gap:14px}
 .view{display:none;gap:14px;min-width:0}
-.app[data-view="home"] .v-home,.app[data-view="workout"] .v-workout,.app[data-view="progress"] .v-progress,.app[data-view="profile"] .v-profile{display:grid}
+.pf-main{display:grid;gap:14px;min-width:0}
+.app[data-view="home"] .v-home,.app[data-view="workout"] .v-workout,.app[data-view="profile"] .v-profile{display:grid}
 .app:not([data-view="workout"]) .dock{display:none}
 
 /* shared pieces */
@@ -255,8 +257,8 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.94);transit
 .fx .ex{display:grid;gap:16px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 10px)}
 .fx .ex.in-next{animation:fx-next .28s cubic-bezier(.2,.8,.2,1)}
 .fx .ex.in-prev{animation:fx-prev .28s cubic-bezier(.2,.8,.2,1)}
-@keyframes fx-next{from{opacity:0;transform:translateX(-28px)}}
-@keyframes fx-prev{from{opacity:0;transform:translateX(28px)}}
+@keyframes fx-next{from{opacity:0;transform:translateX(-10px)}}
+@keyframes fx-prev{from{opacity:0;transform:translateX(10px)}}
 [dir="ltr"] .i.dir{transform:scaleX(-1)}
 [dir="ltr"] .fx .ex.in-next{animation-name:fx-prev}
 [dir="ltr"] .fx .ex.in-prev{animation-name:fx-next}
@@ -287,7 +289,7 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.94);transit
 /* what one can do with the exercise: three small buttons that stand on a lip like every other button */
 .act{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:0;padding:0 6px;border:0;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 2px var(--line),0 3px 0 var(--lip);margin-bottom:3px;color:var(--ink);font-size:14.5px;font-weight:700;line-height:1.2}
 .act svg{width:18px;height:18px;flex:none;color:var(--wk-ink);stroke-width:2.4}
-.act:active{transform:translateY(3px);box-shadow:inset 0 0 0 2px var(--line),0 0 0 var(--lip)}
+.act:active{transform:scale(.96)}
 /* the goal of a set, in the bar: a small label that says why when it is tapped */
 .goal{position:relative;display:inline-block;flex:none;border:0;font-size:12px;font-weight:700;line-height:1.7;padding:0 9px;border-radius:99px;background:var(--surface-3);color:var(--ink-2);white-space:nowrap}
 .goal::after{content:"";position:absolute;inset:-10px -6px}
@@ -657,16 +659,15 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .xp-line{display:flex;align-items:center;gap:8px;font-weight:600}
 
 /* the opening screens: one question at a time, asked by the coach */
-.ob{position:fixed;inset:0;z-index:90;background:var(--paper);overflow-y:auto;overscroll-behavior:contain}
+.ob{position:fixed;inset:0;z-index:90;background:var(--paper);overflow-x:clip;overflow-y:auto;overscroll-behavior:contain}
 .ob-in{min-height:100%;max-width:480px;margin-inline:auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:18px;padding:calc(env(safe-area-inset-top,0px) + 10px) max(20px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(20px,env(safe-area-inset-left,0px))}
 .ob-top{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:44px}
 .ob-top .link{min-height:44px;padding:0 6px;justify-self:end;white-space:nowrap}
 .ob-sp{width:44px}
-.ob-prog{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.ob-prog{direction:ltr;height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
 .ob-prog i{display:block;height:100%;min-width:8px;border-radius:99px;background:var(--accent);transition:width .35s cubic-bezier(.2,.8,.2,1)}
 .ob-body{display:grid;gap:18px;align-content:start}
-.ob-body.in-next{animation:fx-next .3s cubic-bezier(.2,.8,.2,1)}
-.ob-body.in-prev{animation:fx-prev .3s cubic-bezier(.2,.8,.2,1)}
+.ob-body.in-next,.ob-body.in-prev{animation:ob-rise .34s cubic-bezier(.2,.8,.2,1)}
 [dir="ltr"] .ob-body.in-next{animation-name:fx-prev}
 [dir="ltr"] .ob-body.in-prev{animation-name:fx-next}
 .ob-hero{display:grid;justify-items:center;text-align:center;gap:10px;padding-top:4vh;position:relative}
@@ -706,9 +707,9 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .w3,.app[data-w="3"]{--wk:var(--w3);--wk-lip:var(--w3-lip);--wk-soft:var(--w3-soft);--wk-ink:var(--w3-ink)}
 /* the main button of a screen, and the quieter ones beside it */
 .btn.primary{box-shadow:0 4px 0 var(--accent-lip);margin-bottom:4px}
-.btn.primary:active:not(:disabled){transform:translateY(4px);box-shadow:0 0 0 var(--accent-lip)}
+.btn.primary:active:not(:disabled){transform:scale(.96)}
 .btn:not(.primary){background:var(--surface);box-shadow:inset 0 0 0 2px var(--line),0 3px 0 var(--lip);margin-bottom:3px}
-.btn:not(.primary):active:not(:disabled){transform:translateY(3px);box-shadow:inset 0 0 0 2px var(--line),0 0 0 var(--lip)}
+.btn:not(.primary):active:not(:disabled){transform:scale(.96)}
 /* today: the next workout in its own colour */
 .card.next{position:relative;isolation:isolate;overflow:hidden;background:var(--wk);color:#fff;box-shadow:0 5px 0 var(--wk-lip);margin-bottom:5px}
 .card.next::before,.card.next::after{content:"";position:absolute;z-index:-1;border-radius:50%;background:rgb(255 255 255 / .09)}
@@ -733,14 +734,14 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 /* a workout wears its colour: the bar, the set in hand, the button that logs it */
 .app[data-view="workout"] .wk-bar .bar i,.rt-track i{background:var(--wk)}
 .setp{box-shadow:0 3px 0 var(--lip);margin-bottom:3px}
-.setp:active{transform:translateY(3px);box-shadow:0 0 0 var(--lip)}
+.setp:active{transform:scale(.96)}
 .setp.cur{box-shadow:inset 0 0 0 2px var(--wk),0 3px 0 var(--wk-soft)}
 .setp.done{background:var(--wk-soft);box-shadow:0 3px 0 color-mix(in srgb,var(--wk) 24%,var(--wk-soft))}
 .setp.done .v{color:var(--wk-ink)}
 .hit,.rt-btns .go,.dock .btn.primary{background:var(--wk);color:#fff;box-shadow:0 4px 0 var(--wk-lip);margin-bottom:4px}
-.hit:active,.rt-btns .go:active,.dock .btn.primary:active:not(:disabled){transform:translateY(4px);box-shadow:0 0 0 var(--wk-lip)}
+.hit:active,.rt-btns .go:active,.dock .btn.primary:active:not(:disabled){transform:scale(.96)}
 .hit .xp-tag{background:rgb(0 0 0 / .22);color:#fff}
-.hit.hit-on{background:var(--gold);color:var(--gold-ink);box-shadow:0 2px 0 var(--gold-lip);transform:translateY(2px)}
+.hit.hit-on{background:var(--gold);color:var(--gold-ink);box-shadow:0 2px 0 var(--gold-lip)}
 .hit.hit-on .xp-tag{background:rgb(255 255 255 / .45);color:var(--gold-ink)}
 .dock.ready .rt-track i,.dock.go .rt-track i{background:var(--wk)}
 .dock.ready .rt-state b,.dock.go .rt-state b{color:var(--wk-ink)}
@@ -760,10 +761,10 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .bdg.on .bdg-i{background:var(--gold);color:var(--gold-ink);box-shadow:0 3px 0 var(--gold-lip)}
 /* answers to choose from: a card on its lip; the chosen one is lit */
 .ob-opt{box-shadow:inset 0 0 0 2px var(--line),0 4px 0 var(--lip);margin-bottom:4px}
-.ob-opt:active{transform:translateY(4px);box-shadow:inset 0 0 0 2px var(--line),0 0 0 var(--lip)}
+.ob-opt:active{transform:scale(.96)}
 .ob-opt[aria-checked="true"]{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent),0 4px 0 var(--accent)}
 .sug{background:var(--surface);box-shadow:inset 0 0 0 2px var(--line),0 3px 0 var(--lip);margin-bottom:3px}
-.sug:active{transform:translateY(3px);box-shadow:inset 0 0 0 2px var(--line),0 0 0 var(--lip)}
+.sug:active{transform:scale(.96)}
 
 /* ---- the opening ----
    A black curtain with the name, as when a phone wakes up, lifts onto a scene that fills the whole screen: shapes that
@@ -774,7 +775,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .splash.out{animation:splash-out .44s ease-in forwards;pointer-events:none}
 .splash-in{display:grid;justify-items:center;gap:12px;direction:ltr;animation:splash-logo 1.7s cubic-bezier(.2,.8,.2,1) both}
 .splash .logo-w{font-size:60px;color:#fff}
-.splash .logo-i{color:#6E93FF}
+.splash .logo-i{color:#A98BFF}
 .splash small{font-size:12px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:#9299A6;animation:ob-rise .6s ease-out .5s both}
 @keyframes splash-logo{0%{opacity:0;transform:scale(.84)}30%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1.04)}}
 @keyframes splash-out{to{opacity:0;visibility:hidden}}
@@ -847,7 +848,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 @keyframes ob-grow{0%{opacity:0;transform:scale(.55)}65%{opacity:1;transform:scale(1.06)}100%{transform:none}}
 @keyframes ob-fall{0%{opacity:0;transform:translateY(-60vh) scale(.92)}55%{opacity:1;transform:translateY(10px) scale(1.04,.95)}75%{transform:translateY(-8px) scale(.98,1.03)}100%{transform:none}}
 /* Eilon comes in from the side he sits on, leaning, and straightens up */
-@keyframes ob-side{0%{opacity:0;transform:translateX(calc(var(--side) * 90px)) rotate(calc(var(--side) * 22deg))}65%{opacity:1;transform:translateX(calc(var(--side) * -6px)) rotate(calc(var(--side) * -5deg))}100%{transform:none}}
+@keyframes ob-side{0%{opacity:0;transform:translateY(14px) scale(.96)}100%{transform:none}}
 .ob{--side:1}
 [dir="ltr"] .ob,.ob[dir="ltr"]{--side:-1}
 .ob-q .ava{animation:ob-side .6s cubic-bezier(.2,.8,.2,1) both}
@@ -953,9 +954,8 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-bg,.stage-wrap,canvas,.hx{-webk
     <span class="sync" id="syncNote"></span>
     <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
-      <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="10.5" width="3.6" height="7" rx="1.5" fill="#1C43BF"/><rect x="5.6" y="7" width="4.6" height="14" rx="1.9" fill="#2152E0"/><rect x="10.2" y="12.2" width="7.6" height="3.6" rx="1.2" fill="#8FA9F5"/><rect x="17.8" y="7" width="4.6" height="14" rx="1.9" fill="#2152E0"/><rect x="22.9" y="10.5" width="3.6" height="7" rx="1.5" fill="#1C43BF"/></svg></span><span class="tb-l">היום</span></button>
+      <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/><rect x="5.6" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="10.2" y="12.2" width="7.6" height="3.6" rx="1.2" fill="#BBA5F7"/><rect x="17.8" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="22.9" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/></svg></span><span class="tb-l">אימונים</span></button>
       <button type="button" data-view="profile"><span class="tb-ic tb-face" id="tbMe" aria-hidden="true"></span><span class="tb-l">פרופיל</span></button>
-      <button type="button" data-view="progress"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="3.5" y="15" width="5.6" height="9.5" rx="2" fill="#8FA9F5"/><rect x="11.2" y="9.5" width="5.6" height="15" rx="2" fill="#2152E0"/><rect x="18.9" y="3.5" width="5.6" height="21" rx="2" fill="#F2B02E"/></svg></span><span class="tb-l">התקדמות</span></button>
       <button type="button" id="chatOpen"><span class="tb-ic tb-face" id="tbCoach" aria-hidden="true"></span><span class="tb-l">אילון</span></button>
     </nav>
   </header>
@@ -971,13 +971,12 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-bg,.stage-wrap,canvas,.hx{-webk
         <ol class="fx" id="exList"></ol>
       </div>
 
-      <div class="view v-profile" id="profile"></div>
-
-      <div class="view v-progress">
-        <div class="page-h"><p class="cap" id="progCap"></p><h1 class="big">התקדמות</h1></div>
-        <section class="gains" id="gains"></section>
+      <div class="view v-profile">
+        <div class="pf-main" id="profile"></div>
         <section class="history" id="history"></section>
+        <p class="cap" id="progCap" hidden></p><section class="gains" id="gains" hidden></section>
       </div>
+
 
     </main>
 
@@ -2235,7 +2234,7 @@ const HAIRS = () => (LANG === 'en' ? ['Bald', 'Short', 'Quiff', 'Curly', 'Long']
 const BEARDS = () => (LANG === 'en' ? ['None', 'Stubble', 'Full'] : BEARD);
 const HAIRC = ['#26211F', '#4E3222', '#8B5E34', '#D9A94E', '#B9482B', '#A7ADB8'];
 const BEARD = ['בלי', 'זיפים', 'מלא'];
-const SHIRT = ['#2152E0', '#0E9F6E', '#E0364F', '#F08C1A', '#7B4BE0', '#3A4152'];
+const SHIRT = ['#6D3FE0', '#0E9F6E', '#E0364F', '#F08C1A', '#7B4BE0', '#3A4152'];
 const tone = (hex, k) => mixRgb(hexRgb(hex), k < 0 ? [0, 0, 0] : [255, 255, 255], Math.abs(k));
 /* a colour of its own is taken only when it is a plain six-digit hex colour: it ends up inside the drawing's markup */
 const ownHex = (v) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v : null);
@@ -2281,8 +2280,8 @@ function avatarSVG(look, lvl, o) {
   /* gear is won in the game, so it is gold; on an orange shirt the band is white */
   const bandC = look.shirt === 3 ? '#F4F5F7' : '#F2B93B';
   const band = has('band') ? P('M74.6 44.5C83 38.5 117 38.5 125.4 44.5L125.6 38.5C117 32 83 32 74.4 38.5Z', bandC) + P('M125 39.5L134 35.5L131 42.5ZM125 42L134.5 46L128.5 48.5Z', tone(bandC, -0.12)) : '';
-  const crown = has('crown') ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#2152E0') + '</g>' : '';
-  const medal = has('medal') ? '<path d="M' + X(-nw + 1) + ' 91L100 113L' + X(nw - 1) + ' 91" stroke="#2152E0" stroke-width="3.4" stroke-linejoin="round" fill="none"/><circle cx="100" cy="117" r="7.4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.6"/><path d="M100 113.2l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#C98F1C"/>' : '';
+  const crown = has('crown') ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#6D3FE0') + '</g>' : '';
+  const medal = has('medal') ? '<path d="M' + X(-nw + 1) + ' 91L100 113L' + X(nw - 1) + ' 91" stroke="#6D3FE0" stroke-width="3.4" stroke-linejoin="round" fill="none"/><circle cx="100" cy="117" r="7.4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.6"/><path d="M100 113.2l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#C98F1C"/>' : '';
   const belt = has('belt') ? '<rect x="' + X(-ww - 3) + '" y="144" width="' + ((ww + 3) * 2).toFixed(1) + '" height="11" rx="3.5" fill="#4A3628"/><rect x="94" y="145.5" width="12" height="8" rx="2" fill="none" stroke="#F2B93B" stroke-width="2.2"/>' : '';
 
   const head = '<ellipse cx="74.6" cy="56" rx="4.2" ry="6.2" fill="' + skin + '"/><ellipse cx="125.4" cy="56" rx="4.2" ry="6.2" fill="' + skin + '"/>' +
@@ -3109,7 +3108,16 @@ function openWorkout(w, picked) {
   if (w !== S.tab) leaveWorkout();
   S.tab = w; setView('workout'); renderAll();
 }
-const minsOf = (list) => Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
+/* how long a workout really takes: each set (setting up, then the reps), the rest after every set but the last of an exercise,
+   the move to the next one, and a warm-up. To the nearest five minutes */
+const minsOf = (list) => {
+  const sec = list.reduce((n, e) => {
+    if (!e.sets) return n;
+    const r = String(e.reps || '').match(/\d+/g) || [10], reps = (+r[0] + +(r[1] || r[0])) / 2, rest = (e.rest[0] + e.rest[1]) / 2;
+    return n + e.sets * (15 + reps * 3.5) + (e.sets - 1) * rest + 90;
+  }, 300);
+  return Math.max(10, Math.round(sec / 300) * 5);
+};
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
 /* today: the player, the workout that is next (or running), and the week as a path of four stops */
 function renderHome() {
@@ -3125,7 +3133,7 @@ function renderHome() {
     '<section class="card next w' + w + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
     '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
-    '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (!P.m ? say('השבוע', 'This week') : P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + ' <small>' + say('מתוך ', 'of ') + S.cfg.weeks + '</small>') + '</h2>' + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
+    '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (P.m && P.dl ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2>' + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
 }
 function renderTabs() { renderHome(); }
 /* a workout that is under way is marked on "today", from wherever the lifter is looking */
@@ -4327,8 +4335,7 @@ function renderProfile(P) {
     '<ul class="pf-nums">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</ul></section>' +
     '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
     '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
-    '<ul class="rows"><li class="tap"><button class="row-b one" id="setBtn" type="button"><span class="h-t">' + say('הגדרות', 'Settings') + '</span>' + ICON.fwd + '</button></li></ul>' +
-    '<p class="pf-how">' + say('סט ', 'A set ') + Ltr('+' + XP.set) + ' · ' + say('שיא אישי ', 'a personal best ') + Ltr('+' + XP.pr) + ' · ' + say('סיום אימון ', 'a finished workout ') + Ltr('+' + XP.done) + '</p>';
+    '<ul class="rows"><li class="tap"><button class="row-b one" id="setBtn" type="button"><span class="h-t">' + say('הגדרות', 'Settings') + '</span>' + ICON.fwd + '</button></li></ul>';
 }
 /* ---- settings: the language, what the plan is built on, sound and vibration, and the backup. Every choice is saved at once ---- */
 function renderSettings() {
@@ -4515,7 +4522,7 @@ const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'
   '• A good substitute keeps the same movement, the same muscles, the same rep range and the same closeness to failure.\n' +
   '• Warming up: one to three sets that climb in weight, before the first exercise of each area.\n' +
   '• Sharp pain, or pain in a joint: stop the exercise and suggest seeing a professional. You have no medical information about the user, and you do not diagnose.\n\n' +
-  'The app: four workouts in a cycle (upper and lower body). Every exercise has "Swap", "How" and "More". The "Today" tab holds the next workout and the plan, "Progress" holds the records and the workouts that were done, and "Profile" holds the character, the levels and the settings. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
+  'The app: four workouts in a cycle (upper and lower body). Every exercise has "Swap", "How" and "More". The "Workouts" tab holds the next workout and the plan, and "Profile" holds the character, the levels, the settings and the workouts that were done. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
   'The user\'s plan. The square brackets hold the id of each exercise. Use the exercise names as they are written here:\n\n' + planText() + '\n\n' +
   aboutUser() + 'The shape of the answer in special cases:\n' +
   '- When asked whether an exercise or a machine can replace an exercise from the plan, the first line is exactly one of these: "Verdict: Suitable", "Verdict: Partly suitable" or "Verdict: Not recommended". After it, a line or two: why, and what to adjust (sets, reps or one form cue).\n' +
@@ -4786,7 +4793,7 @@ function openChat(exId) {
     $('#chat').setAttribute('role', 'dialog'); chat.modal = true;
     for (const el of behindChat()) el.inert = true;
   }
-  $('#chatInput').focus();
+  $('#chatClose').focus({ preventScroll: true });
 }
 function closeChat() {
   const c = $('#chat'), was = !!chat.modal; chat.modal = false;
@@ -4827,7 +4834,7 @@ const STATIC = () => [
   ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
   ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
-  ['#tabbar [data-view="home"] .tb-l', '', say('היום', 'Today')],
+  ['#tabbar [data-view="home"] .tb-l', '', say('אימונים', 'Workouts')],
   ['#tabbar [data-view="profile"] .tb-l', '', say('פרופיל', 'Profile')],
   ['#tabbar [data-view="progress"] .tb-l', '', say('התקדמות', 'Progress')],
   ['#chatOpen .tb-l', '', say('אילון', 'Eilon')],
@@ -5001,7 +5008,7 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) { me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goal = OB.goal; me.made = me.made || Date.now(); applyExp(); }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
-  closeOb(); renderAll();
+  closeOb(); setView('home'); renderAll();
 }
 function obStep(d) { const n = OB.step + d; if (n < 0) return; OB.stepAt = Date.now(); if (n > OB_LAST) { obFinish(false); return; } if (d > 0 && n < OB_LAST) sfx('set'); OB.step = n; OB.dir = d; renderOb(); }
 /* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */
@@ -5050,7 +5057,7 @@ function boot(data) {
   if (Array.isArray(data.turns)) chat.turns = data.turns;
   applyLang();
   readColors(); wireApp(); wireFeel(); wireCoach(); wireChat(); wireMe(); wireOb();
-  setView(['workout', 'progress', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
+  setView(['workout', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
   splash(); renderAll(); initChat();
   initCloud(onRemoteChange);

@@ -281,7 +281,7 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   // ---------- the profile: the character, the level and what was earned ----------
   await tab(p, 'profile'); await shot('g1p-profile');
   const pf = await txt('#profile');
-  check('profile shows the level, the points to the next one, the next reward and the totals, in one card', pf.includes('רמה 1') && pf.includes('טירון') && pf.includes('עוד 50 נק׳ לרמה 2') && pf.includes('ברמה 3: סרט ראש') && (await txt('.pf-top .pf-nums')).replace(/\s+/g, ' ').startsWith('1 אימונים') && (await p.$$('#profile > *')).length === 4 && pf.includes('סט +10 · שיא אישי +30 · סיום אימון +100'), pf.slice(0, 300));
+  check('profile shows the level, the points to the next one, the next reward and the totals, in one card', pf.includes('רמה 1') && pf.includes('טירון') && pf.includes('עוד 50 נק׳ לרמה 2') && pf.includes('ברמה 3: סרט ראש') && (await txt('.pf-top .pf-nums')).replace(/\s+/g, ' ').startsWith('1 אימונים') && (await p.$$('#profile > *')).length === 3 && !pf.includes('סט +10'), pf.slice(0, 300));
   check('profile shows a few achievements: the one earned, then the next to go for', (await p.$$('.bdg')).length === 4 && (await p.evaluate(() => [...document.querySelectorAll('.bdg.on')].map((x) => x.innerText.trim()).join())) === 'אימון ראשון' && (await txt('.pf-sec .sec')).replace(/\s+/g, ' ') === 'הישגים 1/12', await txt('.badges'));
   await p.click('#bdgAll'); await p.waitForTimeout(200);
   check('all of them are a tap away, and a tap puts them away again', (await p.$$('.bdg')).length === 12 && (await p.getAttribute('#bdgAll', 'aria-expanded')) === 'true' && (await p.evaluate(() => document.activeElement.id)) === 'bdgAll', await txt('.badges'));
@@ -321,7 +321,7 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   await p.click('#obBack'); await p.waitForTimeout(300); await p.click('#obSkip'); await p.waitForTimeout(300);
   check('skip closes them without changing anything', (await p.isHidden('#ob')) && (await p.evaluate(() => [S.cfg.me.name, S.cfg.me.exp, S.cfg.me.goal].join())) === 'ליאור,1,1', await p.evaluate(() => JSON.stringify(S.cfg.me)));
   check('finished workout reached the cloud', sess()[0].end > 0, sess()[0].end);
-  await tab(p, 'progress'); await shot('g1b-progress');
+  await tab(p, 'profile'); await shot('g1b-history');
   await p.click('#history [data-edit]'); await p.waitForTimeout(250);
   await p.click('#edReopen'); await p.waitForTimeout(500);
   check('reopen continues the same workout', !!(await p.$('.tab.live')) && (await tally2(p)) === '5/21' && !!(await p.$('#dkHit')) && (await p.evaluate(() => S.view)) === 'workout' && (await p.evaluate(() => meNow().T.xp)) === 50, [await cur(p), await tally2(p)]);
@@ -376,8 +376,8 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   await shut(q);
   await q.click('#dkNext'); await q.waitForTimeout(350);
   check('"next exercise" moves on to the first one with sets left', (await q.evaluate(() => S.open)) === 'ua2' && !!(await q.$('#dkHit')), await q.evaluate(() => S.open));
-  await q.click('#backBtn'); await q.waitForTimeout(200); await tab(q, 'progress');
-  check('progress holds the strength and the workouts, and nothing else', !(await q.$('#backup')) && (await q.$$('.v-progress > section')).length === 2, await t2('.v-progress'));
+  await q.click('#backBtn'); await q.waitForTimeout(200); await tab(q, 'profile');
+  check('the profile holds the recent workouts, there is no progress tab, and the backup is not on the page', !(await q.$('#backup')) && !(await q.$('#tabbar [data-view="progress"]')) && (await q.isVisible('.v-profile #history')) && (await q.isHidden('#gains')), await t2('.v-profile'));
   await tab(q, 'profile'); await q.click('#setBtn'); await q.waitForTimeout(250);
   check('the backup waits in the settings', (await t2('#backup')).includes('שמירה לקובץ') && (await t2('#backup')).includes('שחזור מקובץ') && (await t2('#backup')).includes('ייצוא CSV') && (await t2('#syncNote2')).length > 4, await t2('#backup'));
   await q.click('#exportBtn'); await q.waitForTimeout(200); await q.click('#sheet [data-close]'); await q.waitForTimeout(250);

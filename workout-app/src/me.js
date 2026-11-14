@@ -56,8 +56,7 @@ function renderProfile(P) {
     '<ul class="pf-nums">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</ul></section>' +
     '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
     '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
-    '<ul class="rows"><li class="tap"><button class="row-b one" id="setBtn" type="button"><span class="h-t">' + say('הגדרות', 'Settings') + '</span>' + ICON.fwd + '</button></li></ul>' +
-    '<p class="pf-how">' + say('סט ', 'A set ') + Ltr('+' + XP.set) + ' · ' + say('שיא אישי ', 'a personal best ') + Ltr('+' + XP.pr) + ' · ' + say('סיום אימון ', 'a finished workout ') + Ltr('+' + XP.done) + '</p>';
+    '<ul class="rows"><li class="tap"><button class="row-b one" id="setBtn" type="button"><span class="h-t">' + say('הגדרות', 'Settings') + '</span>' + ICON.fwd + '</button></li></ul>';
 }
 /* ---- settings: the language, what the plan is built on, sound and vibration, and the backup. Every choice is saved at once ---- */
 function renderSettings() {

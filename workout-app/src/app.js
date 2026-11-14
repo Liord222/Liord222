@@ -46,7 +46,16 @@ function openWorkout(w, picked) {
   if (w !== S.tab) leaveWorkout();
   S.tab = w; setView('workout'); renderAll();
 }
-const minsOf = (list) => Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
+/* how long a workout really takes: each set (setting up, then the reps), the rest after every set but the last of an exercise,
+   the move to the next one, and a warm-up. To the nearest five minutes */
+const minsOf = (list) => {
+  const sec = list.reduce((n, e) => {
+    if (!e.sets) return n;
+    const r = String(e.reps || '').match(/\d+/g) || [10], reps = (+r[0] + +(r[1] || r[0])) / 2, rest = (e.rest[0] + e.rest[1]) / 2;
+    return n + e.sets * (15 + reps * 3.5) + (e.sets - 1) * rest + 90;
+  }, 300);
+  return Math.max(10, Math.round(sec / 300) * 5);
+};
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
 /* today: the player, the workout that is next (or running), and the week as a path of four stops */
 function renderHome() {
@@ -62,7 +71,7 @@ function renderHome() {
     '<section class="card next w' + w + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
     '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
-    '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (!P.m ? say('השבוע', 'This week') : P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + ' <small>' + say('מתוך ', 'of ') + S.cfg.weeks + '</small>') + '</h2>' + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
+    '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (P.m && P.dl ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2>' + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
 }
 function renderTabs() { renderHome(); }
 /* a workout that is under way is marked on "today", from wherever the lifter is looking */

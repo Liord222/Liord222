@@ -7,7 +7,7 @@ const STATIC = () => [
   ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
   ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
-  ['#tabbar [data-view="home"] .tb-l', '', say('היום', 'Today')],
+  ['#tabbar [data-view="home"] .tb-l', '', say('אימונים', 'Workouts')],
   ['#tabbar [data-view="profile"] .tb-l', '', say('פרופיל', 'Profile')],
   ['#tabbar [data-view="progress"] .tb-l', '', say('התקדמות', 'Progress')],
   ['#chatOpen .tb-l', '', say('אילון', 'Eilon')],
@@ -181,7 +181,7 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) { me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goal = OB.goal; me.made = me.made || Date.now(); applyExp(); }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
-  closeOb(); renderAll();
+  closeOb(); setView('home'); renderAll();
 }
 function obStep(d) { const n = OB.step + d; if (n < 0) return; OB.stepAt = Date.now(); if (n > OB_LAST) { obFinish(false); return; } if (d > 0 && n < OB_LAST) sfx('set'); OB.step = n; OB.dir = d; renderOb(); }
 /* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */

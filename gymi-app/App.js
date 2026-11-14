@@ -34,8 +34,8 @@ const hapticOf = (kind) => {
 };
 const KEY_NAME = 'gymi.anthropic.key';
 const THEME = {
-  light: { paper: '#F2F3F5', surface: '#FFFFFF', field: '#F2F3F5', ink: '#0E1116', ink2: '#4B5261', accent: '#2152E0', onAccent: '#FFFFFF', danger: '#D12D45' },
-  dark: { paper: '#0B0C0F', surface: '#17191E', field: '#22252C', ink: '#F4F5F7', ink2: '#B4B9C4', accent: '#8DAEFF', onAccent: '#081230', danger: '#FF6B7D' },
+  light: { paper: '#F5F5F8', surface: '#FFFFFF', field: '#F2F2F6', ink: '#0F0E14', ink2: '#4D4B58', accent: '#6D3FE0', onAccent: '#FFFFFF', danger: '#D12D45' },
+  dark: { paper: '#0B0A0F', surface: '#17161D', field: '#22212A', ink: '#F5F4F8', ink2: '#B8B5C4', accent: '#A98BFF', onAccent: '#1A0B3D', danger: '#FF6B7D' },
 };
 /* the API key lives in the phone's keychain; the browser preview has none, so it falls back to plain storage there */
 const keyStore = Platform.OS === 'web'

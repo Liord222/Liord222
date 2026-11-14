@@ -12,10 +12,34 @@ function soreEffects(w, sore) {
   for (const mu of Object.keys(sore)) if (sore[mu] === 2) out.push(say('חזרה פחות ל' + MUSCLE[mu].he, 'One rep less for ' + muLow(mu)));
   return out;
 }
-/* before the first set: did the muscles recover from their last workout? The question takes the screen until it is answered or skipped.
-   One tap says yes. "Not quite" opens the muscles one by one: still sore takes a set off and stops a rep earlier; never sore after easy work adds a set */
+/* how long there is today: the choices that are shorter than the whole workout, each with what it keeps. null when the whole
+   workout is short already, so that there is nothing to choose */
+function timeChoices(w) {
+  const all = exList(w, null, true), full = workMins(all), opts = [];
+  for (const m of [30, 45, 60]) {
+    /* a shorter day is worth asking about only when it saves ten minutes or more */
+    if (m > full - 10) break;
+    const ids = fitDay(w, m), list = ids ? all.filter((e) => ids.includes(e.id)) : all;
+    if (list.length < all.length && !opts.some((o) => o.n === list.length)) opts.push({ m, n: list.length, mins: workMins(list) });
+  }
+  return opts.length ? { full, n: all.length, opts } : null;
+}
+/* before the first set, two things can take the screen, one after the other, each until it is answered.
+   First: how long is there today? One tap, and the workout is cut to it for today (see setDay); the whole workout is one of the taps.
+   Then: did the muscles recover from their last workout? One tap says yes. "Not quite" opens the muscles one by one: still sore
+   takes a set off and stops a rep earlier; never sore after easy work adds a set */
 function renderPre() {
-  const box = $('#pre'), w = S.tab, s = live(w), mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
+  const box = $('#pre'), w = S.tab, s = live(w), TC = (s && S.timeAsk !== w) || (s && hasDone(s)) || dayOf(w) ? null : timeChoices(w);
+  if (TC) {
+    const usual = S.cfg.me.time, tile = (v, mins, n, cls, tag) => '<button class="pre-t' + cls + '" type="button" data-time="' + v + '"><b>' + Ltr(mins) + '</b><span>' + say('דקות', 'minutes') + '</span><small>' + (tag ? tag + ' · ' : '') + cnt(n, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + '</small></button>';
+    $('#app').classList.add('pre-on');
+    if (box.hidden) S.preAt = Date.now();
+    box.hidden = false;
+    box.innerHTML = '<div class="pre gate time"><span class="pre-ic" aria-hidden="true">' + ICON.clock + '</span><h2>' + say('כמה זמן יש לך היום?', 'How much time do you have today?') + '</h2><p>' + say('אתאים את האימון לזמן שלך', 'I will fit the workout to your time') + '</p>' +
+      '<div class="pre-times" role="group" aria-label="' + say('אורך האימון היום', 'Today\'s length') + '">' + TC.opts.map((o) => tile(o.m, o.mins, o.n, usual === o.m ? ' usual' : '', '')).join('') + tile(0, TC.full, TC.n, ' full', say('כל האימון', 'The whole workout')) + '</div></div>';
+    return;
+  }
+  const mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
   const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore), on = mus.length > 0 && S.preSkip !== w && (left > 0 || !!S.preOpen);
   $('#app').classList.toggle('pre-on', on);
   if (on && box.hidden) S.preAt = Date.now();
@@ -48,16 +72,16 @@ function renderPick() {
   const same = (k) => swap && LIB[k].pat === LIB[pe.a].pat && LIB[k].p === LIB[pe.a].p;
   const opt = (k) => {
     const o = LIB[k], on = swap && P.sel === k;
-    const meta = [eqName(o.eq), o.jf ? say('נוח למפרקים', 'easy on the joints') : '', swap && k === pe.a ? say('המקורי', 'the original') : '', used.includes(k) ? say('כבר באימון', 'already in this workout') : ''].filter(Boolean).join(' · ');
-    return '<li class="sw-opt' + (on ? ' on' : '') + '"><button class="sw-row" type="button" ' + (swap ? 'data-sel="' + k + '" aria-expanded="' + on + '"' : 'data-add="' + k + '"') + '><canvas class="ex-thumb" data-anim="' + animOf(k) + '" aria-hidden="true"></canvas><span class="sw-t"><b>' + mvName(k) + '</b><span>' + meta + '</span></span></button>' +
+    const meta = [[eqName(o.eq), ''], [o.jf ? say('נוח למפרקים', 'easy on the joints') : '', ' jf'], [swap && k === pe.a ? say('המקורי', 'the original') : '', ' og'], [used.includes(k) ? say('כבר באימון', 'already in this workout') : '', ' in']].filter((x) => x[0]).map((x) => '<i class="sw-tag' + x[1] + '">' + x[0] + '</i>').join(' ');
+    return '<li class="sw-opt' + (on ? ' on' : '') + '"><button class="sw-row" type="button" ' + (swap ? 'data-sel="' + k + '" aria-expanded="' + on + '"' : 'data-add="' + k + '"') + '><span class="sw-pic"><canvas class="ex-thumb" data-anim="' + animOf(k) + '" aria-hidden="true"></canvas></span><span class="sw-t"><b>' + mvName(k) + '</b><span class="sw-tags">' + meta + '</span></span></button>' +
       (on ? '<div class="sw-b">' + (same(k) && !started ? '<button class="btn" type="button" data-sw="' + k + '" data-mode="today">' + say('רק היום', 'Today only') + '</button><button class="btn primary" type="button" data-sw="' + k + '" data-mode="always">' + say('קבוע', 'For good') + '</button>'
         : '<button class="btn primary" type="button" data-sw="' + k + '" data-mode="always">' + (started ? say('מהאימון הבא', 'From next workout') : say('החלף', 'Swap')) + '</button>') + '</div>' : '') + '</li>';
   };
   const mus = Object.keys(MUSCLE).filter((k) => Object.keys(LIB).some((m) => LIB[m].p === k)), chips = (swap ? [['rec', say('מומלץ', 'Suggested')]] : []).concat(mus.map((k) => [k, muName(k)]));
   const list = pickOptions(P);
-  sh.innerHTML = '<div class="sheet-in sw" role="dialog" aria-modal="true" aria-label="' + (swap ? say('החלפת תרגיל', 'Swap exercise') : say('הוספת תרגיל', 'Add exercise')) + '"><div class="ed-h"><div><p class="kicker">' + (swap ? e.nm : say('הוספת תרגיל · ', 'Add exercise · ') + wkName(w)) + '</p><h2>' + (swap ? say('במה להחליף?', 'Swap it for what?') : say('מה מוסיפים?', 'What to add?')) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+  sh.innerHTML = '<div class="sheet-in sw" role="dialog" aria-modal="true" aria-label="' + (swap ? say('החלפת תרגיל', 'Swap exercise') : say('הוספת תרגיל', 'Add exercise')) + '"><div class="card next w' + w + ' sw-hero"><div class="next-top"><p class="k">' + (swap ? e.nm : say('הוספת תרגיל · ', 'Add exercise · ') + wkName(w)) + '</p><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div><h2>' + (swap ? say('במה להחליף?', 'Swap it for what?') : say('מה מוסיפים?', 'What to add?')) + '</h2>' +
+    (swap ? '<p class="meta">' + (rec ? say('אותו שריר, אותה תנועה. ההיסטוריה נשמרת.', 'Same muscle, same movement. History is kept.') : say('תרגיל מסוג אחר מקבל סטים וחזרות שמתאימים לו.', 'A different kind of exercise gets sets and reps that suit it.')) + (started ? say(' ההחלפה תחול מהאימון הבא.', ' The change starts next workout.') : '') + '</p>' : '') + '</div>' +
     (rec ? '' : '<div class="mu-row" role="group" aria-label="' + say('סינון לפי שריר', 'Filter by muscle') + '">' + chips.map((c) => '<button type="button" data-pick="' + c[0] + '" aria-pressed="' + (c[0] === P.mu) + '">' + c[1] + '</button>').join('') + '</div>') +
-    (swap ? '<p>' + (rec ? say('אותו שריר, אותה תנועה. ההיסטוריה נשמרת.', 'Same muscle, same movement. History is kept.') : say('תרגיל מסוג אחר מקבל סטים וחזרות שמתאימים לו.', 'A different kind of exercise gets sets and reps that suit it.')) + (started ? say(' ההחלפה תחול מהאימון הבא.', ' The change starts next workout.') : '') + '</p>' : '') +
     (list.length ? '<ul class="sw-list">' + list.map(opt).join('') + '</ul>' : '<p class="ms-sub">' + say('אין כאן תרגילים נוספים.', 'No other exercises here.') + '</p>') +
     (swap ? '<div class="sw-more">' + (rec ? '<button class="link" type="button" data-pick="' + LIB[pe.a].p + '">' + say('תרגילים אחרים', 'Other exercises') + '</button>' : '') + '<button class="link" id="swAsk" type="button">' + say('מכשיר אחר? שאל את אילון', 'Another machine? Ask Eilon') + '</button></div>' : '') + '</div>';
   $('.sheet-in', sh).scrollTop = top; sh.hidden = false; drawThumbs();
@@ -82,7 +106,7 @@ function volHTML(dl) {
 /* one workout as a list: set counts by default; "reorder and remove" turns the rows into arrows and a cross; adding opens the picker */
 function builderHTML(w) {
   const s = live(w), dl = phase(w, s).dl, ids = planIds(w), ed = S.blEdit === w;
-  return (dl ? '<p class="ms-sub">' + say('שבוע קל: חצי מהסטים.', 'Easy week: half the sets.') + '</p>' : '') + '<div class="bl-w">' + exList(w, s).map((e) => {
+  return (dl ? '<p class="ms-sub">' + say('שבוע קל: חצי מהסטים.', 'Easy week: half the sets.') + '</p>' : '') + '<div class="bl-w">' + exList(w, s, true).map((e) => {
     const k = ids.indexOf(e.id);
     return '<div class="bl-row"><span class="bl-n"><b>' + e.nm + '</b><small>' + muName(LIB[e.mv].p) + ' · ' + Ltr(e.reps) + '</small></span>' +
       (k < 0 ? '<small class="bl-once">' + say('רק היום', 'Today only') + '</small>'
@@ -166,7 +190,7 @@ function coachSheetClick(ev, id) {
     else { const s = live(w); now = !(s && rowsOf(s, exId).some(isDone)); at = replaceSlot(exId, mv) || exId; }
     S.bannerKind = ''; S.banner = (now ? say('הוחלף: ', 'Swapped: ') : say('מהאימון הבא: ', 'From next workout: ')) + mvName(mv) + (ds.mode === 'always' ? '' : say(' (רק היום)', ' (today only)')) + '.';
     if (S.tab === w) S.open = now ? at : exId;
-    S.draft = null; S.pick = null; closeSheet(); return true;
+    S.drafts = {}; S.pick = null; closeSheet(); return true;
   }
   if (id === 'swAsk') { const exId = S.swEx; closeSheet(); openChat(exId); return true; }
   if (ds.msw != null) { S.msPage = 'ex'; S.msW = clamp(+ds.msw || 0, 0, PLAN.length - 1); S.blEdit = null; S.msAsk = null; renderMeso(); return true; }
@@ -200,6 +224,7 @@ function wireCoach() {
     if (ev.detail !== 0 && Date.now() - (S.preAt || 0) < 400) return;
     const b = ev.target.closest('button'); if (!b) return;
     S.touched = true;
+    if (b.dataset.time != null) { setDay(S.tab, +b.dataset.time); S.timeAsk = null; S.open = null; haptic('select'); afterPre(); renderHome(); return; }
     if (b.dataset.mu) setSore(S.tab, b.dataset.mu, +b.dataset.v);
     else if (b.id === 'preAll') { const s = live(S.tab), sore = soreOf(S.tab, s); for (const m of preMuscles(S.tab)) if (sore[m] == null) setSore(S.tab, m, 1); S.preOpen = false; }
     else if (b.id === 'preEdit') S.preOpen = true;

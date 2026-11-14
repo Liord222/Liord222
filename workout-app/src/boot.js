@@ -13,6 +13,7 @@ function boot(data) {
   /* the copy of the settings this device last shared with the account: a fresh copy starts from its defaults; one saved before this was kept has none until the account answers */
   S.cfgBase = d.cfg ? (d.cb ? normCfg(d.cb) : null) : clone(S.cfg);
   if (d.pre && typeof d.pre === 'object') S.pre = d.pre;
+  if (d.day && typeof d.day === 'object' && !Array.isArray(d.day)) S.day = d.day;
   sweep();
   /* a workout that was already running before mesocycles existed joins the current one where it stands */
   for (const s of Object.values(S.sessions)) if (!s.end && !s.m) { stamp(s); touch(s, true); }

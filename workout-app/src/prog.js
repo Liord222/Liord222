@@ -129,6 +129,29 @@ function goalRx(reps, rest, goals, exp) {
   return null;
 }
 function rxOf(mv) { const r = RX[RX_KIND[LIB[mv].pat] || 'small']; return { sets: r.sets, reps: r.reps, rest: r.rest.slice(), lvl: r.lvl }; }
+/* ---- where the numbers start for a movement that was never logged: a first guess at its weight, by its kind and its
+   equipment, for a regular lifter, scaled by experience and rounded to what the equipment can be loaded with. It is only a
+   place to start from: the lifter moves it to the weight that fits, and the first sets calibrate it. null for a movement
+   done with the body's own weight. Where more weight means more help, a beginner starts with the most of it ---- */
+const START_KG = {
+  hpress: { smith: 40, machine: 40, plates: 40, bar: 40, db: 14, cable: 20 }, vpress: { smith: 30, machine: 30, bar: 30, db: 10 },
+  vpull: { cable: 45, machine: 45 }, hpull: { cable: 40, machine: 40, plates: 40, bar: 40, db: 16 },
+  raise: { db: 6, cable: 5, machine: 20 }, rearfly: { db: 5, cable: 5, machine: 25 }, ext: { cable: 20, db: 8, machine: 25 }, curl: { db: 8, cable: 15, machine: 20, bar: 20 },
+  flex: { cable: 30, machine: 30 }, antirot: { cable: 10 },
+  squat: { plates: 60, smith: 50, bar: 50, machine: 50, db: 14 }, lunge: { db: 10, smith: 30, bar: 30 }, hinge: { bar: 50, smith: 50, db: 14 }, thrust: { bar: 60, smith: 60, machine: 60 },
+  kcurl: { machine: 30 }, kext: { machine: 40 }, calf: { machine: 50, plates: 40, smith: 50 },
+};
+const START_OWN = { legPress: 100, pressCalf: 80, singleLegExt: 20, assistedPullup: 30 };
+const START_EXP = [0.6, 1, 1.4];
+function startKg(mv, exp, inc) {
+  const L = LIB[mv]; if (!L || L.bw || L.eq === 'bw') return null;
+  const base = START_OWN[mv] != null ? START_OWN[mv] : (START_KG[L.pat] || {})[L.eq]; if (!(base > 0)) return null;
+  const k = START_EXP[exp] == null ? 1 : START_EXP[exp], step = inc > 0 ? inc : EQUIP[L.eq].inc;
+  return Math.max(step, roundTo(L.inv ? base / k : base * k, step, 0));
+}
+/* the − and + beside the weight do not step alike: + goes up fast (two of the equipment's steps, where a step is under 5 kg),
+   − comes down one step at a time. So any weight is a few taps away: up past it, then down onto it */
+const stepUp = (inc) => (inc < 5 ? inc * 2 : inc);
 /* ---- how long a list of exercises really takes: each set (setting up, then the reps), the rest after every set but the last of
    an exercise, the move to the next one, and a warm-up. To the nearest five minutes ---- */
 function workMins(list) {

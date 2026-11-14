@@ -21,6 +21,9 @@ const ICON = {
   back: '<svg class="i dir" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
   bell: '<svg class="i" viewBox="0 0 24 24"><path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/></svg>',
   swap: '<svg class="i" viewBox="0 0 24 24"><path d="M5 8.5h13l-3.5-3.5M19 15.5H6l3.5 3.5"/></svg>',
+  undo: '<svg class="i dir" viewBox="0 0 24 24"><path d="M15 5l5 5-5 5"/><path d="M20 10H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>',
+  info: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.5M12 7.6h.01"/></svg>',
+  clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3 2"/></svg>',
   dots: '<svg class="i" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg>',
 };
 /* S.sessions: id -> one workout:
@@ -53,7 +56,7 @@ function normMe(v) {
 /* S.cfg.slots: exercises the lifter added to the plan, { id: { w, a, sets, reps, rest } }. They are never removed, so old workouts stay readable.
    S.cfg.order: { workout: [slot ids] } for a workout whose list was changed; a workout that is not there follows the plan */
 const cfgDef = () => ({ upd: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
-const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, buzz: true, col: null, dirty: new Set(), gone: new Set(), touched: false, draft: null, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), cfgBase: null, cfgIn: false, cfgFly: 0, pre: {}, fbFor: null };
+const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, buzz: true, col: null, dirty: new Set(), gone: new Set(), touched: false, drafts: {}, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), cfgBase: null, cfgIn: false, cfgFly: 0, pre: {}, day: {}, fbFor: null };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 /* two values are the same whatever order their keys were written in */
 const canon = (x) => JSON.stringify(x, (k, v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((o, key) => { o[key] = v[key]; return o; }, {}) : v));
@@ -76,7 +79,7 @@ function saveLocal() {
     /* what waits to be sent: only workouts that are still here (or deleted), and the newest deletions */
     for (const id of S.dirty) if (id !== 'cfg' && !S.sessions[id] && !S.gone.has(id)) S.dirty.delete(id);
     if (S.gone.size > 300) S.gone = new Set(Array.from(S.gone).slice(-300));
-    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, cb: S.cfgBase, pre: S.pre }));
+    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, cb: S.cfgBase, pre: S.pre, day: S.day }));
   } catch (e) { /* storage unavailable: keep working in memory */ }
 }
 function saveCfg() { S.cfg.upd = Date.now(); S.dirty.add('cfg'); saveLocal(); schedule('cfg'); }
@@ -135,6 +138,11 @@ function newMeso() {
 /* recovery answers given before the workout exists are kept for half a day */
 const preOf = (w) => { const p = S.pre[w]; return p && Date.now() - p.t < 12 * HOUR ? p.v : {}; };
 const soreOf = (w, s) => (s ? s.sore || {} : preOf(w));
+/* ---- today's length: before a workout starts the lifter says how long there is, and the workout is cut to it for today only
+   (the plan keeps every exercise). S.day[w] = { t, min: the minutes chosen (0 = the whole workout), ids: the slots that stay,
+   or null for all of them }. It holds until that workout starts, or for half a day ---- */
+const dayOf = (w) => { const d = S.day[w]; return d && typeof d === 'object' && Date.now() - d.t < 12 * HOUR ? d : null; };
+const dayIds = (w) => { const d = dayOf(w); return d && Array.isArray(d.ids) ? d.ids : null; };
 /* how the work felt for a muscle the last time it was rated: 0 easy, 1 right, 2 too much, null unknown */
 function lastFelt(mu) {
   for (const x of sorted()) {
@@ -164,10 +172,12 @@ function stamp(s) {
   const P = phaseNext(s.w);
   if (P.fresh) newMeso();
   s.m = P.m; s.wk = P.wk; s.dl = P.dl ? 1 : 0; s.rir = P.rir; s.sore = Object.assign({}, preOf(s.w)); s.mv = {}; s.fb = {}; s.cut = {};
-  s.o = planIds(s.w);
+  const today = dayIds(s.w);
+  s.o = today ? planIds(s.w).filter((id) => today.includes(id)) : planIds(s.w);
+  if (!s.o.length) s.o = planIds(s.w);
   for (const pe of planSlots(s.w)) { const k = S.cfg.swap[pe.id]; if (isMv(k) && k !== pe.a) s.mv[pe.id] = k; }
   s.n = planned(s.w, s.sore); s.ft = Date.now(); s.v = 3;
-  delete S.pre[s.w];
+  delete S.pre[s.w]; delete S.day[s.w];
 }
 function ensure(w) {
   let s = live(w);
@@ -206,7 +216,29 @@ function view(pe, s, plan) {
   const rx = goalRx(pe.reps, pe.rest, S.cfg.me.goals, S.cfg.me.exp) || pe;
   return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: rx.reps, rest: rx.rest, int: planNote(pe.int), lvl: pe.lvl, suf: planNote(pe.suf), cut, swapped: mv !== pe.a };
 }
-function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return (s ? sessSlots(s) : planSlots(w)).map((pe) => view(pe, s, plan)); }
+/* the exercises of a workout as it is done: a workout that is running has its own list; one that is not is the plan, cut to
+   today's length when the lifter chose one. all: the whole plan, whatever today's length is */
+function exList(w, s, all) {
+  if (s === undefined) s = live(w);
+  const plan = s ? null : planned(w, preOf(w)), today = s || all ? null : dayIds(w);
+  let slots = s ? sessSlots(s) : planSlots(w);
+  if (today) { const cut = slots.filter((pe) => today.includes(pe.id)); if (cut.length) slots = cut; }
+  return slots.map((pe) => view(pe, s, plan));
+}
+/* the slots of a workout that fit into so many minutes: its order, cut from the end, never under FIT_MIN exercises. null when all of it fits */
+function fitDay(w, mins) {
+  let list = exList(w, null, true);
+  const n = list.length;
+  if (mins > 0) while (list.length > FIT_MIN && workMins(list) > mins) list = list.slice(0, -1);
+  return list.length < n ? list.map((e) => e.id) : null;
+}
+/* the lifter said how long there is today (0: the whole workout). A workout that is running but has no set yet is cut where it stands */
+function setDay(w, mins) {
+  const ids = fitDay(w, mins), s = live(w);
+  S.day[w] = { t: Date.now(), min: mins > 0 ? mins : 0, ids };
+  if (s && !hasDone(s)) { s.o = ids ? planIds(w).filter((id) => ids.includes(id)) : planIds(w); s.ft = Date.now(); touch(s); }
+  saveLocal();
+}
 function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
 const doneCount = (s, e) => rowsOf(s, e.id).slice(0, e.sets).filter(isDone).length;
 const firstUndone = (s, e) => { const r = rowsOf(s, e.id); for (let i = 0; i < e.sets; i++) if (!isDone(r[i])) return i; return -1; };
@@ -254,8 +286,10 @@ function targetOf(e, i, s) {
   const w = wkOf(e.id), L = LIB[e.mv], P = phase(w, s), rr = repRange(e), ref = refRow(e, i, s);
   const o = { lo: rr[0], hi: rr[1], inc: incOf(e.mv), rir: P.rir == null ? (ref && ref.rir != null ? ref.rir : 1) : P.rir, sore: !P.dl && soreOf(w, s)[L.p] === 2 ? 1 : 0, dl: P.dl, inv: !!L.inv };
   let T = !ref ? null : ref.other && !P.dl ? { kg: ref.kg, reps: clamp(ref.reps, o.lo, o.hi), mode: 'hold' } : nextTarget(ref, o);
-  const cur = rowsOf(s, e.id);
-  for (let k = i - 1; k >= 0; k--) if (isDone(cur[k]) && cur[k].reps != null) { T = adjustTarget(T, cur[k], o); break; }
+  const cur = rowsOf(s, e.id); let seen = false;
+  for (let k = i - 1; k >= 0; k--) if (isDone(cur[k]) && cur[k].reps != null) { T = adjustTarget(T, cur[k], o); seen = true; break; }
+  /* never logged, and nothing done today to go on: a place to start from (see startKg), in the middle of the rep range */
+  if (!T && !seen) T = { kg: startKg(e.mv, S.cfg.me.exp, o.inc), reps: Math.round((o.lo + o.hi) / 2), mode: 'start' };
   return T ? { kg: T.kg, reps: T.reps, mode: T.mode, ref } : null;
 }
 
@@ -266,6 +300,18 @@ function painCut(s, exId, on) {
   if (!on) { for (const k of Object.keys(cut)) if (cut[k] === exId) delete cut[k]; return; }
   const mu = LIB[moveOf(planEx(exId), s)].p;
   for (const e of exList(s.w, s)) if (LIB[e.mv].p === mu && !e.cut && firstUndone(s, e) >= 0) cut[e.id] = exId;
+}
+/* leave an exercise out of today's workout; the plan keeps it. False when it already has sets in it today, or is the last one left */
+function skipToday(exId) {
+  const w = wkOf(exId); if (w < 0) return false;
+  const s = live(w);
+  if (s) {
+    if (rowsOf(s, exId).some(isDone)) return false;
+    const ids = sessSlots(s).map((pe) => pe.id).filter((id) => id !== exId); if (!ids.length) return false;
+    s.o = ids; s.ft = Date.now(); touch(s); return true;
+  }
+  const ids = exList(w).map((e) => e.id).filter((id) => id !== exId); if (!ids.length) return false;
+  const d = dayOf(w); S.day[w] = { t: Date.now(), min: d ? d.min : 0, ids }; saveLocal(); return true;
 }
 function setFb(exId, key, v) {
   const s = live(wkOf(exId)); if (!s) return null;
@@ -380,7 +426,7 @@ function setBase(exId, n) {
   if (s && !s.dl && s.n && doneTop(s, exId) <= n) { s.n = Object.assign({}, s.n, { [exId]: n }); s.ft = Date.now(); touch(s); }
 }
 /* the week as it stands now: every slot with its movement and planned sets */
-function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
+function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w, undefined, true)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
 /* how many muscles sit under their minimum or over their maximum weekly volume as the week is planned now */
 function volWarn() { const v = muscleVolume(weekItems()); return Object.keys(MUSCLE).filter((k) => landmark(k, v[k].d + v[k].i) !== 'ok').length; }
 /* what one mesocycle did: sets per week (start and peak), and the strength change of each movement */

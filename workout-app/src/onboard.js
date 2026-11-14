@@ -188,7 +188,7 @@ function fitPlan() {
    A plan that was already trained stays as it is, so there the numbers are its own */
 function planPreview() {
   const fresh = meNow().T.sets === 0, span = (a) => { const lo = Math.min.apply(null, a), hi = Math.max.apply(null, a); return lo === hi ? '' + lo : Ltr(lo + '–' + hi); };
-  const lists = fresh ? fitPlanData(fitAns(OB)).map((l) => l.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t }))) : PLAN.map((x, w) => exList(w));
+  const lists = fresh ? fitPlanData(fitAns(OB)).map((l) => l.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t }))) : PLAN.map((x, w) => exList(w, undefined, true));
   return { ex: span(lists.map((l) => l.length)), sets: span([].concat.apply([], lists.map((l) => l.map((e) => e.sets)))), mins: span(lists.map(workMins)) };
 }
 

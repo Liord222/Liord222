@@ -38,6 +38,8 @@ const obWalk = async (pg, a, to, seen) => {
   if (to === 'pin') return;
   await next(); await look('done');
 };
+/* the question about today's length, when it is asked: answered with the whole workout */
+const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t) { await pg.waitForTimeout(130); await t.click(); await pg.waitForTimeout(320); } };
 (async () => {
   const b = await chromium.launch(), day = 864e5, now = Date.now();
   // ---- 1. data saved by the previous version: no mesocycle fields at all, one finished and one running workout ----
@@ -84,7 +86,7 @@ const obWalk = async (pg, a, to, seen) => {
   await p.click('#planBtn'); await p.waitForTimeout(300);
   check('between rounds the plan says so and offers the summary, with nothing to steer', (await txt('.ms-act')).includes('סבב 1 הושלם') && (await txt('#sheet [data-sum="m1"]')).includes('סיכום הסבב') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('#sheet'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
-  await p.click('#homeGo'); await p.waitForTimeout(400); await p.click('#preAll'); await p.waitForTimeout(300); await p.click('#dkHit'); await p.waitForTimeout(600);
+  await p.click('#homeGo'); await p.waitForTimeout(400); await gate(p); await p.click('#preAll'); await p.waitForTimeout(300); await p.click('#dkHit'); await p.waitForTimeout(600);
   const m2 = await p.evaluate(() => { const s = live(S.tab); return { cfg: S.cfg.meso.id, past: S.cfg.past.map((x) => x.id), m: s.m, wk: s.wk, rir: s.rir, dl: s.dl }; });
   check('starting it rolls the mesocycle over', m2.cfg === 'm2' && m2.past.join() === 'm1' && m2.m === 'm2' && m2.wk === 1 && m2.rir === 3 && m2.dl === 0, m2);
   await p.context().close();
@@ -196,7 +198,7 @@ const obWalk = async (pg, a, to, seen) => {
 
   // ---- 7. numbers at the edges: nothing typed, pasted, restored or written by the coach may leave an absurd set in the log ----
   p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5 } }); txt = T(p);
-  await p.click('#homeGo'); await p.waitForTimeout(350);
+  await p.click('#homeGo'); await p.waitForTimeout(350); await gate(p);
   await p.click('#dkKg'); await p.fill('#dkKgIn', '100000'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
   await p.click('#dkReps'); await p.fill('#dkRepsIn', '5000'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
   check('the bar caps a weight and a rep count that cannot be real', (await p.evaluate(() => document.querySelector('#dkKg b').textContent + '|' + document.querySelector('#dkReps b').textContent)) === '1000|200', [await txt('#dkKg'), await txt('#dkReps')]);
@@ -258,11 +260,51 @@ const obWalk = async (pg, a, to, seen) => {
 
   // ---- 11. the second tap of a double tap on "set done" lands where the timer's buttons have just appeared ----
   p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5 } }); txt = T(p);
-  await p.click('#homeGo'); await p.waitForTimeout(350);
-  await p.click('#dkHit'); await p.waitForSelector('#rtSkip'); await p.click('#rtSkip'); await p.waitForTimeout(100);
+  await p.click('#homeGo'); await p.waitForTimeout(350); await gate(p);
+  /* the second tap is not held back until the rest has settled in its place: that is what a double tap is */
+  await p.click('#dkHit'); await p.waitForSelector('#rtSkip'); await p.click('#rtSkip', { force: true }); await p.waitForTimeout(100);
   check('a double tap on "set done" logs one set and does not skip the rest', (await p.evaluate(() => rest.on + ':' + live(0).sets.ua1.filter((r) => r && r.done).length)) === 'true:1', await p.evaluate(() => rest.on));
   await p.waitForTimeout(500); await p.click('#rtSkip'); await p.waitForTimeout(150);
   check('a tap a moment later does skip it', (await p.evaluate(() => rest.on)) === false, 'rest');
+  await p.context().close();
+
+  // ---- 11b. a lighter workout: an exercise left out for today, a movement with no weight, and how often the question is asked ----
+  p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { fb: 1 } } }); txt = T(p);
+  await p.click('#homeGo'); await p.waitForTimeout(350); await gate(p);
+  await p.click('#exNext'); await p.waitForTimeout(300);
+  await p.click('.ex.open .more'); await p.waitForTimeout(300); await p.click('#moreSkip'); await p.waitForTimeout(450);
+  const sk = await p.evaluate(() => ({ today: exList(0).map((e) => e.id).join(), plan: exList(0, null, true).length, open: S.open, toast: document.querySelector('#toast').hidden ? '' : document.querySelector('#toast').textContent, sub: document.querySelector('#wkTitle .sub').textContent, live: !!live(0), cfg: Object.keys(S.cfg.order).length }));
+  check('an exercise can be left out for today from "more": the next one takes the screen, a line says so, and the plan keeps it', sk.today === 'ua1,ua3,ua4,ua5,ua6,ua7,ua8' && sk.plan === 8 && sk.open === 'ua3' && sk.toast.includes('דילגנו היום על מתח בסיוע') && sk.sub === 'תרגיל 2 מתוך 7' && !sk.live && sk.cfg === 0, sk);
+  await p.click('#exPrev'); await p.waitForTimeout(300);
+  await p.click('#dkHit'); await p.waitForTimeout(500);
+  check('the workout that starts is the one without it', (await p.evaluate(() => live(0).o.join() + ':' + exList(0).length + ':' + JSON.stringify(S.day))) === 'ua1,ua3,ua4,ua5,ua6,ua7,ua8:7:{}', await p.evaluate(() => JSON.stringify([live(0).o, S.day])));
+  await p.click('#rtSkip'); await p.waitForTimeout(250);
+  await p.click('.ex.open .more'); await p.waitForTimeout(300);
+  check('an exercise that has sets in it today cannot be left out', !(await p.$('#moreSkip')) && !!(await p.$('#moreSwap')), await txt('#sheet .mr-rows'));
+  await p.click('#moreSame'); await p.waitForTimeout(450);
+  check('asked "only about the heavy lifts": the lift that opens the workout gets its question', (await p.$$('#dock [data-fb="load"]')).length === 3 && (await p.evaluate(() => S.fbFor)) === 'ua1', await txt('#dock'));
+  await p.click('#dkNext'); await p.waitForTimeout(350);
+  check('a question that is not answered is dropped, and never stands in the way', (await p.evaluate(() => S.fbFor + ':' + JSON.stringify(live(0).fb))) === 'null:{}' && !!(await p.$('#dkHit')) && !(await p.$('.fb-dock')), await p.evaluate(() => JSON.stringify(live(0).fb)));
+  /* three sets of an exercise, each logged with the big button; the rest between them is passed */
+  const three = async () => { for (let i = 0; i < 3; i++) { await p.click('#dkHit'); await p.waitForTimeout(450); if (i < 2) { await p.click('#rtSkip'); await p.waitForTimeout(260); } } };
+  await p.evaluate(() => { S.open = 'ua4'; renderAll(); }); await p.waitForTimeout(250);
+  await three();
+  check('and a small lift gets none', (await p.evaluate(() => S.fbFor + ':' + doneCount(live(0), findEx('ua4')) + ':' + rest.on)) === 'null:3:true' && !(await p.$('.fb-dock')), await txt('#dock'));
+  await p.click('#rtSkip'); await p.waitForTimeout(260);
+  await p.evaluate(() => { S.cfg.me.fb = 0; S.open = 'ua3'; renderAll(); }); await p.waitForTimeout(250);
+  await three();
+  check('asked "never": nothing is asked at all, even about a heavy lift', (await p.evaluate(() => S.fbFor + ':' + doneCount(live(0), findEx('ua3')) + ':' + Object.keys(live(0).fb).length)) === 'null:3:0' && !(await p.$('.fb-dock')), await p.evaluate(() => JSON.stringify(live(0).fb)));
+  check('every set that was logged started from the first guess and then repeated it: nothing had to be typed', (await p.evaluate(() => ['ua1', 'ua3', 'ua4'].map((id) => live(0).sets[id].map((r) => r.kg + 'x' + r.reps).join('/')).join())) === '40x8/40x8/40x8,40x10/40x10/40x10,6x14/6x14/6x14', await p.evaluate(() => JSON.stringify(live(0).sets)));
+  await p.context().close();
+  p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { exp: 0 } } }); txt = T(p);
+  await p.evaluate(() => { openWorkout(2, true); }); await p.waitForTimeout(400); await gate(p);
+  await p.evaluate(() => { S.open = 'ub9'; renderAll(); }); await p.waitForTimeout(300);
+  const bw = await p.evaluate(() => ({ kg: document.querySelector('#dkKg').innerText.replace(/\s+/g, ' '), say: document.querySelector('#dkKg').getAttribute('aria-label'), badge: document.querySelector('.dk-top .goal').textContent, cells: [...document.querySelectorAll('.ex.open .setp')].map((x) => x.innerText.replace(/\s+/g, ' ').trim()).join(), dash: document.querySelector('#dock').innerText.includes('—') }));
+  check('a movement done with the body\'s own weight says so: no dash, and no weight made up for it', bw.kg === 'גוף משקל גוף' && bw.say.startsWith('משקל: בלי משקל') && bw.badge === 'התחלה' && !bw.dash && /^12 חז׳,12 חז׳,12 חז׳$/.test(bw.cells), bw);
+  await p.dispatchEvent('.step[data-d="1"]', 'pointerdown'); await p.dispatchEvent('.step[data-d="1"]', 'pointerup');
+  check('weight can still be added to it', (await txt('#dkKg')).replace(/\s+/g, ' ') === '2 ק״ג', await txt('#dkKg'));
+  await p.evaluate(() => { S.open = 'ub1'; renderAll(); }); await p.waitForTimeout(300);
+  check('where more weight is more help, a beginner starts with the most of it', (await txt('#dkKg')).replace(/\s+/g, ' ') === '50 ק״ג' && (await p.evaluate(() => [0, 1, 2].map((x) => startKg('assistedPullup', x)).join())) === '50,30,20', await txt('#dkKg'));
   await p.context().close();
 
   // ---- 12. a long log: the account keeps every workout, the page asks only for the newest 60. Older ones are not sent again on every visit ----
@@ -341,17 +383,17 @@ const obWalk = async (pg, a, to, seen) => {
     await q.goto(PREVIEW); await q.waitForTimeout(600);
     /* everything visible inside the bar at the bottom, and the page itself, against the width of the screen */
     const past = () => q.evaluate(() => { const out = []; if (document.documentElement.scrollWidth > innerWidth + 1) out.push('page'); for (const el of document.querySelectorAll('#dock *, #exList .ex.open *')) { const r = el.getBoundingClientRect(); if (r.width && r.height && !el.closest('canvas,svg,.tempo') && (r.right > innerWidth + 1 || r.left < -1)) out.push(el.tagName + '.' + el.className); } return out.slice(0, 5); });
-    await q.click('#homeGo'); await q.waitForTimeout(350);
+    await q.click('#homeGo'); await q.waitForTimeout(350); await gate(q);
     check('narrow phone: the exercise and the bar fit the screen', (await past()).length === 0, await past());
     await q.click('#dkHit'); await q.waitForTimeout(500);
     check('narrow phone: the rest timer fits', (await past()).length === 0 && (await q.isVisible('#rtUndo')), await past());
     await q.click('#rtSkip'); await q.waitForTimeout(200); await q.click('.ex.open .more'); await q.waitForTimeout(250); await q.click('#moreSame'); await q.waitForTimeout(450);
-    check('narrow phone: the questions after an exercise fit, with their Skip in reach', (await past()).length === 0 && (await q.evaluate(() => { const r = document.querySelector('#fbSkip').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })), await past());
+    check('narrow phone: the question after an exercise fits, with its three answers side by side and the way on in reach', (await past()).length === 0 && (await q.evaluate(() => { const o = [...document.querySelectorAll('#dock .fb-o')].map((x) => x.getBoundingClientRect()), n = document.querySelector('#dkNext').getBoundingClientRect(); return o.length === 3 && o.every((r) => r.left >= 0 && r.right <= innerWidth && Math.abs(r.top - o[0].top) < 1) && n.left >= 0 && n.right <= innerWidth; })), await past());
+    /* a text link is easy to hit: it is as tall as a finger */
+    const tapH = await q.evaluate(() => document.querySelector('#dock .fb-pain').getBoundingClientRect().height);
     await q.click('#dock [data-painask]'); await q.waitForTimeout(150); await q.click('#dock [data-fb="pain"][data-v="2"]'); await q.waitForTimeout(300);
     check('narrow phone: a pain report fits too', (await past()).length === 0, await past());
     await snap(q, 'h9-narrow-pain');
-    /* a text link is easy to hit: its tap area is larger than its letters */
-    const tapH = await q.evaluate(() => { const b = document.querySelector('#fbSkip'), a = getComputedStyle(b, '::after'), r = b.getBoundingClientRect(); return r.height - parseFloat(a.top) - parseFloat(a.bottom); });
     check('a text link has a tap area of a finger\'s size', tapH >= 44, tapH);
     await ctx.close();
   }

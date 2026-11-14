@@ -15,7 +15,7 @@ function planText() {
   return PLAN.map((w, i) => {
     const s = live(i), P = phase(i, s);
     return wkFull(i) + (P.m ? ' (' + (P.dl ? say('שבוע קל', 'easy week') : say('שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב', 'week ' + P.wk + ' of ' + S.cfg.weeks + ' in the round')) + ', ' + rirText(P.rir) + ')' : '') + ':\n' +
-      exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + say(e.he + ' (' + e.name + ')', e.name) + ': ' + e.n0 + say(' סטים × ', ' sets × ') + e.reps + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '') + say(' | מנוחה ', ' | rest ') + restPlain(e)).join('\n');
+      exList(i, s, true).map((e, j) => (j + 1) + '. [' + e.id + '] ' + say(e.he + ' (' + e.name + ')', e.name) + ': ' + e.n0 + say(' סטים × ', ' sets × ') + e.reps + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '') + say(' | מנוחה ', ' | rest ') + restPlain(e)).join('\n');
   }).join('\n\n');
 }
 /* what the opening screens learned about the lifter, for the coach */
@@ -219,7 +219,7 @@ function ctxLine() {
     const w = wkOf(id);
     const cur = live(w), rir = rirOf(e, cur), fu = firstUndone(cur, e), T = fu >= 0 ? targetOf(e, fu, cur) : null, pe = planEx(id);
     t += say(' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ', ' The question is about the exercise [' + e.id + '] "' + e.name + '" (' + wkOrd(w) + '): ') + e.n0 + say(' סטים × ', ' sets × ') + e.reps + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '') + say(', מנוחה ', ', rest ') + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
-    if (T) t += say(' היעד לסט הבא (סט ' + (fu + 1) + '): ', ' The target for the next set (set ' + (fu + 1) + '): ') + fmtRow(T) + '.';
+    if (T) t += say(' היעד לסט הבא (סט ' + (fu + 1) + '): ', ' The target for the next set (set ' + (fu + 1) + '): ') + fmtRow(T) + (T.mode === 'start' ? say(' (הערכה ראשונה של האפליקציה: התרגיל הזה עוד לא נרשם אף פעם)', ' (the app\'s first guess: this exercise was never logged)') : '') + '.';
     const hist = sorted().filter((s) => s.w === w && moveOf(pe, s) === e.mv && rowsOf(s, id).some(isDone)).slice(0, 3);
     if (hist.length) t += say(' ביצועים אחרונים (ק״ג×חזרות): ', ' Recent results (kg×reps): ') + hist.map((s) => (s.end ? ago(s.ts) : say('באימון הנוכחי', 'in the current workout')) + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
     else t += say(' עוד אין רישום קודם לתרגיל הזה.', ' Nothing was logged for this exercise before.');
@@ -243,7 +243,7 @@ function applyLog(text) {
     writeRow(e, i, kg, reps); idx.push(i);
   }
   if (!idx.length) return { none: true };
-  S.touched = true; if (w === S.tab) { S.draft = null; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
+  S.touched = true; if (w === S.tab) { delete S.drafts[e.id]; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
   renderAll(); bump(lv0); keepAwake();
   return { ex: e.id, name: e.nm, idx, sid: live(w).id };
 }
@@ -308,7 +308,7 @@ function showImgBtns() { $('#camBtn').hidden = $('#galBtn').hidden = !chat.canIm
 /* the exercise picker follows the plan as it stands (swapped movements show under their own name) */
 function fillCtx() {
   const sel = $('#chatCtx'), v = sel.value;
-  sel.innerHTML = '<option value="">' + say('כל התוכנית', 'The whole plan') + '</option>' + PLAN.map((w, i) => '<optgroup label="' + wkFull(i) + '">' + exList(i).map((e) => '<option value="' + e.id + '">' + e.nm + '</option>').join('') + '</optgroup>').join('');
+  sel.innerHTML = '<option value="">' + say('כל התוכנית', 'The whole plan') + '</option>' + PLAN.map((w, i) => '<optgroup label="' + wkFull(i) + '">' + exList(i, undefined, true).map((e) => '<option value="' + e.id + '">' + e.nm + '</option>').join('') + '</optgroup>').join('');
   sel.value = v;
 }
 /* the fixed texts of the message box: they depend on the language, and on whether photos can be sent */

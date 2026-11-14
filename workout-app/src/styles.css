@@ -727,6 +727,192 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .sug{background:var(--surface);box-shadow:inset 0 0 0 2px var(--line),0 3px 0 var(--lip);margin-bottom:3px}
 .sug:active{transform:scale(.96)}
 
+/* ================================================================== the workout screen, second pass
+   One exercise on a screen that does not scroll: its name, the demo (which gives up height so that the sets are never under the
+   bar), the sets, and the bar that logs a set. The rest takes the whole screen in the workout's colour. Less to press: the
+   details and "more" sit on the demo's corners, and what was "Undo" is an arrow at the top of the rest */
+.app[data-view="workout"] .cols{padding-bottom:calc(var(--dock-h,250px) + 14px)}
+#exList{touch-action:pan-y}
+.fx .ex{gap:12px}
+.fx .ex.snap{transition:transform .32s cubic-bezier(.3,1.35,.5,1),opacity .2s}
+.fx-head{padding-top:8px}
+.stage-box{position:relative}
+.stage{object-fit:contain}
+.st-btn{position:absolute;bottom:10px;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 12px;border:0;border-radius:99px;background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink);font-size:13.5px;font-weight:700;line-height:1}
+.st-btn::after{content:"";position:absolute;inset:-6px}
+.st-btn svg{width:18px;height:18px;color:var(--wk-ink)}
+.st-btn.how{inset-inline-start:10px}
+.st-btn.more{inset-inline-end:10px;width:38px;padding:0;justify-content:center}
+.setp{min-height:44px}
+.goal.g-start{color:var(--ink-2);background:var(--surface-3)}
+
+/* the bar: which set this is, the weight and the reps, and the one big button */
+.dock{padding-top:12px}
+.dk-top{min-height:30px}
+.num{height:64px;padding:0 3px}
+.step{width:52px;font-size:16px;font-weight:800;letter-spacing:-.01em;color:var(--wk-ink);font-variant-numeric:tabular-nums}
+.step:active,.rstep:active{background:var(--surface-3)}
+.rstep{width:44px;color:var(--wk-ink)}
+.dk-kg b.word{font-size:20px;letter-spacing:0}
+.hit{min-height:60px;font-size:19px}
+
+/* ---- the rest: the whole screen, in the workout's colour ---- */
+.dock.rest{top:0;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--wk);color:#fff;padding-top:calc(10px + env(safe-area-inset-top,0px));overflow-y:auto;animation:rest-in .34s cubic-bezier(.2,.8,.2,1)}
+@keyframes rest-in{from{opacity:0;transform:translateY(24px)}}
+.dock.rest::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 60% at 50% 38%,rgb(255 255 255 / .16),transparent 70%)}
+.dock.rest .dock-in{position:relative;min-height:100%;max-width:480px;grid-template-rows:auto minmax(0,1fr) auto auto;gap:14px}
+.rt-top{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;min-height:44px}
+.rt-undo{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:rgb(255 255 255 / .16);color:#fff;padding:0}
+.rt-undo svg{width:22px;height:22px;stroke-width:2.3}
+.rt-log{justify-self:center;display:inline-flex;flex-wrap:nowrap;color:#fff;align-items:center;gap:8px;min-height:36px;padding:0 14px;border-radius:99px;background:rgb(0 0 0 / .2);font-size:15px;font-weight:700;animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+.rt-log svg{width:18px;height:18px;stroke-width:2.8}
+.rt-log i{font-style:normal;font-weight:800}
+.rt-log.pr{background:var(--gold);color:var(--gold-ink)}
+.rt-log.pr svg{fill:currentColor;stroke:none}
+.rt{display:grid;justify-items:center;align-content:center;gap:16px;min-height:0}
+.rt-ring{position:relative;display:grid;place-items:center;width:min(66vw,290px,42vh);aspect-ratio:1}
+.rt-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.rt-ring circle{fill:none;stroke-width:10}
+.rt-ring .t{stroke:rgb(255 255 255 / .2)}
+.rt-ring .f{stroke:#fff;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0;transition:stroke-dashoffset .25s linear,stroke .3s}
+.rt-mid{display:grid;justify-items:center;gap:2px}
+.rt-time{min-width:0;font-size:clamp(54px,17vw,76px);font-weight:800;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;direction:ltr}
+.rt-word{font-size:17px;font-weight:700;opacity:.86}
+.dock.ready .rt-ring .f,.dock.go .rt-ring .f{stroke:var(--gold)}
+.dock.go .rt-ring{animation:rest-go 1s ease-in-out infinite}
+@keyframes rest-go{50%{transform:scale(1.035)}}
+.dock.go .rt-word{opacity:1;color:var(--gold)}
+.rt-adj{display:flex;gap:12px}
+.rt-adj button{min-width:76px;height:46px;border:0;border-radius:99px;background:rgb(255 255 255 / .16);color:#fff;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.rt-foot{display:grid;gap:12px;padding-bottom:2px}
+.rt-state{display:block;font-size:16px;font-weight:600;line-height:1.35;color:rgb(255 255 255 / .86);text-align:center;white-space:normal;text-wrap:balance}
+.rt-state b{display:none}
+.rt-foot .go{width:100%;min-height:60px;border:0;border-radius:20px;background:#fff;color:var(--wk-lip);font-size:19px;font-weight:700;box-shadow:0 4px 0 rgb(0 0 0 / .22);margin-bottom:4px}
+
+/* the question about an exercise that was just finished: a card with three answers, and pain as a quiet chip */
+.fb-dock{display:grid;gap:10px;padding:14px;border-radius:22px;background:var(--surface-2)}
+.fb-h{display:grid;gap:1px}
+.fb-h b{font-size:17px;font-weight:800;white-space:normal}
+.fb-h span{font-size:13.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fbk{display:grid;gap:8px;justify-items:stretch}
+.fb-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px}
+.fb-o{min-height:50px;padding:4px 6px;border:0;border-radius:16px;background:var(--surface);color:var(--ink);font-size:15.5px;font-weight:700;line-height:1.2;box-shadow:inset 0 0 0 1.5px var(--line)}
+.fb-o[aria-pressed="true"]{background:var(--wk);color:#fff;box-shadow:none}
+.fb-pain{justify-self:center;min-height:44px;padding:0 14px;border:0;border-radius:99px;background:none;color:var(--ink-2);font-size:14px;font-weight:600;text-decoration:underline;text-decoration-color:var(--ink-4);text-underline-offset:3px}
+.fb-row.pain .fb-o[aria-pressed="true"]{background:var(--muscle);color:#fff}
+.dock.rest .fb-dock{border-top:0;padding:14px;background:rgb(255 255 255 / .96);color:var(--ink);animation:ob-rise .4s cubic-bezier(.2,.8,.2,1) .15s both}
+.dock.rest .fb-o{background:var(--surface-2)}
+.dock.rest .fb-o[aria-pressed="true"]{background:var(--wk);color:#fff}
+:root[data-theme="dark"] .dock.rest .fb-dock{background:var(--surface)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .dock.rest .fb-dock{background:var(--surface)}}
+
+/* ---- before the first set: how long is there today? Tiles with the minutes large, the whole workout across the foot ---- */
+.pre.gate.time{margin-top:6vh;gap:6px}
+.pre-ic{display:grid;place-items:center;width:56px;height:56px;border-radius:18px;background:var(--wk-soft);color:var(--wk-ink);margin-bottom:6px}
+.pre-ic svg{width:30px;height:30px;stroke-width:2.2}
+.pre-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%;padding-top:16px}
+.pre-t{display:grid;justify-items:center;align-content:center;gap:0;min-height:112px;padding:12px 8px;border:0;border-radius:22px;background:var(--surface-2);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.pre-t b{font-size:36px;font-weight:800;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pre-t span{font-size:13px;font-weight:600;color:var(--ink-2)}
+.pre-t small{margin-top:6px;font-size:13px;font-weight:600;color:var(--ink-3)}
+.pre-t:only-child,.pre-t.full:nth-child(odd){grid-column:1/-1}
+.pre-t.full{background:var(--wk);color:#fff;box-shadow:0 4px 0 var(--wk-lip);margin-bottom:4px}
+.pre-t.full span,.pre-t.full small{color:rgb(255 255 255 / .86)}
+.pre-t.usual{box-shadow:inset 0 0 0 2px var(--wk)}
+.pre-times>*{animation:ob-rise .4s cubic-bezier(.2,.8,.2,1) both}
+.pre-times>:nth-child(2){animation-delay:.05s}
+.pre-times>:nth-child(3){animation-delay:.1s}
+.pre-times>:nth-child(4){animation-delay:.15s}
+
+/* ---- the details of an exercise, and "more" ---- */
+.hw-facts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.hw-facts li{display:grid;justify-items:center;gap:2px;padding:12px 6px;border-radius:16px;background:var(--wk-soft);color:var(--wk-ink)}
+.hw-facts b{font-size:20px;font-weight:800;line-height:1.15;white-space:nowrap}
+.hw-facts span{font-size:12.5px;font-weight:600;opacity:.85}
+.hw .muscles{justify-content:flex-start;font-size:14.5px}
+.sheet .hw-h{font-size:17px;font-weight:800;margin-bottom:-6px}
+.sheet .hw-rx{font-size:14px;color:var(--ink-2);padding:10px 14px;border-radius:14px;background:var(--surface-2)}
+.mr-rows{display:grid;gap:8px}
+.mr .fb-o{background:var(--surface-2)}
+.mr-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;min-height:62px;padding:8px 14px;border:0;border-radius:18px;background:var(--surface-2);color:var(--ink);text-align:start}
+.mr-row i{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:var(--wk-soft);color:var(--wk-ink)}
+.mr-row i svg{width:22px;height:22px;stroke-width:2.3}
+.mr-row span{display:grid;min-width:0}
+.mr-row b{font-size:16px;font-weight:700;line-height:1.3}
+.mr-row small{font-size:13px;color:var(--ink-2)}
+.mr-row>svg{width:18px;height:18px;color:var(--ink-4)}
+
+/* ---- the exercise picker: the workout's own card at its head, and every exercise a card with its demo and its tags ---- */
+.sheet-in.sw{gap:12px}
+.card.next.sw-hero{gap:6px;padding:16px 18px 18px;margin-bottom:5px}
+.sw-hero .next-top{display:flex;align-items:center;gap:10px}
+.sw-hero .k{flex:1;min-width:0;font-size:14px;font-weight:700;color:#fff;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sw-hero .icon-btn{width:38px;height:38px;background:rgb(255 255 255 / .18);color:#fff}
+.sheet .sw-hero h2{font-size:27px;color:#fff}
+.sheet .sw-hero .meta{font-size:14px;color:rgb(255 255 255 / .86)}
+.sw .mu-row button[aria-pressed="true"]{background:var(--wk);color:#fff}
+.sw-list{display:grid;gap:8px}
+.sw-opt+.sw-opt{border-top:0}
+.sw-opt{border-radius:20px;background:var(--surface-2);transition:box-shadow .2s,background-color .2s}
+.sw-opt.on{background:var(--wk-soft);box-shadow:inset 0 0 0 2px var(--wk)}
+.sw-row{grid-template-columns:auto minmax(0,1fr);min-height:72px;padding:10px 12px;border-radius:20px}
+.sw-pic{display:grid;place-items:center;width:68px;height:52px;border-radius:14px;background:var(--surface);overflow:hidden}
+.sw-t b{font-size:16px;font-weight:700}
+.sw-tags{display:flex;flex-wrap:wrap;gap:4px;padding-top:3px}
+.sw-tag{font-style:normal;font-size:12px;font-weight:600;line-height:1.7;padding:0 8px;border-radius:99px;background:var(--surface-3);color:var(--ink-2)}
+.sw-tag.jf{background:var(--wk-soft);color:var(--wk-ink)}
+.sw-opt.on .sw-tag{background:var(--surface)}
+.sw-opt.on .sw-t b{color:var(--wk-ink)}
+.sw-b{padding:0 12px 12px}
+.sw-b .btn.primary{background:var(--wk);box-shadow:0 4px 0 var(--wk-lip)}
+
+/* ---- the end of a workout: its colour over the whole sheet, the points large, the level bar, and what opened ---- */
+.sheet:has(>.sum){padding-top:0}
+.sheet-in.sum{justify-items:center;text-align:center;gap:10px;width:100%;height:100%;max-height:none;border-radius:0;align-content:center;background:radial-gradient(130% 90% at 50% 36%,#3B2477 0%,#1A1038 46%,#07050D 100%);color:#fff;padding-top:calc(26px + env(safe-area-inset-top,0px));overflow:hidden}
+.sheet-in.sum::before{display:none}
+.sheet-in.sum::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(60% 34% at 50% 34%,color-mix(in srgb,var(--wk) 70%,transparent),transparent 72%)}
+.sheet-in.sum>*{position:relative;z-index:1}
+.sum .confetti{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.sheet .sum-k{display:inline-block;padding:5px 16px;border-radius:99px;background:rgb(255 255 255 / .14);font-size:15px;font-weight:700;color:#fff;animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) both}
+.sum-av{width:min(190px,44vw);margin-block:4px -4px;animation:fin-max .7s cubic-bezier(.3,1.35,.5,1) .1s both}
+.sum-av .av-aura{display:none}
+.sum-av .av-shadow{fill:rgb(0 0 0 / .28)}
+.sum-av.pump .av{animation:pump .65s cubic-bezier(.3,1.5,.5,1)}
+.sum .sum-xp{display:grid;justify-items:center;font-size:72px;font-weight:800;line-height:1;letter-spacing:-.03em;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 4px 0 rgb(0 0 0 / .18);animation:ob-pop .5s cubic-bezier(.3,1.5,.5,1) .25s both}
+.sum .sum-xp small{font-size:17px;font-weight:700;letter-spacing:0;color:#fff;text-shadow:none;opacity:.9}
+.sheet .sum-up{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:99px;background:var(--gold);color:var(--gold-ink);font-size:20px;font-weight:800;opacity:0;transform:scale(.6)}
+.sheet .sum-up.show{opacity:1;transform:none;transition:opacity .25s,transform .5s cubic-bezier(.3,1.7,.5,1)}
+.sum-up svg{width:22px;height:22px;fill:currentColor;stroke:none}
+.sum-lv{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;max-width:340px;margin-top:6px;animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .35s both}
+.sum-lv .lv-badge{height:30px;padding:0 12px;font-size:14.5px;background:#fff;color:#2A1866}
+.sum-lv .lv-badge.pop{animation:pop .5s cubic-bezier(.3,1.7,.5,1)}
+.sum-lv .xpbar{height:14px;background:rgb(255 255 255 / .16)}
+.sum-lv .xpbar i{background:var(--gold);transition:width .85s cubic-bezier(.2,.8,.2,1)}
+.sum-nx{display:grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:99px;background:rgb(255 255 255 / .2);font-size:14.5px;font-weight:800}
+.sum .sum-new{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px;width:100%;max-width:340px}
+.sum .sum-new li{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:6px 16px;border-radius:18px;background:rgb(255 255 255 / .16);font-size:17px;font-weight:700;animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .8s both}
+.sum .sum-new li:nth-child(2){animation-delay:.95s}
+.sum .sum-new li:nth-child(3){animation-delay:1.1s}
+.sum .sum-new li.gold{background:var(--gold);color:var(--gold-ink)}
+.sum .sum-new svg{width:22px;height:22px;color:inherit}
+.sum .sum-new li.gold svg{fill:currentColor;stroke:none}
+.sheet-in.sum .btn.primary{margin-top:14px;max-width:440px;background:#fff;color:#2A1866;box-shadow:0 12px 34px rgb(109 63 224 / .45)}
+.sum .sum-new,.sum-lv{max-width:360px}
+
+/* on a wide screen the rest is a tall card over the workout's column, not the whole window */
+@media (min-width:1000px){.dock.rest{top:16px;border-radius:28px;padding:16px}}
+@media (max-height:700px){
+  .fx .ex-name{font-size:22px}
+  .fx-rx{font-size:13.5px}
+  .num{height:56px}
+  .hit{min-height:54px}
+  .rt-adj button{height:42px}
+  .pre-t{min-height:92px}
+  .pre-t b{font-size:30px}
+  .sum .sum-xp{font-size:58px}
+  .sum-av{width:min(140px,36vw)}
+}
+
 /* ================================================================== the opening
    A black curtain with the name lifts onto a short film on a night-purple stage: the camera finds Eilon, who waves, pulls
    back onto the player's character, and pushes in as it grows. Then the questions, on the page's own paper: Eilon beside

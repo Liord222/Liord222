@@ -1,7 +1,7 @@
 // Unit checks for the pure parts: the progression engine (plan.js + lib.js + prog.js) and the game layer (game.js): node test/unit.js
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = process.argv[2] || path.join(__dirname, '..', 'src');
-const GAME = ['rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned'];
+const GAME = ['rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'startKg', 'stepUp', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned'];
 const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') +
   '\n;globalThis.X = { PLAN, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
   '\n;globalThis.G = {' + GAME.map((k) => k + ': typeof ' + k + " === 'undefined' ? undefined : " + k).join(', ') + '};';
@@ -174,6 +174,13 @@ t('fitness alone: every range a step higher, rests a quarter shorter', () => [G.
 t('fitness beside another goal keeps the reps and trims the rests', () => [G.goalRx('12–15', [75, 75], [0, 2], 1), G.goalRx('10–15', [60, 60], [1, 2], 1), G.goalRx('8–15', [60, 60], [0, 2], 1)], [{ reps: '12–15', rest: [60, 60] }, { reps: '10–15', rest: [45, 45] }, { reps: '8–15', rest: [45, 45] }]);
 t('a rest is never cut under 45 seconds, nor stretched over four minutes', () => [G.goalRx('10–15', [45, 50], [2], 1).rest, G.goalRx('6–10', [200, 230], [1], 1).rest], [[45, 45], [230, 240]]);
 t('every range the plan and the library use is known to the bend or left as it is', () => { const all = new Set(); for (const w of PLAN) for (const e of w.ex) all.add(e.reps); for (const k of Object.keys(LIB)) all.add(G.rxOf(k).reps); return [...all].filter((r) => { const a = G.goalRx(r, [120, 180], [1], 1), b = G.goalRx(r, [60, 60], [2], 1); return (a && !/^\d+–\d+$/.test(a.reps)) || !b || !/^\d+(–\d+)?$/.test(b.reps); }); }, []);
+// where the numbers start for a movement never logged
+t('every movement with a weight has a place to start, on a step its equipment can be loaded with', () => Object.keys(LIB).filter((k) => { const L = LIB[k], inc = EQUIP[L.eq].inc; return [0, 1, 2, null].some((x) => { const kg = G.startKg(k, x); return L.bw || L.eq === 'bw' ? kg !== null : !(kg >= inc) || Math.abs(kg / inc - Math.round(kg / inc)) > 1e-9; }); }), []);
+t('a movement done with the body\'s own weight starts with none', () => Object.keys(LIB).filter((k) => LIB[k].bw || LIB[k].eq === 'bw').map((k) => G.startKg(k, 1)), Object.keys(LIB).filter((k) => LIB[k].bw || LIB[k].eq === 'bw').map(() => null));
+t('more experience starts heavier', () => Object.keys(LIB).filter((k) => { const a = G.startKg(k, 0), b = G.startKg(k, 1), c = G.startKg(k, 2); return a != null && !LIB[k].inv && !(a <= b && b <= c && a < c); }), []);
+t('where more weight is more help, a beginner starts with the most', () => [G.startKg('assistedPullup', 0), G.startKg('assistedPullup', 1), G.startKg('assistedPullup', 2)], [50, 30, 20]);
+t('a start is rounded to the lifter\'s own step when one is set', () => [G.startKg('inclineSmith', 1), G.startKg('inclineSmith', 0), G.startKg('inclineSmith', 0, 10), G.startKg('latRaise', 1), G.startKg('legPress', 2)], [40, 25, 20, 6, 140]);
+t('up goes fast and down goes fine', () => [0.5, 1, 1.25, 2, 2.5, 5, 10].map((x) => G.stepUp(x)), [1, 2, 2.5, 4, 5, 5, 10]);
 // how long a workout takes, and the plan fitted to its lifter
 t('a workout takes its sets, its rests, the moves between exercises and a warm-up', () => [G.workMins([]), G.workMins([{ sets: 3, reps: '6–10', rest: [120, 180] }]), G.workMins(PLAN[0].ex), G.workMins(PLAN[1].ex)], [10, 15, 55, 50]);
 (() => {

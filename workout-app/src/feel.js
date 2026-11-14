@@ -85,7 +85,7 @@ function flyPoints(el, n) {
 function touchOf(b) {
   if (b.id === 'dkHit' || b.id === 'homeGo' || b.id === 'obNext' || b.id === 'finishBtn' || b.id === 'dkFinish' || b.id === 'obMe') return 'success';
   if (b.matches('.step,.rstep,.stp button')) return 'step';
-  if (b.matches('[data-close],#backBtn,#sheetClose,#chatClose,#exPrev,#obBack,#fbSkip,#edClose,#resetNo,#msNo,#edDelNo,[data-msp=""]')) return 'back';
+  if (b.matches('[data-close],#backBtn,#sheetClose,#chatClose,#exPrev,#obBack,#rtUndo,#edClose,#resetNo,#msNo,#edDelNo,[data-msp=""]')) return 'back';
   if (b.matches('[aria-pressed],[role="switch"],[role="radio"],[aria-checked],[data-pick],[data-sel],.seg button,.tab,#tabbar button')) return 'select';
   return 'tap';
 }

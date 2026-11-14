@@ -199,13 +199,22 @@ const firstUndone = (s, e) => { const r = rowsOf(s, e.id); for (let i = 0; i < e
 function rirOf(e, s) { const w = wkOf(e.id), P = phase(w, s); if (P.rir == null) return null; return Math.min(4, P.rir + (!P.dl && soreOf(w, s)[LIB[e.mv].p] === 2 ? 1 : 0)); }
 
 /* best set logged for a movement, in any slot; can leave out or isolate one workout */
+/* how strong a logged set was, for personal bests. null for one that does not count: no weight on a loaded lift.
+   On an assisted lift no weight means no help, the best there is */
+const rowScore = (L, kg, reps) => (reps == null ? null : kg != null && kg > 0 ? score(L, kg, reps) : L && L.inv ? score(L, null, reps) : null);
+/* a set is a personal best when it beats the movement's best in every other workout and every other set of this one; a deload never is */
+function isPr(s, exId, mv, i, kg, reps) {
+  const v = rowScore(LIB[mv], kg, reps); if (v == null || s.dl) return false;
+  const before = bestFor(mv, { notS: s.id }), today = bestFor(mv, { onlyS: s.id, skipEx: exId, skipI: i });
+  return !!(before && v > before.v + 0.01 && (!today || v > today.v + 0.01));
+}
 function bestFor(mv, o) {
   let best = null; o = o || {}; const L = LIB[mv];
   for (const s of Object.values(S.sessions)) for (const pe of sessSlots(s)) {
     if ((o.notS && s.id === o.notS) || (o.onlyS && s.id !== o.onlyS) || moveOf(pe, s) !== mv) continue;
     rowsOf(s, pe.id).forEach((r, i) => {
-      if (!isDone(r) || r.kg == null || !(r.kg > 0) || r.reps == null || (o.skipEx === pe.id && o.skipI === i)) return;
-      const v = score(L, r.kg, r.reps); if (!best || v > best.v) best = { v, kg: r.kg, reps: r.reps };
+      if (!isDone(r) || (o.skipEx === pe.id && o.skipI === i)) return;
+      const v = rowScore(L, r.kg, r.reps); if (v != null && (!best || v > best.v)) best = { v, kg: r.kg, reps: r.reps };
     });
   }
   return best;
@@ -342,11 +351,13 @@ function resetPlan() {
   for (let w = 0; w < PLAN.length; w++) { const s = live(w); if (s && s.o) { s.o = sessSlots(Object.assign({}, s, { o: null })).map((pe) => pe.id); s.ft = Date.now(); touch(s); } }
 }
 const planChanged = () => Object.keys(S.cfg.order).length > 0 || Object.keys(S.cfg.swap).length > 0;
+/* one past the last set that is done: a set count lower than that would hide a done set that still counts */
+function doneTop(s, exId) { let n = 0; rowsOf(s, exId).forEach((r, i) => { if (isDone(r)) n = i + 1; }); return n; }
 function setBase(exId, n) {
   n = clamp(n, 1, MAX_SETS);
   S.cfg.base[exId] = { n, t: Date.now() }; saveCfg();
   const s = live(wkOf(exId));
-  if (s && !s.dl && s.n && rowsOf(s, exId).filter(isDone).length <= n) { s.n = Object.assign({}, s.n, { [exId]: n }); s.ft = Date.now(); touch(s); }
+  if (s && !s.dl && s.n && doneTop(s, exId) <= n) { s.n = Object.assign({}, s.n, { [exId]: n }); s.ft = Date.now(); touch(s); }
 }
 /* the week as it stands now: every slot with its movement and planned sets */
 function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
@@ -561,16 +572,18 @@ async function initCloud(onChange) {
     const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
     const uid = db && user ? await user.id() : null;
     if (!uid) { setSync('local'); known(); return; }
-    const col = db.collection('data/users/' + uid), seen = new Set(), NEWEST = 60;
+    const col = db.collection('data/users/' + uid), seen = new Set(), win = new Map(), NEWEST = 60;
     slow = setTimeout(() => setSync('slow'), 10000);
     col.orderBy('ts', 'desc').limit(NEWEST).onSnapshot((snap) => {
       clearTimeout(slow); S.col = col;
       let changed = false, got = 0, oldest = Infinity;
+      const out = [];
       for (const ch of snap.docChanges()) {
         const id = ch.doc.id;
-        if (ch.type === 'removed') { if (seen.has(id) && !S.dirty.has(id) && S.sessions[id]) { delete S.sessions[id]; changed = true; } continue; }
+        if (ch.type === 'removed') { out.push([id, win.has(id) ? win.get(id) : S.sessions[id] ? S.sessions[id].ts : 0]); win.delete(id); continue; }
         const v = ch.doc.data();
         if (!v || typeof v.w !== 'number') continue;
+        win.set(id, v.ts);
         got++; if (v.ts < oldest) oldest = v.ts;
         if (S.gone.has(id)) continue;
         seen.add(id);
@@ -581,6 +594,10 @@ async function initCloud(onChange) {
         if (sig(m) !== before) changed = true;
         if (newer) { S.dirty.add(id); schedule(id, 400); }
       }
+      /* the page asks for the newest workouts only: one that leaves that window because a newer one came in is still in the account,
+         and stays on the device. A workout is gone only when it leaves from inside the window (deleted on another device) */
+      const low = win.size >= NEWEST ? Math.min.apply(null, Array.from(win.values())) : -Infinity;
+      for (const [id, ts] of out) if (ts >= low && seen.has(id) && !S.dirty.has(id) && S.sessions[id]) { delete S.sessions[id]; changed = true; }
       if (first) {
         first = false;
         /* a workout the account did not send is new to it and goes up — unless the answer was full and the workout is older than all of it:

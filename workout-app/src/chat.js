@@ -15,7 +15,7 @@ function planText() {
   return PLAN.map((w, i) => {
     const s = live(i), P = phase(i, s);
     return wkFull(i) + (P.m ? ' (' + (P.dl ? say('שבוע קל', 'easy week') : say('שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב', 'week ' + P.wk + ' of ' + S.cfg.weeks + ' in the round')) + ', ' + rirText(P.rir) + ')' : '') + ':\n' +
-      exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + say(e.he + ' (' + e.name + ')', e.name) + ': ' + e.n0 + say(' סטים × ', ' sets × ') + e.reps + (e.suf ? ' ' + e.suf : '') + say(' חזרות | מנוחה ', ' reps | rest ') + restPlain(e)).join('\n');
+      exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + say(e.he + ' (' + e.name + ')', e.name) + ': ' + e.n0 + say(' סטים × ', ' sets × ') + e.reps + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '') + say(' | מנוחה ', ' | rest ') + restPlain(e)).join('\n');
   }).join('\n\n');
 }
 /* what the opening screens learned about the lifter, for the coach */
@@ -82,13 +82,21 @@ const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'
   '  Use the exercise in the context if no other was named. Do not add the line if you were not asked to log, or if the number of reps is missing (then ask). Do not mention the line in the text.\n' +
   '- When there is no exact substitute, suggest one or two alternatives that are common in gyms.';
 /* the lock before anything is sent. Asking him to drop or to show his rules: */
-const LOCK = /התעל[םמ]\S*\s+מ(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)|שכח\s+(?:את\s+)?(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)|הוראות\s+ה?מערכת|פרומפט|(?:מה|מהן|תראה|הראה|הצג|תציג|תכתוב|כתוב|תדפיס|חשוף|תחשוף|צטט|תצטט)\s+(?:לי\s+)?(?:את\s+)?ה?(?:הוראות|הנחיות)\s+שלך|מצב\s+מפתח|ג[\u0027׳]?יילברייק|(?:בלי|ללא)\s+(?:שום\s+)?(?:מגבלות|הגבלות|צנזורה)|תעמיד\s+פנים|מעכשיו\s+אתה|אתה\s+כבר\s+לא\s+אילון|ignore\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|rules|prompts?|guidelines)|disregard\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|rules|prompts?|guidelines)|forget\s+(?:all\s+|the\s+|your\s+)?(?:previous\s+|prior\s+)?(?:instructions|rules)|system\s*prompt|(?:reveal|show|print|repeat|output|tell\s+me|what\s+are|what\s+is)\s+(?:me\s+)?your\s+(?:system\s+|initial\s+|original\s+)?(?:instructions|prompt|rules|guidelines)|(?:repeat|print|show|write)\s+(?:the\s+|all\s+)?(?:text|words|everything|message)\s+(?:above|before)|developer\s+mode|jail\s?break|\bDAN\b|do\s+anything\s+now|pretend\s+(?:to\s+be|you\s+are|you\u0027re|that\s+you)|you\s+are\s+now\s|from\s+now\s+on,?\s+you|(?:no|without\s+any|without)\s+(?:restrictions|filters|censorship)/i;
+const LOCK = /[הת]תעל[םמ]\S*\s+מ(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)(?!\s+(?:של|לגבי|בנוגע)\s)|שכח\S*\s+(?:את\s+|מ|על\s+)?(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)(?!\s+(?:של|לגבי|בנוגע)\s)|הוראות\s+ה?מערכת|פרומפט|(?:מה|מהן|תראה|הראה|הצג|תציג|תכתוב|כתוב|תדפיס|חשוף|תחשוף|צטט|תצטט|תרגם|תתרגם|סכם|תסכם|פרט|תפרט|תמנה|מנה|תן)\s+(?:לי\s+)?(?:את\s+)?(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)\s+(?:שלך|שקיבלת)(?=\s*(?:[?.!,:]|$|בבקשה|באנגלית|בעברית|לאנגלית|לעברית))|מצב\s+מפתח|ג[\u0027׳]?יילברייק|(?:תענה|ענה|תדבר|דבר|תהיה|היה|אתה|מצב|תכתוב|כתוב)\s+(?:\S+\s+)?(?:בלי|ללא)\s+(?:שום\s+)?(?:מגבלות|הגבלות|צנזורה)|(?:בלי|ללא)\s+(?:שום\s+)?צנזורה|תעמיד\s+פנים|מעכשיו\s+(?:אתה\s+)?(?:תהיה|תתנהג|תשחק|תעמיד)|מעכשיו\s+אתה\s+(?:לא\s+)?(?:אילון|בוט|עוזר|מודל|דמות|מישהו\s+אחר)|אתה\s+כבר\s+לא\s+אילון|ignore\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|rules|prompts?|guidelines)|disregard\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|rules|prompts?|guidelines)|forget\s+(?:all\s+|the\s+|your\s+)?(?:previous\s+|prior\s+)?(?:instructions|rules)|system\s*prompt|(?:reveal|show|print|repeat|output|tell\s+me|what\s+are|what\s+is|translate|summari[sz]e|list|recite|paraphrase|give\s+me)\s+(?:me\s+)?(?:all\s+)?your\s+(?:system\s+|initial\s+|original\s+)?(?:instructions|prompt|rules|guidelines)(?!\s+(?:for|on|about|regarding|when|to|in\s+the\s+gym)\b)|(?:repeat|print|show|write)\s+(?:the\s+|all\s+)?(?:text|words|everything|message)\s+(?:above|before)|developer\s+mode|jail\s?break|do\s+anything\s+now|pretend\s+(?:to\s+be|you\s+are|you\u0027re|that\s+you)|you\s+are\s+now\s|from\s+now\s+on,?\s+you\s+(?:are|will\s+be|act|answer\s+as|respond\s+as|play|pretend)|(?:answer|respond|reply|talk|write|be|act|mode)\s+(?:\w+\s+)?(?:with\s+no|without(?:\s+any)?|no)\s+(?:restrictions|filters|censorship)|(?:without(?:\s+any)?|no)\s+(?:filters|censorship)/i;
 /* asking what he is, who made him, or naming what he may be built on: */
-const WHO = /claude|anthropic|open\s?ai|chat\s?gpt|\bgpt\b|gemini|\bllm\b|קלוד|אנת[\u0027׳]?רופיק|ג[\u0027׳]יפיטי|ג[\u0027׳]מיני|(?:איזה|איזו|מה)\s+ה?(?:מודל|בינה|טכנולוגיה)|(?:על\s+מה|ממה)\s+אתה\s+(?:בנוי|מבוסס|רץ|עשוי)|מי\s+(?:יצר|בנה|פיתח|תכנת|המציא|עשה)\s+אותך|מי\s+ה?(?:בעלים|יוצר|מפתח)\s+שלך|^\s*מי\s+אתה\s*[?.!]*\s*$|אתה\s+(?:בן\s*אדם|אנושי|אדם\s+אמיתי|רובוט|בוט|בינה\s+מלאכותית)(?![א-ת])|אתה\s+ai\b|what\s+(?:model|llm|ai|technology)\s+(?:are|is|do)|which\s+(?:model|llm|ai)\b|(?:built|based|running|run)\s+on\s+(?:what|which)|who\s+(?:made|created|built|owns|developed|programmed)\s+you|who(?:\u0027s|\s+is)\s+your\s+(?:creator|owner|developer|maker)|^\s*who\s+are\s+you\s*[?.!]*\s*$|are\s+you\s+(?:an?\s+)?(?:ai|human|real\s+person|robot|bot|machine)\b/i;
-const guard = (t) => (LOCK.test(t) ? 'off_topic' : WHO.test(t) ? 'who' : '');
+const WHO = /claude|anthropic|open\s?ai\b|chat\s?gpt|\bgpt\b|gemini|\bllm\b|קלוד|אנת[\u0027׳]?רופיק|ג[\u0027׳]יפיטי|ג[\u0027׳]מיני|(?<![א-ת])(?:איזה|איזו|מה)\s+ה?(?:מודל|בינה|טכנולוגיה)\s+(?:אתה|את|שלך|מפעיל(?:ה)?\s+אותך|עומד(?:ת)?\s+מאחוריך)|(?:על\s+מה|ממה)\s+אתה\s+(?:בנוי|מבוסס|רץ|עשוי)|מי\s+(?:יצר|בנה|פיתח|תכנת|המציא|עשה)\s+אותך|מי\s+ה?(?:בעלים|יוצר|מפתח)\s+שלך|^\s*מי\s+אתה\s*[?.!]*\s*$|אתה\s+(?:בן\s*אדם|אנושי|אדם\s+אמיתי|רובוט|בוט|בינה\s+מלאכותית)(?![א-ת])|אתה\s+ai\b|what\s+(?:model|llm|ai|technology)\s+(?:are\s+you|do\s+you|powers\s+you|runs\s+you|is\s+behind\s+you|is\s+this\s+(?:chat|coach|bot))|which\s+(?:model|llm|ai)\s+(?:are\s+you|do\s+you|powers\s+you|runs\s+you)|(?:are|were)\s+you\s+(?:built|based|running|run)\s+on|what\s+are\s+you\s+(?:built|based|running|run)\s+on|who\s+(?:made|created|built|owns|developed|programmed)\s+you|who(?:\u0027s|\s+is)\s+your\s+(?:creator|owner|developer|maker)|^\s*who\s+are\s+you\s*[?.!]*\s*$|are\s+you\s+(?:an?\s+)?(?:ai|human|real\s+person|robot|bot|machine)\b/i;
+/* the text as it is meant: compatibility forms folded, invisible characters out, curly apostrophes straight, look-alike letters to Latin */
+const HOMO = { 'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'у': 'y', 'х': 'x', 'і': 'i', 'ѕ': 's', 'ј': 'j', 'ԁ': 'd', 'һ': 'h', 'ӏ': 'l', 'А': 'A', 'Е': 'E', 'О': 'O', 'Р': 'P', 'С': 'C', 'Т': 'T', 'Х': 'X', 'І': 'I', 'ο': 'o', 'ε': 'e', 'α': 'a', 'ι': 'i', 'ν': 'v', 'ρ': 'p' };
+const norm = (t) => String(t || '').normalize('NFKC').replace(/[\u00AD\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF]/g, '').replace(/[\u2018\u2019\u02BC\u05F3]/g, "'").replace(/[аеорсухіѕјԁһӏАЕОРСТХІοεαινρ]/g, (c) => HOMO[c] || c);
+/* the lifter's own name is theirs to type, and his to say back */
+const noName = (t) => { const n = S.cfg.me.name; return n && n.length > 1 ? t.split(n).join(' ') : t; };
+const guard = (t) => { t = noName(norm(t)); return LOCK.test(t) || /\bDAN\b/.test(t) ? 'off_topic' : WHO.test(t) ? 'who' : ''; };
 /* what must never come back in an answer: what he is built on, and the mark of his rules */
-const LEAK = /claude|anthropic|open\s?ai|chat\s?gpt|\bgpt\b|gemini|קלוד|אנת[\u0027׳]?רופיק|ג[\u0027׳]יפיטי|system\s*prompt|הוראות\s+ה?מערכת/i;
-const leaks = (t) => LEAK.test(t || '') || (t || '').includes(MARK);
+const LEAK = /claude|anthropic|open\s?ai\b|chat\s?gpt|\bgpt\b|gemini|קלוד|אנת[\u0027׳]?רופיק|ג[\u0027׳]יפיטי|system\s*prompt|הוראות\s+ה?מערכת/i;
+/* pieces of every paragraph of his rules: an answer that carries one is quoting them */
+let ruleBits = null;
+const bits = () => ruleBits || (ruleBits = (rulesHe() + '\n' + rulesEn()).split(/\n+/).map((p) => p.trim()).filter((p) => p.length >= 80).flatMap((p) => [0.1, 0.45, 0.8].map((f) => p.slice(Math.floor(p.length * f), Math.floor(p.length * f) + 36))));
+const leaks = (t) => { t = norm(t); return LEAK.test(noName(t)) || t.includes(MARK) || bits().some((b) => t.includes(b)); };
 const rules = () => (LANG === 'en' ? rulesEn() : rulesHe());
 /* every fixed text of the chat by its code, in the language of the page. The codes are what is kept, so that a
    message that is already on screen follows a change of language */
@@ -100,6 +108,8 @@ const ERR = () => ({
   image_rejected: say('לא הצלחתי לשלוח את התמונה. נסה לצלם שוב או לבחור תמונה אחרת.', 'The photo could not be sent. Take it again or choose another one.'),
   images_unavailable: say('אי אפשר לשלוח תמונות בתצוגה הזאת. תאר את המכשיר במילים.', 'Photos cannot be sent in this view. Describe the machine in words.'),
   refused: say('אילון לא ענה על השאלה הזאת. נסה לנסח אותה אחרת.', 'Eilon did not answer this question. Try wording it differently.'),
+  not_logged: say('שום סט לא נרשם: התרגיל כבר הושלם, או שהמספרים מחוץ לטווח. אפשר לרשום אותו בעצמך באימון.', 'No set was logged: the exercise is already complete, or the numbers are out of range. You can log it yourself in the workout.'),
+  api_error: say('Anthropic לא קיבל את הבקשה.', 'Anthropic did not accept the request.'),
   empty_completion: say('לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.', 'No answer came back. Try a shorter question.'),
   prompt_too_large: say('השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.', 'The conversation is too long. Start a new chat and try again.'),
   upstream_error: say('התקשורת נקטעה. נסה לשלוח שוב.', 'The connection dropped. Try sending again.'),
@@ -144,7 +154,7 @@ function fmtText(text) {
 function msgHTML(m, idx) {
   if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(ctxName(m.ctx)) + '</span>' : '') + '</div></div>';
   const text = m.code ? errText(m.code) : stripCmd(m.text || ''), face = '<span class="ava sm" aria-hidden="true">' + coachFace() + '</span>';
-  if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + say('נרשם.', 'Logged.') + '</span>') + loggedHTML(m, idx) + '</div></div>';
+  if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + (m.logged ? say('נרשם.', 'Logged.') : esc(errText(m.note || 'empty_completion'))) + '</span>') + loggedHTML(m, idx) + '</div></div>';
   const v = splitVerdict(text, !m.live);
   return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(errText(m.note)) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
 }
@@ -166,7 +176,7 @@ function renderMsgs() {
   if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
     box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('שאל, צלם מכשיר, או כתוב מה עשית ואני ארשום.', 'Ask, snap a machine, or tell me what you did and I will log it.') + '</span><div class="sugs">' +
-      SUGS().map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>').join('') + '</div></div>';
+      SUGS().map((s, i) => (i === 1 && !chat.canImg ? '' : '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>')).join('') + '</div></div>';
     return;
   }
   box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
@@ -204,7 +214,7 @@ function ctxLine() {
   if (e) {
     const w = wkOf(id);
     const cur = live(w), rir = rirOf(e, cur), fu = firstUndone(cur, e), T = fu >= 0 ? targetOf(e, fu, cur) : null, pe = planEx(id);
-    t += say(' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ', ' The question is about the exercise [' + e.id + '] "' + e.name + '" (' + wkOrd(w) + '): ') + e.n0 + say(' סטים × ', ' sets × ') + e.reps + (e.suf ? ' ' + e.suf : '') + say(' חזרות, מנוחה ', ' reps, rest ') + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
+    t += say(' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ', ' The question is about the exercise [' + e.id + '] "' + e.name + '" (' + wkOrd(w) + '): ') + e.n0 + say(' סטים × ', ' sets × ') + e.reps + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '') + say(', מנוחה ', ', rest ') + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
     if (T) t += say(' היעד לסט הבא (סט ' + (fu + 1) + '): ', ' The target for the next set (set ' + (fu + 1) + '): ') + fmtRow(T) + '.';
     const hist = sorted().filter((s) => s.w === w && moveOf(pe, s) === e.mv && rowsOf(s, id).some(isDone)).slice(0, 3);
     if (hist.length) t += say(' ביצועים אחרונים (ק״ג×חזרות): ', ' Recent results (kg×reps): ') + hist.map((s) => (s.end ? ago(s.ts) : say('באימון הנוכחי', 'in the current workout')) + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
@@ -215,8 +225,8 @@ function ctxLine() {
 /* a reply may carry one "@@LOG {...}" line: sets to write into today's log */
 function applyLog(text) {
   const m = text.match(/^[ \t]*@@LOG\s*(\{.*\})\s*$/m); if (!m) return null;
-  let o; try { o = JSON.parse(m[1]); } catch (e) { return null; }
-  const e = o && findEx(String(o.ex || '')); if (!e || !Array.isArray(o.sets)) return null;
+  let o; try { o = JSON.parse(m[1]); } catch (e) { return { none: true }; }
+  const e = o && findEx(String(o.ex || '')); if (!e || !Array.isArray(o.sets)) return { none: true };
   const w = wkOf(e.id), idx = [], lv0 = S.lvl;
   for (const p of o.sets.slice(0, 40)) {
     if (!Array.isArray(p)) continue;
@@ -228,7 +238,7 @@ function applyLog(text) {
     if (i < 0) break;
     writeRow(e, i, kg, reps); idx.push(i);
   }
-  if (!idx.length) return null;
+  if (!idx.length) return { none: true };
   S.touched = true; if (w === S.tab) { S.draft = null; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
   renderAll(); bump(lv0); keepAwake();
   return { ex: e.id, name: e.nm, idx, sid: live(w).id };
@@ -250,7 +260,7 @@ async function sendChat(preset) {
   /* the lock: answered here, with a fixed line. Nothing is sent and nothing joins the conversation the model sees */
   const lock = guard(text);
   if (lock) { chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.id }, { role: 'a', text: '', code: lock }); clear(); renderMsgs(); return; }
-  setBusy(true);
+  setBusy(true); chat.sentAt = Date.now();
   chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.id });
   const reply = { role: 'a', text: '', live: true }; chat.msgs.push(reply);
   chat.turns.push({ role: 'user', content: ctx.text + '\n\n' + text + (img ? say('\n\n[להודעה הזאת צורפה תמונה אחת]', '\n\n[One photo is attached to this message]') : '') });
@@ -259,7 +269,7 @@ async function sendChat(preset) {
   /* an answer that names what he is built on, or quotes his rules, is dropped whole, and so is the question that drew it */
   let leak = false;
   const seal = () => { leak = true; reply.text = ''; reply.code = 'off_topic'; reply.live = false; reply.note = ''; };
-  const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); inp.value = typed; if (img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
+  const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); if (!inp.value.trim()) inp.value = typed; if (img && !chat.img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
   let sample = null;
   try { sample = await chat.sampleP; } catch (e) { sample = null; }
   if (!mine()) return;
@@ -272,18 +282,19 @@ async function sendChat(preset) {
     const res = await sample([{ role: 'user', content: rules() }].concat(chat.turns.slice(-9)), opts);
     if (!mine()) return;
     if (leak || leaks(res.text)) { seal(); chat.turns.pop(); renderMsgs(); return; }
+    if (!String(res.text || '').trim()) { undo(); compNote(errText(res.truncated ? 'cut' : 'empty_completion')); return; }
     reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'cut';
     /* the stop word: alone it is the whole answer, after an answer it says that part of the question was left out */
     if (/^[ \t]*@@NO\b/m.test(res.text)) { if (stripCmd(res.text)) reply.note = 'off_part'; else reply.code = 'off_topic'; }
     chat.turns.push({ role: 'assistant', content: res.text });
-    const lg = res.truncated || reply.code ? null : applyLog(res.text); if (lg) reply.logged = lg;
+    const lg = res.truncated || reply.code ? null : applyLog(res.text); if (lg && lg.none) reply.note = 'not_logged'; else if (lg) reply.logged = lg;
     renderMsgs();
   } catch (e) {
     if (!mine()) return;
     if (leak) { chat.turns.pop(); renderMsgs(); return; }
     const code = (e && e.code) || 'upstream_error', part = e && e.text && stripCmd(e.text);
     if (code === 'no_key') { undo(); window.gymiCoach(false); }
-    else if (code === 'api_error' && e.message) { undo(); compNote('Anthropic: ' + String(e.message).slice(0, 200)); }
+    else if (code === 'api_error' && e.message) { undo(); const mm = String(e.message).match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)"/); let why = ''; try { why = mm ? JSON.parse('"' + mm[1] + '"') : ''; } catch (x) { why = ''; } compNote(errText('api_error') + (why ? ' (' + why.slice(0, 160) + ')' : '')); }
     else if (HIDE.includes(code)) { undo(); chat.off = isErr(code) ? code : 'view'; renderMsgs(); }
     else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = isErr(code) ? code : 'upstream_error'; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
     else { undo(); if (code !== 'cancelled') compNote(errText(isErr(code) ? code : 'upstream_error')); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); chatText(); } }
@@ -319,13 +330,27 @@ function initChat() {
   }).catch(() => {});
   renderMsgs();
 }
+/* what the full-screen chat covers on a phone: the page and the bar of sets, and the top of the page except the tab bar */
+const behindChat = () => Array.from($('.brand').children).filter((el) => el.id !== 'tabbar').concat([$('main'), $('#dock')]).filter(Boolean);
 function openChat(exId) {
   fillCtx();
   if (exId) $('#chatCtx').value = exId;
   $('#chat').classList.add('open'); $('#app').classList.add('chat-on');
-  if (!matchMedia('(min-width:1000px)').matches) document.body.style.overflow = 'hidden'; else $('#chatInput').focus();
+  if (!matchMedia('(min-width:1000px)').matches) {
+    document.body.style.overflow = 'hidden';
+    /* the tab bar stays in reach under it, as it stays in sight */
+    $('#chat').setAttribute('role', 'dialog'); chat.modal = true;
+    for (const el of behindChat()) el.inert = true;
+  }
+  $('#chatInput').focus();
 }
-function closeChat() { $('#chat').classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = ''; }
+function closeChat() {
+  const c = $('#chat'), was = !!chat.modal; chat.modal = false;
+  c.classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = '';
+  c.removeAttribute('role');
+  for (const el of behindChat()) el.inert = false;
+  if (was) { const o = $('#chatOpen'); if (o) o.focus({ preventScroll: true }); }
+}
 function wireChat() {
   $('#chatOpen').addEventListener('click', () => openChat(S.view === 'workout' ? S.open : null));
   $('#chatClose').addEventListener('click', closeChat);
@@ -333,12 +358,13 @@ function wireChat() {
   /* the phone app calls this after a key was saved or removed */
   window.gymiCoach = (on) => { window.GYMI_COACH = !!on; initChat(); };
   $('#chatNew').addEventListener('click', () => { chat.gen++; if (chat.ctl) chat.ctl.abort(); chat.ctl = null; chat.msgs = []; chat.turns = []; setAttach(null); compNote(''); setBusy(false); renderMsgs(); });
-  $('#sendBtn').addEventListener('click', () => sendChat());
+  /* while he answers the button stops him, but not on the second tap of a double tap on Send */
+  $('#sendBtn').addEventListener('click', () => { if (chat.busy && Date.now() - (chat.sentAt || 0) < 400) return; sendChat(); });
   const inp = $('#chatInput');
-  inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); sendChat(); } });
+  inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); if (!chat.busy) sendChat(); } });
   inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.height = Math.min(120, inp.scrollHeight + 2) + 'px'; });
   $('#msgs').addEventListener('click', (ev) => {
-    const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS()[+b.dataset.sug]); return; }
+    const b = ev.target.closest('.sug'); if (b) { if (+b.dataset.sug === 1) { $('#chatInput').value = SUGS()[1]; $('#camFile').click(); } else sendChat(SUGS()[+b.dataset.sug]); return; }
     const u = ev.target.closest('[data-unlog]'); if (u) undoLog(+u.dataset.unlog);
     if (ev.target.closest('#coachKey') && window.gymiNative) window.gymiNative.key();
   });

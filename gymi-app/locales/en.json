@@ -1,4 +1,6 @@
 {
-  "NSCameraUsageDescription": "To take a photo of a gym machine and ask Eilon, the coach, about it.",
-  "NSPhotoLibraryUsageDescription": "To choose a photo of a gym machine and ask Eilon, the coach, about it."
+  "ios": {
+    "NSCameraUsageDescription": "To take a photo of a gym machine and ask Eilon, the coach, about it.",
+    "NSPhotoLibraryUsageDescription": "To choose a photo of a gym machine and ask Eilon, the coach, about it."
+  }
 }

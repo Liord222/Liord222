@@ -18,6 +18,7 @@ function renderPre() {
   const box = $('#pre'), w = S.tab, s = live(w), mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
   const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore), on = mus.length > 0 && S.preSkip !== w && (left > 0 || !!S.preOpen);
   $('#app').classList.toggle('pre-on', on);
+  if (on && box.hidden) S.preAt = Date.now();
   box.hidden = !on;
   if (!on) { box.innerHTML = ''; S.preOpen = false; return; }
   if (!S.preOpen) {
@@ -195,6 +196,8 @@ function coachSheetChange(ev) {
 }
 function wireCoach() {
   $('#pre').addEventListener('click', (ev) => {
+    /* the second tap of a double tap on "Start workout" lands on the question that has just appeared: it is not an answer */
+    if (ev.detail !== 0 && Date.now() - (S.preAt || 0) < 400) return;
     const b = ev.target.closest('button'); if (!b) return;
     S.touched = true;
     if (b.dataset.mu) setSore(S.tab, b.dataset.mu, +b.dataset.v);

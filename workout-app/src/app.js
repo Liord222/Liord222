@@ -38,10 +38,12 @@ function setView(v, keep) {
   if (v === 'profile') renderProfile();
   if (!keep) window.scrollTo(0, 0);
 }
+/* what belongs to the workout on screen (the open exercise, a set being edited, the rest and its Undo) is let go when another workout opens */
+function leaveWorkout() { S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.fbFor = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; clearTimeout(S.slideT); if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
 /* open a workout: the one that is next (from the big button) or one picked from the week */
 function openWorkout(w, picked) {
   if (picked) S.touched = true;
-  if (w !== S.tab) { S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.fbFor = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
+  if (w !== S.tab) leaveWorkout();
   S.tab = w; setView('workout'); renderAll();
 }
 const minsOf = (list) => Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
@@ -53,7 +55,7 @@ function renderHome() {
   const ended = (i) => mesoSessions(M.id).filter((x) => x.w === i && x.end).length, over = mesoDone(M), base = ended(nu.next);
   const SAY = { live: say('באמצע', 'in progress'), next: say('הבא', 'next'), done: say('הושלם', 'complete'), todo: say('עוד לא', 'not yet') };
   const week = PLAN.map((x, i) => {
-    const st = live(i) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
+    const L = live(i), st = L && hasDone(L) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
     return '<button class="tab w' + i + ' ' + st + '" type="button" data-tab="' + i + '" aria-label="' + wkFull(i) + ', ' + SAY[st] + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : i + 1) + '</span><b>' + wkShort(i) + '</b></button>';
   }).join('');
   $('#home').innerHTML = playerHTML(meNow()) + bannerHTML() +
@@ -165,7 +167,7 @@ function openHow(id) {
   const e = findEx(id), sh = $('#sheet'); if (!e) return;
   S.sheet = 'how';
   sh.innerHTML = '<div class="sheet-in hw" role="dialog" aria-modal="true" aria-label="' + say('איך עושים', 'How to do it') + '"><div class="ed-h"><div><p class="kicker">' + say('איך עושים', 'How to do it') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c + '</li>').join('') + '</ul>' +
+    '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c.replace(/\d+(?:[.,]\d+)?(?:\s?[–\-×]\s?\d+(?:[.,]\d+)?)+°?/g, (m) => Ltr(m)) + '</li>').join('') + '</ul>' +
     (e.a !== e.mv ? '<p class="fine">' + say('ההדמיה מראה תנועה דומה.', 'The demo shows a similar movement.') + '</p>' : '') + (LANG === 'he' ? '<p class="en-name">' + Ltr(esc(e.name)) + '</p>' : '') + '</div>';
   sh.hidden = false;
 }
@@ -177,7 +179,7 @@ function renderMore() {
   const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>' : '') + tr;
   sh.innerHTML = '<div class="sheet-in mr" role="dialog" aria-modal="true" aria-label="' + say('עוד', 'More') + '"><div class="ed-h"><div><p class="kicker">' + say('עוד', 'More') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<label class="note"><span>' + say('הערה שנשארת עם התרגיל', 'A note that stays with this exercise') + '</span><textarea class="note-in" rows="2" maxlength="200" placeholder="' + say('גובה מושב, קצב, דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>' +
-    (e.cut || dl || !inPlan ? '' : '<div class="m-row"><span>' + say('סטים בתרגיל', 'Sets in this exercise') + '</span><div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (e.n0 <= Math.max(1, dn) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>') +
+    (e.cut || dl || !inPlan ? '' : '<div class="m-row"><span>' + say('סטים בתרגיל', 'Sets in this exercise') + '</span><div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (e.n0 <= Math.max(1, doneTop(s, e.id)) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>') +
     '<section><h3>' + say('היסטוריה', 'History') + '</h3>' + (hist || '<p class="empty-note">' + say('עוד אין היסטוריה לתרגיל הזה.', 'No history for this exercise yet.') + '</p>') + '</section>' +
     (rated ? '<section><h3>' + say('איך היה?', 'How was it?') + '</h3>' + fbHTML(e, s) + painNote(e, s) + '</section>' : '') +
     '<div class="mr-acts">' + (fill ? '<button class="btn" id="moreSame" type="button">' + say('רשום את כל הסטים לפי היעד', 'Log every set at its target') + '</button>' : '') + '<button class="btn ask" id="moreAsk" type="button">' + say('שאל את אילון', 'Ask Eilon') + '</button></div></div>';
@@ -227,9 +229,9 @@ function importBackup(file) {
   const rd = new FileReader();
   rd.onload = () => {
     const r = restoreData(String(rd.result || ''));
+    if (r) { sweep(); meSync(); if (!S.touched) S.tab = nextUp().next; S.open = null; if ((S.cfg.lang || autoLang()) !== LANG) applyLang(); }
     const kept = r && r.kept ? say('ההגדרות שבמכשיר הזה חדשות יותר מאלה שבקובץ, ולכן הן נשארו.', "This device's settings are newer than the file's, so they were kept.") : '';
     S.backupNote = !r ? say('זה לא קובץ גיבוי של gymi.', 'This is not a gymi backup file.') : r.n ? (r.n === 1 ? say('אימון אחד שוחזר.', '1 workout was restored.') : r.n + say(' אימונים שוחזרו.', ' workouts were restored.')) + (kept && ' ' + kept) : kept || (r.cfg ? say('ההגדרות שוחזרו.', 'The settings were restored.') : say('אין בקובץ שום דבר חדש.', 'Nothing new in this file.'));
-    if (r) { sweep(); meSync(); if (!S.touched) S.tab = nextUp().next; S.open = null; }
     renderAll();
   };
   rd.onerror = () => { S.backupNote = say('הקובץ לא נקרא.', 'The file could not be read.'); renderBackup(); };
@@ -346,15 +348,20 @@ function curReps(e, i, s, T) {
 }
 const draftOf = (t) => (S.draft && S.draft.ex === t.e.id && S.draft.i === t.i ? S.draft : (S.draft = { ex: t.e.id, i: t.i }));
 const repsHTML = (r) => '<b>' + (r == null ? '—' : r) + '</b><small>' + say('חזרות', 'reps') + '</small>';
+/* the weight and the reps as a screen reader says them: the value first, then what a tap does */
+const kgSay = (kg) => say('משקל: ', 'Weight: ') + (kg == null ? say('בלי משקל', 'no weight') : fmtKg(kg) + say(' ק״ג', ' kg')) + say(', לחיצה להקלדה', ', tap to type');
+const repsSay = (r) => say('חזרות: ', 'Reps: ') + (r == null ? '—' : r) + say(', לחיצה להקלדה', ', tap to type');
+/* a value changed by the − and + buttons is said aloud */
+function srSay(t) { const el = $('#srSay'); if (!el) return; el.textContent = ''; setTimeout(() => { el.textContent = t; }, 30); }
 const kgHTML = (kg) => (kg == null ? '<b>—</b><small>' + say('בלי משקל', 'no weight') + '</small>' : '<b>' + fmtKg(kg) + '</b><small>' + say('ק״ג', 'kg') + '</small>');
 const xpChip = (n) => '<span class="xp-tag">' + Ltr('+' + n) + '</span>';
 /* weight and reps, each with its own stepper. A target is shown a shade lighter until it is confirmed or changed; a tap on a number opens typing */
 function numsHTML(kg, reps, ghostKg, ghostReps) {
   return '<div class="dk-nums"><div class="num" role="group" aria-label="' + say('משקל', 'Weight') + '"><button class="step" type="button" data-d="-1" aria-label="' + say('הפחת משקל', 'Less weight') + '">−</button>' +
-    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="' + say('משקל, לחיצה להקלדה', 'Weight, tap to type') + '">' + kgHTML(kg) + '</div>' +
+    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="' + kgSay(kg) + '">' + kgHTML(kg) + '</div>' +
     '<button class="step" type="button" data-d="1" aria-label="' + say('הוסף משקל', 'More weight') + '">+</button></div>' +
     '<div class="num" role="group" aria-label="' + say('חזרות', 'Reps') + '"><button class="rstep" type="button" data-d="-1" aria-label="' + say('הפחת חזרה', 'One rep less') + '">−</button>' +
-    '<div class="dk-reps' + (ghostReps ? ' ghost' : '') + '" id="dkReps" role="button" tabindex="0" aria-label="' + say('חזרות, לחיצה להקלדה', 'Reps, tap to type') + '">' + repsHTML(reps) + '</div>' +
+    '<div class="dk-reps' + (ghostReps ? ' ghost' : '') + '" id="dkReps" role="button" tabindex="0" aria-label="' + repsSay(reps) + '">' + repsHTML(reps) + '</div>' +
     '<button class="rstep" type="button" data-d="1" aria-label="' + say('הוסף חזרה', 'One rep more') + '">+</button></div></div>';
 }
 function fbPanel(s) {
@@ -402,26 +409,28 @@ function renderDock() {
 function setKg(kg) {
   const t = dockTarget(); if (!t) return;
   kg = capKg(kg);
-  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); renderMe(); }
+  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; if (isPr(s, t.e.id, t.e.mv, t.i, row.kg, row.reps)) row.pr = true; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).kg = kg;
-  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); if (!$('input:not([switch])', box)) box.innerHTML = kgHTML(kg); }
+  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); box.setAttribute('aria-label', kgSay(kg)); if (!$('input:not([switch])', box)) box.innerHTML = kgHTML(kg); }
 }
 function stepKg(d) {
   const t = dockTarget(); if (!t) return;
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).kg : curKg(t.e, t.i, s);
   setKg((cur == null ? 0 : cur) + d * incOf(t.e.mv));
+  const k = dockTarget() && $('#dkKg'); if (k) srSay(k.getAttribute('aria-label').split(',')[0]);
 }
 function setReps(r) {
   const t = dockTarget(); if (!t || r == null || !(r >= 1)) return;
   r = capReps(r);
-  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.reps = r; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); renderMe(); }
+  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.reps = r; row.t = Date.now(); delete row.pr; if (isPr(s, t.e.id, t.e.mv, t.i, row.kg, row.reps)) row.pr = true; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).reps = r;
-  const box = $('#dkReps'); if (box) { box.classList.remove('ghost'); if (!$('input:not([switch])', box)) box.innerHTML = repsHTML(r); }
+  const box = $('#dkReps'); if (box) { box.classList.remove('ghost'); box.setAttribute('aria-label', repsSay(r)); if (!$('input:not([switch])', box)) box.innerHTML = repsHTML(r); }
 }
 function stepReps(d) {
   const t = dockTarget(); if (!t) return;
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).reps : curReps(t.e, t.i, s);
   setReps(Math.max(1, (cur || 0) + d));
+  const r = $('#dkReps'); if (r) srSay(r.getAttribute('aria-label').split(',')[0]);
 }
 /* a tap on a number turns it into a field; leaving the field or Enter keeps the value */
 function typeIn(box, id, label, mode, val, done) {
@@ -451,8 +460,7 @@ function logSet(el) {
 }
 function writeRow(e, i, kg, reps) {
   kg = capKg(kg); reps = capReps(reps) || 1;
-  const s = ensure(wkOf(e.id)), L = LIB[e.mv], T = targetOf(e, i, s), before = bestFor(e.mv, { notS: s.id }), today = bestFor(e.mv, { onlyS: s.id, skipEx: e.id, skipI: i }), arr = s.sets[e.id] || (s.sets[e.id] = []);
-  const v = kg != null && kg > 0 ? score(L, kg, reps) : 0, pr = !s.dl && !!(before && v > before.v + 0.01 && (!today || v > today.v + 0.01));
+  const s = ensure(wkOf(e.id)), T = targetOf(e, i, s), arr = s.sets[e.id] || (s.sets[e.id] = []), pr = isPr(s, e.id, e.mv, i, kg, reps);
   arr[i] = { kg: kg == null ? null : kg, reps, done: true, t: Date.now() }; if (pr) arr[i].pr = true;
   if (T) { arr[i].tk = T.kg == null ? null : T.kg; arr[i].tr = T.reps; }
   touch(s); return pr;
@@ -469,7 +477,7 @@ function commitSet(e, i, kg, reps) {
   e = list.find((x) => x.id === e.id);
   sfx(pr ? 'pr' : 'set'); if (pr) haptic('pr'); flyPoints($('#dkHit'), XP.set + (pr ? XP.pr : 0));
   S.justDone = { ex: e.id, i, t: Date.now() };
-  S.draft = null; refreshEx(e); renderTabs(); renderHistory(); renderPre();
+  S.draft = null; refreshEx(e); renderTabs(); renderHistory(); renderPre(); markLive();
   renderMe(); bump(lv0);
   S.why = false;
   if (!left(e)) askFb(e, s);
@@ -481,10 +489,11 @@ function commitSet(e, i, kg, reps) {
   } else { nxt = list.slice(list.indexOf(e) + 1).find(left) || list.find(left); const id = nxt.id; label = () => { const x = findEx(id); return x ? x.nm : ''; }; }
   startRest(e.rest[0], e.rest[1], label, { ex: e.id, i, kg, reps, pr });
   /* the exercise is finished: the next one slides in while the rest runs */
-  if (nxt !== e) setTimeout(() => { if (S.tab === wkOf(nxt.id) && S.open === e.id) openEx(nxt.id, true, 1); }, 750);
+  clearTimeout(S.slideT);
+  if (nxt !== e) S.slideT = setTimeout(() => { const L = rest.last; if (rest.on && L && L.ex === e.id && L.i === i && !left(e) && S.tab === wkOf(nxt.id) && S.open === e.id) { openEx(nxt.id, true, 1); renderDock(); } }, 750);
 }
 function clearRow(e, i) { const s = live(wkOf(e.id)); if (!s) return; const arr = s.sets[e.id] || (s.sets[e.id] = []); arr[i] = { kg: null, reps: null, done: false, t: Date.now() }; touch(s); }
-function afterEdit(e) { refreshEx(e); renderMe(); renderTabs(); renderHistory(); renderDock(); }
+function afterEdit(e) { refreshEx(e); renderMe(); renderTabs(); renderHistory(); renderDock(); markLive(); }
 /* log every remaining set of an exercise exactly at its target */
 function fillTargets(e) {
   const s = ensure(S.tab), lv0 = S.lvl;
@@ -511,7 +520,7 @@ function tickRest() {
   $('#rtState').innerHTML = '<b>' + (rest.ended ? say('קדימה', 'Go') : rest.minHit ? say('אפשר להתחיל', 'Ready when you are') : say('מנוחה', 'Rest')) + '</b><span>' + say('הבא: ', 'Next: ') + esc(rest.label ? rest.label() : '') + '</span>';
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
 }
-function stopRest() { clearInterval(rest.iv); rest.on = false; rest.last = null; renderDock(); refreshOpenSets(); }
+function stopRest() { clearTimeout(S.slideT); clearInterval(rest.iv); rest.on = false; rest.last = null; renderDock(); refreshOpenSets(); }
 function nudgeRest(d) {
   if (!rest.on) return;
   rest.max = Math.max(5, rest.max + d); rest.min = Math.min(rest.min, rest.max);
@@ -520,7 +529,7 @@ function nudgeRest(d) {
 }
 function undoLast() {
   const L = rest.last, e = L && findEx(L.ex); if (!e) return;
-  clearRow(e, L.i); clearInterval(rest.iv); rest.on = false; rest.last = null;
+  clearTimeout(S.slideT); clearRow(e, L.i); clearInterval(rest.iv); rest.on = false; rest.last = null;
   if (S.fbFor === e.id) S.fbFor = null;
   if (S.tab === wkOf(e.id) && S.open !== e.id) openEx(e.id, false);
   afterEdit(e);
@@ -572,8 +581,9 @@ function finishWorkout() {
   s.end = Date.now(); s.mt = s.end; touch(s); letSleep();
   S.edit = null; S.draft = null; S.resetAsk = false; S.open = null; S.fbFor = null; S.preSkip = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; S.tab = nextUp().next;
   /* the level this workout started from: everything counted so far, without its own points */
-  const y = tally(s), got = meSync(), P = meNow(), R = { y, from: levelOf(P.T.xp - y.xp), to: P.L, got };
-  setView('home', true); renderAll();
+  const y = tally(s), got = meSync(), P = meNow(), was = (S.reopened && S.reopened[s.id]) || 0, R = { y, from: levelOf(P.T.xp - y.xp + was), to: P.L, got };
+  if (S.reopened) delete S.reopened[s.id];
+  setView('home', true); renderAll(); S.sumAt = Date.now();
   const M = S.cfg.meso;
   if (s.m === M.id && mesoDone(M)) showMesoSummary(M.id, s, R);
   else if (s.m === M.id && !s.dl && !M.early && M.asked !== s.id && fatigued()) { M.asked = s.id; saveCfg(); showDeloadOffer(s, R); }
@@ -627,6 +637,7 @@ function editorInput(rowEl) {
   const exId = rowEl.dataset.ex, i = +rowEl.dataset.i, arr = s.sets[exId] || (s.sets[exId] = []), row = arr[i] || (arr[i] = { kg: null, reps: null, done: false });
   const kg = num($('[data-k="kg"]', rowEl).value), reps = num($('[data-k="reps"]', rowEl).value, true);
   row.kg = capKg(kg); row.reps = capReps(reps); row.done = row.reps != null; row.t = Date.now(); delete row.pr;
+  const pe = planEx(exId); if (pe && row.done && isPr(s, exId, moveOf(pe, s), i, row.kg, row.reps)) row.pr = true;
   rowEl.classList.toggle('on', row.done); touch(s);
 }
 function editorDate(val) {
@@ -641,6 +652,9 @@ function editorDate(val) {
 function editorReopen() {
   const s = S.sessions[S.edSid]; if (!s || live(s.w)) return;
   s.end = 0; s.mt = Date.now(); touch(s);
+  /* what the workout had brought when it was reopened: finishing it again counts only what is added after this */
+  (S.reopened || (S.reopened = {}))[s.id] = tally(s).xp;
+  if (s.w !== S.tab) leaveWorkout();
   S.tab = s.w; S.touched = true; S.open = null; S.edSid = null; S.edDel = false; S.sheet = null; setView('workout', true);
   const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = '';
   renderAll();
@@ -649,7 +663,7 @@ function editorReopen() {
 async function exportCsv() {
   if (!S.dl) return;
   const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', lines = ['date,workout,exercise,set,kg,reps,week,deload,rir,target_kg,target_reps'];
-  for (const s of sorted().reverse()) for (const e of exList(s.w, s)) rowsOf(s, e.id).forEach((r, i) => { if (isDone(r)) lines.push([new Date(s.ts).toISOString().slice(0, 10), q(PLAN[s.w].name), q(e.name), i + 1, r.kg == null ? '' : r.kg, r.reps == null ? '' : r.reps, s.wk || '', s.dl ? 1 : '', s.rir == null ? '' : s.rir, r.tk == null ? '' : r.tk, r.tr == null ? '' : r.tr].join(',')); });
+  for (const s of sorted().reverse()) for (const e of exList(s.w, s)) rowsOf(s, e.id).forEach((r, i) => { if (isDone(r)) lines.push([isoDay(new Date(s.ts)), q(PLAN[s.w].name), q(e.name), i + 1, r.kg == null ? '' : r.kg, r.reps == null ? '' : r.reps, s.wk || '', s.dl ? 1 : '', s.rir == null ? '' : s.rir, r.tk == null ? '' : r.tk, r.tr == null ? '' : r.tr].join(',')); });
   try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') { S.dl = null; renderBackup(); } }
 }
 function onRemoteChange() {
@@ -663,7 +677,26 @@ function onRemoteChange() {
 function startTab() { S.open = null; renderList(); renderDock(); }
 
 /* ================================================================== wiring */
+/* a click that redraws what it is in puts the keyboard back where it was: on the same control in the new drawing, or on the first one
+   in its place, so a keyboard or screen-reader user is not sent back to the top of the page */
+function holdFocus(box) {
+  const keyOf = (a) => (a.id ? '#' + CSS.escape(a.id) : Array.from(a.attributes).filter((x) => /^data-/.test(x.name)).map((x) => '[' + x.name + '="' + CSS.escape(x.value) + '"]').join(''));
+  box.addEventListener('click', () => {
+    const a = document.activeElement; if (!a || a === box || !box.contains(a)) return;
+    const key = keyOf(a);
+    /* the redraw may come a moment later (a set is logged after its tap has been shown): watch for it for a second */
+    const put = () => {
+      const now = document.activeElement;
+      if ((now && now !== document.body && document.contains(now)) || box.hidden || !box.getClientRects().length) return;
+      const el = (key && box.querySelector(key)) || box.querySelector('#rtSkip,.hit,.btn.primary:not([disabled])') || box.querySelector('button:not([disabled]),[tabindex="0"],input,textarea');
+      if (el) try { el.focus({ preventScroll: true }); } catch (e) { /* not focusable here */ }
+    };
+    const mo = new MutationObserver(put); mo.observe(box, { childList: true, subtree: true });
+    setTimeout(() => mo.disconnect(), 1000); setTimeout(put, 0);
+  }, true);
+}
 function wireApp() {
+  for (const id of ['#dock', '#sheet', '#ob']) holdFocus($(id));
   $('#tabbar').addEventListener('click', (ev) => {
     const b = ev.target.closest('button[data-view]'); if (!b) return;
     closeChat(); setView(b.dataset.view);
@@ -717,20 +750,22 @@ function wireApp() {
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
   dock.addEventListener('click', (ev) => {
     const t = ev.target, id = (t.closest('button,[role="button"]') || {}).id;
-    /* the second tap of a double tap on "set done" lands on the timer's buttons, which have just appeared in its place: it is not a wish to skip the rest */
-    if (rest.on && id && /^rt/.test(id) && Date.now() - rest.start < 250) return;
+    /* the second tap of a double tap lands on the controls that have just appeared in place of the first: on the timer's buttons after
+       "Set done", on "Set done" after Continue or Next exercise, on the questions after the last set. It is not meant for them */
+    const quick = (t0) => ev.detail !== 0 && Date.now() - (t0 || 0) < 250;
+    if ((rest.on && id && /^rt/.test(id) && quick(rest.start)) || (id === 'dkHit' && quick(S.hitAt)) || ((id === 'dkFinish' || t.closest('[data-fb]')) && quick(S.justDone && S.justDone.t))) return;
     const st = t.closest('.step,.rstep'); if (st) { if (ev.detail === 0) (st.classList.contains('rstep') ? stepReps : stepKg)(+st.dataset.d); return; }
     const fbBtn = t.closest('[data-fb]'); if (fbBtn) { onFb(fbBtn.closest('.fbk').dataset.ex, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const pa = t.closest('[data-painask]'); if (pa) { S.fbPain = pa.dataset.painask; renderDock(); return; }
     const sn = t.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
     if (id === 'dkHit') { S.touched = true; logSet(t.closest('#dkHit')); }
-    else if (id === 'dkNext') { const n = nextOpen(); if (n) { S.touched = true; S.draft = null; openEx(n.id, true, 1); renderDock(); } }
+    else if (id === 'dkNext') { const n = nextOpen(); if (n) { S.touched = true; S.draft = null; openEx(n.id, true, 1); S.hitAt = Date.now(); renderDock(); } }
     else if (id === 'dkReps') typeReps();
     else if (id === 'fbSkip') skipFb();
     else if (id === 'dkKg') typeKg();
     else if (id === 'dkFinish') finishWorkout();
     else if (id === 'dkWhy') { S.why = !S.why; renderDock(); }
-    else if (id === 'rtSkip') stopRest();
+    else if (id === 'rtSkip') { S.hitAt = Date.now(); stopRest(); }
     else if (id === 'rtPlus') nudgeRest(15);
     else if (id === 'rtMinus') nudgeRest(-15);
     else if (id === 'rtUndo') undoLast();
@@ -753,6 +788,8 @@ function wireApp() {
   const sheet = $('#sheet');
   sheet.addEventListener('click', (ev) => {
     const id = (ev.target.closest('button') || {}).id;
+    /* a double tap on Finish: the second tap lands on the summary that has just opened, which must be seen */
+    if (ev.detail !== 0 && Date.now() - (S.sumAt || 0) < 400) return;
     if (ev.target === sheet || id === 'sheetClose' || id === 'edDone' || ev.target.closest('[data-close]')) { closeSheet(); return; }
     if (listSheetClick(ev, id) || exSheetClick(ev, id) || coachSheetClick(ev, id) || meSheetClick(ev)) return;
     if (id === 'edDelAsk' || id === 'edDelNo') { S.edDel = id === 'edDelAsk'; $('#edAct').innerHTML = editorActions(S.sessions[S.edSid]); }
@@ -794,7 +831,7 @@ function wireApp() {
   window.gymiBack = () => {
     if (!sheet.hidden) { if (S.sheet === 'meso' && S.msPage) { S.msPage = null; S.blEdit = null; renderMeso(); } else closeSheet(); return true; }
     if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }
-    if (OB.on) { if (OB.step > 0) { obStep(-1); return true; } return false; }
+    if (OB.on) { if (OB.step > 0) { obStep(-1); return true; } if (S.cfg.me.ob) { closeOb(); return true; } return false; }
     if (S.view !== 'home') { renderHome(); setView('home'); return true; }
     return false;
   };

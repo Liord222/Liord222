@@ -487,7 +487,7 @@ const skip = async (pg) => { await pg.waitForTimeout(350); await pg.click('#rtSk
   await skip(p); await p.waitForTimeout(200); await shot('g7-cal');
   const calKg = await p.evaluate(() => targetOf(findEx('la1'), 1, live(1)).kg);
   check('calibrated weight is rounded to the equipment step', calKg % 5 === 0 && calKg > 100 && (await txt('#dkKg')).startsWith(String(calKg)) && (await txt('.dk-top .goal')) === 'משקל מעודכן', [calKg, await txt('#dkKg'), await txt('.dk-top')]);
-  await log(p, 4); await p.waitForTimeout(500); await skip(p); await p.waitForTimeout(200);
+  await log(p, 4); await p.waitForTimeout(500); await skip(p); await p.waitForTimeout(300);
   const dn = await p.evaluate(() => targetOf(findEx('la1'), 2, live(1)));
   check('down-set: under the range drops the load 10%', dn.mode === 'down' && dn.kg <= calKg * 0.9 && dn.kg % 5 === 0 && dn.reps >= 6 && dn.reps <= 10 && (await txt('.dk-top .goal')) === 'פחות משקל', dn);
   await p.click('#dkHit'); await p.waitForTimeout(500);

@@ -243,17 +243,30 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
     await q.addInitScript(([store, cloud]) => {
       if (!localStorage.getItem('ul4:v1')) localStorage.setItem('ul4:v1', store);
       window.__sets = [];
-      const docs = JSON.parse(cloud).sort((a, b2) => b2.ts - a.ts);
+      /* the account as the runtime serves it: the newest 60 are a window, and a workout that leaves it is reported as removed */
+      const docs = JSON.parse(cloud); let listener = null, shown = [];
+      const ch = (type, d) => ({ type, doc: { id: d.id, data: () => d } });
+      const emit = () => {
+        const top = docs.slice().sort((a, b2) => b2.ts - a.ts).slice(0, 60), now2 = new Set(top.map((d) => d.id)), was = new Set(shown.map((d) => d.id));
+        const out = top.filter((d) => !was.has(d.id)).map((d) => ch('added', d)).concat(shown.filter((d) => !now2.has(d.id)).map((d) => ch('removed', d)));
+        shown = top; if (listener && out.length) listener({ docChanges: () => out });
+      };
+      const put = (id, v) => { const i = docs.findIndex((d) => d.id === id); if (i >= 0) docs[i] = v; else docs.push(v); setTimeout(emit, 5); };
+      window.__drop = (id) => { const i = docs.findIndex((d) => d.id === id); if (i >= 0) docs.splice(i, 1); setTimeout(emit, 5); };
       const col = { orderBy() { return col; }, limit() { return col; },
-        doc: (id) => ({ async set() { window.__sets.push(id); }, async delete() { window.__sets.push('del:' + id); }, onSnapshot(next) { setTimeout(() => next({ id, exists: false, data: () => undefined }), 5); return () => {}; } }),
-        onSnapshot(next) { setTimeout(() => next({ docChanges: () => docs.slice(0, 60).map((d) => ({ type: 'added', doc: { id: d.id, data: () => d } })) }), 5); return () => {}; } };
+        doc: (id) => ({ async set(v) { window.__sets.push(id); if (id !== 'cfg') put(id, Object.assign({ id }, JSON.parse(JSON.stringify(v)))); }, async delete() { window.__sets.push('del:' + id); window.__drop(id); },
+          onSnapshot(next) { setTimeout(() => next({ id, exists: false, data: () => undefined }), 5); return () => {}; } }),
+        onSnapshot(next) { listener = next; setTimeout(emit, 5); return () => {}; } };
       window.claude = { use: async (n) => (n === 'user' ? { id: async () => 'u1' } : n === 'db' ? { collection: () => col } : null) };
     }, [JSON.stringify({ sound: false, dirty: [], gone: [], sessions: local, cfg: { upd: 3, me: { ob: 1 } } }), JSON.stringify(Object.values(all))]);
     await q.goto(PREVIEW); await q.waitForTimeout(2500);
     const sent = (await q.evaluate(() => window.__sets)).filter((x) => x !== 'cfg');
     check('workouts older than what the account sent are not written to it again on every visit', sent.filter((x) => x !== 'Knew').length === 0, sent);
     check('a workout the account has not seen is still sent', sent.includes('Knew'), sent);
-    check('and the whole log is still on the device', (await q.evaluate(() => Object.keys(S.sessions).length)) === 71, await q.evaluate(() => Object.keys(S.sessions).length));
+    check('and the whole log is still on the device, though the oldest workout left the newest 60 when the new one went up', (await q.evaluate(() => Object.keys(S.sessions).length)) === 71 && (await q.evaluate(() => !!S.sessions.K11)), await q.evaluate(() => Object.keys(S.sessions).length));
+    /* another device deletes a workout that is inside the window: it goes from here too */
+    await q.evaluate(() => window.__drop('K40')); await q.waitForTimeout(400);
+    check('a workout deleted on another device goes from this one too', (await q.evaluate(() => !S.sessions.K40 && Object.keys(S.sessions).length === 70)), await q.evaluate(() => Object.keys(S.sessions).length));
     await ctx.close();
   }
 

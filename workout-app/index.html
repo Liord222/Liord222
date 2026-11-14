@@ -924,6 +924,9 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
   .dock{left:auto;right:auto;inset-inline-start:max(20px,calc((100vw - 1180px)/2 + 20px));bottom:16px;width:min(620px,calc(100vw - 452px));border-radius:28px;padding:16px}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* read by a screen reader, not shown */
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -993,6 +996,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
   <div class="sheet" id="sheet" hidden></div>
   <input type="file" id="restoreFile" accept=".json,application/json" hidden>
   <div class="toast" id="toast" role="status" hidden></div>
+  <div class="sr" id="srSay" aria-live="polite"></div>
   <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden></div>
   <div class="splash" id="splash" hidden><div class="splash-in" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div></div>
 </div>
@@ -2457,13 +2461,22 @@ const firstUndone = (s, e) => { const r = rowsOf(s, e.id); for (let i = 0; i < e
 function rirOf(e, s) { const w = wkOf(e.id), P = phase(w, s); if (P.rir == null) return null; return Math.min(4, P.rir + (!P.dl && soreOf(w, s)[LIB[e.mv].p] === 2 ? 1 : 0)); }
 
 /* best set logged for a movement, in any slot; can leave out or isolate one workout */
+/* how strong a logged set was, for personal bests. null for one that does not count: no weight on a loaded lift.
+   On an assisted lift no weight means no help, the best there is */
+const rowScore = (L, kg, reps) => (reps == null ? null : kg != null && kg > 0 ? score(L, kg, reps) : L && L.inv ? score(L, null, reps) : null);
+/* a set is a personal best when it beats the movement's best in every other workout and every other set of this one; a deload never is */
+function isPr(s, exId, mv, i, kg, reps) {
+  const v = rowScore(LIB[mv], kg, reps); if (v == null || s.dl) return false;
+  const before = bestFor(mv, { notS: s.id }), today = bestFor(mv, { onlyS: s.id, skipEx: exId, skipI: i });
+  return !!(before && v > before.v + 0.01 && (!today || v > today.v + 0.01));
+}
 function bestFor(mv, o) {
   let best = null; o = o || {}; const L = LIB[mv];
   for (const s of Object.values(S.sessions)) for (const pe of sessSlots(s)) {
     if ((o.notS && s.id === o.notS) || (o.onlyS && s.id !== o.onlyS) || moveOf(pe, s) !== mv) continue;
     rowsOf(s, pe.id).forEach((r, i) => {
-      if (!isDone(r) || r.kg == null || !(r.kg > 0) || r.reps == null || (o.skipEx === pe.id && o.skipI === i)) return;
-      const v = score(L, r.kg, r.reps); if (!best || v > best.v) best = { v, kg: r.kg, reps: r.reps };
+      if (!isDone(r) || (o.skipEx === pe.id && o.skipI === i)) return;
+      const v = rowScore(L, r.kg, r.reps); if (v != null && (!best || v > best.v)) best = { v, kg: r.kg, reps: r.reps };
     });
   }
   return best;
@@ -2600,11 +2613,13 @@ function resetPlan() {
   for (let w = 0; w < PLAN.length; w++) { const s = live(w); if (s && s.o) { s.o = sessSlots(Object.assign({}, s, { o: null })).map((pe) => pe.id); s.ft = Date.now(); touch(s); } }
 }
 const planChanged = () => Object.keys(S.cfg.order).length > 0 || Object.keys(S.cfg.swap).length > 0;
+/* one past the last set that is done: a set count lower than that would hide a done set that still counts */
+function doneTop(s, exId) { let n = 0; rowsOf(s, exId).forEach((r, i) => { if (isDone(r)) n = i + 1; }); return n; }
 function setBase(exId, n) {
   n = clamp(n, 1, MAX_SETS);
   S.cfg.base[exId] = { n, t: Date.now() }; saveCfg();
   const s = live(wkOf(exId));
-  if (s && !s.dl && s.n && rowsOf(s, exId).filter(isDone).length <= n) { s.n = Object.assign({}, s.n, { [exId]: n }); s.ft = Date.now(); touch(s); }
+  if (s && !s.dl && s.n && doneTop(s, exId) <= n) { s.n = Object.assign({}, s.n, { [exId]: n }); s.ft = Date.now(); touch(s); }
 }
 /* the week as it stands now: every slot with its movement and planned sets */
 function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
@@ -2819,16 +2834,18 @@ async function initCloud(onChange) {
     const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
     const uid = db && user ? await user.id() : null;
     if (!uid) { setSync('local'); known(); return; }
-    const col = db.collection('data/users/' + uid), seen = new Set(), NEWEST = 60;
+    const col = db.collection('data/users/' + uid), seen = new Set(), win = new Map(), NEWEST = 60;
     slow = setTimeout(() => setSync('slow'), 10000);
     col.orderBy('ts', 'desc').limit(NEWEST).onSnapshot((snap) => {
       clearTimeout(slow); S.col = col;
       let changed = false, got = 0, oldest = Infinity;
+      const out = [];
       for (const ch of snap.docChanges()) {
         const id = ch.doc.id;
-        if (ch.type === 'removed') { if (seen.has(id) && !S.dirty.has(id) && S.sessions[id]) { delete S.sessions[id]; changed = true; } continue; }
+        if (ch.type === 'removed') { out.push([id, win.has(id) ? win.get(id) : S.sessions[id] ? S.sessions[id].ts : 0]); win.delete(id); continue; }
         const v = ch.doc.data();
         if (!v || typeof v.w !== 'number') continue;
+        win.set(id, v.ts);
         got++; if (v.ts < oldest) oldest = v.ts;
         if (S.gone.has(id)) continue;
         seen.add(id);
@@ -2839,6 +2856,10 @@ async function initCloud(onChange) {
         if (sig(m) !== before) changed = true;
         if (newer) { S.dirty.add(id); schedule(id, 400); }
       }
+      /* the page asks for the newest workouts only: one that leaves that window because a newer one came in is still in the account,
+         and stays on the device. A workout is gone only when it leaves from inside the window (deleted on another device) */
+      const low = win.size >= NEWEST ? Math.min.apply(null, Array.from(win.values())) : -Infinity;
+      for (const [id, ts] of out) if (ts >= low && seen.has(id) && !S.dirty.has(id) && S.sessions[id]) { delete S.sessions[id]; changed = true; }
       if (first) {
         first = false;
         /* a workout the account did not send is new to it and goes up — unless the answer was full and the workout is older than all of it:
@@ -3002,10 +3023,12 @@ function setView(v, keep) {
   if (v === 'profile') renderProfile();
   if (!keep) window.scrollTo(0, 0);
 }
+/* what belongs to the workout on screen (the open exercise, a set being edited, the rest and its Undo) is let go when another workout opens */
+function leaveWorkout() { S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.fbFor = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; clearTimeout(S.slideT); if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
 /* open a workout: the one that is next (from the big button) or one picked from the week */
 function openWorkout(w, picked) {
   if (picked) S.touched = true;
-  if (w !== S.tab) { S.open = null; S.edit = null; S.draft = null; S.resetAsk = false; S.fbFor = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
+  if (w !== S.tab) leaveWorkout();
   S.tab = w; setView('workout'); renderAll();
 }
 const minsOf = (list) => Math.round(list.reduce((n, e) => n + e.sets * (45 + (e.rest[0] + e.rest[1]) / 2), 0) / 300) * 5;
@@ -3017,7 +3040,7 @@ function renderHome() {
   const ended = (i) => mesoSessions(M.id).filter((x) => x.w === i && x.end).length, over = mesoDone(M), base = ended(nu.next);
   const SAY = { live: say('באמצע', 'in progress'), next: say('הבא', 'next'), done: say('הושלם', 'complete'), todo: say('עוד לא', 'not yet') };
   const week = PLAN.map((x, i) => {
-    const st = live(i) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
+    const L = live(i), st = L && hasDone(L) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
     return '<button class="tab w' + i + ' ' + st + '" type="button" data-tab="' + i + '" aria-label="' + wkFull(i) + ', ' + SAY[st] + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : i + 1) + '</span><b>' + wkShort(i) + '</b></button>';
   }).join('');
   $('#home').innerHTML = playerHTML(meNow()) + bannerHTML() +
@@ -3129,7 +3152,7 @@ function openHow(id) {
   const e = findEx(id), sh = $('#sheet'); if (!e) return;
   S.sheet = 'how';
   sh.innerHTML = '<div class="sheet-in hw" role="dialog" aria-modal="true" aria-label="' + say('איך עושים', 'How to do it') + '"><div class="ed-h"><div><p class="kicker">' + say('איך עושים', 'How to do it') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c + '</li>').join('') + '</ul>' +
+    '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c.replace(/\d+(?:[.,]\d+)?(?:\s?[–\-×]\s?\d+(?:[.,]\d+)?)+°?/g, (m) => Ltr(m)) + '</li>').join('') + '</ul>' +
     (e.a !== e.mv ? '<p class="fine">' + say('ההדמיה מראה תנועה דומה.', 'The demo shows a similar movement.') + '</p>' : '') + (LANG === 'he' ? '<p class="en-name">' + Ltr(esc(e.name)) + '</p>' : '') + '</div>';
   sh.hidden = false;
 }
@@ -3141,7 +3164,7 @@ function renderMore() {
   const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => Ltr(fmtRow(x))).join(' · ') + '</p>' : '') + tr;
   sh.innerHTML = '<div class="sheet-in mr" role="dialog" aria-modal="true" aria-label="' + say('עוד', 'More') + '"><div class="ed-h"><div><p class="kicker">' + say('עוד', 'More') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<label class="note"><span>' + say('הערה שנשארת עם התרגיל', 'A note that stays with this exercise') + '</span><textarea class="note-in" rows="2" maxlength="200" placeholder="' + say('גובה מושב, קצב, דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>' +
-    (e.cut || dl || !inPlan ? '' : '<div class="m-row"><span>' + say('סטים בתרגיל', 'Sets in this exercise') + '</span><div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (e.n0 <= Math.max(1, dn) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>') +
+    (e.cut || dl || !inPlan ? '' : '<div class="m-row"><span>' + say('סטים בתרגיל', 'Sets in this exercise') + '</span><div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (e.n0 <= Math.max(1, doneTop(s, e.id)) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>') +
     '<section><h3>' + say('היסטוריה', 'History') + '</h3>' + (hist || '<p class="empty-note">' + say('עוד אין היסטוריה לתרגיל הזה.', 'No history for this exercise yet.') + '</p>') + '</section>' +
     (rated ? '<section><h3>' + say('איך היה?', 'How was it?') + '</h3>' + fbHTML(e, s) + painNote(e, s) + '</section>' : '') +
     '<div class="mr-acts">' + (fill ? '<button class="btn" id="moreSame" type="button">' + say('רשום את כל הסטים לפי היעד', 'Log every set at its target') + '</button>' : '') + '<button class="btn ask" id="moreAsk" type="button">' + say('שאל את אילון', 'Ask Eilon') + '</button></div></div>';
@@ -3191,9 +3214,9 @@ function importBackup(file) {
   const rd = new FileReader();
   rd.onload = () => {
     const r = restoreData(String(rd.result || ''));
+    if (r) { sweep(); meSync(); if (!S.touched) S.tab = nextUp().next; S.open = null; if ((S.cfg.lang || autoLang()) !== LANG) applyLang(); }
     const kept = r && r.kept ? say('ההגדרות שבמכשיר הזה חדשות יותר מאלה שבקובץ, ולכן הן נשארו.', "This device's settings are newer than the file's, so they were kept.") : '';
     S.backupNote = !r ? say('זה לא קובץ גיבוי של gymi.', 'This is not a gymi backup file.') : r.n ? (r.n === 1 ? say('אימון אחד שוחזר.', '1 workout was restored.') : r.n + say(' אימונים שוחזרו.', ' workouts were restored.')) + (kept && ' ' + kept) : kept || (r.cfg ? say('ההגדרות שוחזרו.', 'The settings were restored.') : say('אין בקובץ שום דבר חדש.', 'Nothing new in this file.'));
-    if (r) { sweep(); meSync(); if (!S.touched) S.tab = nextUp().next; S.open = null; }
     renderAll();
   };
   rd.onerror = () => { S.backupNote = say('הקובץ לא נקרא.', 'The file could not be read.'); renderBackup(); };
@@ -3310,15 +3333,20 @@ function curReps(e, i, s, T) {
 }
 const draftOf = (t) => (S.draft && S.draft.ex === t.e.id && S.draft.i === t.i ? S.draft : (S.draft = { ex: t.e.id, i: t.i }));
 const repsHTML = (r) => '<b>' + (r == null ? '—' : r) + '</b><small>' + say('חזרות', 'reps') + '</small>';
+/* the weight and the reps as a screen reader says them: the value first, then what a tap does */
+const kgSay = (kg) => say('משקל: ', 'Weight: ') + (kg == null ? say('בלי משקל', 'no weight') : fmtKg(kg) + say(' ק״ג', ' kg')) + say(', לחיצה להקלדה', ', tap to type');
+const repsSay = (r) => say('חזרות: ', 'Reps: ') + (r == null ? '—' : r) + say(', לחיצה להקלדה', ', tap to type');
+/* a value changed by the − and + buttons is said aloud */
+function srSay(t) { const el = $('#srSay'); if (!el) return; el.textContent = ''; setTimeout(() => { el.textContent = t; }, 30); }
 const kgHTML = (kg) => (kg == null ? '<b>—</b><small>' + say('בלי משקל', 'no weight') + '</small>' : '<b>' + fmtKg(kg) + '</b><small>' + say('ק״ג', 'kg') + '</small>');
 const xpChip = (n) => '<span class="xp-tag">' + Ltr('+' + n) + '</span>';
 /* weight and reps, each with its own stepper. A target is shown a shade lighter until it is confirmed or changed; a tap on a number opens typing */
 function numsHTML(kg, reps, ghostKg, ghostReps) {
   return '<div class="dk-nums"><div class="num" role="group" aria-label="' + say('משקל', 'Weight') + '"><button class="step" type="button" data-d="-1" aria-label="' + say('הפחת משקל', 'Less weight') + '">−</button>' +
-    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="' + say('משקל, לחיצה להקלדה', 'Weight, tap to type') + '">' + kgHTML(kg) + '</div>' +
+    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="' + kgSay(kg) + '">' + kgHTML(kg) + '</div>' +
     '<button class="step" type="button" data-d="1" aria-label="' + say('הוסף משקל', 'More weight') + '">+</button></div>' +
     '<div class="num" role="group" aria-label="' + say('חזרות', 'Reps') + '"><button class="rstep" type="button" data-d="-1" aria-label="' + say('הפחת חזרה', 'One rep less') + '">−</button>' +
-    '<div class="dk-reps' + (ghostReps ? ' ghost' : '') + '" id="dkReps" role="button" tabindex="0" aria-label="' + say('חזרות, לחיצה להקלדה', 'Reps, tap to type') + '">' + repsHTML(reps) + '</div>' +
+    '<div class="dk-reps' + (ghostReps ? ' ghost' : '') + '" id="dkReps" role="button" tabindex="0" aria-label="' + repsSay(reps) + '">' + repsHTML(reps) + '</div>' +
     '<button class="rstep" type="button" data-d="1" aria-label="' + say('הוסף חזרה', 'One rep more') + '">+</button></div></div>';
 }
 function fbPanel(s) {
@@ -3366,26 +3394,28 @@ function renderDock() {
 function setKg(kg) {
   const t = dockTarget(); if (!t) return;
   kg = capKg(kg);
-  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); renderMe(); }
+  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; if (isPr(s, t.e.id, t.e.mv, t.i, row.kg, row.reps)) row.pr = true; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).kg = kg;
-  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); if (!$('input:not([switch])', box)) box.innerHTML = kgHTML(kg); }
+  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); box.setAttribute('aria-label', kgSay(kg)); if (!$('input:not([switch])', box)) box.innerHTML = kgHTML(kg); }
 }
 function stepKg(d) {
   const t = dockTarget(); if (!t) return;
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).kg : curKg(t.e, t.i, s);
   setKg((cur == null ? 0 : cur) + d * incOf(t.e.mv));
+  const k = dockTarget() && $('#dkKg'); if (k) srSay(k.getAttribute('aria-label').split(',')[0]);
 }
 function setReps(r) {
   const t = dockTarget(); if (!t || r == null || !(r >= 1)) return;
   r = capReps(r);
-  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.reps = r; row.t = Date.now(); delete row.pr; touch(s); refreshEx(t.e); renderMe(); }
+  if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.reps = r; row.t = Date.now(); delete row.pr; if (isPr(s, t.e.id, t.e.mv, t.i, row.kg, row.reps)) row.pr = true; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).reps = r;
-  const box = $('#dkReps'); if (box) { box.classList.remove('ghost'); if (!$('input:not([switch])', box)) box.innerHTML = repsHTML(r); }
+  const box = $('#dkReps'); if (box) { box.classList.remove('ghost'); box.setAttribute('aria-label', repsSay(r)); if (!$('input:not([switch])', box)) box.innerHTML = repsHTML(r); }
 }
 function stepReps(d) {
   const t = dockTarget(); if (!t) return;
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).reps : curReps(t.e, t.i, s);
   setReps(Math.max(1, (cur || 0) + d));
+  const r = $('#dkReps'); if (r) srSay(r.getAttribute('aria-label').split(',')[0]);
 }
 /* a tap on a number turns it into a field; leaving the field or Enter keeps the value */
 function typeIn(box, id, label, mode, val, done) {
@@ -3415,8 +3445,7 @@ function logSet(el) {
 }
 function writeRow(e, i, kg, reps) {
   kg = capKg(kg); reps = capReps(reps) || 1;
-  const s = ensure(wkOf(e.id)), L = LIB[e.mv], T = targetOf(e, i, s), before = bestFor(e.mv, { notS: s.id }), today = bestFor(e.mv, { onlyS: s.id, skipEx: e.id, skipI: i }), arr = s.sets[e.id] || (s.sets[e.id] = []);
-  const v = kg != null && kg > 0 ? score(L, kg, reps) : 0, pr = !s.dl && !!(before && v > before.v + 0.01 && (!today || v > today.v + 0.01));
+  const s = ensure(wkOf(e.id)), T = targetOf(e, i, s), arr = s.sets[e.id] || (s.sets[e.id] = []), pr = isPr(s, e.id, e.mv, i, kg, reps);
   arr[i] = { kg: kg == null ? null : kg, reps, done: true, t: Date.now() }; if (pr) arr[i].pr = true;
   if (T) { arr[i].tk = T.kg == null ? null : T.kg; arr[i].tr = T.reps; }
   touch(s); return pr;
@@ -3433,7 +3462,7 @@ function commitSet(e, i, kg, reps) {
   e = list.find((x) => x.id === e.id);
   sfx(pr ? 'pr' : 'set'); if (pr) haptic('pr'); flyPoints($('#dkHit'), XP.set + (pr ? XP.pr : 0));
   S.justDone = { ex: e.id, i, t: Date.now() };
-  S.draft = null; refreshEx(e); renderTabs(); renderHistory(); renderPre();
+  S.draft = null; refreshEx(e); renderTabs(); renderHistory(); renderPre(); markLive();
   renderMe(); bump(lv0);
   S.why = false;
   if (!left(e)) askFb(e, s);
@@ -3445,10 +3474,11 @@ function commitSet(e, i, kg, reps) {
   } else { nxt = list.slice(list.indexOf(e) + 1).find(left) || list.find(left); const id = nxt.id; label = () => { const x = findEx(id); return x ? x.nm : ''; }; }
   startRest(e.rest[0], e.rest[1], label, { ex: e.id, i, kg, reps, pr });
   /* the exercise is finished: the next one slides in while the rest runs */
-  if (nxt !== e) setTimeout(() => { if (S.tab === wkOf(nxt.id) && S.open === e.id) openEx(nxt.id, true, 1); }, 750);
+  clearTimeout(S.slideT);
+  if (nxt !== e) S.slideT = setTimeout(() => { const L = rest.last; if (rest.on && L && L.ex === e.id && L.i === i && !left(e) && S.tab === wkOf(nxt.id) && S.open === e.id) { openEx(nxt.id, true, 1); renderDock(); } }, 750);
 }
 function clearRow(e, i) { const s = live(wkOf(e.id)); if (!s) return; const arr = s.sets[e.id] || (s.sets[e.id] = []); arr[i] = { kg: null, reps: null, done: false, t: Date.now() }; touch(s); }
-function afterEdit(e) { refreshEx(e); renderMe(); renderTabs(); renderHistory(); renderDock(); }
+function afterEdit(e) { refreshEx(e); renderMe(); renderTabs(); renderHistory(); renderDock(); markLive(); }
 /* log every remaining set of an exercise exactly at its target */
 function fillTargets(e) {
   const s = ensure(S.tab), lv0 = S.lvl;
@@ -3475,7 +3505,7 @@ function tickRest() {
   $('#rtState').innerHTML = '<b>' + (rest.ended ? say('קדימה', 'Go') : rest.minHit ? say('אפשר להתחיל', 'Ready when you are') : say('מנוחה', 'Rest')) + '</b><span>' + say('הבא: ', 'Next: ') + esc(rest.label ? rest.label() : '') + '</span>';
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
 }
-function stopRest() { clearInterval(rest.iv); rest.on = false; rest.last = null; renderDock(); refreshOpenSets(); }
+function stopRest() { clearTimeout(S.slideT); clearInterval(rest.iv); rest.on = false; rest.last = null; renderDock(); refreshOpenSets(); }
 function nudgeRest(d) {
   if (!rest.on) return;
   rest.max = Math.max(5, rest.max + d); rest.min = Math.min(rest.min, rest.max);
@@ -3484,7 +3514,7 @@ function nudgeRest(d) {
 }
 function undoLast() {
   const L = rest.last, e = L && findEx(L.ex); if (!e) return;
-  clearRow(e, L.i); clearInterval(rest.iv); rest.on = false; rest.last = null;
+  clearTimeout(S.slideT); clearRow(e, L.i); clearInterval(rest.iv); rest.on = false; rest.last = null;
   if (S.fbFor === e.id) S.fbFor = null;
   if (S.tab === wkOf(e.id) && S.open !== e.id) openEx(e.id, false);
   afterEdit(e);
@@ -3536,8 +3566,9 @@ function finishWorkout() {
   s.end = Date.now(); s.mt = s.end; touch(s); letSleep();
   S.edit = null; S.draft = null; S.resetAsk = false; S.open = null; S.fbFor = null; S.preSkip = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; S.tab = nextUp().next;
   /* the level this workout started from: everything counted so far, without its own points */
-  const y = tally(s), got = meSync(), P = meNow(), R = { y, from: levelOf(P.T.xp - y.xp), to: P.L, got };
-  setView('home', true); renderAll();
+  const y = tally(s), got = meSync(), P = meNow(), was = (S.reopened && S.reopened[s.id]) || 0, R = { y, from: levelOf(P.T.xp - y.xp + was), to: P.L, got };
+  if (S.reopened) delete S.reopened[s.id];
+  setView('home', true); renderAll(); S.sumAt = Date.now();
   const M = S.cfg.meso;
   if (s.m === M.id && mesoDone(M)) showMesoSummary(M.id, s, R);
   else if (s.m === M.id && !s.dl && !M.early && M.asked !== s.id && fatigued()) { M.asked = s.id; saveCfg(); showDeloadOffer(s, R); }
@@ -3591,6 +3622,7 @@ function editorInput(rowEl) {
   const exId = rowEl.dataset.ex, i = +rowEl.dataset.i, arr = s.sets[exId] || (s.sets[exId] = []), row = arr[i] || (arr[i] = { kg: null, reps: null, done: false });
   const kg = num($('[data-k="kg"]', rowEl).value), reps = num($('[data-k="reps"]', rowEl).value, true);
   row.kg = capKg(kg); row.reps = capReps(reps); row.done = row.reps != null; row.t = Date.now(); delete row.pr;
+  const pe = planEx(exId); if (pe && row.done && isPr(s, exId, moveOf(pe, s), i, row.kg, row.reps)) row.pr = true;
   rowEl.classList.toggle('on', row.done); touch(s);
 }
 function editorDate(val) {
@@ -3605,6 +3637,9 @@ function editorDate(val) {
 function editorReopen() {
   const s = S.sessions[S.edSid]; if (!s || live(s.w)) return;
   s.end = 0; s.mt = Date.now(); touch(s);
+  /* what the workout had brought when it was reopened: finishing it again counts only what is added after this */
+  (S.reopened || (S.reopened = {}))[s.id] = tally(s).xp;
+  if (s.w !== S.tab) leaveWorkout();
   S.tab = s.w; S.touched = true; S.open = null; S.edSid = null; S.edDel = false; S.sheet = null; setView('workout', true);
   const sh = $('#sheet'); sh.hidden = true; sh.innerHTML = '';
   renderAll();
@@ -3613,7 +3648,7 @@ function editorReopen() {
 async function exportCsv() {
   if (!S.dl) return;
   const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', lines = ['date,workout,exercise,set,kg,reps,week,deload,rir,target_kg,target_reps'];
-  for (const s of sorted().reverse()) for (const e of exList(s.w, s)) rowsOf(s, e.id).forEach((r, i) => { if (isDone(r)) lines.push([new Date(s.ts).toISOString().slice(0, 10), q(PLAN[s.w].name), q(e.name), i + 1, r.kg == null ? '' : r.kg, r.reps == null ? '' : r.reps, s.wk || '', s.dl ? 1 : '', s.rir == null ? '' : s.rir, r.tk == null ? '' : r.tk, r.tr == null ? '' : r.tr].join(',')); });
+  for (const s of sorted().reverse()) for (const e of exList(s.w, s)) rowsOf(s, e.id).forEach((r, i) => { if (isDone(r)) lines.push([isoDay(new Date(s.ts)), q(PLAN[s.w].name), q(e.name), i + 1, r.kg == null ? '' : r.kg, r.reps == null ? '' : r.reps, s.wk || '', s.dl ? 1 : '', s.rir == null ? '' : s.rir, r.tk == null ? '' : r.tk, r.tr == null ? '' : r.tr].join(',')); });
   try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') { S.dl = null; renderBackup(); } }
 }
 function onRemoteChange() {
@@ -3627,7 +3662,26 @@ function onRemoteChange() {
 function startTab() { S.open = null; renderList(); renderDock(); }
 
 /* ================================================================== wiring */
+/* a click that redraws what it is in puts the keyboard back where it was: on the same control in the new drawing, or on the first one
+   in its place, so a keyboard or screen-reader user is not sent back to the top of the page */
+function holdFocus(box) {
+  const keyOf = (a) => (a.id ? '#' + CSS.escape(a.id) : Array.from(a.attributes).filter((x) => /^data-/.test(x.name)).map((x) => '[' + x.name + '="' + CSS.escape(x.value) + '"]').join(''));
+  box.addEventListener('click', () => {
+    const a = document.activeElement; if (!a || a === box || !box.contains(a)) return;
+    const key = keyOf(a);
+    /* the redraw may come a moment later (a set is logged after its tap has been shown): watch for it for a second */
+    const put = () => {
+      const now = document.activeElement;
+      if ((now && now !== document.body && document.contains(now)) || box.hidden || !box.getClientRects().length) return;
+      const el = (key && box.querySelector(key)) || box.querySelector('#rtSkip,.hit,.btn.primary:not([disabled])') || box.querySelector('button:not([disabled]),[tabindex="0"],input,textarea');
+      if (el) try { el.focus({ preventScroll: true }); } catch (e) { /* not focusable here */ }
+    };
+    const mo = new MutationObserver(put); mo.observe(box, { childList: true, subtree: true });
+    setTimeout(() => mo.disconnect(), 1000); setTimeout(put, 0);
+  }, true);
+}
 function wireApp() {
+  for (const id of ['#dock', '#sheet', '#ob']) holdFocus($(id));
   $('#tabbar').addEventListener('click', (ev) => {
     const b = ev.target.closest('button[data-view]'); if (!b) return;
     closeChat(); setView(b.dataset.view);
@@ -3681,20 +3735,22 @@ function wireApp() {
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
   dock.addEventListener('click', (ev) => {
     const t = ev.target, id = (t.closest('button,[role="button"]') || {}).id;
-    /* the second tap of a double tap on "set done" lands on the timer's buttons, which have just appeared in its place: it is not a wish to skip the rest */
-    if (rest.on && id && /^rt/.test(id) && Date.now() - rest.start < 250) return;
+    /* the second tap of a double tap lands on the controls that have just appeared in place of the first: on the timer's buttons after
+       "Set done", on "Set done" after Continue or Next exercise, on the questions after the last set. It is not meant for them */
+    const quick = (t0) => ev.detail !== 0 && Date.now() - (t0 || 0) < 250;
+    if ((rest.on && id && /^rt/.test(id) && quick(rest.start)) || (id === 'dkHit' && quick(S.hitAt)) || ((id === 'dkFinish' || t.closest('[data-fb]')) && quick(S.justDone && S.justDone.t))) return;
     const st = t.closest('.step,.rstep'); if (st) { if (ev.detail === 0) (st.classList.contains('rstep') ? stepReps : stepKg)(+st.dataset.d); return; }
     const fbBtn = t.closest('[data-fb]'); if (fbBtn) { onFb(fbBtn.closest('.fbk').dataset.ex, fbBtn.dataset.fb, +fbBtn.dataset.v); return; }
     const pa = t.closest('[data-painask]'); if (pa) { S.fbPain = pa.dataset.painask; renderDock(); return; }
     const sn = t.closest('[data-swapto]'); if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); return; }
     if (id === 'dkHit') { S.touched = true; logSet(t.closest('#dkHit')); }
-    else if (id === 'dkNext') { const n = nextOpen(); if (n) { S.touched = true; S.draft = null; openEx(n.id, true, 1); renderDock(); } }
+    else if (id === 'dkNext') { const n = nextOpen(); if (n) { S.touched = true; S.draft = null; openEx(n.id, true, 1); S.hitAt = Date.now(); renderDock(); } }
     else if (id === 'dkReps') typeReps();
     else if (id === 'fbSkip') skipFb();
     else if (id === 'dkKg') typeKg();
     else if (id === 'dkFinish') finishWorkout();
     else if (id === 'dkWhy') { S.why = !S.why; renderDock(); }
-    else if (id === 'rtSkip') stopRest();
+    else if (id === 'rtSkip') { S.hitAt = Date.now(); stopRest(); }
     else if (id === 'rtPlus') nudgeRest(15);
     else if (id === 'rtMinus') nudgeRest(-15);
     else if (id === 'rtUndo') undoLast();
@@ -3717,6 +3773,8 @@ function wireApp() {
   const sheet = $('#sheet');
   sheet.addEventListener('click', (ev) => {
     const id = (ev.target.closest('button') || {}).id;
+    /* a double tap on Finish: the second tap lands on the summary that has just opened, which must be seen */
+    if (ev.detail !== 0 && Date.now() - (S.sumAt || 0) < 400) return;
     if (ev.target === sheet || id === 'sheetClose' || id === 'edDone' || ev.target.closest('[data-close]')) { closeSheet(); return; }
     if (listSheetClick(ev, id) || exSheetClick(ev, id) || coachSheetClick(ev, id) || meSheetClick(ev)) return;
     if (id === 'edDelAsk' || id === 'edDelNo') { S.edDel = id === 'edDelAsk'; $('#edAct').innerHTML = editorActions(S.sessions[S.edSid]); }
@@ -3758,7 +3816,7 @@ function wireApp() {
   window.gymiBack = () => {
     if (!sheet.hidden) { if (S.sheet === 'meso' && S.msPage) { S.msPage = null; S.blEdit = null; renderMeso(); } else closeSheet(); return true; }
     if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }
-    if (OB.on) { if (OB.step > 0) { obStep(-1); return true; } return false; }
+    if (OB.on) { if (OB.step > 0) { obStep(-1); return true; } if (S.cfg.me.ob) { closeOb(); return true; } return false; }
     if (S.view !== 'home') { renderHome(); setView('home'); return true; }
     return false;
   };
@@ -3893,6 +3951,7 @@ function renderPre() {
   const box = $('#pre'), w = S.tab, s = live(w), mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
   const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore), on = mus.length > 0 && S.preSkip !== w && (left > 0 || !!S.preOpen);
   $('#app').classList.toggle('pre-on', on);
+  if (on && box.hidden) S.preAt = Date.now();
   box.hidden = !on;
   if (!on) { box.innerHTML = ''; S.preOpen = false; return; }
   if (!S.preOpen) {
@@ -4070,6 +4129,8 @@ function coachSheetChange(ev) {
 }
 function wireCoach() {
   $('#pre').addEventListener('click', (ev) => {
+    /* the second tap of a double tap on "Start workout" lands on the question that has just appeared: it is not an answer */
+    if (ev.detail !== 0 && Date.now() - (S.preAt || 0) < 400) return;
     const b = ev.target.closest('button'); if (!b) return;
     S.touched = true;
     if (b.dataset.mu) setSore(S.tab, b.dataset.mu, +b.dataset.v);
@@ -4269,7 +4330,7 @@ function planText() {
   return PLAN.map((w, i) => {
     const s = live(i), P = phase(i, s);
     return wkFull(i) + (P.m ? ' (' + (P.dl ? say('שבוע קל', 'easy week') : say('שבוע ' + P.wk + ' מתוך ' + S.cfg.weeks + ' בסבב', 'week ' + P.wk + ' of ' + S.cfg.weeks + ' in the round')) + ', ' + rirText(P.rir) + ')' : '') + ':\n' +
-      exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + say(e.he + ' (' + e.name + ')', e.name) + ': ' + e.n0 + say(' סטים × ', ' sets × ') + e.reps + (e.suf ? ' ' + e.suf : '') + say(' חזרות | מנוחה ', ' reps | rest ') + restPlain(e)).join('\n');
+      exList(i, s).map((e, j) => (j + 1) + '. [' + e.id + '] ' + say(e.he + ' (' + e.name + ')', e.name) + ': ' + e.n0 + say(' סטים × ', ' sets × ') + e.reps + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '') + say(' | מנוחה ', ' | rest ') + restPlain(e)).join('\n');
   }).join('\n\n');
 }
 /* what the opening screens learned about the lifter, for the coach */
@@ -4336,13 +4397,21 @@ const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'
   '  Use the exercise in the context if no other was named. Do not add the line if you were not asked to log, or if the number of reps is missing (then ask). Do not mention the line in the text.\n' +
   '- When there is no exact substitute, suggest one or two alternatives that are common in gyms.';
 /* the lock before anything is sent. Asking him to drop or to show his rules: */
-const LOCK = /התעל[םמ]\S*\s+מ(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)|שכח\s+(?:את\s+)?(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)|הוראות\s+ה?מערכת|פרומפט|(?:מה|מהן|תראה|הראה|הצג|תציג|תכתוב|כתוב|תדפיס|חשוף|תחשוף|צטט|תצטט)\s+(?:לי\s+)?(?:את\s+)?ה?(?:הוראות|הנחיות)\s+שלך|מצב\s+מפתח|ג[\u0027׳]?יילברייק|(?:בלי|ללא)\s+(?:שום\s+)?(?:מגבלות|הגבלות|צנזורה)|תעמיד\s+פנים|מעכשיו\s+אתה|אתה\s+כבר\s+לא\s+אילון|ignore\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|rules|prompts?|guidelines)|disregard\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|rules|prompts?|guidelines)|forget\s+(?:all\s+|the\s+|your\s+)?(?:previous\s+|prior\s+)?(?:instructions|rules)|system\s*prompt|(?:reveal|show|print|repeat|output|tell\s+me|what\s+are|what\s+is)\s+(?:me\s+)?your\s+(?:system\s+|initial\s+|original\s+)?(?:instructions|prompt|rules|guidelines)|(?:repeat|print|show|write)\s+(?:the\s+|all\s+)?(?:text|words|everything|message)\s+(?:above|before)|developer\s+mode|jail\s?break|\bDAN\b|do\s+anything\s+now|pretend\s+(?:to\s+be|you\s+are|you\u0027re|that\s+you)|you\s+are\s+now\s|from\s+now\s+on,?\s+you|(?:no|without\s+any|without)\s+(?:restrictions|filters|censorship)/i;
+const LOCK = /[הת]תעל[םמ]\S*\s+מ(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)(?!\s+(?:של|לגבי|בנוגע)\s)|שכח\S*\s+(?:את\s+|מ|על\s+)?(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)(?!\s+(?:של|לגבי|בנוגע)\s)|הוראות\s+ה?מערכת|פרומפט|(?:מה|מהן|תראה|הראה|הצג|תציג|תכתוב|כתוב|תדפיס|חשוף|תחשוף|צטט|תצטט|תרגם|תתרגם|סכם|תסכם|פרט|תפרט|תמנה|מנה|תן)\s+(?:לי\s+)?(?:את\s+)?(?:כל\s+)?ה?(?:הוראות|הנחיות|כללים)\s+(?:שלך|שקיבלת)(?=\s*(?:[?.!,:]|$|בבקשה|באנגלית|בעברית|לאנגלית|לעברית))|מצב\s+מפתח|ג[\u0027׳]?יילברייק|(?:תענה|ענה|תדבר|דבר|תהיה|היה|אתה|מצב|תכתוב|כתוב)\s+(?:\S+\s+)?(?:בלי|ללא)\s+(?:שום\s+)?(?:מגבלות|הגבלות|צנזורה)|(?:בלי|ללא)\s+(?:שום\s+)?צנזורה|תעמיד\s+פנים|מעכשיו\s+(?:אתה\s+)?(?:תהיה|תתנהג|תשחק|תעמיד)|מעכשיו\s+אתה\s+(?:לא\s+)?(?:אילון|בוט|עוזר|מודל|דמות|מישהו\s+אחר)|אתה\s+כבר\s+לא\s+אילון|ignore\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|rules|prompts?|guidelines)|disregard\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous\s+|prior\s+|above\s+)?(?:instructions|rules|prompts?|guidelines)|forget\s+(?:all\s+|the\s+|your\s+)?(?:previous\s+|prior\s+)?(?:instructions|rules)|system\s*prompt|(?:reveal|show|print|repeat|output|tell\s+me|what\s+are|what\s+is|translate|summari[sz]e|list|recite|paraphrase|give\s+me)\s+(?:me\s+)?(?:all\s+)?your\s+(?:system\s+|initial\s+|original\s+)?(?:instructions|prompt|rules|guidelines)(?!\s+(?:for|on|about|regarding|when|to|in\s+the\s+gym)\b)|(?:repeat|print|show|write)\s+(?:the\s+|all\s+)?(?:text|words|everything|message)\s+(?:above|before)|developer\s+mode|jail\s?break|do\s+anything\s+now|pretend\s+(?:to\s+be|you\s+are|you\u0027re|that\s+you)|you\s+are\s+now\s|from\s+now\s+on,?\s+you\s+(?:are|will\s+be|act|answer\s+as|respond\s+as|play|pretend)|(?:answer|respond|reply|talk|write|be|act|mode)\s+(?:\w+\s+)?(?:with\s+no|without(?:\s+any)?|no)\s+(?:restrictions|filters|censorship)|(?:without(?:\s+any)?|no)\s+(?:filters|censorship)/i;
 /* asking what he is, who made him, or naming what he may be built on: */
-const WHO = /claude|anthropic|open\s?ai|chat\s?gpt|\bgpt\b|gemini|\bllm\b|קלוד|אנת[\u0027׳]?רופיק|ג[\u0027׳]יפיטי|ג[\u0027׳]מיני|(?:איזה|איזו|מה)\s+ה?(?:מודל|בינה|טכנולוגיה)|(?:על\s+מה|ממה)\s+אתה\s+(?:בנוי|מבוסס|רץ|עשוי)|מי\s+(?:יצר|בנה|פיתח|תכנת|המציא|עשה)\s+אותך|מי\s+ה?(?:בעלים|יוצר|מפתח)\s+שלך|^\s*מי\s+אתה\s*[?.!]*\s*$|אתה\s+(?:בן\s*אדם|אנושי|אדם\s+אמיתי|רובוט|בוט|בינה\s+מלאכותית)(?![א-ת])|אתה\s+ai\b|what\s+(?:model|llm|ai|technology)\s+(?:are|is|do)|which\s+(?:model|llm|ai)\b|(?:built|based|running|run)\s+on\s+(?:what|which)|who\s+(?:made|created|built|owns|developed|programmed)\s+you|who(?:\u0027s|\s+is)\s+your\s+(?:creator|owner|developer|maker)|^\s*who\s+are\s+you\s*[?.!]*\s*$|are\s+you\s+(?:an?\s+)?(?:ai|human|real\s+person|robot|bot|machine)\b/i;
-const guard = (t) => (LOCK.test(t) ? 'off_topic' : WHO.test(t) ? 'who' : '');
+const WHO = /claude|anthropic|open\s?ai\b|chat\s?gpt|\bgpt\b|gemini|\bllm\b|קלוד|אנת[\u0027׳]?רופיק|ג[\u0027׳]יפיטי|ג[\u0027׳]מיני|(?<![א-ת])(?:איזה|איזו|מה)\s+ה?(?:מודל|בינה|טכנולוגיה)\s+(?:אתה|את|שלך|מפעיל(?:ה)?\s+אותך|עומד(?:ת)?\s+מאחוריך)|(?:על\s+מה|ממה)\s+אתה\s+(?:בנוי|מבוסס|רץ|עשוי)|מי\s+(?:יצר|בנה|פיתח|תכנת|המציא|עשה)\s+אותך|מי\s+ה?(?:בעלים|יוצר|מפתח)\s+שלך|^\s*מי\s+אתה\s*[?.!]*\s*$|אתה\s+(?:בן\s*אדם|אנושי|אדם\s+אמיתי|רובוט|בוט|בינה\s+מלאכותית)(?![א-ת])|אתה\s+ai\b|what\s+(?:model|llm|ai|technology)\s+(?:are\s+you|do\s+you|powers\s+you|runs\s+you|is\s+behind\s+you|is\s+this\s+(?:chat|coach|bot))|which\s+(?:model|llm|ai)\s+(?:are\s+you|do\s+you|powers\s+you|runs\s+you)|(?:are|were)\s+you\s+(?:built|based|running|run)\s+on|what\s+are\s+you\s+(?:built|based|running|run)\s+on|who\s+(?:made|created|built|owns|developed|programmed)\s+you|who(?:\u0027s|\s+is)\s+your\s+(?:creator|owner|developer|maker)|^\s*who\s+are\s+you\s*[?.!]*\s*$|are\s+you\s+(?:an?\s+)?(?:ai|human|real\s+person|robot|bot|machine)\b/i;
+/* the text as it is meant: compatibility forms folded, invisible characters out, curly apostrophes straight, look-alike letters to Latin */
+const HOMO = { 'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'у': 'y', 'х': 'x', 'і': 'i', 'ѕ': 's', 'ј': 'j', 'ԁ': 'd', 'һ': 'h', 'ӏ': 'l', 'А': 'A', 'Е': 'E', 'О': 'O', 'Р': 'P', 'С': 'C', 'Т': 'T', 'Х': 'X', 'І': 'I', 'ο': 'o', 'ε': 'e', 'α': 'a', 'ι': 'i', 'ν': 'v', 'ρ': 'p' };
+const norm = (t) => String(t || '').normalize('NFKC').replace(/[\u00AD\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF]/g, '').replace(/[\u2018\u2019\u02BC\u05F3]/g, "'").replace(/[аеорсухіѕјԁһӏАЕОРСТХІοεαινρ]/g, (c) => HOMO[c] || c);
+/* the lifter's own name is theirs to type, and his to say back */
+const noName = (t) => { const n = S.cfg.me.name; return n && n.length > 1 ? t.split(n).join(' ') : t; };
+const guard = (t) => { t = noName(norm(t)); return LOCK.test(t) || /\bDAN\b/.test(t) ? 'off_topic' : WHO.test(t) ? 'who' : ''; };
 /* what must never come back in an answer: what he is built on, and the mark of his rules */
-const LEAK = /claude|anthropic|open\s?ai|chat\s?gpt|\bgpt\b|gemini|קלוד|אנת[\u0027׳]?רופיק|ג[\u0027׳]יפיטי|system\s*prompt|הוראות\s+ה?מערכת/i;
-const leaks = (t) => LEAK.test(t || '') || (t || '').includes(MARK);
+const LEAK = /claude|anthropic|open\s?ai\b|chat\s?gpt|\bgpt\b|gemini|קלוד|אנת[\u0027׳]?רופיק|ג[\u0027׳]יפיטי|system\s*prompt|הוראות\s+ה?מערכת/i;
+/* pieces of every paragraph of his rules: an answer that carries one is quoting them */
+let ruleBits = null;
+const bits = () => ruleBits || (ruleBits = (rulesHe() + '\n' + rulesEn()).split(/\n+/).map((p) => p.trim()).filter((p) => p.length >= 80).flatMap((p) => [0.1, 0.45, 0.8].map((f) => p.slice(Math.floor(p.length * f), Math.floor(p.length * f) + 36))));
+const leaks = (t) => { t = norm(t); return LEAK.test(noName(t)) || t.includes(MARK) || bits().some((b) => t.includes(b)); };
 const rules = () => (LANG === 'en' ? rulesEn() : rulesHe());
 /* every fixed text of the chat by its code, in the language of the page. The codes are what is kept, so that a
    message that is already on screen follows a change of language */
@@ -4354,6 +4423,8 @@ const ERR = () => ({
   image_rejected: say('לא הצלחתי לשלוח את התמונה. נסה לצלם שוב או לבחור תמונה אחרת.', 'The photo could not be sent. Take it again or choose another one.'),
   images_unavailable: say('אי אפשר לשלוח תמונות בתצוגה הזאת. תאר את המכשיר במילים.', 'Photos cannot be sent in this view. Describe the machine in words.'),
   refused: say('אילון לא ענה על השאלה הזאת. נסה לנסח אותה אחרת.', 'Eilon did not answer this question. Try wording it differently.'),
+  not_logged: say('שום סט לא נרשם: התרגיל כבר הושלם, או שהמספרים מחוץ לטווח. אפשר לרשום אותו בעצמך באימון.', 'No set was logged: the exercise is already complete, or the numbers are out of range. You can log it yourself in the workout.'),
+  api_error: say('Anthropic לא קיבל את הבקשה.', 'Anthropic did not accept the request.'),
   empty_completion: say('לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.', 'No answer came back. Try a shorter question.'),
   prompt_too_large: say('השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.', 'The conversation is too long. Start a new chat and try again.'),
   upstream_error: say('התקשורת נקטעה. נסה לשלוח שוב.', 'The connection dropped. Try sending again.'),
@@ -4398,7 +4469,7 @@ function fmtText(text) {
 function msgHTML(m, idx) {
   if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(ctxName(m.ctx)) + '</span>' : '') + '</div></div>';
   const text = m.code ? errText(m.code) : stripCmd(m.text || ''), face = '<span class="ava sm" aria-hidden="true">' + coachFace() + '</span>';
-  if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + say('נרשם.', 'Logged.') + '</span>') + loggedHTML(m, idx) + '</div></div>';
+  if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + (m.logged ? say('נרשם.', 'Logged.') : esc(errText(m.note || 'empty_completion'))) + '</span>') + loggedHTML(m, idx) + '</div></div>';
   const v = splitVerdict(text, !m.live);
   return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(errText(m.note)) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
 }
@@ -4420,7 +4491,7 @@ function renderMsgs() {
   if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
     box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('שאל, צלם מכשיר, או כתוב מה עשית ואני ארשום.', 'Ask, snap a machine, or tell me what you did and I will log it.') + '</span><div class="sugs">' +
-      SUGS().map((s, i) => '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>').join('') + '</div></div>';
+      SUGS().map((s, i) => (i === 1 && !chat.canImg ? '' : '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>')).join('') + '</div></div>';
     return;
   }
   box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
@@ -4458,7 +4529,7 @@ function ctxLine() {
   if (e) {
     const w = wkOf(id);
     const cur = live(w), rir = rirOf(e, cur), fu = firstUndone(cur, e), T = fu >= 0 ? targetOf(e, fu, cur) : null, pe = planEx(id);
-    t += say(' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ', ' The question is about the exercise [' + e.id + '] "' + e.name + '" (' + wkOrd(w) + '): ') + e.n0 + say(' סטים × ', ' sets × ') + e.reps + (e.suf ? ' ' + e.suf : '') + say(' חזרות, מנוחה ', ' reps, rest ') + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
+    t += say(' השאלה מתייחסת לתרגיל [' + e.id + '] "' + e.he + '" (' + e.name + ', ' + wkOrd(w) + '): ', ' The question is about the exercise [' + e.id + '] "' + e.name + '" (' + wkOrd(w) + '): ') + e.n0 + say(' סטים × ', ' sets × ') + e.reps + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '') + say(', מנוחה ', ', rest ') + restPlain(e) + (rir == null ? '' : ', ' + rirText(rir)) + '.';
     if (T) t += say(' היעד לסט הבא (סט ' + (fu + 1) + '): ', ' The target for the next set (set ' + (fu + 1) + '): ') + fmtRow(T) + '.';
     const hist = sorted().filter((s) => s.w === w && moveOf(pe, s) === e.mv && rowsOf(s, id).some(isDone)).slice(0, 3);
     if (hist.length) t += say(' ביצועים אחרונים (ק״ג×חזרות): ', ' Recent results (kg×reps): ') + hist.map((s) => (s.end ? ago(s.ts) : say('באימון הנוכחי', 'in the current workout')) + ': ' + rowsOf(s, id).filter(isDone).map(fmtRow).join(', ')).join(' | ') + '.';
@@ -4469,8 +4540,8 @@ function ctxLine() {
 /* a reply may carry one "@@LOG {...}" line: sets to write into today's log */
 function applyLog(text) {
   const m = text.match(/^[ \t]*@@LOG\s*(\{.*\})\s*$/m); if (!m) return null;
-  let o; try { o = JSON.parse(m[1]); } catch (e) { return null; }
-  const e = o && findEx(String(o.ex || '')); if (!e || !Array.isArray(o.sets)) return null;
+  let o; try { o = JSON.parse(m[1]); } catch (e) { return { none: true }; }
+  const e = o && findEx(String(o.ex || '')); if (!e || !Array.isArray(o.sets)) return { none: true };
   const w = wkOf(e.id), idx = [], lv0 = S.lvl;
   for (const p of o.sets.slice(0, 40)) {
     if (!Array.isArray(p)) continue;
@@ -4482,7 +4553,7 @@ function applyLog(text) {
     if (i < 0) break;
     writeRow(e, i, kg, reps); idx.push(i);
   }
-  if (!idx.length) return null;
+  if (!idx.length) return { none: true };
   S.touched = true; if (w === S.tab) { S.draft = null; if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
   renderAll(); bump(lv0); keepAwake();
   return { ex: e.id, name: e.nm, idx, sid: live(w).id };
@@ -4504,7 +4575,7 @@ async function sendChat(preset) {
   /* the lock: answered here, with a fixed line. Nothing is sent and nothing joins the conversation the model sees */
   const lock = guard(text);
   if (lock) { chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.id }, { role: 'a', text: '', code: lock }); clear(); renderMsgs(); return; }
-  setBusy(true);
+  setBusy(true); chat.sentAt = Date.now();
   chat.msgs.push({ role: 'u', text, imgUrl: img ? imgUrl : '', hadImg: !!img, ctx: ctx.id });
   const reply = { role: 'a', text: '', live: true }; chat.msgs.push(reply);
   chat.turns.push({ role: 'user', content: ctx.text + '\n\n' + text + (img ? say('\n\n[להודעה הזאת צורפה תמונה אחת]', '\n\n[One photo is attached to this message]') : '') });
@@ -4513,7 +4584,7 @@ async function sendChat(preset) {
   /* an answer that names what he is built on, or quotes his rules, is dropped whole, and so is the question that drew it */
   let leak = false;
   const seal = () => { leak = true; reply.text = ''; reply.code = 'off_topic'; reply.live = false; reply.note = ''; };
-  const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); inp.value = typed; if (img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
+  const undo = () => { chat.turns.pop(); chat.msgs.splice(chat.msgs.length - 2, 2); if (!inp.value.trim()) inp.value = typed; if (img && !chat.img) { chat.img = img; chat.imgUrl = imgUrl; $('#attach').hidden = false; $('#attachImg').src = imgUrl; } renderMsgs(); };
   let sample = null;
   try { sample = await chat.sampleP; } catch (e) { sample = null; }
   if (!mine()) return;
@@ -4526,18 +4597,19 @@ async function sendChat(preset) {
     const res = await sample([{ role: 'user', content: rules() }].concat(chat.turns.slice(-9)), opts);
     if (!mine()) return;
     if (leak || leaks(res.text)) { seal(); chat.turns.pop(); renderMsgs(); return; }
+    if (!String(res.text || '').trim()) { undo(); compNote(errText(res.truncated ? 'cut' : 'empty_completion')); return; }
     reply.text = res.text; reply.live = false; if (res.truncated) reply.note = 'cut';
     /* the stop word: alone it is the whole answer, after an answer it says that part of the question was left out */
     if (/^[ \t]*@@NO\b/m.test(res.text)) { if (stripCmd(res.text)) reply.note = 'off_part'; else reply.code = 'off_topic'; }
     chat.turns.push({ role: 'assistant', content: res.text });
-    const lg = res.truncated || reply.code ? null : applyLog(res.text); if (lg) reply.logged = lg;
+    const lg = res.truncated || reply.code ? null : applyLog(res.text); if (lg && lg.none) reply.note = 'not_logged'; else if (lg) reply.logged = lg;
     renderMsgs();
   } catch (e) {
     if (!mine()) return;
     if (leak) { chat.turns.pop(); renderMsgs(); return; }
     const code = (e && e.code) || 'upstream_error', part = e && e.text && stripCmd(e.text);
     if (code === 'no_key') { undo(); window.gymiCoach(false); }
-    else if (code === 'api_error' && e.message) { undo(); compNote('Anthropic: ' + String(e.message).slice(0, 200)); }
+    else if (code === 'api_error' && e.message) { undo(); const mm = String(e.message).match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)"/); let why = ''; try { why = mm ? JSON.parse('"' + mm[1] + '"') : ''; } catch (x) { why = ''; } compNote(errText('api_error') + (why ? ' (' + why.slice(0, 160) + ')' : '')); }
     else if (HIDE.includes(code)) { undo(); chat.off = isErr(code) ? code : 'view'; renderMsgs(); }
     else if (part && code !== 'refused') { reply.text = part; reply.live = false; reply.note = isErr(code) ? code : 'upstream_error'; chat.turns.push({ role: 'assistant', content: part }); paintLast(); }
     else { undo(); if (code !== 'cancelled') compNote(errText(isErr(code) ? code : 'upstream_error')); if (code === 'images_unavailable') { chat.canImg = false; showImgBtns(); setAttach(null); chatText(); } }
@@ -4573,13 +4645,27 @@ function initChat() {
   }).catch(() => {});
   renderMsgs();
 }
+/* what the full-screen chat covers on a phone: the page and the bar of sets, and the top of the page except the tab bar */
+const behindChat = () => Array.from($('.brand').children).filter((el) => el.id !== 'tabbar').concat([$('main'), $('#dock')]).filter(Boolean);
 function openChat(exId) {
   fillCtx();
   if (exId) $('#chatCtx').value = exId;
   $('#chat').classList.add('open'); $('#app').classList.add('chat-on');
-  if (!matchMedia('(min-width:1000px)').matches) document.body.style.overflow = 'hidden'; else $('#chatInput').focus();
+  if (!matchMedia('(min-width:1000px)').matches) {
+    document.body.style.overflow = 'hidden';
+    /* the tab bar stays in reach under it, as it stays in sight */
+    $('#chat').setAttribute('role', 'dialog'); chat.modal = true;
+    for (const el of behindChat()) el.inert = true;
+  }
+  $('#chatInput').focus();
 }
-function closeChat() { $('#chat').classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = ''; }
+function closeChat() {
+  const c = $('#chat'), was = !!chat.modal; chat.modal = false;
+  c.classList.remove('open'); $('#app').classList.remove('chat-on'); document.body.style.overflow = '';
+  c.removeAttribute('role');
+  for (const el of behindChat()) el.inert = false;
+  if (was) { const o = $('#chatOpen'); if (o) o.focus({ preventScroll: true }); }
+}
 function wireChat() {
   $('#chatOpen').addEventListener('click', () => openChat(S.view === 'workout' ? S.open : null));
   $('#chatClose').addEventListener('click', closeChat);
@@ -4587,12 +4673,13 @@ function wireChat() {
   /* the phone app calls this after a key was saved or removed */
   window.gymiCoach = (on) => { window.GYMI_COACH = !!on; initChat(); };
   $('#chatNew').addEventListener('click', () => { chat.gen++; if (chat.ctl) chat.ctl.abort(); chat.ctl = null; chat.msgs = []; chat.turns = []; setAttach(null); compNote(''); setBusy(false); renderMsgs(); });
-  $('#sendBtn').addEventListener('click', () => sendChat());
+  /* while he answers the button stops him, but not on the second tap of a double tap on Send */
+  $('#sendBtn').addEventListener('click', () => { if (chat.busy && Date.now() - (chat.sentAt || 0) < 400) return; sendChat(); });
   const inp = $('#chatInput');
-  inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); sendChat(); } });
+  inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); if (!chat.busy) sendChat(); } });
   inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.height = Math.min(120, inp.scrollHeight + 2) + 'px'; });
   $('#msgs').addEventListener('click', (ev) => {
-    const b = ev.target.closest('.sug'); if (b) { sendChat(SUGS()[+b.dataset.sug]); return; }
+    const b = ev.target.closest('.sug'); if (b) { if (+b.dataset.sug === 1) { $('#chatInput').value = SUGS()[1]; $('#camFile').click(); } else sendChat(SUGS()[+b.dataset.sug]); return; }
     const u = ev.target.closest('[data-unlog]'); if (u) undoLog(+u.dataset.unlog);
     if (ev.target.closest('#coachKey') && window.gymiNative) window.gymiNative.key();
   });

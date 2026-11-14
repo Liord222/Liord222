@@ -60,6 +60,10 @@ const obWalk = async (pg, a, to, seen) => {
 };
 /* the question about today's length, when it is asked: answered with the whole workout */
 const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t) { await pg.waitForTimeout(130); await t.click(); await pg.waitForTimeout(320); } };
+/* the tour that follows the opening, left by its corner button */
+const noTour = async (pg) => { await pg.waitForSelector('#tourSkip', { timeout: 5000 }); await pg.waitForTimeout(150); await pg.click('#tourSkip'); await pg.waitForTimeout(250); };
+/* what steers the round is folded away on the first page of the plan: this unfolds it */
+const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { await pg.click('#msAdv'); await pg.waitForTimeout(250); } };
 (async () => {
   const b = await chromium.launch();
   /* the log: three weeks of the four workouts, every set done, each exercise rated */
@@ -83,7 +87,7 @@ const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t
   check('the language of the settings wins over the language of the phone', (await p.evaluate(() => [LANG, document.documentElement.dir, document.documentElement.lang, document.querySelector('#app').dir].join())) === 'en,ltr,en,ltr', await p.evaluate(() => LANG));
   const home = await txt('#home');
   check('today is in English', home.includes('Hi, Sam') && home.includes('Level ') && home.includes('Workout 1') && home.includes('Upper Body A') && home.includes('8 exercises') && home.includes('Start workout') && home.includes('This week') && !home.includes(' of 5') && home.includes('Plan'), home);
-  check('the tabs are in English', (await txt('#tabbar')).replace(/\s+/g, ' ').trim() === 'Workouts Profile Eilon', await txt('#tabbar'));
+  check('the tabs are in English', (await txt('#tabbar')).replace(/\s+/g, ' ').trim() === 'Workouts Journey Profile Eilon', await txt('#tabbar'));
   check('the week path uses the short English names', (await txt('#tabs')).replace(/\s+/g, ' ').includes('Upper A') && (await txt('#tabs')).includes('Lower B') && (await p.getAttribute('#tabs .tab[data-tab="0"]', 'aria-label')) === 'Workout 1 – Upper Body A, next', await txt('#tabs'));
   check('arrows that mean "onward" point right', (await p.evaluate(() => getComputedStyle(document.querySelector('#planBtn .i.dir')).transform)) === 'matrix(-1, 0, 0, 1, 0, 0)', 'transform');
   await clean('today'); await snap(p, 'en1-home', true);
@@ -177,9 +181,15 @@ const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t
   await clean('adding an exercise');
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#sheet [data-msp=""]'); await p.waitForTimeout(250);
+  const ms0 = await txt('#sheet');
+  check('the plan opens as one short screen, in English', ms0.includes('Your plan') && ms0.includes('Four workouts') && ms0.includes('Tap a workout to add, swap or remove exercises.') && ms0.includes('Lower Body B') && /\d exercises · \d\d min/.test(ms0) && ms0.includes('Advanced settings') && (await p.$$('#sheet .pl-card')).length === 4 && !(await p.$('#sheet .m-row, #sheet select, #sheet .vol-row, #sheet .bl-row')) && (await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); return el.scrollHeight <= el.clientHeight + 1; })), ms0);
+  await clean('the plan, folded'); await snap(p, 'en8a-plan', true);
+  /* a set is taken off the calves, so that the plan has something to say about a muscle */
+  await p.click('#sheet [data-msw="1"]'); await p.waitForTimeout(250); await p.click('#sheet [data-base="la5"][aria-label="One set less"]'); await p.waitForTimeout(200); await p.click('#sheet [data-msp=""]'); await p.waitForTimeout(250);
+  check('a muscle taken out of its range is marked on the folded plan with a quiet dot', !!(await p.$('#msAdv .pl-dot')) && (await p.getAttribute('#msAdv .pl-dot', 'title')) === 'Something to look at', await txt('#msAdv'));
+  await adv(p);
   const ms = await txt('#sheet');
   check('the plan is in English', ms.includes('Round 1') && ms.includes('Week 4 of 5') && ms.includes('To failure') && ms.includes('Easy week') && ms.includes('Lower Body B') && /\d exercises/.test(ms) && ms.includes('Sets a week by muscle') && ms.includes('muscle out of range') && ms.includes('Weight step') && ms.includes('Weeks in a round') && ms.includes('Summary of this round') && ms.includes('Easy week now') && ms.includes('New round'), ms.slice(0, 500));
-  check('the plan opens as one short screen', (await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); return el.scrollHeight <= el.clientHeight + 1; })) && (await p.$$('#sheet .m-row')).length === 8 && !(await p.$('#sheet select, #sheet .vol-row, #sheet .bl-row')), (await p.$$('#sheet .m-row')).length);
   await clean('the plan'); await snap(p, 'en8-plan', true);
   await p.click('#sheet [data-msp="vol"]'); await p.waitForTimeout(250);
   check('the volume bars are read out in English', /^[A-Z][a-z ]+: [\d.]+ sets a week\. Suggested range: \d+ to \d+$/.test(await p.getAttribute('#sheet .vol-bar', 'aria-label')) && (await txt('#sheet')).includes('The light band is the suggested range.') && (await txt('#sheet')).includes('Below the minimum'), await p.getAttribute('#sheet .vol-bar', 'aria-label'));
@@ -316,6 +326,12 @@ const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t
   await obWalk(p, { name: 'Ann', exp: 1, goals: [0, 1], time: 45, eq: 2 }, 'done', async (k) => { seenOb.push(k); const h = await hebOn(p); if (h.length) bad.push('Hebrew on opening screen ' + k + ' -> ' + JSON.stringify(h)); if (k === 'film' || k === 'exp' || k === 'look-hair' || k === 'plan' || k === 'done') await snap(p, 'en19-ob-' + k); });
   check('every screen of the opening was seen in English', seenOb.join() === 'film,name,exp,goals,time,eq,look-hair,look-hc,look-beard,look-shirt,look-skin,build,plan,pin,done', seenOb.join());
   await p.click('#obNext'); await p.waitForTimeout(400);
+  /* the tour that follows speaks English too, step by step */
+  await p.waitForSelector('#tourNext'); await p.waitForTimeout(900); await snap(p, 'en19-tour');
+  const tourSaid = [];
+  for (let i = 0; i < 6; i++) { tourSaid.push(await txt('#tourText')); const h = await hebOn(p); if (h.length) bad.push('Hebrew in the tour, step ' + i + ' -> ' + JSON.stringify(h)); if (i < 5) { await p.click('#tourNext'); await p.waitForTimeout(500); } }
+  check('the tour is in English: six steps, a way to skip, and a last button that starts', tourSaid.length === 6 && new Set(tourSaid).size === 6 && tourSaid[0].includes('Your workouts live here') && tourSaid[5].includes('I\'m always here') && (await txt('#tourSkip')) === 'Skip' && (await txt('#tourNext')) === 'Let\'s go!' && (await p.getAttribute('#tour', 'aria-label')) === 'A short tour of the app', tourSaid);
+  await p.click('#tourNext'); await p.waitForTimeout(400);
   check('after the opening screens the app is in English', (await p.isHidden('#ob')) && (await p.evaluate(() => (document.querySelector('#home').innerText || '').includes('Hi, Ann'))) && (await hebOn(p)).length === 0, await hebOn(p));
   await p.context().close();
 

@@ -116,9 +116,10 @@ t('bad input is level 1', () => [G.levelOf(-5).lvl, G.levelOf(NaN).lvl, G.levelO
 t('each of the first four workouts raises the level', () => { let xp = 0; return PLAN.map((w) => { xp += w.ex.reduce((n, e) => n + e.sets, 0) * G.XP.set + G.XP.done; return G.levelOf(xp).lvl; }); }, [2, 3, 4, 5]);
 
 // ranks and rewards
-t('ranks', () => [1, 4, 5, 10, 19, 20, 30, 99].map((l) => G.rankOf(l).he), ['טירון', 'טירון', 'מתמיד', 'ספורטאי', 'מכונה', 'חיה', 'אלוף', 'אגדה']);
+t('ranks', () => [1, 4, 5, 10, 19, 20, 30, 49, 50, 99, 100, 240].map((l) => G.rankOf(l).he), ['טירון', 'טירון', 'מתמיד', 'ספורטאי', 'מכונה', 'חיה', 'אלוף', 'אגדה', 'טיטאן', 'אולימפי', 'אגדה חיה', 'אגדה חיה']);
 t('rank index', () => [G.rankOf(1).i, G.rankOf(40).i], [0, 6]);
-t('next reward', () => [G.nextReward(1).at, G.nextReward(3).at, G.nextReward(39).at, G.nextReward(40)], [3, 5, 40, null]);
+t('next reward', () => [G.nextReward(1).at, G.nextReward(3).at, G.nextReward(39).at, G.nextReward(40).at, G.nextReward(99).at, G.nextReward(100)], [3, 5, 40, 50, 100, null]);
+t('the road of rewards runs to the hundredth level, each level once and in order', () => [G.REWARDS[G.REWARDS.length - 1].at, G.REWARDS.every((r, i, a) => !i || r.at > a[i - 1].at), G.RANKS.every((r) => r.at === 1 || G.REWARDS.some((x) => x.at === r.at))], [100, true, true]);
 t('rewards opened by a level-up', () => [G.rewardsBetween(2, 5).map((r) => r.at), G.rewardsBetween(5, 5).length, G.rewardsBetween(1, 2).length], [[3, 5], 0, 0]);
 t('the body grows with the level', () => [G.buildOf(1), G.buildOf(30), G.buildOf(200), G.buildOf(16) > G.buildOf(8)], [0, 1, 1, true]);
 

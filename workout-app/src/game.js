@@ -32,7 +32,7 @@ function levelOf(xp) {
   for (let i = 0; i < 3 && xpTo(n + 1) <= t; i++) n++;
   return { lvl: n + 1, into: t - xpTo(n), need: xpStep(n + 1) };
 }
-const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 5, he: 'מתמיד', en: 'Regular' }, { at: 10, he: 'ספורטאי', en: 'Athlete' }, { at: 15, he: 'מכונה', en: 'Machine' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 30, he: 'אלוף', en: 'Champion' }, { at: 40, he: 'אגדה', en: 'Legend' }];
+const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 5, he: 'מתמיד', en: 'Regular' }, { at: 10, he: 'ספורטאי', en: 'Athlete' }, { at: 15, he: 'מכונה', en: 'Machine' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 30, he: 'אלוף', en: 'Champion' }, { at: 40, he: 'אגדה', en: 'Legend' }, { at: 50, he: 'טיטאן', en: 'Titan' }, { at: 75, he: 'אולימפי', en: 'Olympian' }, { at: 100, he: 'אגדה חיה', en: 'Living legend' }];
 function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
 /* the name of a rank, a reward or an achievement in the language of the page */
 const nm = (x) => say(x.he, x.en || x.he);
@@ -41,6 +41,9 @@ const REWARDS = [
   { at: 3, k: 'band', he: 'סרט ראש', en: 'Headband' }, { at: 5, he: 'דרגת מתמיד', en: 'Regular rank' }, { at: 8, k: 'wraps', he: 'רצועות יד', en: 'Wrist wraps' }, { at: 10, he: 'דרגת ספורטאי', en: 'Athlete rank' },
   { at: 12, k: 'belt', he: 'חגורת הרמה', en: 'Lifting belt' }, { at: 15, he: 'דרגת מכונה', en: 'Machine rank' }, { at: 20, k: 'tank', he: 'דרגת חיה וגופייה', en: 'Beast rank and a tank top' },
   { at: 30, k: 'medal', he: 'דרגת אלוף ומדליה', en: 'Champion rank and a medal' }, { at: 40, k: 'crown', he: 'דרגת אגדה וכתר', en: 'Legend rank and a crown' },
+  /* past the crown the road goes on to the hundredth level: the gear of a champion, and at the end the stars of a legend */
+  { at: 50, k: 'cape', he: 'דרגת טיטאן וגלימה', en: 'Titan rank and a cape' }, { at: 60, k: 'kicks', he: 'נעלי זהב', en: 'Gold shoes' }, { at: 75, k: 'champ', he: 'דרגת אולימפי וחגורת אליפות', en: 'Olympian rank and a title belt' },
+  { at: 90, k: 'glow', he: 'הילת זהב', en: 'A golden glow' }, { at: 100, k: 'stars', he: 'דרגת אגדה חיה', en: 'Living legend rank' },
 ];
 const nextReward = (lvl) => REWARDS.find((r) => r.at > lvl) || null;
 const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);

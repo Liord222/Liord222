@@ -40,6 +40,10 @@ const obWalk = async (pg, a, to, seen) => {
 };
 /* the question about today's length, when it is asked: answered with the whole workout */
 const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t) { await pg.waitForTimeout(130); await t.click(); await pg.waitForTimeout(320); } };
+/* the tour that follows the opening, left by its corner button */
+const noTour = async (pg) => { await pg.waitForSelector('#tourSkip', { timeout: 5000 }); await pg.waitForTimeout(150); await pg.click('#tourSkip'); await pg.waitForTimeout(250); };
+/* what steers the round is folded away on the first page of the plan: this unfolds it */
+const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { await pg.click('#msAdv'); await pg.waitForTimeout(250); } };
 (async () => {
   const b = await chromium.launch(), day = 864e5, now = Date.now();
   // ---- 1. data saved by the previous version: no mesocycle fields at all, one finished and one running workout ----
@@ -83,7 +87,7 @@ const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t
   const t1 = await p.evaluate(() => { const e = findEx('ua1', null), t = targetOf(e, 0, null); return [t.kg, t.reps, t.mode, e.sets]; });
   check('new mesocycle starts further from failure, sets back to base', t1[2] === 'base' && t1[1] >= 6 && t1[1] <= 10 && t1[0] <= 62.5 && t1[3] === 3, t1);
   check('after the summary the app is back on today', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('גוף עליון A'), await txt('#home'));
-  await p.click('#planBtn'); await p.waitForTimeout(300);
+  await p.click('#planBtn'); await p.waitForTimeout(300); await adv(p);
   check('between rounds the plan says so and offers the summary, with nothing to steer', (await txt('.ms-act')).includes('סבב 1 הושלם') && (await txt('#sheet [data-sum="m1"]')).includes('סיכום הסבב') && !(await p.$('#msDl')) && !(await p.$('#msNew')), await txt('#sheet'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
   await p.click('#homeGo'); await p.waitForTimeout(400); await gate(p); await p.click('#preAll'); await p.waitForTimeout(300); await p.click('#dkHit'); await p.waitForTimeout(600);
@@ -168,7 +172,7 @@ const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t
   await p.click('#obNext'); await p.waitForTimeout(500);
   await snap(p, 'h6-ready-en');
   check('the last screen is in English too', (await txt('#obTitle')) === 'Sam, you are all set!' && (await txt('#obNext')) === 'To the first workout' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
-  await p.click('#obNext'); await p.waitForTimeout(400);
+  await p.click('#obNext'); await p.waitForTimeout(400); await noTour(p);
   const beg = await p.evaluate(() => ({ lang: S.cfg.lang, exp: S.cfg.me.exp, goal: S.cfg.me.goal, goals: S.cfg.me.goals.join(), time: S.cfg.me.time, eq: S.cfg.me.eq, sets: [0, 1, 2, 3].map((w) => exList(w).map((e) => e.sets).join('')).join(), hidden: document.querySelector('#ob').hidden, view: S.view,
     /* what the plan became: the equipment of every movement, how long each workout runs, and how many exercises it kept */
     gear: [...new Set([0, 1, 2, 3].flatMap((w) => exList(w).map((e) => LIB[e.mv].eq)))].sort().join(), mins: [0, 1, 2, 3].map((w) => minsOf(exList(w))), n: [0, 1, 2, 3].map((w) => exList(w).length), first: exList(0)[0].reps + ' ' + exList(0)[0].rest.join('-'),
@@ -192,7 +196,7 @@ const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t
   await obWalk(p, { exp: 0, goals: [0], time: 30, eq: 1 }, 'done', async (k) => { if (k === 'name') had = await p.inputValue('#obName'); });
   check('with the name already there', had === 'ליאור', had);
   check('and is sent on, not to a "first" workout', (await txt('#obNext')) === 'קדימה', await txt('#obNext'));
-  await p.click('#obNext'); await p.waitForTimeout(400);
+  await p.click('#obNext'); await p.waitForTimeout(400); await noTour(p);
   check('a plan that was already trained is left as it is: no sets taken off, no movement swapped and no exercise dropped, whatever the gym and the time', (await p.evaluate(() => [S.cfg.me.exp, planned(0, {}).ua1, Object.keys(S.cfg.base).length, S.cfg.lang, exList(0).length, Object.keys(S.cfg.swap).length, S.cfg.me.time, S.cfg.me.eq].join())) === '0,3,0,he,8,0,30,1', await p.evaluate(() => JSON.stringify([S.cfg.base, S.cfg.swap, S.cfg.me])));
   await p.context().close();
 

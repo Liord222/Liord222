@@ -18,7 +18,7 @@
   --w1:#4B45D6; --w1-lip:#3631AE; --w1-soft:#E7E6FF; --w1-ink:#3E38C2;
   --w2:#9446D6; --w2-lip:#7530B3; --w2-soft:#F4E9FF; --w2-ink:#8137C2;
   --w3:#2F2366; --w3-lip:#1E1645; --w3-soft:#ECE9F6; --w3-ink:#3B2D80;
-  --gold:#F2B02E; --gold-lip:#C98A12; --gold-ink:#5C3A00; --flame:#FF8A00; --flame-2:#FFD23F; --flame-ink:#B85600; --accent-lip:#5229C4;
+  --gold:#F2B02E; --gold-lip:#C98A12; --gold-ink:#5C3A00; --calm:#1F4FA8; --calm-soft:#E3EEFF; --coin:#FFFFFF; --coin-lip:#D8D6E0; --flame:#FF8A00; --flame-2:#FFD23F; --flame-ink:#B85600; --accent-lip:#5229C4;
   --accent:#6D3FE0; --on-accent:#FFFFFF; --accent-soft:#EEE8FF; --accent-ink:#5A2FCC;
   --muscle:#E0452B; --muscle-ink:#C93A1F; --muscle-soft:#FDE8E2; --warn:#A44A10; --warn-soft:#FBEBDD;
   --ok:#5A2FCC; --ok-soft:#EEE8FF; --on-ok:#FFFFFF; --rest:#8A5A00; --rest-soft:#FFF1D1;
@@ -38,7 +38,7 @@
     --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
     --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
     --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
-    --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E;
+    --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E; --calm:#9CC2FF; --calm-soft:#14233F; --coin:#2C2A36; --coin-lip:#18161F;
     --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2;
     --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
     --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#A98BFF; --cloth-far:#45367C;
@@ -53,7 +53,7 @@
   --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
   --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
   --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
-  --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E;
+  --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E; --calm:#9CC2FF; --calm-soft:#14233F; --coin:#2C2A36; --coin-lip:#18161F;
   --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2;
   --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
   --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#A98BFF; --cloth-far:#45367C;
@@ -136,7 +136,7 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .main{min-width:0;display:grid;gap:14px}
 .view{display:none;gap:14px;min-width:0}
 .pf-main{display:grid;gap:14px;min-width:0}
-.app[data-view="home"] .v-home,.app[data-view="workout"] .v-workout,.app[data-view="profile"] .v-profile{display:grid}
+.app[data-view="home"] .v-home,.app[data-view="workout"] .v-workout,.app[data-view="profile"] .v-profile,.app[data-view="journey"] .v-journey{display:grid}
 .app:not([data-view="workout"]) .dock{display:none}
 
 /* shared pieces */
@@ -166,15 +166,16 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .xp-tag{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:99px;background:var(--xp-soft);color:var(--xp);font-size:13px;font-weight:800;line-height:1;white-space:nowrap}
 .hit .xp-tag,.btn.primary .xp-tag{background:color-mix(in srgb,var(--on-accent) 20%,transparent);color:var(--on-accent)}
 .app[data-view="workout"] .sync{display:none}
-.toast{position:fixed;z-index:80;top:calc(env(safe-area-inset-top,0px) + 76px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:99px;background:var(--ink);color:var(--paper);font-size:17px;font-weight:700;white-space:nowrap;box-shadow:0 12px 30px -14px rgb(0 0 0 / .55)}
+.toast{position:fixed;z-index:80;top:calc(env(safe-area-inset-top,0px) + 76px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:99px;background:var(--ink);color:var(--paper);font-size:17px;font-weight:700;width:max-content;max-width:calc(100vw - 32px);box-shadow:0 12px 30px -14px rgb(0 0 0 / .55)}
 .toast svg{color:var(--xp-fill);fill:var(--xp-fill)}
+.toast svg.ln{fill:none}
 .toast.in{animation:toast-in .4s cubic-bezier(.3,1.4,.5,1)}
 @keyframes toast-in{from{transform:translate(-50%,-18px);opacity:0}}
 
 /* today */
 .player{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;padding:10px 4px 4px;border:0;background:none;text-align:start}
 .p-ava{width:72px;height:72px;border-radius:50%;overflow:hidden;background:var(--accent-soft);transition:transform .08s}
-.p-ava.r0{background:var(--surface-3)}.p-ava.r4,.p-ava.r5,.p-ava.r6{background:var(--xp-soft)}
+.p-ava.r0{background:var(--surface-3)}.p-ava.r4,.p-ava.r5,.p-ava.r6,.p-ava.r7,.p-ava.r8,.p-ava.r9{background:var(--xp-soft)}
 .p-txt{display:grid;gap:6px;min-width:0}
 .p-txt>b{font-size:27px;font-weight:800;line-height:1.15;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .p-rank{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--ink-2)}
@@ -186,23 +187,144 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .next .k{font-size:15px;font-weight:600;color:var(--ink-2)}
 .next h2{font-size:38px;font-weight:800;line-height:1.12;letter-spacing:-.02em}
 .next .meta{font-size:15px;color:var(--ink-2);padding:2px 0 16px}
-.week{display:grid;gap:4px;padding:8px 12px 14px}
-.card-h{display:flex;align-items:center;gap:8px;min-height:44px;padding-inline:8px}
-.card-h h2{flex:1;font-size:17px;font-weight:700}
-.card-h h2 small{font-size:14px;font-weight:500;color:var(--ink-2)}
 .go-link{display:inline-flex;align-items:center;gap:2px;min-height:44px;border:0;background:none;color:var(--accent);font-size:15px;font-weight:600;padding:0}
 .go-link svg{width:18px;height:18px;stroke-width:2.2}
-/* the week as a path: four stops joined by a line that fills as workouts are finished */
-.week-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-.tab{position:relative;display:grid;justify-items:center;gap:6px;padding:6px 2px 4px;border:0;background:none;min-width:0}
-.tab+.tab::before{content:"";position:absolute;top:31px;inset-inline-start:-50%;width:100%;height:3px;background:var(--surface-3)}
-.tab.done+.tab::before{background:var(--accent)}
-.tab .dot{position:relative;z-index:1;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--ink-2);font-size:19px;font-weight:800;line-height:1;transition:transform .08s}
-.tab .dot svg{width:24px;height:24px;stroke-width:2.6}
-.tab.done .dot{background:var(--accent);color:var(--on-accent)}
-.tab.next .dot,.tab.live .dot{background:var(--surface);box-shadow:inset 0 0 0 3px var(--accent);color:var(--accent-ink)}
-.tab b{font-size:13.5px;font-weight:600;line-height:1.3;white-space:nowrap;color:var(--ink-2)}
-.tab.next b,.tab.live b{color:var(--accent-ink);font-weight:700}
+/* ---- the road of the round: stops that wind down the screen, a trail between them, friends at the sides.
+   A stop is a coin: gold once its workout is done, the colour of the workout when it is next, white while it waits, grey further down ---- */
+.road{display:grid;gap:4px;min-width:0;padding-top:10px}
+.road-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-inline:6px}
+.road-h h2{font-size:24px;font-weight:800;letter-spacing:-.015em;line-height:1.2}
+.road-h p{margin-top:1px;font-size:14.5px;font-weight:500;color:var(--ink-3)}
+.pw{display:grid;gap:2px;min-width:0}
+.pw-road{position:relative;width:min(100%,340px);margin-inline:auto}
+.pw-road ol{list-style:none;margin:0;padding:0}
+.pw-trail{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.pw-trail path{fill:none;stroke:var(--surface-3);stroke-width:9;stroke-linecap:round;stroke-dasharray:.1 17;vector-effect:non-scaling-stroke}
+.pw-trail path.on{stroke:var(--gold);stroke-width:7;stroke-dasharray:none}
+.stop{position:absolute;width:104px;margin-left:-52px;display:grid;justify-items:center}
+.stop>button{position:relative;display:grid;justify-items:center;gap:8px;width:100%;padding:0;border:0;background:none;color:inherit}
+.stop .dot{position:relative;z-index:1;display:grid;place-items:center;width:76px;height:76px;border-radius:50%;background:var(--coin);color:var(--wk-ink);font-size:26px;font-weight:800;line-height:1;letter-spacing:-.02em;box-shadow:0 6px 0 var(--coin-lip),inset 0 0 0 3px var(--wk-soft);transition:transform .3s cubic-bezier(.34,1.45,.64,1)}
+.stop .dot svg{width:34px;height:34px;stroke-width:2.4}
+.stop .dot svg.f{fill:currentColor;stroke:currentColor;stroke-width:1.1}
+.stop b{position:relative;z-index:1;max-width:132px;padding:2px 10px;border-radius:99px;background:var(--paper);font-size:14px;font-weight:700;line-height:1.35;color:var(--ink-2);white-space:nowrap}
+.stop.done .dot{background:var(--gold);color:var(--gold-ink);box-shadow:0 6px 0 var(--gold-lip)}
+.stop.done .dot svg{width:36px;height:36px;stroke-width:3.4}
+.stop.next .dot,.stop.live .dot{width:84px;height:84px;margin:-4px 0;background:var(--wk);color:#fff;box-shadow:0 7px 0 var(--wk-lip)}
+.stop.next .dot svg,.stop.live .dot svg{width:38px;height:38px}
+.stop.next .dot::after,.stop.live .dot::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:4px solid var(--wk);opacity:0;animation:stop-ring 1.9s ease-out infinite}
+@keyframes stop-ring{0%{transform:scale(.9);opacity:.55}75%,100%{transform:scale(1.16);opacity:0}}
+.stop.next b,.stop.live b{color:var(--wk-ink);font-weight:800}
+.stop.later b{color:var(--ink-4);font-weight:600}
+.lk:active{transform:none}
+.lk:active .dot{transform:scale(.94)}
+.lk.no .dot{animation:stop-no .45s ease-in-out}
+@keyframes stop-no{25%{transform:rotate(-8deg)}50%{transform:rotate(7deg)}75%{transform:rotate(-3deg)}}
+/* the word over the stop that is next: it bobs, so the eye finds where to press */
+.go-chip{position:absolute;z-index:2;bottom:calc(100% + 1px);left:50%;padding:6px 14px;border-radius:13px;background:var(--coin);color:var(--wk-ink);font-size:15px;font-weight:800;line-height:1.3;white-space:nowrap;box-shadow:0 3px 0 var(--coin-lip),0 12px 22px -14px rgb(40 20 100 / .6);transform:translateX(-50%);animation:chip-bob 1.7s ease-in-out infinite}
+.go-chip::after{content:"";position:absolute;top:100%;left:50%;width:11px;height:11px;margin:-6px 0 0 -5.5px;border-radius:2px;background:inherit;transform:rotate(45deg);box-shadow:3px 3px 0 var(--coin-lip)}
+@keyframes chip-bob{50%{transform:translate(-50%,-5px)}}
+/* a figure beside a stop: the lifter at the stop that is next, the coach or a friend on a wide side of the road. Left and right are the screen's own */
+.pal{position:absolute;top:-10px;display:flex;align-items:center;gap:7px;width:max-content;pointer-events:none}
+.pal.l{right:calc(100% - 4px);flex-direction:row-reverse}
+.pal.r{left:calc(100% - 4px)}
+.pal-fig{flex:none;width:60px}
+.pal.me .pal-fig{width:66px}
+.pal-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.pal-fig .av-aura,.pal-fig .av-glow{display:none}
+.pal-say{position:relative;max-width:min(112px,28vw);padding:8px 11px;border-radius:14px;background:var(--coin);color:var(--ink);font-size:13px;font-weight:600;line-height:1.3;box-shadow:0 2px 0 var(--coin-lip)}
+.pal-say::after{content:"";position:absolute;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:2px;background:inherit;transform:rotate(45deg)}
+.pal.l .pal-say::after{right:-4px}
+.pal.r .pal-say::after{left:-4px}
+.pal.coach .pal-say{background:var(--accent-soft);color:var(--accent-ink);font-weight:700;box-shadow:none}
+/* the weeks further down the road */
+.pw-h{display:flex;align-items:center;justify-content:center;gap:10px;margin:22px 0 0;font-size:13.5px;font-weight:500;color:var(--ink-3)}
+.pw-h::before,.pw-h::after{content:"";flex:1;height:2px;border-radius:2px;background:var(--surface-3)}
+.pw-h b{padding:5px 14px;border-radius:99px;background:var(--surface-3);color:var(--ink-2);font-size:13.5px;font-weight:800}
+.pw.easy .pw-h b{background:var(--calm-soft);color:var(--calm)}
+.pw.far .pal{opacity:.92}
+.pw-end{display:grid;justify-items:center;gap:3px;margin:18px 0 8px;text-align:center}
+.pw-end .cup{display:grid;place-items:center;width:88px;height:88px;margin-bottom:10px;border-radius:50%;background:var(--xp-soft);color:var(--xp);box-shadow:0 6px 0 color-mix(in srgb,var(--xp-fill) 45%,var(--lip))}
+.pw-end .cup svg{width:42px;height:42px;stroke-width:1.9}
+.pw-end b{font-size:17px;font-weight:800}
+.pw-end>span:last-child{font-size:14px;color:var(--ink-3)}
+/* coming to the screen, the stops of the road pop in one after the other */
+.view.enter .stop{animation:stop-in .5s cubic-bezier(.3,1.45,.5,1) both;animation-delay:calc(var(--i,0) * 70ms + 140ms)}
+.view.enter .pal{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .55s both}
+@keyframes stop-in{from{opacity:0;transform:scale(.55)}}
+/* the weeks further down the road are drawn smaller, as a road looks from where one stands */
+.pw.far .stop .dot{width:64px;height:64px}
+.pw.far .stop .dot svg{width:28px;height:28px}
+.pw.far .stop b{font-size:13px}
+.pw.far .pal{top:-16px}
+.pw.far .pal-fig{width:54px}
+.stop.later .dot{background:var(--wk-soft);color:color-mix(in srgb,var(--wk) 42%,var(--ink-4));box-shadow:0 5px 0 var(--coin-lip)}
+.pw.easy .stop.later .dot{background:var(--calm-soft);color:color-mix(in srgb,var(--calm) 55%,var(--ink-4))}
+/* ---- the first tour: the screen dims around one lit thing, and the coach stands at the right with a word about it ---- */
+.tour{position:fixed;inset:0;z-index:88;touch-action:none;-webkit-tap-highlight-color:transparent;animation:tour-fade .35s ease-out}
+@keyframes tour-fade{from{opacity:0}}
+.tour-hole{position:fixed;border-radius:20px;box-shadow:0 0 0 200vmax rgb(10 7 22 / .8);outline:3px solid #fff;outline-offset:2px;pointer-events:none;transition:left .45s cubic-bezier(.3,.8,.2,1),top .45s cubic-bezier(.3,.8,.2,1),width .45s cubic-bezier(.3,.8,.2,1),height .45s cubic-bezier(.3,.8,.2,1),border-radius .45s;animation:tour-ring 1.7s ease-in-out infinite}
+@keyframes tour-ring{50%{outline-offset:8px;outline-color:rgb(255 255 255 / .28)}}
+.tour.now .tour-hole{transition:none}
+.tour-skip{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);inset-inline-end:14px;min-height:40px;padding:0 16px;border:0;border-radius:99px;background:rgb(255 255 255 / .16);color:#fff;font-size:15px;font-weight:700}
+.tour-card{position:fixed;left:10px;right:10px;display:flex;flex-direction:row-reverse;align-items:flex-end;gap:2px;max-width:440px;margin-inline:auto;direction:ltr}
+.tour-fig{flex:none;width:108px;margin-right:-4px;transform-origin:50% 100%;animation:tour-in .7s cubic-bezier(.2,.9,.3,1.12) both,tour-sway 3.4s ease-in-out .7s infinite}
+.tour-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.tour-fig .av-aura{display:none}
+.tour-fig .av-shadow{fill:rgb(0 0 0 / .4)}
+@keyframes tour-in{from{transform:translateX(150%) rotate(16deg)}}
+@keyframes tour-sway{0%,100%{transform:rotate(0)}50%{transform:rotate(-3.5deg)}}
+.tour-say{position:relative;flex:1;min-width:0;margin-bottom:30px;padding:14px 16px 12px;border-radius:20px;background:#fff;color:#14101F;box-shadow:0 18px 40px -16px rgb(0 0 0 / .7);animation:tour-pop .45s cubic-bezier(.3,1.4,.5,1) .4s both}
+.tour-say::after{content:"";position:absolute;right:-6px;bottom:30px;width:16px;height:16px;border-radius:3px;background:inherit;transform:rotate(45deg)}
+.tour-say p{font-size:16.5px;font-weight:600;line-height:1.42}
+.tour-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.tour-dots{display:flex;align-items:center;gap:5px}
+.tour-dots i{width:7px;height:7px;border-radius:99px;background:#D9D5E6;transition:width .3s,background-color .3s}
+.tour-dots i.on{width:20px;background:#6D3FE0}
+.tour-foot .btn{flex:none;min-height:44px;padding:0 20px;border-radius:14px;font-size:16px;white-space:nowrap;background:#6D3FE0;color:#fff}
+.btn.nudge{animation:nudge 1.25s ease-in-out 2}
+@keyframes nudge{50%{transform:scale(1.035)}}
+.tour-card.hop .tour-say{animation:tour-pop .36s cubic-bezier(.3,1.4,.5,1) both}
+.tour-card.hop .tour-fig{animation:tour-hop .46s cubic-bezier(.3,1.4,.5,1),tour-sway 3.4s ease-in-out .46s infinite}
+@keyframes tour-pop{from{opacity:0;transform:translateY(10px) scale(.94)}}
+@keyframes tour-hop{45%{transform:translateY(-11px) rotate(-3deg)}}
+/* ---- the journey: a dark stage with the character today and at the hundredth level, then the levels as a road ---- */
+.jr-hero{position:relative;isolation:isolate;overflow:hidden;display:grid;justify-items:center;gap:4px;padding:22px 20px 20px;border-radius:28px;text-align:center;color:#fff;background:radial-gradient(130% 90% at 50% 30%,#3B2477 0%,#1A1038 52%,#0B0716 100%)}
+.jr-hero::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(60% 40% at 72% 62%,rgb(242 176 46 / .22),transparent 70%)}
+[dir="rtl"] .jr-hero::before{background:radial-gradient(60% 40% at 28% 62%,rgb(242 176 46 / .22),transparent 70%)}
+.jr-k{display:inline-block;padding:4px 14px;border-radius:99px;background:rgb(255 255 255 / .14);font-size:13.5px;font-weight:700}
+.jr-hero h1{margin-top:8px;font-size:28px;font-weight:800;line-height:1.15;letter-spacing:-.02em}
+.jr-hero .ob-ladder{margin-top:10px;max-width:340px}
+.ob-ladder figcaption b{white-space:nowrap}
+.jr-hero .av-aura,.jr-hero .av-glow{display:none}
+.jr-hero .av-shadow{fill:rgb(0 0 0 / .3)}
+.jr-lv{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;max-width:340px;margin-top:18px}
+.jr-lv .lv-badge{height:30px;padding:0 12px;font-size:14.5px;background:#fff;color:#2A1866}
+.jr-lv .xpbar{height:14px;background:rgb(255 255 255 / .16)}
+.jr-lv .xpbar i{background:var(--gold)}
+.jr-nx{display:grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:99px;background:rgb(255 255 255 / .2);font-size:14.5px;font-weight:800}
+.jr-line{margin-top:6px;font-size:14.5px;font-weight:500;color:rgb(255 255 255 / .72)}
+.road.jr{padding-top:16px}
+.road.jr .stop b{width:max-content;max-width:150px;border-radius:12px;white-space:normal;text-align:center;font-size:13.5px;line-height:1.3}
+.road.jr .stop.next .dot{font-size:28px}
+.road.jr .stop.done .dot{font-size:25px}
+.road.jr .stop.later .dot{background:var(--surface-3);color:var(--ink-3);box-shadow:0 6px 0 var(--coin-lip)}
+.road.jr .stop.top .dot{width:92px;height:92px;margin:-8px 0;font-size:30px}
+.road.jr .stop.top.later .dot{background:var(--xp-soft);color:var(--xp);box-shadow:0 6px 0 color-mix(in srgb,var(--xp-fill) 45%,var(--lip))}
+.road.jr .stop.top b{color:var(--ink);font-weight:800}
+.lv:active{transform:none}
+.lv:active .dot{transform:scale(.93)}
+.pal.pv .pal-fig{width:66px}
+.pal.pv{top:-14px}
+.jr-after{margin:6px 0 10px;text-align:center;font-size:15px;font-weight:600;color:var(--ink-3)}
+/* a stop of the journey, opened: the character at that level, on the dark stage */
+.sheet-in.lvs{gap:14px}
+.lvs-stage{display:grid;place-items:center;padding:14px 0 6px;border-radius:24px;background:radial-gradient(120% 90% at 50% 34%,#3B2477 0%,#1A1038 56%,#0B0716 100%)}
+.lvs-fig{display:block;width:min(200px,50vw)}
+.lvs-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.lvs-fig .av-aura{display:none}
+.lvs-fig .av-shadow{fill:rgb(0 0 0 / .3)}
+.lvs-t{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:8px 16px;border-radius:18px;background:var(--xp-soft);color:var(--xp);font-size:17px;font-weight:700;text-align:center}
+.lvs-t svg{flex:none;width:22px;height:22px}
 
 /* one workout: a progress strip, then one exercise at a time */
 .hero{display:grid;gap:10px}
@@ -491,6 +613,23 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .ed>.link{justify-self:start;padding-inline:0}
 .ed-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));background:var(--surface);padding-block:12px calc(20px + env(safe-area-inset-bottom,0px));margin-bottom:calc(-20px - env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
 .ed-act .btn.primary{margin-inline-start:auto}
+/* the plan, plainly: four workouts as cards, each in its own violet; what steers the round is folded away under them */
+.pl-sub{font-size:15px;color:var(--ink-2)}
+.pl-cards{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.pl-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;min-height:76px;padding:12px 14px;border:0;border-radius:22px;background:var(--wk-soft);color:var(--ink);text-align:start}
+.pl-ic{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--wk);color:#fff;box-shadow:0 4px 0 var(--wk-lip)}
+.pl-ic svg{width:26px;height:26px}
+.pl-ic svg.f{fill:currentColor;stroke:currentColor;stroke-width:1.1}
+.pl-t{display:grid;gap:1px;min-width:0}
+.pl-t b{font-size:18px;font-weight:800;line-height:1.25;letter-spacing:-.01em}
+.pl-t small{font-size:14px;font-weight:500;color:var(--ink-2)}
+.pl-card>svg{width:20px;height:20px;color:var(--wk-ink);stroke-width:2.4}
+.pl-adv{display:flex;align-items:center;gap:8px;width:100%;min-height:50px;padding:0 4px;border:0;background:none;color:var(--ink-2);font-size:15px;font-weight:700;text-align:start}
+.pl-adv>span{flex:1}
+.pl-adv>svg{width:20px;height:20px;transition:transform .25s}
+.pl-adv[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.pl-dot{width:9px;height:9px;border-radius:50%;background:var(--warn)}
+.pl-more{display:grid;gap:14px;animation:ob-rise .3s cubic-bezier(.2,.8,.2,1)}
 .ms-act{display:flex;flex-wrap:wrap;gap:4px 20px;align-items:center}
 .ms-act:empty{display:none}
 .ms-act .link{padding-inline:0}
@@ -611,7 +750,12 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 /* the character */
 .av{display:block;width:100%;height:auto;overflow:visible}
 .av-aura{fill:var(--accent-soft)}
-.av-aura.r0{fill:var(--surface-3)}.av-aura.r4,.av-aura.r5,.av-aura.r6{fill:var(--xp-soft)}
+.av-aura.r0{fill:var(--surface-3)}.av-aura.r4,.av-aura.r5,.av-aura.r6,.av-aura.r7,.av-aura.r8,.av-aura.r9{fill:var(--xp-soft)}
+.av-glow{animation:av-glow 3.4s ease-in-out infinite}
+@keyframes av-glow{50%{opacity:.5}}
+.av-spark{transform-box:fill-box;transform-origin:center;animation:av-spark 2.6s ease-in-out infinite}
+@keyframes av-spark{0%,100%{opacity:.25;transform:scale(.55)}50%{opacity:1;transform:scale(1.1)}}
+.av.still .av-glow,.av.still .av-spark{animation:none}
 .av-shadow{fill:var(--shadow)}
 .av-arm,.av-fore,.av-bi{transition:transform .55s cubic-bezier(.3,1.5,.5,1),opacity .3s}
 .av-arm.l{transform:rotate(9deg)}.av-arm.r{transform:rotate(-9deg)}
@@ -690,11 +834,6 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .card.next .btn.primary:active:not(:disabled){box-shadow:0 0 0 rgb(0 0 0 / .22)}
 .w-dot{display:inline-block;width:12px;height:12px;margin-inline-end:10px;border-radius:50%;background:var(--wk);box-shadow:0 2px 0 var(--wk-lip)}
 .sum .kicker{display:inline-block;padding:4px 14px;border-radius:99px;background:var(--wk-soft);color:var(--wk-ink)}
-/* the week: each stop in the colour of its workout */
-.tab.done .dot{background:var(--wk);color:#fff;box-shadow:0 3px 0 var(--wk-lip)}
-.tab.next .dot,.tab.live .dot{background:var(--surface);box-shadow:inset 0 0 0 3px var(--wk),0 3px 0 var(--wk-soft);color:var(--wk-ink)}
-.tab.next b,.tab.live b{color:var(--wk-ink)}
-.tab.done+.tab::before{background:var(--wk)}
 /* the streak: a flame that flickers */
 .p-streak{display:flex;align-items:center;gap:2px;color:var(--flame-ink);padding-inline:2px}
 .p-streak .flame{width:30px;height:30px;fill:none;transform-origin:50% 92%;animation:flicker 2.6s ease-in-out infinite}
@@ -1305,6 +1444,7 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
     <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
       <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/><rect x="5.6" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="10.2" y="12.2" width="7.6" height="3.6" rx="1.2" fill="#BBA5F7"/><rect x="17.8" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="22.9" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/></svg></span><span class="tb-l">אימונים</span></button>
+      <button type="button" data-view="journey"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="2.5" y="18" width="7" height="7.5" rx="1.8" fill="#BBA5F7"/><rect x="10.5" y="13" width="7" height="12.5" rx="1.8" fill="#6D3FE0"/><rect x="18.5" y="8.2" width="7" height="17.3" rx="1.8" fill="#5229C4"/><rect x="20.3" y="1.8" width="1.5" height="7.4" rx=".7" fill="#5229C4"/><path d="M21.8 2.2h4.7l-1.4 1.9 1.4 1.9h-4.7z" fill="#F2B02E"/></svg></span><span class="tb-l">מסע</span></button>
       <button type="button" data-view="profile"><span class="tb-ic tb-face" id="tbMe" aria-hidden="true"></span><span class="tb-l">פרופיל</span></button>
       <button type="button" id="chatOpen"><span class="tb-ic tb-face" id="tbCoach" aria-hidden="true"></span><span class="tb-l">אילון</span></button>
     </nav>
@@ -1320,6 +1460,8 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
         <section id="pre" aria-label="התאוששות מהאימון הקודם" hidden></section>
         <ol class="fx" id="exList"></ol>
       </div>
+
+      <div class="view v-journey" id="journey"></div>
 
       <div class="view v-profile">
         <div class="pf-main" id="profile"></div>
@@ -1361,6 +1503,7 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
   <input type="file" id="lkFile" accept="image/*" hidden>
   <div class="toast" id="toast" role="status" hidden></div>
   <div class="sr" id="srSay" aria-live="polite"></div>
+  <div class="tour" id="tour" role="dialog" aria-modal="true" hidden></div>
   <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden></div>
   <div class="splash" id="splash" hidden><div class="splash-in" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div></div>
 </div>
@@ -1939,7 +2082,7 @@ function levelOf(xp) {
   for (let i = 0; i < 3 && xpTo(n + 1) <= t; i++) n++;
   return { lvl: n + 1, into: t - xpTo(n), need: xpStep(n + 1) };
 }
-const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 5, he: 'מתמיד', en: 'Regular' }, { at: 10, he: 'ספורטאי', en: 'Athlete' }, { at: 15, he: 'מכונה', en: 'Machine' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 30, he: 'אלוף', en: 'Champion' }, { at: 40, he: 'אגדה', en: 'Legend' }];
+const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 5, he: 'מתמיד', en: 'Regular' }, { at: 10, he: 'ספורטאי', en: 'Athlete' }, { at: 15, he: 'מכונה', en: 'Machine' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 30, he: 'אלוף', en: 'Champion' }, { at: 40, he: 'אגדה', en: 'Legend' }, { at: 50, he: 'טיטאן', en: 'Titan' }, { at: 75, he: 'אולימפי', en: 'Olympian' }, { at: 100, he: 'אגדה חיה', en: 'Living legend' }];
 function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
 /* the name of a rank, a reward or an achievement in the language of the page */
 const nm = (x) => say(x.he, x.en || x.he);
@@ -1948,6 +2091,9 @@ const REWARDS = [
   { at: 3, k: 'band', he: 'סרט ראש', en: 'Headband' }, { at: 5, he: 'דרגת מתמיד', en: 'Regular rank' }, { at: 8, k: 'wraps', he: 'רצועות יד', en: 'Wrist wraps' }, { at: 10, he: 'דרגת ספורטאי', en: 'Athlete rank' },
   { at: 12, k: 'belt', he: 'חגורת הרמה', en: 'Lifting belt' }, { at: 15, he: 'דרגת מכונה', en: 'Machine rank' }, { at: 20, k: 'tank', he: 'דרגת חיה וגופייה', en: 'Beast rank and a tank top' },
   { at: 30, k: 'medal', he: 'דרגת אלוף ומדליה', en: 'Champion rank and a medal' }, { at: 40, k: 'crown', he: 'דרגת אגדה וכתר', en: 'Legend rank and a crown' },
+  /* past the crown the road goes on to the hundredth level: the gear of a champion, and at the end the stars of a legend */
+  { at: 50, k: 'cape', he: 'דרגת טיטאן וגלימה', en: 'Titan rank and a cape' }, { at: 60, k: 'kicks', he: 'נעלי זהב', en: 'Gold shoes' }, { at: 75, k: 'champ', he: 'דרגת אולימפי וחגורת אליפות', en: 'Olympian rank and a title belt' },
+  { at: 90, k: 'glow', he: 'הילת זהב', en: 'A golden glow' }, { at: 100, k: 'stars', he: 'דרגת אגדה חיה', en: 'Living legend rank' },
 ];
 const nextReward = (lvl) => REWARDS.find((r) => r.at > lvl) || null;
 const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);
@@ -2728,7 +2874,16 @@ function avatarSVG(look, lvl, o) {
   const band = has('band') ? P('M74.6 44.5C83 38.5 117 38.5 125.4 44.5L125.6 38.5C117 32 83 32 74.4 38.5Z', bandC) + P('M125 39.5L134 35.5L131 42.5ZM125 42L134.5 46L128.5 48.5Z', tone(bandC, -0.12)) : '';
   const crown = has('crown') ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#6D3FE0') + '</g>' : '';
   const medal = has('medal') ? '<path d="M' + X(-nw + 1) + ' 91L100 113L' + X(nw - 1) + ' 91" stroke="#6D3FE0" stroke-width="3.4" stroke-linejoin="round" fill="none"/><circle cx="100" cy="117" r="7.4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.6"/><path d="M100 113.2l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#C98F1C"/>' : '';
-  const belt = has('belt') ? '<rect x="' + X(-ww - 3) + '" y="144" width="' + ((ww + 3) * 2).toFixed(1) + '" height="11" rx="3.5" fill="#4A3628"/><rect x="94" y="145.5" width="12" height="8" rx="2" fill="none" stroke="#F2B93B" stroke-width="2.2"/>' : '';
+  /* the lifting belt turns into a title belt: gold, with a plate in the middle */
+  const belt = has('champ') ? '<rect x="' + X(-ww - 3.5) + '" y="143" width="' + ((ww + 3.5) * 2).toFixed(1) + '" height="13" rx="4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.4"/><ellipse cx="100" cy="149.5" rx="11.5" ry="9" fill="#FFD76A" stroke="#C98F1C" stroke-width="1.8"/>' + dot(100, 149.5, 3.2, '#6D3FE0')
+    : has('belt') ? '<rect x="' + X(-ww - 3) + '" y="144" width="' + ((ww + 3) * 2).toFixed(1) + '" height="11" rx="3.5" fill="#4A3628"/><rect x="94" y="145.5" width="12" height="8" rx="2" fill="none" stroke="#F2B93B" stroke-width="2.2"/>' : '';
+  /* past the crown: a cape that hangs from the shoulders behind the figure, held by two gold clasps */
+  const cape = has('cape') ? P('M' + X(-sw + 3) + ' ' + (sy + 2) + 'Q' + X(-sw - 17) + ' 150 ' + X(-sw - 11) + ' 210Q100 224 ' + X(sw + 11) + ' 210Q' + X(sw + 17) + ' 150 ' + X(sw - 3) + ' ' + (sy + 2) + 'Z', '#3B1E96', ' stroke="#F2B93B" stroke-width="2.2" stroke-linejoin="round"') +
+    '<path d="M' + X(-sw - 12) + ' 178Q100 194 ' + X(sw + 12) + ' 178" stroke="#2A1470" stroke-width="2" fill="none" opacity=".55"/>' : '';
+  const clasp = cape ? dot(X(-nw - 5), 93.5, 2.7, '#F2B93B') + dot(X(nw + 5), 93.5, 2.7, '#F2B93B') : '';
+  const kicks = has('kicks'), glow = has('glow') ? '<g class="av-glow"><circle cx="100" cy="116" r="97" fill="#F2B93B" opacity=".1"/><circle cx="100" cy="116" r="80" fill="#F2B93B" opacity=".12"/><circle cx="100" cy="116" r="62" fill="#F2B93B" opacity=".14"/></g>' : '';
+  const star4 = (x, y, r, d) => '<path class="av-spark" style="animation-delay:' + d + 's" d="M' + x + ' ' + (y - r) + 'Q' + x + ' ' + y + ' ' + (x + r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y + r) + 'Q' + x + ' ' + y + ' ' + (x - r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y - r) + 'Z" fill="#FFD76A"/>';
+  const stars = has('stars') ? star4(24, 56, 7, 0) + star4(176, 44, 6, 0.5) + star4(13, 138, 5, 1) + star4(187, 128, 7, 1.4) + star4(36, 208, 5, 0.8) + star4(167, 214, 6, 0.3) : '';
 
   const head = '<ellipse cx="74.6" cy="56" rx="4.2" ry="6.2" fill="' + skin + '"/><ellipse cx="125.4" cy="56" rx="4.2" ry="6.2" fill="' + skin + '"/>' +
     P('M75 51C75 32 87 23.5 100 23.5C113 23.5 125 32 125 51C125 68 114 82 100 82C86 82 75 68 75 51Z', skin) + beard +
@@ -2742,16 +2897,16 @@ function avatarSVG(look, lvl, o) {
 
   const body = '<g class="av-bod">' + (tank ? P(torso, skin) + P(tankTop, shirt) : P(torso, shirt)) + pecs + belt +
     '<rect x="' + X(-nw) + '" y="74" width="' + (nw * 2).toFixed(1) + '" height="20" rx="5" fill="' + skin + '"/><ellipse cx="100" cy="83.5" rx="' + nw + '" ry="4.2" fill="' + shd + '"/>' +
-    (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + medal + head + arm(-1) + arm(1) + '</g>';
+    (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + clasp + medal + head + arm(-1) + arm(1) + '</g>';
   /* a bust is cut round under the hair: with the crown on, the frame takes in its points */
   if (o.bust) return '<svg class="av bust' + (o.flex ? ' flex' : '') + (o.grin ? ' grin' : '') + '" viewBox="' + (crown ? '51 -1 98 98' : '58 14 84 84') + '" aria-hidden="true">' + backHair + body + '</svg>';
 
   const legs = [-1, 1].map((d) => ln(X(d * 11.5), 170, X(d * 12.5), 231, lg, skin)).join('') +
-    [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="#3A4152"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="#E7E9ED"/>'; }).join('') +
+    [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="' + (kicks ? '#F2B93B' : '#3A4152') + '"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="' + (kicks ? '#FFF6DC' : '#E7E9ED') + '"/>'; }).join('') +
     P('M' + X(-ww - 1.5) + ' 149L' + X(ww + 1.5) + ' 149L' + X(13 + lg / 2 + 2.5) + ' 190L102.5 190L100 177L97.5 190L' + X(-13 - lg / 2 - 2.5) + ' 190Z', '#39415A', ' stroke="#39415A" stroke-width="4" stroke-linejoin="round"');
   return '<svg class="av' + (o.flex ? ' flex' : '') + (o.still ? ' still' : '') + '" viewBox="0 -6 200 258" role="img" aria-label="' + say('הדמות שלי, רמה ', 'My character, level ') + lvl + '">' +
-    '<circle class="av-aura r' + rankOf(lvl).i + '" cx="100" cy="116" r="90"/><ellipse class="av-shadow" cx="100" cy="247" rx="48" ry="4.6"/>' +
-    '<g class="av-fig">' + backHair + legs + body + '</g></svg>';
+    '<circle class="av-aura r' + rankOf(lvl).i + '" cx="100" cy="116" r="90"/>' + glow + '<ellipse class="av-shadow" cx="100" cy="247" rx="48" ry="4.6"/>' +
+    '<g class="av-fig">' + backHair + cape + legs + body + '</g>' + stars + '</svg>';
 }
 
 /* ================================================================== helpers + data layer */
@@ -2795,12 +2950,12 @@ const ICON = {
    pin (the SHA-256 of the 4-digit code, or ''),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', tour: 0, arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', tour: pos(v.tour), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
   out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
@@ -3159,20 +3314,30 @@ function replaceSlot(exId, mv) {
   setOrder(w, ids, started ? null : now);
   return id;
 }
-/* back to the plan as it was written: its own exercises, in its own order */
+/* back to the plan as it started: for a lifter who answered the opening, the plan that was built from the answers (see fitPlan);
+   for one who did not, the plan as it is written. Its own exercises, in its own order */
 function resetPlan() {
   const was = S.cfg.swap;
-  S.cfg.order = {}; S.cfg.swap = {}; saveCfg();
+  if (S.cfg.me.exp != null) fitPlan(true); else { S.cfg.order = {}; S.cfg.swap = {}; saveCfg(); }
   for (let w = 0; w < PLAN.length; w++) {
     const s = live(w); if (!s) continue;
     let ch = false;
     if (s.o) { s.o = sessSlots(Object.assign({}, s, { o: null })).map((pe) => pe.id); ch = true; }
-    /* a saved swap that reached today's workout goes with the plan, where no set of it is done yet */
-    if (s.mv) for (const id of Object.keys(s.mv)) if (was[id] === s.mv[id] && !rowsOf(s, id).some(isDone)) { s.mv = Object.assign({}, s.mv); delete s.mv[id]; ch = true; }
+    /* a saved swap that reached today's workout goes with the plan, and the movement the plan asks for comes in, where no set of it is done yet */
+    for (const pe of sessSlots(s)) {
+      const id = pe.id, cur = s.mv ? s.mv[id] : undefined, k = S.cfg.swap[id], want = isMv(k) && k !== pe.a ? k : undefined;
+      if (cur === want || rowsOf(s, id).some(isDone) || (cur !== undefined && was[id] !== cur)) continue;
+      s.mv = Object.assign({}, s.mv); if (want) s.mv[id] = want; else delete s.mv[id]; ch = true;
+    }
     if (ch) { s.ft = Date.now(); touch(s); }
   }
 }
-const planChanged = () => Object.keys(S.cfg.order).length > 0 || Object.keys(S.cfg.swap).length > 0;
+/* the list of exercises is not the one the plan started with (see resetPlan) */
+function planChanged() {
+  const me = S.cfg.me;
+  if (me.exp == null) return Object.keys(S.cfg.order).length > 0 || Object.keys(S.cfg.swap).length > 0;
+  return fitPlanData(fitAns(me)).some((list, w) => list.map((x) => x.mv).join() !== planSlots(w).map((pe) => moveOf(pe, null)).join());
+}
 /* one past the last set that is done: a set count lower than that would hide a done set that still counts */
 function doneTop(s, exId) { let n = 0; rowsOf(s, exId).forEach((r, i) => { if (isDone(r)) n = i + 1; }); return n; }
 function setBase(exId, n) {
@@ -3183,8 +3348,26 @@ function setBase(exId, n) {
 }
 /* the week as it stands now: every slot with its movement and planned sets */
 function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w, undefined, true)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
-/* how many muscles sit under their minimum or over their maximum weekly volume as the week is planned now */
-function volWarn() { const v = muscleVolume(weekItems()); return Object.keys(MUSCLE).filter((k) => landmark(k, v[k].d + v[k].i) !== 'ok').length; }
+/* the weekly sets of each muscle in the plan the app itself builds from the lifter's answers. What a muscle gets there is by design:
+   a beginner's fewer sets, a short workout, a gym without the machine. null when there are no answers to build from */
+function volBase() {
+  const me = S.cfg.me; if (me.exp == null) return null;
+  const items = []; for (const list of fitPlanData(fitAns(me))) for (const x of list) items.push({ mv: x.mv, sets: x.sets });
+  return muscleVolume(items);
+}
+/* the muscles whose week sits under its minimum or over its maximum by the lifter's own doing: { muscle: 'under' | 'over' }.
+   A muscle that is no further out than in the plan the app built is as it was meant to be, and is not called out */
+function volFlags() {
+  const now = muscleVolume(weekItems()), base = volBase(), out = {};
+  for (const k of Object.keys(MUSCLE)) {
+    const t = now[k].d + now[k].i, st = landmark(k, t); if (st === 'ok') continue;
+    if (base) { const b = base[k].d + base[k].i; if (landmark(k, b) === st && (st === 'under' ? t >= b : t <= b)) continue; }
+    out[k] = st;
+  }
+  return out;
+}
+/* how many muscles the lifter's changes took out of their weekly range */
+function volWarn() { return Object.keys(volFlags()).length; }
 /* what one mesocycle did: sets per week (start and peak), and the strength change of each movement */
 function mesoSummary(id) {
   const l = mesoSessions(id).sort((a, b) => a.ts - b.ts), wkSets = {}, mus = {}, lifts = {};
@@ -3303,7 +3486,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin', 'tour']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;
@@ -3600,8 +3783,15 @@ const anyLeft = (s) => exList(S.tab, s).some((x) => firstUndone(s, x) >= 0);
 function setView(v, keep) {
   S.view = v; $('#app').dataset.view = v; $('#app').dataset.w = S.tab;
   for (const b of $$('#tabbar [data-view]')) { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }
-  if (v === 'profile') renderProfile();
+  if (v === 'profile') renderProfile(); else if (v === 'journey') renderJourney();
   if (!keep) window.scrollTo(0, 0);
+  arrive(v);
+}
+/* a screen that is come to plays its entrance once: the class is taken off again, so that a redraw in place stays still */
+function arrive(v) {
+  const el = $('.v-' + v); if (!el || reduced) return;
+  el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter');
+  clearTimeout(S.enterT); S.enterT = setTimeout(() => el.classList.remove('enter'), 1500);
 }
 /* what belongs to the workout on screen (the open exercise, a set being edited, the rest and its Undo) is let go when another workout opens */
 function leaveWorkout() { S.open = null; S.edit = null; S.drafts = {}; S.resetAsk = false; S.fbFor = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; clearTimeout(S.slideT); if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
@@ -3614,21 +3804,83 @@ function openWorkout(w, picked) {
 /* how long a workout really takes (see workMins) */
 const minsOf = (list) => workMins(list);
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
-/* today: the player, the workout that is next (or running), and the week as a path of four stops */
+/* ---- the round as a road. Each workout is a stop; the stops of a week wind down the screen, week under week, from the week that is
+   being trained down to the cup at the end of the round. Friends stand along the road, and the coach says how the week is going ---- */
+/* where a stop stands across the road (the middle, one side, the middle, the other side), how far apart two stops are down the road,
+   how far to a side (in hundredths of the road's width), and the room above the first stop */
+const STOP_X = [0, 1, 0, -1], PITCH = 118, AMP = 21, ROAD_TOP = 40, FAR = { pitch: 100, top: 12, rad: 32, foot: 94 }, NEAR = { pitch: PITCH, top: ROAD_TOP, rad: 38, foot: 112 };
+const ROAD_I = {
+  tee: '<svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 3.6c.7 1.3 1.9 2 3.4 2s2.7-.7 3.4-2l5.1 2.3-1.9 4.3-2.3-.9v11.2H7.7V9.3l-2.3.9-1.9-4.3z"/></svg>',
+  shorts: '<svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14l1.6 14.5h-6.9L12 11.2 10.3 19H3.4z"/></svg>',
+  lock: '<svg class="i ln" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>',
+};
+/* a workout is drawn by what it trains: a shirt for the upper body, shorts for the lower */
+const stopIcon = (w) => ROAD_I[/Lower/.test(PLAN[w].name) ? 'shorts' : 'tee'];
+/* the friends along the road: four looks of the same figure, at a middling level and with no gear */
+const PALS = [{ skin: 2, hair: 4, hc: 1, beard: 0, shirt: 6, gear: false }, { skin: 4, hair: 6, hc: 0, beard: 1, shirt: 4, gear: false }, { skin: 0, hair: 8, hc: 5, beard: 0, shirt: 1, gear: false }, { skin: 3, hair: 3, hc: 0, beard: 2, shirt: 5, gear: false }];
+const CHEERS = () => [say('כל הכבוד!', 'Well done!'), say('ממשיכים!', 'Keep going!'), say('יש לך את זה!', 'You\'ve got this!'), say('עוד קצת!', 'A little more!'), say('לא עוצרים!', 'No stopping now!'), say('ככה בונים גוף', 'This is how it\'s built')];
+/* what a week is called on the road: a word for its place in the round, never a number of reps */
+function weekWord(k, W, easy) {
+  if (easy) return say('נותנים לגוף לנוח', 'Letting the body rest');
+  return k <= 1 ? say('נכנסים לקצב', 'Finding the rhythm') : k >= W - 1 ? say('הכי קרוב לקצה', 'Closest to the edge') : k === 2 ? say('מעלים הילוך', 'Shifting up') : say('דוחפים חזק', 'Pushing hard');
+}
+/* the coach, beside the week that is being trained: where it stands, in a few words */
+function coachLine(dn, on, easy, first) {
+  if (on) return say('אימון באמצע. ממשיכים?', 'A workout is under way. Shall we go on?');
+  if (first) return say('האימון הראשון מחכה. אני איתך.', 'Your first workout is waiting. I\'m with you.');
+  if (easy) return say('שבוע קל: פחות סטים, רחוק מכשל.', 'Easy week: fewer sets, far from failure.');
+  return [say('שבוע חדש. מתחילים חזק.', 'A new week. Start strong.'), say('אחד בפנים. ממשיכים!', 'One down. Keep going!'), say('חצי שבוע מאחוריך.', 'Half the week is behind you.'), say('עוד אימון אחד וסגרת שבוע!', 'One more workout and the week is done!')][Math.min(3, dn)];
+}
+/* a figure beside a stop, on the side of the road that is free: side is 'l' or 'r' on the screen, whatever the language */
+function palHTML(side, fig, words, cls) {
+  return '<span class="pal ' + side + (cls ? ' ' + cls : '') + '" dir="ltr"><span class="pal-fig" aria-hidden="true">' + fig + '</span>' + (words ? '<span class="pal-say" dir="' + (LANG === 'he' ? 'rtl' : 'ltr') + '">' + words + '</span>' : '') + '</span>';
+}
+/* the line of the road between two stops: (x in hundredths of the width, y in pixels), a curve that leaves and arrives straight down */
+const trailSeg = (x1, y1, x2, y2, on) => '<path' + (on ? ' class="on"' : '') + ' d="M' + x1 + ' ' + y1 + 'C' + x1 + ' ' + (y1 + (y2 - y1) / 2) + ' ' + x2 + ' ' + (y2 - (y2 - y1) / 2) + ' ' + x2 + ' ' + y2 + '"/>';
+function roadHTML(nu, w, P, lvl) {
+  const M = S.cfg.meso, over = mesoDone(M), W = S.cfg.weeks, mine = over ? [] : mesoSessions(M.id), early = !over && !!M.early;
+  /* how many times each workout was finished in this round, and whether one of it is under way */
+  const E = [0, 1, 2, 3].map((i) => mine.filter((x) => x.w === i && x.end).length), on = [0, 1, 2, 3].map((i) => { const L = live(i); return !!(L && hasDone(L)); });
+  const r0 = E[nu.next] + 1, last = early ? Math.max.apply(null, E.map((e) => e + 1)) : Math.max(W, r0), first = !sorted().some(hasDone);
+  /* in the week that is being trained every stop can be opened: the one under way, the next, the ones done and the ones still to do.
+     Further down the road a stop only shows what is coming */
+  const state = (r, i) => (r === r0 ? (on[i] ? 'live' : i === nu.next ? 'next' : E[i] >= r ? 'done' : 'todo') : E[i] >= r ? 'done' : 'later');
+  const SAY = { live: say('באמצע', 'in progress'), next: say('הבא', 'next'), done: say('הושלם', 'complete'), todo: say('עוד לא', 'not yet'), later: say('בהמשך', 'later on') };
+  const week = (r, k) => {
+    const easy = early || r >= W, cur = r === r0, st = [0, 1, 2, 3].map((i) => state(r, i)), dn = st.filter((x) => x === 'done').length;
+    /* the lifter's own figure stands by the stop the big card is about; the coach (or a friend, further down) takes a wide side that is free */
+    const meAt = cur ? w : -1, palAt = cur ? (meAt === 1 ? 3 : 1) : k % 2 ? 1 : 3, G = cur ? NEAR : FAR;
+    let stops = '', trail = '';
+    for (let i = 0; i < 4; i++) {
+      const x = 50 + STOP_X[i] * AMP, y = G.top + i * G.pitch, s = st[i], side = STOP_X[i] > 0 ? 'l' : 'r', lab = wkFull(i) + ', ' + SAY[s];
+      const coin = '<span class="dot" aria-hidden="true">' + (s === 'done' ? ICON.check : stopIcon(i)) + '</span><b>' + wkShort(i) + '</b>';
+      stops += '<li class="stop ' + s + '" style="top:' + y + 'px;left:' + x + '%;--i:' + i + '">' +
+        (cur ? '<button class="tab w' + i + ' ' + s + '" type="button" data-tab="' + i + '" aria-label="' + lab + '"' + (i === w ? ' aria-current="true"' : '') + '>' + (i === meAt ? '<span class="go-chip" aria-hidden="true">' + (s === 'live' ? say('המשך', 'Go on') : say('התחל', 'Start')) + '</span>' : '') + coin + '</button>'
+          : '<button class="lk w' + i + ' ' + s + '" type="button" tabindex="-1" data-lock="1" aria-label="' + say('שבוע ', 'Week ') + r + ', ' + lab + '">' + coin + '</button>') +
+        (i === meAt ? palHTML(side, avatar(lvl), '', 'me') : '') +
+        (i === palAt ? (cur ? palHTML(side, avatarSVG(COACH, 12, { still: true }), coachLine(dn, on.some(Boolean), easy, first), 'coach') : palHTML(side, avatarSVG(PALS[(r + k) % PALS.length], 12, { still: true }), CHEERS()[(r * 2 + k) % 6], '')) : '') + '</li>';
+      if (i < 3) trail += trailSeg(x, y + G.rad, 50 + STOP_X[i + 1] * AMP, y + G.rad + G.pitch, s === 'done' && st[i + 1] !== 'todo' && st[i + 1] !== 'later');
+    }
+    const H = G.top + 3 * G.pitch + G.foot;
+    return '<div class="pw' + (cur ? ' cur' : ' far') + (easy ? ' easy' : '') + '">' + (cur ? '' : '<p class="pw-h"><b>' + (easy ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + r) + '</b><span>' + weekWord(r, W, easy) + '</span></p>') +
+      '<div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol' + (cur ? ' id="tabs"' : '') + '>' + stops + '</ol></div></div>';
+  };
+  let weeks = '';
+  for (let r = r0, k = 0; r <= last; r++, k++) weeks += week(r, k);
+  const easyNow = P.m && P.dl;
+  return '<section class="road week" aria-label="' + say('המסלול של הסבב', 'The road of this round') + '"><div class="road-h"><div><h2>' + (easyNow ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2><p>' + weekWord(r0, W, early || r0 >= W) + '</p></div>' +
+    '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית שלי', 'My plan') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div>' + weeks +
+    '<div class="pw-end"><span class="cup" aria-hidden="true">' + glyph('cup') + '</span><b>' + say('סוף סבב ', 'End of round ') + (over ? M.n + 1 : M.n) + '</b><span>' + say('מכאן מתחילים חזק יותר', 'From here you start stronger') + '</span></div></section>';
+}
+/* the first screen: the player, the workout that is next (or running), and the road of the round */
 function renderHome() {
-  const nu = nextUp(), w = nu.live >= 0 ? nu.live : nu.next, s = live(w), list = exList(w, s), P = phase(w, s), M = S.cfg.meso;
+  const nu = nextUp(), w = nu.live >= 0 ? nu.live : nu.next, s = live(w), list = exList(w, s), P = phase(w, s), me = meNow();
   const total = list.reduce((n, e) => n + e.sets, 0), dn = s ? list.reduce((n, e) => n + doneCount(s, e), 0) : 0;
-  const ended = (i) => mesoSessions(M.id).filter((x) => x.w === i && x.end).length, over = mesoDone(M), base = ended(nu.next);
-  const SAY = { live: say('באמצע', 'in progress'), next: say('הבא', 'next'), done: say('הושלם', 'complete'), todo: say('עוד לא', 'not yet') };
-  const week = PLAN.map((x, i) => {
-    const L = live(i), st = L && hasDone(L) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
-    return '<button class="tab w' + i + ' ' + st + '" type="button" data-tab="' + i + '" aria-label="' + wkFull(i) + ', ' + SAY[st] + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : i + 1) + '</span><b>' + wkShort(i) + '</b></button>';
-  }).join('');
-  $('#home').innerHTML = playerHTML(meNow()) + bannerHTML() +
+  $('#home').innerHTML = playerHTML(me) + bannerHTML() +
     '<section class="card next w' + w + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
     '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
-    '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (P.m && P.dl ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2>' + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
+    roadHTML(nu, w, P, me.L.lvl);
 }
 function renderTabs() { renderHome(); }
 /* a workout that is under way is marked on "today", from wherever the lifter is looking */
@@ -4278,8 +4530,8 @@ function closeSheet() {
   /* the picker for adding an exercise was opened from the plan: closing it goes back there */
   if (kind === 'swap' && S.pick && S.pick.mode === 'add') { S.pick = null; S.sheet = 'meso'; renderMeso(); return; }
   sheetGhost(sh);
-  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.pick = null; S.blEdit = null; S.msPage = null;
-  if (kind && kind !== 'sum' && kind !== 'list') renderAll();
+  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.msAdv = false; S.pick = null; S.blEdit = null; S.msPage = null;
+  if (kind && kind !== 'sum' && kind !== 'list' && kind !== 'lv') renderAll();
 }
 function editorInput(rowEl) {
   const s = S.sessions[S.edSid]; if (!s || !rowEl) return;
@@ -4361,6 +4613,7 @@ function wireApp() {
     else if (b.id === 'playerBtn') setView('profile');
     else if (b.id === 'planBtn') openMeso();
     else if (b.classList.contains('tab')) openWorkout(+b.dataset.tab, true);
+    else if (b.dataset.lock) { b.classList.remove('no'); void b.offsetWidth; b.classList.add('no'); toast(ROAD_I.lock + '<b>' + say('נפתח בהמשך המסלול', 'Opens further down the road') + '</b>'); }
   });
   const list = $('#exList');
   list.addEventListener('click', (ev) => {
@@ -4505,9 +4758,9 @@ function wireApp() {
   });
   /* a sheet or the opening screens, while open, are the only thing in reach: the focus moves in, the page behind is out of reach
      (for the keyboard and for a screen reader), and on closing the focus goes back to what opened it */
-  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'); let opener = null;
+  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'), tour = $('#tour'); let opener = null;
   const modal = () => {
-    const box = !ob.hidden ? ob : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    const box = !ob.hidden ? ob : !tour.hidden ? tour : !sheet.hidden ? $('.sheet-in', sheet) : null;
     for (const el of behind) el.inert = !!box;
     if (box) {
       if (!opener) { const a = document.activeElement; opener = a && a !== document.body ? { el: a, id: a.id } : {}; }
@@ -4518,7 +4771,7 @@ function wireApp() {
     }
   };
   const watch = new MutationObserver(modal);
-  watch.observe(sheet, { attributes: true, attributeFilter: ['hidden'] }); watch.observe(ob, { attributes: true, attributeFilter: ['hidden'] });
+  for (const el of [sheet, ob, tour]) watch.observe(el, { attributes: true, attributeFilter: ['hidden'] });
   sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); });
   sheet.addEventListener('change', (ev) => {
     if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }
@@ -4527,12 +4780,13 @@ function wireApp() {
     if (ev.target.classList.contains('note-in')) { const e = S.open && findEx(S.open); if (e) saveNote(e.mv, ev.target.value); return; }
     coachSheetChange(ev); meSheetChange(ev);
   });
-  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on) { if (!sheet.hidden) closeSheet(); else closeChat(); } });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on) { if (TR.on) tourEnd(); else if (!sheet.hidden) closeSheet(); else closeChat(); } });
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (rest.on) tickRest(); if (live(S.tab)) keepAwake(); });
   /* the phone's back button, when gymi runs inside its native shell: close what is open, else go back to today */
   window.gymiBack = () => {
+    if (TR.on) { tourEnd(); return true; }
     if (!sheet.hidden) { if (S.sheet === 'meso' && S.msPage) { S.msPage = null; S.blEdit = null; renderMeso(); } else closeSheet(); return true; }
     if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }
     if (OB.on) { if (OB.step > 0) { obStep(-1); return true; } if (S.cfg.me.ob) { closeOb(); return true; } return false; }
@@ -4752,9 +5006,9 @@ function openAdd(w) { S.sheet = 'swap'; S.pick = { mode: 'add', w, mu: w % 2 ? '
 
 /* ---- mesocycle sheet: the weekly ramp, volume per muscle against its landmarks, set counts, increments ---- */
 function volHTML(dl) {
-  const vol = muscleVolume(weekItems()), pct = (v) => Math.min(100, (v / 30) * 100).toFixed(1);
+  const vol = muscleVolume(weekItems()), F = volFlags(), pct = (v) => Math.min(100, (v / 30) * 100).toFixed(1);
   return Object.keys(MUSCLE).map((k) => {
-    const v = vol[k], tot = v.d + v.i, M = MUSCLE[k], st = dl ? 'ok' : landmark(k, tot);
+    const v = vol[k], tot = v.d + v.i, M = MUSCLE[k], st = dl ? 'ok' : F[k] || 'ok';
     return '<div class="vol-row ' + st + '"><span class="vol-n">' + muName(k) + '</span>' +
       '<div class="vol-bar" role="img" aria-label="' + muName(k) + ': ' + fmtN(tot) + say(' סטים בשבוע. הטווח המומלץ: ', ' sets a week. Suggested range: ') + M.mev + say(' עד ', ' to ') + M.mrv + '"><i class="band" style="inset-inline-start:' + pct(M.mev) + '%;width:' + pct(M.mrv - M.mev) + '%"></i><i class="val" style="width:' + pct(tot) + '%"></i></div>' +
       '<span class="vol-v"><b>' + fmtN(tot) + '</b></span>' +
@@ -4791,18 +5045,25 @@ function renderMeso() {
     let act;
     if (over) act = '<p class="ms-sub">' + say('סבב ', 'Round ') + M.n + say(' הושלם. האימון הבא פותח את סבב ', ' is complete. The next workout opens round ') + (M.n + 1) + '.</p>';
     else if (S.msAsk === 'dl') act = ask(say('להתחיל שבוע קל? אחריו מתחיל סבב חדש.', 'Start an easy week? A new round starts after it.'), say('כן, שבוע קל', 'Yes, easy week'), 'msDlYes');
-    else if (S.msAsk === 'plan') act = ask(say('להחזיר את רשימת התרגילים המקורית?', 'Bring back the original list of exercises?'), say('כן, אפס', 'Yes, reset'), 'planResetYes');
     else if (S.msAsk === 'new') act = ask(say('להתחיל סבב חדש משבוע 1?', 'Start a new round from week 1?'), say('כן, סבב חדש', 'Yes, new round'), 'msNewYes');
-    else act = (M.early ? '<button class="link" id="msDlOff" type="button">' + say('בטל שבוע קל', 'Cancel the easy week') + '</button>' : P.dl ? '' : '<button class="link" id="msDl" type="button">' + say('שבוע קל עכשיו', 'Easy week now') + '</button>') + '<button class="link" id="msNew" type="button">' + say('סבב חדש', 'New round') + '</button>' +
-      (planChanged() ? '<button class="link" id="planReset" type="button">' + say('איפוס תרגילים', 'Reset exercises') + '</button>' : '');
-    sh.innerHTML = '<div class="sheet-in ms" data-pg="menu" role="dialog" aria-modal="true" aria-label="' + say('סבב ותוכנית', 'Round and plan') + '"><div class="ed-h"><div><p class="kicker">' + say('סבב ', 'Round ') + P.n + (M.early && !over ? say(' · שבוע קל מוקדם', ' · early easy week') : '') + '</p><h2>' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + ' <small>' + say('מתוך ', 'of ') + W + '</small>') + '</h2></div>' + x + '</div>' +
+    else act = (M.early ? '<button class="link" id="msDlOff" type="button">' + say('בטל שבוע קל', 'Cancel the easy week') + '</button>' : P.dl ? '' : '<button class="link" id="msDl" type="button">' + say('שבוע קל עכשיו', 'Easy week now') + '</button>') + '<button class="link" id="msNew" type="button">' + say('סבב חדש', 'New round') + '</button>';
+    const back = S.msAsk === 'plan' ? ask(say('להחזיר את רשימת התרגילים המקורית?', 'Bring back the original list of exercises?'), say('כן, אפס', 'Yes, reset'), 'planResetYes')
+      : planChanged() ? '<button class="link" id="planReset" type="button">' + say('איפוס תרגילים', 'Reset exercises') + '</button>' : '';
+    /* the plan, plainly: the four workouts, each a tap away from its list of exercises. What steers the round (how close to failure each
+       week goes, the sets a muscle gets, the weight steps, an easy week, a new round) waits folded under "Advanced" */
+    const adv = !!S.msAdv || S.msAsk === 'dl' || S.msAsk === 'new';
+    const card = (w) => '<li><button class="pl-card w' + w + '" type="button" data-msw="' + w + '"><span class="pl-ic" aria-hidden="true">' + stopIcon(w) + '</span><span class="pl-t"><b>' + wkName(w) + '</b><small>' + cnt(planIds(w).length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(exList(w, null, true)) + say(' דק׳', ' min') + '</small></span>' + ICON.fwd + '</button></li>';
+    sh.innerHTML = '<div class="sheet-in ms" data-pg="menu" role="dialog" aria-modal="true" aria-label="' + say('התוכנית שלי', 'My plan') + '"><div class="ed-h"><div><p class="kicker">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + say('ארבעה אימונים', 'Four workouts') + '</h2></div>' + x + '</div>' +
+      '<p class="pl-sub">' + say('לוחצים על אימון כדי להוסיף, להחליף או להוריד תרגילים.', 'Tap a workout to add, swap or remove exercises.') + '</p>' +
+      '<ul class="pl-cards" aria-label="' + say('האימונים', 'The workouts') + '">' + PLAN.map((_, w) => card(w)).join('') + '</ul>' + (back ? '<div class="ms-act">' + back + '</div>' : '') +
+      '<button class="pl-adv" id="msAdv" type="button" aria-expanded="' + adv + '"><span>' + say('הגדרות מתקדמות', 'Advanced settings') + '</span>' + (off && !adv ? '<i class="pl-dot" title="' + say('יש מה לבדוק', 'Something to look at') + '"></i>' : '') + ICON.down + '</button>' +
+      (!adv ? '' : '<div class="pl-more"><p class="kicker">' + say('סבב ', 'Round ') + P.n + (M.early && !over ? say(' · שבוע קל מוקדם', ' · early easy week') : '') + ' · ' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + say(' מתוך ', ' of ') + W) + '</p>' +
       '<ol class="wk-strip">' + strip + '</ol>' +
       '<p>' + say('כל שבוע חזרה אחת קרוב יותר לכשל. האחרון קל.', 'Each week one rep closer to failure. The last is easy.') + '</p>' +
-      '<ul class="menu" aria-label="' + say('האימונים', 'The workouts') + '">' + PLAN.map((_, w) => row('data-msw="' + w + '"', '<i class="w-dot w' + w + '" aria-hidden="true"></i>' + wkName(w), cnt(planIds(w).length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise'))).join('') + '</ul>' +
       '<ul class="menu" aria-label="' + say('הסבב', 'The round') + '">' + row('data-msp="vol"', say('סטים בשבוע לפי שריר', 'Sets a week by muscle'), off ? cnt(off, 'שרירים מחוץ לטווח', 'שריר אחד מחוץ לטווח', 'muscles out of range', 'muscle out of range') : '', true) + row('data-msp="inc"', say('קפיצת משקל', 'Weight step'), '') +
       '<li class="m-row"><span>' + say('שבועות בסבב', 'Weeks in a round') + '</span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="' + say('שבוע פחות', 'One week less') + '"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="' + say('שבוע נוסף', 'One week more') + '"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></li>' +
       (mesoSessions(M.id).length ? row('data-sum="' + M.id + '"', say('סיכום הסבב', 'Summary of this round'), '') : '') + (past ? row('data-sum="' + past.id + '"', say('סיכום סבב ', 'Summary of round ') + past.n, '') : '') + '</ul>' +
-      '<div class="ms-act">' + act + '</div></div>';
+      '<div class="ms-act">' + act + '</div></div>') + '</div>';
   }
   $('.sheet-in', sh).scrollTop = top;
 }
@@ -4865,6 +5126,7 @@ function coachSheetClick(ev, id) {
   if (id === 'msDl' || id === 'msNew' || id === 'msNo') { S.msAsk = id === 'msDl' ? 'dl' : id === 'msNew' ? 'new' : null; renderMeso(); return true; }
   if (id === 'msDlYes') { startDeload(); S.msAsk = null; closeSheet(); return true; }
   if (id === 'msDlOff') { S.cfg.meso.early = 0; saveCfg(); renderMeso(); return true; }
+  if (id === 'msAdv') { S.msAdv = !S.msAdv; S.msAsk = null; renderMeso(); return true; }
   if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>' + say('סבב ', 'Round ') + S.cfg.meso.n + say(' התחיל.', ' has started.') + '</b>'; closeSheet(); return true; }
   if (id === 'dlYes') { startDeload(); closeSheet(); return true; }
   return false;
@@ -4925,7 +5187,7 @@ function renderMe() {
   const P = meNow();
   S.lvl = P.L.lvl;
   const me = $('#tbMe'); if (me) me.innerHTML = avatar(P.L.lvl, { bust: true });
-  if (S.view === 'profile') renderProfile(P);
+  if (S.view === 'profile') renderProfile(P); else if (S.view === 'journey') renderJourney(P);
   return P;
 }
 /* the strip at the top of "today": who is training, at which level, and the run of weeks */
@@ -4952,6 +5214,45 @@ function renderProfile(P) {
     '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
     '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
     '<ul class="rows"><li class="tap"><button class="row-b one" id="setBtn" type="button"><span class="h-t">' + say('הגדרות', 'Settings') + '</span>' + ICON.fwd + '</button></li></ul>';
+}
+/* ---- the journey: the levels as a road, from the first to the hundredth. Every stop is a level that opens something, and on the
+   wide sides of the road stands the player's own character, dressed as it will be there ---- */
+const J_PITCH = 140, J_TOP = 44;
+const toGo = (n) => (n === 1 ? say('עוד רמה אחת', '1 level to go') : say('עוד ' + n + ' רמות', n + ' levels to go'));
+function renderJourney(P) {
+  P = P || meNow();
+  const L = P.L, lvl = L.lvl, top = REWARDS[REWARDS.length - 1].at, nx = nextReward(lvl), N = REWARDS.length, H = J_TOP + (N - 1) * J_PITCH + 132;
+  const cap = (a, b) => '<figcaption><b>' + a + '</b><span>' + b + '</span></figcaption>';
+  let stops = '', trail = '';
+  REWARDS.forEach((r, i) => {
+    const x = 50 + STOP_X[i % 4] * AMP, y = J_TOP + i * J_PITCH, s = lvl >= r.at ? 'done' : nx && nx.at === r.at ? 'next' : 'later', side = STOP_X[i % 4] > 0 ? 'l' : 'r';
+    stops += '<li class="stop ' + s + (r.at === top ? ' top' : '') + '" style="top:' + y + 'px;left:' + x + '%;--i:' + Math.min(i, 6) + '">' +
+      '<button class="lv" type="button" data-lv="' + r.at + '" aria-label="' + say('רמה ', 'Level ') + r.at + ': ' + nm(r) + (s === 'done' ? say(', הושג', ', reached') : '') + '">' +
+      (s === 'next' ? '<span class="go-chip" aria-hidden="true">' + toGo(r.at - lvl) + '</span>' : '') + '<span class="dot" aria-hidden="true">' + r.at + '</span><b>' + nm(r) + '</b></button>' +
+      /* every second stop has a wide side: there the character stands as it will look at that level */
+      (i % 2 && r.at !== top ? palHTML(side, avatar(r.at, { still: true }), '', 'pv') : '') + '</li>';
+    if (i < N - 1) trail += trailSeg(x, y + 38, 50 + STOP_X[(i + 1) % 4] * AMP, y + 38 + J_PITCH, lvl >= REWARDS[i + 1].at);
+  });
+  $('#journey').innerHTML = '<section class="jr-hero" aria-label="' + say('המסע שלי', 'My journey') + '"><p class="jr-k">' + say('המסע שלך', 'Your journey') + '</p>' +
+    '<h1>' + (lvl >= top ? say('רמה ' + lvl + '. מעבר לפסגה.', 'Level ' + lvl + '. Past the summit.') : say('מרמה ' + lvl + ' עד רמה ' + top, 'From level ' + lvl + ' to level ' + top)) + '</h1>' +
+    '<div class="ob-ladder" aria-hidden="true"><figure class="now"><span class="ob-fig">' + avatar(lvl) + '</span>' + cap(say('רמה ', 'Level ') + lvl, say('היום', 'Today')) + '</figure>' +
+    (lvl >= top ? '' : '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span><figure class="max"><span class="ob-fig">' + avatar(top) + '</span>' + cap(say('רמה ', 'Level ') + top, say('המטרה', 'The goal')) + '</figure>') + '</div>' +
+    '<div class="jr-lv"><span class="lv-badge">' + say('רמה ', 'Level ') + lvl + '</span>' + xpBar(pctOf(L)) + '<span class="jr-nx" aria-hidden="true">' + (lvl + 1) + '</span></div>' +
+    '<p class="jr-line">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ' + (lvl + 1), nf(L.need - L.into) + ' points to level ' + (lvl + 1)) + '</p></section>' +
+    '<section class="road jr" aria-label="' + say('מה נפתח בדרך', 'What opens on the way') + '"><div class="road-h"><div><h2>' + say('מה נפתח בדרך', 'What opens on the way') + '</h2><p>' + say('כל סט שווה נקודות, והנקודות מעלות רמה', 'Every set earns points, and points raise the level') + '</p></div></div>' +
+    '<div class="pw"><div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol></div></div>' +
+    '<p class="jr-after">' + say('ואחרי רמה 100? ממשיכים לעלות.', 'And after level 100? The levels keep going.') + '</p></section>';
+}
+/* a stop of the journey, opened: the character as it will stand at that level */
+function openLevel(at) {
+  const r = REWARDS.find((x) => x.at === at); if (!r) return;
+  const lvl = meNow().L.lvl, sh = $('#sheet');
+  S.sheet = 'lv';
+  sh.innerHTML = '<div class="sheet-in lvs" role="dialog" aria-modal="true" aria-label="' + say('רמה ', 'Level ') + at + '"><div class="ed-h"><div><p class="kicker">' + (lvl >= at ? say('כבר שלך', 'Already yours') : toGo(at - lvl)) + '</p><h2>' + say('רמה ', 'Level ') + at + '</h2></div>' +
+    '<button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    '<div class="lvs-stage"><span class="lvs-fig">' + avatar(at, { flex: true }) + '</span></div><p class="lvs-t">' + glyph('gift') + '<span>' + nm(r) + '</span></p>' +
+    '<button class="btn primary big" data-close="1" type="button">' + (lvl >= at ? say('סגור', 'Close') : say('ממשיכים לשם', 'On my way')) + '</button></div>';
+  sh.hidden = false;
 }
 /* ---- settings: the language, what the plan is built on, sound and vibration, and the backup. Every choice is saved at once ---- */
 function renderSettings() {
@@ -5119,6 +5420,7 @@ function wireMe() {
     else if (b.id === 'setBtn') openSettings();
     else if (b.id === 'bdgAll') { S.bdgAll = !S.bdgAll; renderProfile(); const again = $('#bdgAll'); if (again) again.focus({ preventScroll: true }); }
   });
+  $('#journey').addEventListener('click', (ev) => { const b = ev.target.closest('button[data-lv]'); if (b) openLevel(+b.dataset.lv); });
 }
 
 /* ================================================================== chat with the coach, Eilon
@@ -5512,10 +5814,9 @@ const STATIC = () => [
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
   ['#tabbar [data-view="home"] .tb-l', '', say('אימונים', 'Workouts')],
   ['#tabbar [data-view="profile"] .tb-l', '', say('פרופיל', 'Profile')],
-  ['#tabbar [data-view="progress"] .tb-l', '', say('התקדמות', 'Progress')],
+  ['#tabbar [data-view="journey"] .tb-l', '', say('מסע', 'Journey')],
   ['#chatOpen .tb-l', '', say('אילון', 'Eilon')],
   ['#pre', 'aria-label', say('התאוששות מהאימון הקודם', 'Recovery since the last workout')],
-  ['.v-progress .big', '', say('התקדמות', 'Progress')],
   ['#chat', 'aria-label', say('צ׳אט עם אילון', 'Chat with Eilon')],
   ['.chat-h h2', '', say('אילון', 'Eilon')],
   ['.chat-h p', '', say('המאמן שלך', 'Your coach')],
@@ -5543,7 +5844,7 @@ function applyLang() {
   const dir = LANG === 'he' ? 'rtl' : 'ltr', app = $('#app');
   document.documentElement.lang = LANG; document.documentElement.dir = dir; app.lang = LANG; app.dir = dir;
   staticText();
-  if (was !== LANG) { S.banner = ''; S.bannerKind = ''; S.backupNote = ''; setSync(); fillCtx(); chatText(); compNote(''); renderMsgs(); }
+  if (was !== LANG) { S.banner = ''; S.bannerKind = ''; S.backupNote = ''; setSync(); fillCtx(); chatText(); compNote(''); renderMsgs(); if (TR.on) tourDraw(); }
   /* inside the phone app, the shell's own screens follow the page */
   if (window.gymiNative && typeof window.gymiNative.lang === 'function') window.gymiNative.lang(LANG);
 }
@@ -5670,17 +5971,23 @@ const fitAns = (a) => ({ exp: a.exp, goals: a.goals || [], time: a.time, ok: EQ_
 /* the plan is made for its lifter (see fitPlanData): the movements the gym has, the sets for this experience, and as many
    exercises as the time holds. It is written from the plan's own slots each time, so going through the opening again with
    other answers gives the plan those answers ask for. Only before the first logged set, like applyExp */
-function fitPlan() {
+function fitPlan(again) {
   const me = S.cfg.me;
-  if (meNow().T.sets > 0) return;
+  if (!again && meNow().T.sets > 0) return;
   const now = Date.now(), cfg = S.cfg;
-  cfg.swap = {}; cfg.slots = {}; cfg.order = {}; cfg.base = {};
+  cfg.swap = {}; cfg.order = {};
+  /* again: the lifter asked for the plan back after changing it. The set counts and the slots that old workouts read stay as they are */
+  if (!again) { cfg.slots = {}; cfg.base = {}; }
   fitPlanData(fitAns(me)).forEach((list, w) => {
     const ids = list.map((x, i) => {
       let id = x.id;
       if (x.kind === 'swap') cfg.swap[id] = x.mv;
-      else if (x.kind === 'repl') { id = 'c' + now.toString(36) + w + i; cfg.slots[id] = { w, a: x.mv, sets: x.full, reps: x.reps, rest: x.rest.slice() }; }
-      if (x.sets !== x.full) cfg.base[id] = { n: x.sets, t: now, x: 1 };
+      else if (x.kind === 'repl') {
+        /* a slot that was made for this movement before is taken again */
+        id = Object.keys(cfg.slots).find((k) => cfg.slots[k].w === w && cfg.slots[k].a === x.mv) || 'c' + now.toString(36) + w + i;
+        if (!cfg.slots[id]) cfg.slots[id] = { w, a: x.mv, sets: x.full, reps: x.reps, rest: x.rest.slice() };
+      }
+      if (!again && x.sets !== x.full) cfg.base[id] = { n: x.sets, t: now, x: 1 };
       return id;
     });
     if (ids.join() !== PLAN[w].ex.map((e) => e.id).join()) cfg.order[w] = ids;
@@ -5855,6 +6162,69 @@ function obFinish(skip) {
   }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
   closeOb(); setView('home'); renderAll();
+  /* a lifter who has just come in is shown around, once */
+  if (!skip && !me.tour) setTimeout(startTour, 700);
+}
+/* ---- the first tour. Once the opening is passed the screen dims, one thing at a time stays lit, and the coach walks in from the
+   right to say what it is. A tap anywhere goes on; it can be skipped, and it is shown once (see startTour) ---- */
+const TR = { on: false, i: 0 };
+const TOUR = () => [
+  { at: '#tabbar [data-view="home"]', t: say('כאן האימונים שלך. מכאן מתחילים בכל פעם.', 'Your workouts live here. Every session starts from this tab.') },
+  { at: '#homeGo', t: say('זה האימון הבא שלך. לוחצים על "התחל אימון", ואני מלווה אותך סט אחרי סט.', 'This is your next workout. Tap "Start workout" and I\'ll take you through it, set by set.') },
+  { at: '#tabs .tab[aria-current="true"] .dot', round: 1, t: say('זה המסלול של השבוע. כל אימון שמסיימים הופך לזהב.', 'This is the road of your week. Every workout you finish turns gold.') },
+  { at: '#tabbar [data-view="journey"]', t: say('במסע רואים לאן כל זה מוביל: הדמות שלך ברמה 100.', 'The journey shows where all this leads: your character at level 100.') },
+  { at: '#tabbar [data-view="profile"]', t: say('בפרופיל נמצאים הדמות שלך, ההישגים וההגדרות.', 'Your profile holds your character, your achievements and the settings.') },
+  { at: '#chatOpen', alt: '.chat-h', t: say('ואני תמיד כאן. שאלה על תרגיל, על כאב או על התוכנית? לוחצים עליי.', 'And I\'m always here. A question about an exercise, a pain or the plan? Tap me.') },
+];
+/* the light goes to what is spoken of, and the coach stands on the half of the screen that it is not in. now: without the glide */
+function tourPlace(now) {
+  if (!TR.on) return;
+  const st = TOUR()[TR.i], shown = (x) => (x && x.getBoundingClientRect().width > 0 ? x : null), el = shown($(st.at)) || shown(st.alt && $(st.alt)), box = $('#tour'), hole = $('#tourHole'), card = $('#tourCard');
+  /* what is not on this screen is passed over */
+  if (!el) { if (TR.i < TOUR().length - 1) { TR.i++; tourShow(); } else tourEnd(); return; }
+  let r = el.getBoundingClientRect();
+  /* what is spoken of is brought onto the screen first (the bar at the foot is always there) */
+  if (!el.closest('#tabbar') && (r.top < 90 || r.bottom > innerHeight - 120)) { window.scrollTo(0, Math.max(0, window.scrollY + r.top - innerHeight * 0.3)); r = el.getBoundingClientRect(); }
+  const pad = st.round ? 12 : 7, x = r.left - pad, y = r.top - pad, w = r.width + pad * 2, h = r.height + pad * 2, low = y + h / 2 > innerHeight / 2;
+  box.classList.toggle('now', !!now);
+  hole.style.left = x + 'px'; hole.style.top = y + 'px'; hole.style.width = w + 'px'; hole.style.height = h + 'px'; hole.style.borderRadius = st.round ? '50%' : Math.min(24, h / 2) + 'px';
+  card.style.top = low ? 'auto' : y + h + 22 + 'px'; card.style.bottom = low ? innerHeight - y + 22 + 'px' : 'auto';
+}
+function tourShow() {
+  const T = TOUR(), card = $('#tourCard');
+  $('#tourText').textContent = T[TR.i].t;
+  $('#tourDots').innerHTML = T.map((_, i) => '<i' + (i === TR.i ? ' class="on"' : '') + '></i>').join('');
+  $('#tourNext').textContent = TR.i === T.length - 1 ? say('מתחילים!', 'Let\'s go!') : say('הבא', 'Next');
+  tourPlace(TR.i === 0);
+  if (TR.i > 0 && !reduced) { card.classList.remove('hop'); void card.offsetWidth; card.classList.add('hop'); }
+}
+/* the tour's own frame, in the language of the page (drawn again when the language changes under it) */
+function tourDraw() {
+  const box = $('#tour');
+  box.setAttribute('aria-label', say('סיור קצר באפליקציה', 'A short tour of the app'));
+  box.innerHTML = '<div class="tour-hole" id="tourHole"></div><button class="tour-skip" id="tourSkip" type="button">' + say('דילוג', 'Skip') + '</button>' +
+    '<div class="tour-card" id="tourCard"><span class="tour-fig" aria-hidden="true">' + avatarSVG(COACH, 12, {}) + '</span>' +
+    '<div class="tour-say" dir="' + (LANG === 'he' ? 'rtl' : 'ltr') + '"><p id="tourText" aria-live="polite"></p><div class="tour-foot"><span class="tour-dots" id="tourDots" aria-hidden="true"></span><button class="btn primary" id="tourNext" type="button"></button></div></div></div>';
+  const av = $('.tour-fig .av', box); if (av) av.classList.add('grin');
+  tourShow();
+}
+function startTour() {
+  if (TR.on || OB.on || !$('#sheet').hidden) return;
+  closeChat(); if (S.view !== 'home') { renderHome(); setView('home'); }
+  window.scrollTo(0, 0);
+  TR.on = true; TR.i = 0;
+  tourDraw(); $('#tour').hidden = false;
+  $('#tourNext').focus({ preventScroll: true });
+}
+function tourStep() { if (!TR.on) return; if (TR.i >= TOUR().length - 1) { tourEnd(); return; } TR.i++; tourShow(); haptic('select'); }
+function tourEnd() {
+  if (!TR.on) return;
+  TR.on = false;
+  const box = $('#tour'); box.hidden = true; box.innerHTML = '';
+  if (!S.cfg.me.tour) { S.cfg.me.tour = Date.now(); saveCfg(); }
+  window.scrollTo(0, 0);
+  /* the page is back in reach a moment later: the way in is the next workout, and it shows it */
+  setTimeout(() => { const go = $('#homeGo'); if (!go || TR.on || S.view !== 'home') return; go.focus({ preventScroll: true }); go.classList.add('nudge'); setTimeout(() => go.classList.remove('nudge'), 2600); }, 80);
 }
 function obStep(d) {
   const n = OB.step + d; if (n < 0) return;
@@ -5893,6 +6263,10 @@ function maybeOb() {
   if (S.cfgReady && !S.cfg.me.ob && nextUp().live < 0 && $('#sheet').hidden) openOb();
 }
 function wireOb() {
+  const tour = $('#tour');
+  tour.addEventListener('click', (ev) => { if (ev.target.closest('#tourSkip')) tourEnd(); else tourStep(); });
+  tour.addEventListener('wheel', (ev) => ev.preventDefault(), { passive: false });
+  for (const t of ['resize', 'scroll']) window.addEventListener(t, () => { if (TR.on) tourPlace(true); }, { passive: true });
   const el = $('#ob');
   el.addEventListener('click', (ev) => {
     const b = ev.target.closest('button');
@@ -5948,7 +6322,7 @@ function boot(data) {
   if (Array.isArray(data.turns)) chat.turns = data.turns;
   applyLang();
   readColors(); wireApp(); wireFeel(); wireCoach(); wireChat(); wireMe(); wireOb();
-  setView(['workout', 'home', 'profile'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
+  setView(['workout', 'home', 'profile', 'journey'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
   splash(); renderAll(); initChat();
   initCloud(onRemoteChange);

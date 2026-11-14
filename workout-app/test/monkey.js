@@ -44,6 +44,7 @@ const sane = () => {
   const sheet = document.querySelector('#sheet');
   if (sheet.hidden !== !S.sheet) bad.push('sheet state ' + S.sheet + ' hidden=' + sheet.hidden);
   if (OB.on === document.querySelector('#ob').hidden) bad.push('opening screens state');
+  if (TR.on === document.querySelector('#tour').hidden) bad.push('tour state');
   const lock = document.body.style.overflow === 'hidden', need = OB.on || (document.querySelector('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches);
   if (lock && !need) bad.push('page scroll is locked with nothing open');
   if (S.view === 'workout' && !document.querySelector('#app').classList.contains('pre-on') && exList(S.tab).length && !document.querySelector('#exList .ex.open')) bad.push('workout screen with no exercise');

@@ -39,12 +39,12 @@ const ICON = {
    pin (the SHA-256 of the 4-digit code, or ''),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', tour: 0, arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', tour: pos(v.tour), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
   out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
@@ -403,20 +403,30 @@ function replaceSlot(exId, mv) {
   setOrder(w, ids, started ? null : now);
   return id;
 }
-/* back to the plan as it was written: its own exercises, in its own order */
+/* back to the plan as it started: for a lifter who answered the opening, the plan that was built from the answers (see fitPlan);
+   for one who did not, the plan as it is written. Its own exercises, in its own order */
 function resetPlan() {
   const was = S.cfg.swap;
-  S.cfg.order = {}; S.cfg.swap = {}; saveCfg();
+  if (S.cfg.me.exp != null) fitPlan(true); else { S.cfg.order = {}; S.cfg.swap = {}; saveCfg(); }
   for (let w = 0; w < PLAN.length; w++) {
     const s = live(w); if (!s) continue;
     let ch = false;
     if (s.o) { s.o = sessSlots(Object.assign({}, s, { o: null })).map((pe) => pe.id); ch = true; }
-    /* a saved swap that reached today's workout goes with the plan, where no set of it is done yet */
-    if (s.mv) for (const id of Object.keys(s.mv)) if (was[id] === s.mv[id] && !rowsOf(s, id).some(isDone)) { s.mv = Object.assign({}, s.mv); delete s.mv[id]; ch = true; }
+    /* a saved swap that reached today's workout goes with the plan, and the movement the plan asks for comes in, where no set of it is done yet */
+    for (const pe of sessSlots(s)) {
+      const id = pe.id, cur = s.mv ? s.mv[id] : undefined, k = S.cfg.swap[id], want = isMv(k) && k !== pe.a ? k : undefined;
+      if (cur === want || rowsOf(s, id).some(isDone) || (cur !== undefined && was[id] !== cur)) continue;
+      s.mv = Object.assign({}, s.mv); if (want) s.mv[id] = want; else delete s.mv[id]; ch = true;
+    }
     if (ch) { s.ft = Date.now(); touch(s); }
   }
 }
-const planChanged = () => Object.keys(S.cfg.order).length > 0 || Object.keys(S.cfg.swap).length > 0;
+/* the list of exercises is not the one the plan started with (see resetPlan) */
+function planChanged() {
+  const me = S.cfg.me;
+  if (me.exp == null) return Object.keys(S.cfg.order).length > 0 || Object.keys(S.cfg.swap).length > 0;
+  return fitPlanData(fitAns(me)).some((list, w) => list.map((x) => x.mv).join() !== planSlots(w).map((pe) => moveOf(pe, null)).join());
+}
 /* one past the last set that is done: a set count lower than that would hide a done set that still counts */
 function doneTop(s, exId) { let n = 0; rowsOf(s, exId).forEach((r, i) => { if (isDone(r)) n = i + 1; }); return n; }
 function setBase(exId, n) {
@@ -427,8 +437,26 @@ function setBase(exId, n) {
 }
 /* the week as it stands now: every slot with its movement and planned sets */
 function weekItems() { const out = []; for (let w = 0; w < 4; w++) for (const e of exList(w, undefined, true)) out.push({ id: e.id, w, mv: e.mv, sets: e.n0 }); return out; }
-/* how many muscles sit under their minimum or over their maximum weekly volume as the week is planned now */
-function volWarn() { const v = muscleVolume(weekItems()); return Object.keys(MUSCLE).filter((k) => landmark(k, v[k].d + v[k].i) !== 'ok').length; }
+/* the weekly sets of each muscle in the plan the app itself builds from the lifter's answers. What a muscle gets there is by design:
+   a beginner's fewer sets, a short workout, a gym without the machine. null when there are no answers to build from */
+function volBase() {
+  const me = S.cfg.me; if (me.exp == null) return null;
+  const items = []; for (const list of fitPlanData(fitAns(me))) for (const x of list) items.push({ mv: x.mv, sets: x.sets });
+  return muscleVolume(items);
+}
+/* the muscles whose week sits under its minimum or over its maximum by the lifter's own doing: { muscle: 'under' | 'over' }.
+   A muscle that is no further out than in the plan the app built is as it was meant to be, and is not called out */
+function volFlags() {
+  const now = muscleVolume(weekItems()), base = volBase(), out = {};
+  for (const k of Object.keys(MUSCLE)) {
+    const t = now[k].d + now[k].i, st = landmark(k, t); if (st === 'ok') continue;
+    if (base) { const b = base[k].d + base[k].i; if (landmark(k, b) === st && (st === 'under' ? t >= b : t <= b)) continue; }
+    out[k] = st;
+  }
+  return out;
+}
+/* how many muscles the lifter's changes took out of their weekly range */
+function volWarn() { return Object.keys(volFlags()).length; }
 /* what one mesocycle did: sets per week (start and peak), and the strength change of each movement */
 function mesoSummary(id) {
   const l = mesoSessions(id).sort((a, b) => a.ts - b.ts), wkSets = {}, mus = {}, lifts = {};
@@ -547,7 +575,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin', 'tour']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;

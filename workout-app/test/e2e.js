@@ -62,6 +62,10 @@ const report = () => { process.exitCode = bad.length || ERR.some((e) => e.length
 const sess = () => Object.keys(cloud).filter((k) => typeof cloud[k].w === 'number').map((k) => cloud[k]);
 /* the question about today's length, when it is asked: answered with the whole workout */
 const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t) { await pg.waitForTimeout(130); await t.click(); await pg.waitForTimeout(320); } };
+/* the tour that follows the opening, left by its corner button */
+const noTour = async (pg) => { await pg.waitForSelector('#tourSkip', { timeout: 5000 }); await pg.waitForTimeout(150); await pg.click('#tourSkip'); await pg.waitForTimeout(250); };
+/* what steers the round is folded away on the first page of the plan: this unfolds it */
+const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { await pg.click('#msAdv'); await pg.waitForTimeout(250); } };
 (async () => {
   const scheme = process.argv[2] || 'light', b = await chromium.launch(), A = await device(b, scheme), p = A.p; ERR.push(A.errs);
   const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : ' -> ' + JSON.stringify(info)));
@@ -197,8 +201,22 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   await p.click('#obNext'); await p.waitForTimeout(1400);
   const obA = await p.evaluate(() => { const m = S.cfg.me; return [m.name, m.exp, m.goal, m.look.hair, m.ob > 0, m.made > 0, S.cfg.lang, document.querySelector('#ob').hidden, planned(0, {}).ua1, m.goals.join('+'), m.time, m.eq, m.fb, m.pin, S.view, exList(0).length].join(); });
   check('the answers are kept and the app opens on the workouts, with the whole plan', obA === 'ליאור,1,0,2,true,true,he,true,3,0,0,0,2,,home,8' && !!cloud[cfgK] && cloud[cfgK].me.ob > 0 && cloud[cfgK].me.exp === 1 && cloud[cfgK].lang === 'he', [obA, cloud[cfgK] && cloud[cfgK].me]);
+  /* the tour: the screen dims, one thing is lit, and Eilon stands whole at the right with a word about it and the way on */
+  await p.waitForSelector('#tourNext'); await p.waitForTimeout(1000); await shot('o6-tour');
+  const tr0 = await p.evaluate(() => { const h = document.querySelector('#tourHole').getBoundingClientRect(), t = document.querySelector('#tabbar [data-view="home"]').getBoundingClientRect(), f = document.querySelector('.tour-fig').getBoundingClientRect(), s = document.querySelector('.tour-say').getBoundingClientRect(); return { on: TR.on, text: document.querySelector('#tourText').textContent, lit: h.left <= t.left && h.right >= t.right && h.top <= t.top && h.bottom >= t.bottom, right: f.left > s.right - 14 && f.right <= innerWidth + 1, whole: f.height > 120 && f.top >= 0 && f.bottom <= innerHeight, dots: document.querySelectorAll('#tourDots i').length, inert: document.querySelector('.cols').inert && document.querySelector('.brand').inert, focus: document.activeElement.id, fits: document.documentElement.scrollWidth <= innerWidth }; });
+  check('after the opening a short tour starts: the screen dims around the Workouts tab, and Eilon stands whole at the right and says what it is', tr0.on && tr0.text.includes('האימונים שלך') && tr0.lit && tr0.right && tr0.whole && tr0.dots === 6 && tr0.inert && tr0.focus === 'tourNext' && tr0.fits, tr0);
+  await p.mouse.click(195, 150); await p.waitForTimeout(750); await shot('o7-tour-go');
+  const tr1 = await p.evaluate(() => { const h = document.querySelector('#tourHole').getBoundingClientRect(), t = document.querySelector('#homeGo').getBoundingClientRect(), c = document.querySelector('#tourCard').getBoundingClientRect(); return { i: TR.i, lit: Math.abs(h.left - t.left) < 12 && Math.abs(h.top - t.top) < 12 && Math.abs(h.width - t.width) < 24, clear: c.top >= h.bottom || c.bottom <= h.top, text: document.querySelector('#tourText').textContent }; });
+  check('a tap anywhere moves the light on: to the button that starts the next workout, with the words clear of it', tr1.i === 1 && tr1.lit && tr1.clear && tr1.text.includes('התחל אימון'), tr1);
+  const lit = [];
+  for (let i = 0; i < 4; i++) { await p.click('#tourNext'); await p.waitForTimeout(700); lit.push(await p.evaluate(() => { const st = TOUR()[TR.i], h = document.querySelector('#tourHole').getBoundingClientRect(), t = document.querySelector(st.at).getBoundingClientRect(), c = document.querySelector('#tourCard').getBoundingClientRect(); return (h.left <= t.left + 1 && h.right >= t.right - 1 && h.top <= t.top + 1 && h.bottom >= t.bottom - 1 && t.top >= 0 && t.bottom <= innerHeight && c.top >= 0 && c.bottom <= innerHeight && (c.top >= h.bottom || c.bottom <= h.top) ? '' : 'off:') + st.at; })); }
+  check('then the road, the journey, the profile and Eilon: each lit whole, on the screen, with the words beside it', lit.join(' ') === '#tabs .tab[aria-current="true"] .dot #tabbar [data-view="journey"] #tabbar [data-view="profile"] #chatOpen' && (await txt('#tourNext')) === 'מתחילים!', lit);
+  await shot('o8-tour-end');
+  await p.click('#tourNext'); await p.waitForTimeout(1300);
+  const tr9 = await p.evaluate(() => ({ on: TR.on, hidden: document.querySelector('#tour').hidden, kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.tour > 0, inert: document.querySelector('.cols').inert, y: scrollY, view: S.view, focus: document.activeElement.id }));
+  check('its last step gives the app back at the top of the workouts, on the button that starts one, and the tour is not shown again', !tr9.on && tr9.hidden && tr9.kept && !tr9.inert && tr9.y === 0 && tr9.view === 'home' && tr9.focus === 'homeGo' && !!cloud[cfgK] && cloud[cfgK].me.tour > 0, tr9);
   // ---------- first workout, nothing logged before ----------
-  check('today stays quiet: the warning about weekly sets waits in the plan', !(await txt('#home')).includes('מחוץ לטווח') && (await p.evaluate(() => volWarn())) > 0, await txt('#home .week'));
+  check('today stays quiet, and the plan the app built is not called out for what it left low on purpose', !(await txt('#home')).includes('מחוץ לטווח') && (await p.evaluate(() => { const v = muscleVolume(weekItems()); return volWarn() + ':' + Object.keys(MUSCLE).filter((k) => landmark(k, v[k].d + v[k].i) !== 'ok').join(); })) === '0:calves', await p.evaluate(() => JSON.stringify(volFlags())));
   check('the top of the page is the logo alone, centred', (await p.evaluate(() => { const l = document.querySelector('.logo').getBoundingClientRect(); return Math.abs(l.left + l.width / 2 - innerWidth / 2) < 2 && !document.querySelector('.credit') && getComputedStyle(document.querySelector('#syncNote')).display === 'none'; })), 'logo');
   check('opens on today, with the next workout and the week', (await p.evaluate(() => S.view)) === 'home' && (await txt('#home .next')).includes('אימון ראשון') && (await txt('#home .next')).includes('גוף עליון A') && (await cur(p)) === 'אימון ראשון – גוף עליון A, הבא', [await txt('#home'), await cur(p)]);
   check('the whole page is in Hebrew: no English workout or exercise names on screen', !/Upper|Lower|Press|Curl|Squat|Row/.test(await txt('#home')) && !/[A-Za-z]{4,}/.test((await p.evaluate(() => [...document.querySelectorAll('.ex-name')].map((x) => x.textContent).join(' ')))), await txt('#home'));
@@ -541,7 +559,11 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('"edit this workout" opens the plan on the workout in hand', (await q.evaluate(() => [S.sheet, S.msPage, S.msW].join())) === 'meso,ex,0' && (await t2('#sheet h2')) === 'גוף עליון A' && !!(await q.$('#sheet [data-base="ua1"]')) && (await q.$$('#sheet .bl-row')).length === 8, await t2('#sheet'));
   await q.click('#sheet [data-msp=""]'); await q.waitForTimeout(250);
   const menu = await t2('#sheet');
-  check('the plan is a short menu: the round, the four workouts and the few things to set', (await q.$$('#sheet .m-row')).length === 8 && (await q.$$('#sheet [data-msw]')).length === 4 && menu.includes('גוף תחתון B') && menu.includes('8 תרגילים') && menu.includes('סטים בשבוע לפי שריר') && menu.includes('קפיצת משקל') && menu.includes('שבועות בסבב') && !(await q.$('#sheet .bl-row')) && !(await q.$('#sheet .vol-row')) && !(await q.$('#sheet select')) && (await q.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); return el.scrollHeight <= el.clientHeight + 1; })), menu);
+  check('the plan opens plainly: four workouts as cards, each with its exercises and its length, and nothing about the round until it is asked for', (await q.$$('#sheet .pl-card[data-msw]')).length === 4 && (await t2('#sheet h2')) === 'ארבעה אימונים' && menu.includes('גוף תחתון B') && menu.includes('8 תרגילים') && /\d{2} דק׳/.test(menu) && (await q.getAttribute('#msAdv', 'aria-expanded')) === 'false' && !(await q.$('#sheet .m-row')) && !(await q.$('#sheet .wk-strip')) && !menu.includes('סבב') && !menu.includes('כשל') && !(await q.$('#sheet .bl-row')) && !(await q.$('#sheet .vol-row')) && !(await q.$('#sheet select')) && (await q.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); return el.scrollHeight <= el.clientHeight + 1; })), menu);
+  await adv(q); const menu2 = await t2('#sheet');
+  check('"advanced" unfolds the round: its weeks, the sets of each muscle, the weight steps and the length of a round', (await q.getAttribute('#msAdv', 'aria-expanded')) === 'true' && (await q.$$('#sheet .m-row')).length === 4 && (await q.$$('#sheet .wk-strip li')).length === 5 && menu2.includes('סבב 1') && menu2.includes('סטים בשבוע לפי שריר') && menu2.includes('קפיצת משקל') && menu2.includes('שבועות בסבב') && !!(await q.$('#msDl')) && !!(await q.$('#msNew')), menu2);
+  await q.click('#msAdv'); await q.waitForTimeout(200);
+  check('and folds it away again', (await q.getAttribute('#msAdv', 'aria-expanded')) === 'false' && !(await q.$('#sheet .wk-strip')), await t2('#sheet'));
   await q.click('#sheet [data-msw="3"]'); await q.waitForTimeout(250);
   await q.click('[data-addw="3"]'); await q.waitForTimeout(300);
   check('adding an exercise opens the picker on a muscle of that workout', (await t2('#sheet .sw-hero .k')).includes('הוספת תרגיל') && (await t2('#sheet .sw-hero .k')).includes('גוף תחתון B') && (await q.getAttribute('.mu-row [data-pick="quads"]', 'aria-pressed')) === 'true' && !(await q.$('.mu-row [data-pick="rec"]')), await t2('#sheet .kicker'));
@@ -559,13 +581,22 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('the phone\'s back button steps from a page of the plan to its menu, where a changed plan can be reset', (await q.evaluate(() => [S.sheet, S.msPage].join())) === 'meso,' && !!(await q.$('#planReset')) && (await q.isVisible('#sheet')), await t2('#sheet'));
   await q.click('#sheet [data-close]'); await q.waitForTimeout(300);
   // ---------- mesocycle sheet: volume landmarks, set counts, increments ----------
-  await list(q); await q.click('#editWk'); await q.waitForTimeout(300); await q.click('#sheet [data-msp=""]'); await q.waitForTimeout(250); await shot('g5-meso', q);
+  await list(q); await q.click('#editWk'); await q.waitForTimeout(300); await q.click('#sheet [data-msp=""]'); await q.waitForTimeout(250); await adv(q); await shot('g5-meso', q);
   const ms = await t2('#sheet');
   check('mesocycle sheet shows the RIR ramp and a deload', ms.includes('3 חזרות') && ms.includes('עד כשל') && ms.includes('שבוע קל') && !/מזוציקל|דילואד|RIR/.test(ms), ms.slice(0, 200));
-  check('the menu says when a muscle is out of its range', (await t2('#sheet [data-msp="vol"]')).includes('שריר אחד מחוץ לטווח'), await t2('#sheet [data-msp="vol"]'));
+  check('what the plan left low on purpose is not called out: the menu has nothing to warn about', !(await q.$('#sheet [data-msp="vol"] small')) && !(await q.$('#msAdv .pl-dot')), await t2('#sheet [data-msp="vol"]'));
   await q.click('#sheet [data-msp="vol"]'); await q.waitForTimeout(250);
-  const flags = await q.evaluate(() => [...document.querySelectorAll('.vol-row')].map((r) => r.querySelector('.vol-n').textContent + ':' + r.querySelector('.vol-v b').textContent + ':' + (r.querySelector('.vol-flag') ? r.querySelector('.vol-flag').textContent : '')));
-  check('fractional volume and the below-minimum warning', flags.some((f) => f.startsWith('חזה:8:') && !f.includes('מתחת')) && flags.some((f) => f.startsWith('שוקיים:6:') && f.includes('מתחת למינימום')) && flags.some((f) => f.startsWith('ירך אחורית:10.5:')), flags);
+  const vrows = () => q.evaluate(() => [...document.querySelectorAll('.vol-row')].map((r) => r.querySelector('.vol-n').textContent + ':' + r.querySelector('.vol-v b').textContent + ':' + (r.querySelector('.vol-flag') ? r.querySelector('.vol-flag').textContent : '')));
+  const flags0 = await vrows();
+  check('fractional volume, and a muscle the app itself planned under the range stands without a warning', flags0.some((f) => f.startsWith('חזה:8:') && !f.includes('מתחת')) && flags0.includes('שוקיים:6:') && flags0.some((f) => f.startsWith('ירך אחורית:10.5:')), flags0);
+  /* the lifter takes a set off the calves: now it is the lifter's doing, and it is said */
+  await q.click('#sheet [data-msp=""]'); await q.waitForTimeout(200); await q.click('#sheet [data-msw="1"]'); await q.waitForTimeout(200); await q.click('[data-base="la5"][data-n="2"]'); await q.waitForTimeout(200);
+  await q.click('#sheet [data-msp=""]'); await q.waitForTimeout(200);
+  check('the menu says when a muscle is taken out of its range', (await t2('#sheet [data-msp="vol"]')).includes('שריר אחד מחוץ לטווח'), await t2('#sheet [data-msp="vol"]'));
+  await q.click('#sheet [data-msp="vol"]'); await q.waitForTimeout(250);
+  const flags = await vrows();
+  check('and the below-minimum warning stands by that muscle alone', flags.some((f) => f.startsWith('שוקיים:5:') && f.includes('מתחת למינימום')) && flags.filter((f) => !f.endsWith(':')).length === 1, flags);
+  await q.click('#sheet [data-msp=""]'); await q.waitForTimeout(200); await q.click('#sheet [data-msw="1"]'); await q.waitForTimeout(200); await q.click('[data-base="la5"][data-n="3"]'); await q.waitForTimeout(200);
   for (const [w, id] of [[1, 'la5'], [3, 'lb6']]) { await q.click('#sheet [data-msp=""]'); await q.waitForTimeout(200); await q.click('#sheet [data-msw="' + w + '"]'); await q.waitForTimeout(200); await q.click('[data-base="' + id + '"][data-n="4"]'); await q.waitForTimeout(200); }
   await q.click('#sheet [data-msp=""]'); await q.waitForTimeout(200);
   check('with the sets added, the menu has nothing to warn about', !(await q.$('#sheet [data-msp="vol"] small')), await t2('#sheet [data-msp="vol"]'));

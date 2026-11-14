@@ -94,9 +94,9 @@ function openAdd(w) { S.sheet = 'swap'; S.pick = { mode: 'add', w, mu: w % 2 ? '
 
 /* ---- mesocycle sheet: the weekly ramp, volume per muscle against its landmarks, set counts, increments ---- */
 function volHTML(dl) {
-  const vol = muscleVolume(weekItems()), pct = (v) => Math.min(100, (v / 30) * 100).toFixed(1);
+  const vol = muscleVolume(weekItems()), F = volFlags(), pct = (v) => Math.min(100, (v / 30) * 100).toFixed(1);
   return Object.keys(MUSCLE).map((k) => {
-    const v = vol[k], tot = v.d + v.i, M = MUSCLE[k], st = dl ? 'ok' : landmark(k, tot);
+    const v = vol[k], tot = v.d + v.i, M = MUSCLE[k], st = dl ? 'ok' : F[k] || 'ok';
     return '<div class="vol-row ' + st + '"><span class="vol-n">' + muName(k) + '</span>' +
       '<div class="vol-bar" role="img" aria-label="' + muName(k) + ': ' + fmtN(tot) + say(' סטים בשבוע. הטווח המומלץ: ', ' sets a week. Suggested range: ') + M.mev + say(' עד ', ' to ') + M.mrv + '"><i class="band" style="inset-inline-start:' + pct(M.mev) + '%;width:' + pct(M.mrv - M.mev) + '%"></i><i class="val" style="width:' + pct(tot) + '%"></i></div>' +
       '<span class="vol-v"><b>' + fmtN(tot) + '</b></span>' +
@@ -133,18 +133,25 @@ function renderMeso() {
     let act;
     if (over) act = '<p class="ms-sub">' + say('סבב ', 'Round ') + M.n + say(' הושלם. האימון הבא פותח את סבב ', ' is complete. The next workout opens round ') + (M.n + 1) + '.</p>';
     else if (S.msAsk === 'dl') act = ask(say('להתחיל שבוע קל? אחריו מתחיל סבב חדש.', 'Start an easy week? A new round starts after it.'), say('כן, שבוע קל', 'Yes, easy week'), 'msDlYes');
-    else if (S.msAsk === 'plan') act = ask(say('להחזיר את רשימת התרגילים המקורית?', 'Bring back the original list of exercises?'), say('כן, אפס', 'Yes, reset'), 'planResetYes');
     else if (S.msAsk === 'new') act = ask(say('להתחיל סבב חדש משבוע 1?', 'Start a new round from week 1?'), say('כן, סבב חדש', 'Yes, new round'), 'msNewYes');
-    else act = (M.early ? '<button class="link" id="msDlOff" type="button">' + say('בטל שבוע קל', 'Cancel the easy week') + '</button>' : P.dl ? '' : '<button class="link" id="msDl" type="button">' + say('שבוע קל עכשיו', 'Easy week now') + '</button>') + '<button class="link" id="msNew" type="button">' + say('סבב חדש', 'New round') + '</button>' +
-      (planChanged() ? '<button class="link" id="planReset" type="button">' + say('איפוס תרגילים', 'Reset exercises') + '</button>' : '');
-    sh.innerHTML = '<div class="sheet-in ms" data-pg="menu" role="dialog" aria-modal="true" aria-label="' + say('סבב ותוכנית', 'Round and plan') + '"><div class="ed-h"><div><p class="kicker">' + say('סבב ', 'Round ') + P.n + (M.early && !over ? say(' · שבוע קל מוקדם', ' · early easy week') : '') + '</p><h2>' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + ' <small>' + say('מתוך ', 'of ') + W + '</small>') + '</h2></div>' + x + '</div>' +
+    else act = (M.early ? '<button class="link" id="msDlOff" type="button">' + say('בטל שבוע קל', 'Cancel the easy week') + '</button>' : P.dl ? '' : '<button class="link" id="msDl" type="button">' + say('שבוע קל עכשיו', 'Easy week now') + '</button>') + '<button class="link" id="msNew" type="button">' + say('סבב חדש', 'New round') + '</button>';
+    const back = S.msAsk === 'plan' ? ask(say('להחזיר את רשימת התרגילים המקורית?', 'Bring back the original list of exercises?'), say('כן, אפס', 'Yes, reset'), 'planResetYes')
+      : planChanged() ? '<button class="link" id="planReset" type="button">' + say('איפוס תרגילים', 'Reset exercises') + '</button>' : '';
+    /* the plan, plainly: the four workouts, each a tap away from its list of exercises. What steers the round (how close to failure each
+       week goes, the sets a muscle gets, the weight steps, an easy week, a new round) waits folded under "Advanced" */
+    const adv = !!S.msAdv || S.msAsk === 'dl' || S.msAsk === 'new';
+    const card = (w) => '<li><button class="pl-card w' + w + '" type="button" data-msw="' + w + '"><span class="pl-ic" aria-hidden="true">' + stopIcon(w) + '</span><span class="pl-t"><b>' + wkName(w) + '</b><small>' + cnt(planIds(w).length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(exList(w, null, true)) + say(' דק׳', ' min') + '</small></span>' + ICON.fwd + '</button></li>';
+    sh.innerHTML = '<div class="sheet-in ms" data-pg="menu" role="dialog" aria-modal="true" aria-label="' + say('התוכנית שלי', 'My plan') + '"><div class="ed-h"><div><p class="kicker">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + say('ארבעה אימונים', 'Four workouts') + '</h2></div>' + x + '</div>' +
+      '<p class="pl-sub">' + say('לוחצים על אימון כדי להוסיף, להחליף או להוריד תרגילים.', 'Tap a workout to add, swap or remove exercises.') + '</p>' +
+      '<ul class="pl-cards" aria-label="' + say('האימונים', 'The workouts') + '">' + PLAN.map((_, w) => card(w)).join('') + '</ul>' + (back ? '<div class="ms-act">' + back + '</div>' : '') +
+      '<button class="pl-adv" id="msAdv" type="button" aria-expanded="' + adv + '"><span>' + say('הגדרות מתקדמות', 'Advanced settings') + '</span>' + (off && !adv ? '<i class="pl-dot" title="' + say('יש מה לבדוק', 'Something to look at') + '"></i>' : '') + ICON.down + '</button>' +
+      (!adv ? '' : '<div class="pl-more"><p class="kicker">' + say('סבב ', 'Round ') + P.n + (M.early && !over ? say(' · שבוע קל מוקדם', ' · early easy week') : '') + ' · ' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + say(' מתוך ', ' of ') + W) + '</p>' +
       '<ol class="wk-strip">' + strip + '</ol>' +
       '<p>' + say('כל שבוע חזרה אחת קרוב יותר לכשל. האחרון קל.', 'Each week one rep closer to failure. The last is easy.') + '</p>' +
-      '<ul class="menu" aria-label="' + say('האימונים', 'The workouts') + '">' + PLAN.map((_, w) => row('data-msw="' + w + '"', '<i class="w-dot w' + w + '" aria-hidden="true"></i>' + wkName(w), cnt(planIds(w).length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise'))).join('') + '</ul>' +
       '<ul class="menu" aria-label="' + say('הסבב', 'The round') + '">' + row('data-msp="vol"', say('סטים בשבוע לפי שריר', 'Sets a week by muscle'), off ? cnt(off, 'שרירים מחוץ לטווח', 'שריר אחד מחוץ לטווח', 'muscles out of range', 'muscle out of range') : '', true) + row('data-msp="inc"', say('קפיצת משקל', 'Weight step'), '') +
       '<li class="m-row"><span>' + say('שבועות בסבב', 'Weeks in a round') + '</span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="' + say('שבוע פחות', 'One week less') + '"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="' + say('שבוע נוסף', 'One week more') + '"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></li>' +
       (mesoSessions(M.id).length ? row('data-sum="' + M.id + '"', say('סיכום הסבב', 'Summary of this round'), '') : '') + (past ? row('data-sum="' + past.id + '"', say('סיכום סבב ', 'Summary of round ') + past.n, '') : '') + '</ul>' +
-      '<div class="ms-act">' + act + '</div></div>';
+      '<div class="ms-act">' + act + '</div></div>') + '</div>';
   }
   $('.sheet-in', sh).scrollTop = top;
 }
@@ -207,6 +214,7 @@ function coachSheetClick(ev, id) {
   if (id === 'msDl' || id === 'msNew' || id === 'msNo') { S.msAsk = id === 'msDl' ? 'dl' : id === 'msNew' ? 'new' : null; renderMeso(); return true; }
   if (id === 'msDlYes') { startDeload(); S.msAsk = null; closeSheet(); return true; }
   if (id === 'msDlOff') { S.cfg.meso.early = 0; saveCfg(); renderMeso(); return true; }
+  if (id === 'msAdv') { S.msAdv = !S.msAdv; S.msAsk = null; renderMeso(); return true; }
   if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>' + say('סבב ', 'Round ') + S.cfg.meso.n + say(' התחיל.', ' has started.') + '</b>'; closeSheet(); return true; }
   if (id === 'dlYes') { startDeload(); closeSheet(); return true; }
   return false;

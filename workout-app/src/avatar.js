@@ -65,7 +65,16 @@ function avatarSVG(look, lvl, o) {
   const band = has('band') ? P('M74.6 44.5C83 38.5 117 38.5 125.4 44.5L125.6 38.5C117 32 83 32 74.4 38.5Z', bandC) + P('M125 39.5L134 35.5L131 42.5ZM125 42L134.5 46L128.5 48.5Z', tone(bandC, -0.12)) : '';
   const crown = has('crown') ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#6D3FE0') + '</g>' : '';
   const medal = has('medal') ? '<path d="M' + X(-nw + 1) + ' 91L100 113L' + X(nw - 1) + ' 91" stroke="#6D3FE0" stroke-width="3.4" stroke-linejoin="round" fill="none"/><circle cx="100" cy="117" r="7.4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.6"/><path d="M100 113.2l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#C98F1C"/>' : '';
-  const belt = has('belt') ? '<rect x="' + X(-ww - 3) + '" y="144" width="' + ((ww + 3) * 2).toFixed(1) + '" height="11" rx="3.5" fill="#4A3628"/><rect x="94" y="145.5" width="12" height="8" rx="2" fill="none" stroke="#F2B93B" stroke-width="2.2"/>' : '';
+  /* the lifting belt turns into a title belt: gold, with a plate in the middle */
+  const belt = has('champ') ? '<rect x="' + X(-ww - 3.5) + '" y="143" width="' + ((ww + 3.5) * 2).toFixed(1) + '" height="13" rx="4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.4"/><ellipse cx="100" cy="149.5" rx="11.5" ry="9" fill="#FFD76A" stroke="#C98F1C" stroke-width="1.8"/>' + dot(100, 149.5, 3.2, '#6D3FE0')
+    : has('belt') ? '<rect x="' + X(-ww - 3) + '" y="144" width="' + ((ww + 3) * 2).toFixed(1) + '" height="11" rx="3.5" fill="#4A3628"/><rect x="94" y="145.5" width="12" height="8" rx="2" fill="none" stroke="#F2B93B" stroke-width="2.2"/>' : '';
+  /* past the crown: a cape that hangs from the shoulders behind the figure, held by two gold clasps */
+  const cape = has('cape') ? P('M' + X(-sw + 3) + ' ' + (sy + 2) + 'Q' + X(-sw - 17) + ' 150 ' + X(-sw - 11) + ' 210Q100 224 ' + X(sw + 11) + ' 210Q' + X(sw + 17) + ' 150 ' + X(sw - 3) + ' ' + (sy + 2) + 'Z', '#3B1E96', ' stroke="#F2B93B" stroke-width="2.2" stroke-linejoin="round"') +
+    '<path d="M' + X(-sw - 12) + ' 178Q100 194 ' + X(sw + 12) + ' 178" stroke="#2A1470" stroke-width="2" fill="none" opacity=".55"/>' : '';
+  const clasp = cape ? dot(X(-nw - 5), 93.5, 2.7, '#F2B93B') + dot(X(nw + 5), 93.5, 2.7, '#F2B93B') : '';
+  const kicks = has('kicks'), glow = has('glow') ? '<g class="av-glow"><circle cx="100" cy="116" r="97" fill="#F2B93B" opacity=".1"/><circle cx="100" cy="116" r="80" fill="#F2B93B" opacity=".12"/><circle cx="100" cy="116" r="62" fill="#F2B93B" opacity=".14"/></g>' : '';
+  const star4 = (x, y, r, d) => '<path class="av-spark" style="animation-delay:' + d + 's" d="M' + x + ' ' + (y - r) + 'Q' + x + ' ' + y + ' ' + (x + r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y + r) + 'Q' + x + ' ' + y + ' ' + (x - r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y - r) + 'Z" fill="#FFD76A"/>';
+  const stars = has('stars') ? star4(24, 56, 7, 0) + star4(176, 44, 6, 0.5) + star4(13, 138, 5, 1) + star4(187, 128, 7, 1.4) + star4(36, 208, 5, 0.8) + star4(167, 214, 6, 0.3) : '';
 
   const head = '<ellipse cx="74.6" cy="56" rx="4.2" ry="6.2" fill="' + skin + '"/><ellipse cx="125.4" cy="56" rx="4.2" ry="6.2" fill="' + skin + '"/>' +
     P('M75 51C75 32 87 23.5 100 23.5C113 23.5 125 32 125 51C125 68 114 82 100 82C86 82 75 68 75 51Z', skin) + beard +
@@ -79,14 +88,14 @@ function avatarSVG(look, lvl, o) {
 
   const body = '<g class="av-bod">' + (tank ? P(torso, skin) + P(tankTop, shirt) : P(torso, shirt)) + pecs + belt +
     '<rect x="' + X(-nw) + '" y="74" width="' + (nw * 2).toFixed(1) + '" height="20" rx="5" fill="' + skin + '"/><ellipse cx="100" cy="83.5" rx="' + nw + '" ry="4.2" fill="' + shd + '"/>' +
-    (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + medal + head + arm(-1) + arm(1) + '</g>';
+    (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + clasp + medal + head + arm(-1) + arm(1) + '</g>';
   /* a bust is cut round under the hair: with the crown on, the frame takes in its points */
   if (o.bust) return '<svg class="av bust' + (o.flex ? ' flex' : '') + (o.grin ? ' grin' : '') + '" viewBox="' + (crown ? '51 -1 98 98' : '58 14 84 84') + '" aria-hidden="true">' + backHair + body + '</svg>';
 
   const legs = [-1, 1].map((d) => ln(X(d * 11.5), 170, X(d * 12.5), 231, lg, skin)).join('') +
-    [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="#3A4152"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="#E7E9ED"/>'; }).join('') +
+    [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="' + (kicks ? '#F2B93B' : '#3A4152') + '"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="' + (kicks ? '#FFF6DC' : '#E7E9ED') + '"/>'; }).join('') +
     P('M' + X(-ww - 1.5) + ' 149L' + X(ww + 1.5) + ' 149L' + X(13 + lg / 2 + 2.5) + ' 190L102.5 190L100 177L97.5 190L' + X(-13 - lg / 2 - 2.5) + ' 190Z', '#39415A', ' stroke="#39415A" stroke-width="4" stroke-linejoin="round"');
   return '<svg class="av' + (o.flex ? ' flex' : '') + (o.still ? ' still' : '') + '" viewBox="0 -6 200 258" role="img" aria-label="' + say('הדמות שלי, רמה ', 'My character, level ') + lvl + '">' +
-    '<circle class="av-aura r' + rankOf(lvl).i + '" cx="100" cy="116" r="90"/><ellipse class="av-shadow" cx="100" cy="247" rx="48" ry="4.6"/>' +
-    '<g class="av-fig">' + backHair + legs + body + '</g></svg>';
+    '<circle class="av-aura r' + rankOf(lvl).i + '" cx="100" cy="116" r="90"/>' + glow + '<ellipse class="av-shadow" cx="100" cy="247" rx="48" ry="4.6"/>' +
+    '<g class="av-fig">' + backHair + cape + legs + body + '</g>' + stars + '</svg>';
 }

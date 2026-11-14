@@ -31,7 +31,7 @@ function renderMe() {
   const P = meNow();
   S.lvl = P.L.lvl;
   const me = $('#tbMe'); if (me) me.innerHTML = avatar(P.L.lvl, { bust: true });
-  if (S.view === 'profile') renderProfile(P);
+  if (S.view === 'profile') renderProfile(P); else if (S.view === 'journey') renderJourney(P);
   return P;
 }
 /* the strip at the top of "today": who is training, at which level, and the run of weeks */
@@ -58,6 +58,45 @@ function renderProfile(P) {
     '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
     '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
     '<ul class="rows"><li class="tap"><button class="row-b one" id="setBtn" type="button"><span class="h-t">' + say('הגדרות', 'Settings') + '</span>' + ICON.fwd + '</button></li></ul>';
+}
+/* ---- the journey: the levels as a road, from the first to the hundredth. Every stop is a level that opens something, and on the
+   wide sides of the road stands the player's own character, dressed as it will be there ---- */
+const J_PITCH = 140, J_TOP = 44;
+const toGo = (n) => (n === 1 ? say('עוד רמה אחת', '1 level to go') : say('עוד ' + n + ' רמות', n + ' levels to go'));
+function renderJourney(P) {
+  P = P || meNow();
+  const L = P.L, lvl = L.lvl, top = REWARDS[REWARDS.length - 1].at, nx = nextReward(lvl), N = REWARDS.length, H = J_TOP + (N - 1) * J_PITCH + 132;
+  const cap = (a, b) => '<figcaption><b>' + a + '</b><span>' + b + '</span></figcaption>';
+  let stops = '', trail = '';
+  REWARDS.forEach((r, i) => {
+    const x = 50 + STOP_X[i % 4] * AMP, y = J_TOP + i * J_PITCH, s = lvl >= r.at ? 'done' : nx && nx.at === r.at ? 'next' : 'later', side = STOP_X[i % 4] > 0 ? 'l' : 'r';
+    stops += '<li class="stop ' + s + (r.at === top ? ' top' : '') + '" style="top:' + y + 'px;left:' + x + '%;--i:' + Math.min(i, 6) + '">' +
+      '<button class="lv" type="button" data-lv="' + r.at + '" aria-label="' + say('רמה ', 'Level ') + r.at + ': ' + nm(r) + (s === 'done' ? say(', הושג', ', reached') : '') + '">' +
+      (s === 'next' ? '<span class="go-chip" aria-hidden="true">' + toGo(r.at - lvl) + '</span>' : '') + '<span class="dot" aria-hidden="true">' + r.at + '</span><b>' + nm(r) + '</b></button>' +
+      /* every second stop has a wide side: there the character stands as it will look at that level */
+      (i % 2 && r.at !== top ? palHTML(side, avatar(r.at, { still: true }), '', 'pv') : '') + '</li>';
+    if (i < N - 1) trail += trailSeg(x, y + 38, 50 + STOP_X[(i + 1) % 4] * AMP, y + 38 + J_PITCH, lvl >= REWARDS[i + 1].at);
+  });
+  $('#journey').innerHTML = '<section class="jr-hero" aria-label="' + say('המסע שלי', 'My journey') + '"><p class="jr-k">' + say('המסע שלך', 'Your journey') + '</p>' +
+    '<h1>' + (lvl >= top ? say('רמה ' + lvl + '. מעבר לפסגה.', 'Level ' + lvl + '. Past the summit.') : say('מרמה ' + lvl + ' עד רמה ' + top, 'From level ' + lvl + ' to level ' + top)) + '</h1>' +
+    '<div class="ob-ladder" aria-hidden="true"><figure class="now"><span class="ob-fig">' + avatar(lvl) + '</span>' + cap(say('רמה ', 'Level ') + lvl, say('היום', 'Today')) + '</figure>' +
+    (lvl >= top ? '' : '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span><figure class="max"><span class="ob-fig">' + avatar(top) + '</span>' + cap(say('רמה ', 'Level ') + top, say('המטרה', 'The goal')) + '</figure>') + '</div>' +
+    '<div class="jr-lv"><span class="lv-badge">' + say('רמה ', 'Level ') + lvl + '</span>' + xpBar(pctOf(L)) + '<span class="jr-nx" aria-hidden="true">' + (lvl + 1) + '</span></div>' +
+    '<p class="jr-line">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ' + (lvl + 1), nf(L.need - L.into) + ' points to level ' + (lvl + 1)) + '</p></section>' +
+    '<section class="road jr" aria-label="' + say('מה נפתח בדרך', 'What opens on the way') + '"><div class="road-h"><div><h2>' + say('מה נפתח בדרך', 'What opens on the way') + '</h2><p>' + say('כל סט שווה נקודות, והנקודות מעלות רמה', 'Every set earns points, and points raise the level') + '</p></div></div>' +
+    '<div class="pw"><div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol></div></div>' +
+    '<p class="jr-after">' + say('ואחרי רמה 100? ממשיכים לעלות.', 'And after level 100? The levels keep going.') + '</p></section>';
+}
+/* a stop of the journey, opened: the character as it will stand at that level */
+function openLevel(at) {
+  const r = REWARDS.find((x) => x.at === at); if (!r) return;
+  const lvl = meNow().L.lvl, sh = $('#sheet');
+  S.sheet = 'lv';
+  sh.innerHTML = '<div class="sheet-in lvs" role="dialog" aria-modal="true" aria-label="' + say('רמה ', 'Level ') + at + '"><div class="ed-h"><div><p class="kicker">' + (lvl >= at ? say('כבר שלך', 'Already yours') : toGo(at - lvl)) + '</p><h2>' + say('רמה ', 'Level ') + at + '</h2></div>' +
+    '<button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    '<div class="lvs-stage"><span class="lvs-fig">' + avatar(at, { flex: true }) + '</span></div><p class="lvs-t">' + glyph('gift') + '<span>' + nm(r) + '</span></p>' +
+    '<button class="btn primary big" data-close="1" type="button">' + (lvl >= at ? say('סגור', 'Close') : say('ממשיכים לשם', 'On my way')) + '</button></div>';
+  sh.hidden = false;
 }
 /* ---- settings: the language, what the plan is built on, sound and vibration, and the backup. Every choice is saved at once ---- */
 function renderSettings() {
@@ -225,4 +264,5 @@ function wireMe() {
     else if (b.id === 'setBtn') openSettings();
     else if (b.id === 'bdgAll') { S.bdgAll = !S.bdgAll; renderProfile(); const again = $('#bdgAll'); if (again) again.focus({ preventScroll: true }); }
   });
+  $('#journey').addEventListener('click', (ev) => { const b = ev.target.closest('button[data-lv]'); if (b) openLevel(+b.dataset.lv); });
 }

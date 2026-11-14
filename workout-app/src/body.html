@@ -10,6 +10,7 @@
     <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
       <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/><rect x="5.6" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="10.2" y="12.2" width="7.6" height="3.6" rx="1.2" fill="#BBA5F7"/><rect x="17.8" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="22.9" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/></svg></span><span class="tb-l">אימונים</span></button>
+      <button type="button" data-view="journey"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="2.5" y="18" width="7" height="7.5" rx="1.8" fill="#BBA5F7"/><rect x="10.5" y="13" width="7" height="12.5" rx="1.8" fill="#6D3FE0"/><rect x="18.5" y="8.2" width="7" height="17.3" rx="1.8" fill="#5229C4"/><rect x="20.3" y="1.8" width="1.5" height="7.4" rx=".7" fill="#5229C4"/><path d="M21.8 2.2h4.7l-1.4 1.9 1.4 1.9h-4.7z" fill="#F2B02E"/></svg></span><span class="tb-l">מסע</span></button>
       <button type="button" data-view="profile"><span class="tb-ic tb-face" id="tbMe" aria-hidden="true"></span><span class="tb-l">פרופיל</span></button>
       <button type="button" id="chatOpen"><span class="tb-ic tb-face" id="tbCoach" aria-hidden="true"></span><span class="tb-l">אילון</span></button>
     </nav>
@@ -25,6 +26,8 @@
         <section id="pre" aria-label="התאוששות מהאימון הקודם" hidden></section>
         <ol class="fx" id="exList"></ol>
       </div>
+
+      <div class="view v-journey" id="journey"></div>
 
       <div class="view v-profile">
         <div class="pf-main" id="profile"></div>
@@ -66,6 +69,7 @@
   <input type="file" id="lkFile" accept="image/*" hidden>
   <div class="toast" id="toast" role="status" hidden></div>
   <div class="sr" id="srSay" aria-live="polite"></div>
+  <div class="tour" id="tour" role="dialog" aria-modal="true" hidden></div>
   <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden></div>
   <div class="splash" id="splash" hidden><div class="splash-in" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div></div>
 </div>

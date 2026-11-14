@@ -9,10 +9,9 @@ const STATIC = () => [
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
   ['#tabbar [data-view="home"] .tb-l', '', say('אימונים', 'Workouts')],
   ['#tabbar [data-view="profile"] .tb-l', '', say('פרופיל', 'Profile')],
-  ['#tabbar [data-view="progress"] .tb-l', '', say('התקדמות', 'Progress')],
+  ['#tabbar [data-view="journey"] .tb-l', '', say('מסע', 'Journey')],
   ['#chatOpen .tb-l', '', say('אילון', 'Eilon')],
   ['#pre', 'aria-label', say('התאוששות מהאימון הקודם', 'Recovery since the last workout')],
-  ['.v-progress .big', '', say('התקדמות', 'Progress')],
   ['#chat', 'aria-label', say('צ׳אט עם אילון', 'Chat with Eilon')],
   ['.chat-h h2', '', say('אילון', 'Eilon')],
   ['.chat-h p', '', say('המאמן שלך', 'Your coach')],
@@ -40,7 +39,7 @@ function applyLang() {
   const dir = LANG === 'he' ? 'rtl' : 'ltr', app = $('#app');
   document.documentElement.lang = LANG; document.documentElement.dir = dir; app.lang = LANG; app.dir = dir;
   staticText();
-  if (was !== LANG) { S.banner = ''; S.bannerKind = ''; S.backupNote = ''; setSync(); fillCtx(); chatText(); compNote(''); renderMsgs(); }
+  if (was !== LANG) { S.banner = ''; S.bannerKind = ''; S.backupNote = ''; setSync(); fillCtx(); chatText(); compNote(''); renderMsgs(); if (TR.on) tourDraw(); }
   /* inside the phone app, the shell's own screens follow the page */
   if (window.gymiNative && typeof window.gymiNative.lang === 'function') window.gymiNative.lang(LANG);
 }
@@ -167,17 +166,23 @@ const fitAns = (a) => ({ exp: a.exp, goals: a.goals || [], time: a.time, ok: EQ_
 /* the plan is made for its lifter (see fitPlanData): the movements the gym has, the sets for this experience, and as many
    exercises as the time holds. It is written from the plan's own slots each time, so going through the opening again with
    other answers gives the plan those answers ask for. Only before the first logged set, like applyExp */
-function fitPlan() {
+function fitPlan(again) {
   const me = S.cfg.me;
-  if (meNow().T.sets > 0) return;
+  if (!again && meNow().T.sets > 0) return;
   const now = Date.now(), cfg = S.cfg;
-  cfg.swap = {}; cfg.slots = {}; cfg.order = {}; cfg.base = {};
+  cfg.swap = {}; cfg.order = {};
+  /* again: the lifter asked for the plan back after changing it. The set counts and the slots that old workouts read stay as they are */
+  if (!again) { cfg.slots = {}; cfg.base = {}; }
   fitPlanData(fitAns(me)).forEach((list, w) => {
     const ids = list.map((x, i) => {
       let id = x.id;
       if (x.kind === 'swap') cfg.swap[id] = x.mv;
-      else if (x.kind === 'repl') { id = 'c' + now.toString(36) + w + i; cfg.slots[id] = { w, a: x.mv, sets: x.full, reps: x.reps, rest: x.rest.slice() }; }
-      if (x.sets !== x.full) cfg.base[id] = { n: x.sets, t: now, x: 1 };
+      else if (x.kind === 'repl') {
+        /* a slot that was made for this movement before is taken again */
+        id = Object.keys(cfg.slots).find((k) => cfg.slots[k].w === w && cfg.slots[k].a === x.mv) || 'c' + now.toString(36) + w + i;
+        if (!cfg.slots[id]) cfg.slots[id] = { w, a: x.mv, sets: x.full, reps: x.reps, rest: x.rest.slice() };
+      }
+      if (!again && x.sets !== x.full) cfg.base[id] = { n: x.sets, t: now, x: 1 };
       return id;
     });
     if (ids.join() !== PLAN[w].ex.map((e) => e.id).join()) cfg.order[w] = ids;
@@ -352,6 +357,69 @@ function obFinish(skip) {
   }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
   closeOb(); setView('home'); renderAll();
+  /* a lifter who has just come in is shown around, once */
+  if (!skip && !me.tour) setTimeout(startTour, 700);
+}
+/* ---- the first tour. Once the opening is passed the screen dims, one thing at a time stays lit, and the coach walks in from the
+   right to say what it is. A tap anywhere goes on; it can be skipped, and it is shown once (see startTour) ---- */
+const TR = { on: false, i: 0 };
+const TOUR = () => [
+  { at: '#tabbar [data-view="home"]', t: say('כאן האימונים שלך. מכאן מתחילים בכל פעם.', 'Your workouts live here. Every session starts from this tab.') },
+  { at: '#homeGo', t: say('זה האימון הבא שלך. לוחצים על "התחל אימון", ואני מלווה אותך סט אחרי סט.', 'This is your next workout. Tap "Start workout" and I\'ll take you through it, set by set.') },
+  { at: '#tabs .tab[aria-current="true"] .dot', round: 1, t: say('זה המסלול של השבוע. כל אימון שמסיימים הופך לזהב.', 'This is the road of your week. Every workout you finish turns gold.') },
+  { at: '#tabbar [data-view="journey"]', t: say('במסע רואים לאן כל זה מוביל: הדמות שלך ברמה 100.', 'The journey shows where all this leads: your character at level 100.') },
+  { at: '#tabbar [data-view="profile"]', t: say('בפרופיל נמצאים הדמות שלך, ההישגים וההגדרות.', 'Your profile holds your character, your achievements and the settings.') },
+  { at: '#chatOpen', alt: '.chat-h', t: say('ואני תמיד כאן. שאלה על תרגיל, על כאב או על התוכנית? לוחצים עליי.', 'And I\'m always here. A question about an exercise, a pain or the plan? Tap me.') },
+];
+/* the light goes to what is spoken of, and the coach stands on the half of the screen that it is not in. now: without the glide */
+function tourPlace(now) {
+  if (!TR.on) return;
+  const st = TOUR()[TR.i], shown = (x) => (x && x.getBoundingClientRect().width > 0 ? x : null), el = shown($(st.at)) || shown(st.alt && $(st.alt)), box = $('#tour'), hole = $('#tourHole'), card = $('#tourCard');
+  /* what is not on this screen is passed over */
+  if (!el) { if (TR.i < TOUR().length - 1) { TR.i++; tourShow(); } else tourEnd(); return; }
+  let r = el.getBoundingClientRect();
+  /* what is spoken of is brought onto the screen first (the bar at the foot is always there) */
+  if (!el.closest('#tabbar') && (r.top < 90 || r.bottom > innerHeight - 120)) { window.scrollTo(0, Math.max(0, window.scrollY + r.top - innerHeight * 0.3)); r = el.getBoundingClientRect(); }
+  const pad = st.round ? 12 : 7, x = r.left - pad, y = r.top - pad, w = r.width + pad * 2, h = r.height + pad * 2, low = y + h / 2 > innerHeight / 2;
+  box.classList.toggle('now', !!now);
+  hole.style.left = x + 'px'; hole.style.top = y + 'px'; hole.style.width = w + 'px'; hole.style.height = h + 'px'; hole.style.borderRadius = st.round ? '50%' : Math.min(24, h / 2) + 'px';
+  card.style.top = low ? 'auto' : y + h + 22 + 'px'; card.style.bottom = low ? innerHeight - y + 22 + 'px' : 'auto';
+}
+function tourShow() {
+  const T = TOUR(), card = $('#tourCard');
+  $('#tourText').textContent = T[TR.i].t;
+  $('#tourDots').innerHTML = T.map((_, i) => '<i' + (i === TR.i ? ' class="on"' : '') + '></i>').join('');
+  $('#tourNext').textContent = TR.i === T.length - 1 ? say('מתחילים!', 'Let\'s go!') : say('הבא', 'Next');
+  tourPlace(TR.i === 0);
+  if (TR.i > 0 && !reduced) { card.classList.remove('hop'); void card.offsetWidth; card.classList.add('hop'); }
+}
+/* the tour's own frame, in the language of the page (drawn again when the language changes under it) */
+function tourDraw() {
+  const box = $('#tour');
+  box.setAttribute('aria-label', say('סיור קצר באפליקציה', 'A short tour of the app'));
+  box.innerHTML = '<div class="tour-hole" id="tourHole"></div><button class="tour-skip" id="tourSkip" type="button">' + say('דילוג', 'Skip') + '</button>' +
+    '<div class="tour-card" id="tourCard"><span class="tour-fig" aria-hidden="true">' + avatarSVG(COACH, 12, {}) + '</span>' +
+    '<div class="tour-say" dir="' + (LANG === 'he' ? 'rtl' : 'ltr') + '"><p id="tourText" aria-live="polite"></p><div class="tour-foot"><span class="tour-dots" id="tourDots" aria-hidden="true"></span><button class="btn primary" id="tourNext" type="button"></button></div></div></div>';
+  const av = $('.tour-fig .av', box); if (av) av.classList.add('grin');
+  tourShow();
+}
+function startTour() {
+  if (TR.on || OB.on || !$('#sheet').hidden) return;
+  closeChat(); if (S.view !== 'home') { renderHome(); setView('home'); }
+  window.scrollTo(0, 0);
+  TR.on = true; TR.i = 0;
+  tourDraw(); $('#tour').hidden = false;
+  $('#tourNext').focus({ preventScroll: true });
+}
+function tourStep() { if (!TR.on) return; if (TR.i >= TOUR().length - 1) { tourEnd(); return; } TR.i++; tourShow(); haptic('select'); }
+function tourEnd() {
+  if (!TR.on) return;
+  TR.on = false;
+  const box = $('#tour'); box.hidden = true; box.innerHTML = '';
+  if (!S.cfg.me.tour) { S.cfg.me.tour = Date.now(); saveCfg(); }
+  window.scrollTo(0, 0);
+  /* the page is back in reach a moment later: the way in is the next workout, and it shows it */
+  setTimeout(() => { const go = $('#homeGo'); if (!go || TR.on || S.view !== 'home') return; go.focus({ preventScroll: true }); go.classList.add('nudge'); setTimeout(() => go.classList.remove('nudge'), 2600); }, 80);
 }
 function obStep(d) {
   const n = OB.step + d; if (n < 0) return;
@@ -390,6 +458,10 @@ function maybeOb() {
   if (S.cfgReady && !S.cfg.me.ob && nextUp().live < 0 && $('#sheet').hidden) openOb();
 }
 function wireOb() {
+  const tour = $('#tour');
+  tour.addEventListener('click', (ev) => { if (ev.target.closest('#tourSkip')) tourEnd(); else tourStep(); });
+  tour.addEventListener('wheel', (ev) => ev.preventDefault(), { passive: false });
+  for (const t of ['resize', 'scroll']) window.addEventListener(t, () => { if (TR.on) tourPlace(true); }, { passive: true });
   const el = $('#ob');
   el.addEventListener('click', (ev) => {
     const b = ev.target.closest('button');

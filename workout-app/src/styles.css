@@ -14,7 +14,7 @@
   --w1:#4B45D6; --w1-lip:#3631AE; --w1-soft:#E7E6FF; --w1-ink:#3E38C2;
   --w2:#9446D6; --w2-lip:#7530B3; --w2-soft:#F4E9FF; --w2-ink:#8137C2;
   --w3:#2F2366; --w3-lip:#1E1645; --w3-soft:#ECE9F6; --w3-ink:#3B2D80;
-  --gold:#F2B02E; --gold-lip:#C98A12; --gold-ink:#5C3A00; --flame:#FF8A00; --flame-2:#FFD23F; --flame-ink:#B85600; --accent-lip:#5229C4;
+  --gold:#F2B02E; --gold-lip:#C98A12; --gold-ink:#5C3A00; --calm:#1F4FA8; --calm-soft:#E3EEFF; --coin:#FFFFFF; --coin-lip:#D8D6E0; --flame:#FF8A00; --flame-2:#FFD23F; --flame-ink:#B85600; --accent-lip:#5229C4;
   --accent:#6D3FE0; --on-accent:#FFFFFF; --accent-soft:#EEE8FF; --accent-ink:#5A2FCC;
   --muscle:#E0452B; --muscle-ink:#C93A1F; --muscle-soft:#FDE8E2; --warn:#A44A10; --warn-soft:#FBEBDD;
   --ok:#5A2FCC; --ok-soft:#EEE8FF; --on-ok:#FFFFFF; --rest:#8A5A00; --rest-soft:#FFF1D1;
@@ -34,7 +34,7 @@
     --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
     --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
     --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
-    --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E;
+    --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E; --calm:#9CC2FF; --calm-soft:#14233F; --coin:#2C2A36; --coin-lip:#18161F;
     --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2;
     --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
     --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#A98BFF; --cloth-far:#45367C;
@@ -49,7 +49,7 @@
   --muscle:#FF7A52; --muscle-ink:#FF8E6B; --muscle-soft:#3A1A10; --warn:#FFA468; --warn-soft:#38200F;
   --ok:#C4B0FF; --ok-soft:#251B3F; --on-ok:#1A0B3D; --rest:#FFC15E; --rest-soft:#38290B;
   --xp:#FFCB6B; --xp-soft:#3A2A08; --xp-fill:#F2B02E;
-  --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E;
+  --lip:#060509; --accent-lip:#7A5AE0; --flame-ink:#FFB24D; --w3:#4A3A96; --w3-lip:#33276E; --calm:#9CC2FF; --calm-soft:#14233F; --coin:#2C2A36; --coin-lip:#18161F;
   --w0-soft:#251B3F; --w0-ink:#C4B0FF; --w1-soft:#1D1C45; --w1-ink:#A9A5FF; --w2-soft:#2D1A42; --w2-ink:#D8ABFF; --w3-soft:#1D1832; --w3-ink:#BBAEF2;
   --stage:#111318; --grid:#1A1D23; --grid-2:#23272F; --floor:#16181D; --ground:#4B5160; --shadow:#0A0B0E;
   --fig:#B9BEC8; --fig-hi:#DEE1E7; --fig-lo:#8F96A3; --fig-far:#4F5563; --cloth:#A98BFF; --cloth-far:#45367C;
@@ -132,7 +132,7 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .main{min-width:0;display:grid;gap:14px}
 .view{display:none;gap:14px;min-width:0}
 .pf-main{display:grid;gap:14px;min-width:0}
-.app[data-view="home"] .v-home,.app[data-view="workout"] .v-workout,.app[data-view="profile"] .v-profile{display:grid}
+.app[data-view="home"] .v-home,.app[data-view="workout"] .v-workout,.app[data-view="profile"] .v-profile,.app[data-view="journey"] .v-journey{display:grid}
 .app:not([data-view="workout"]) .dock{display:none}
 
 /* shared pieces */
@@ -162,15 +162,16 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .xp-tag{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:99px;background:var(--xp-soft);color:var(--xp);font-size:13px;font-weight:800;line-height:1;white-space:nowrap}
 .hit .xp-tag,.btn.primary .xp-tag{background:color-mix(in srgb,var(--on-accent) 20%,transparent);color:var(--on-accent)}
 .app[data-view="workout"] .sync{display:none}
-.toast{position:fixed;z-index:80;top:calc(env(safe-area-inset-top,0px) + 76px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:99px;background:var(--ink);color:var(--paper);font-size:17px;font-weight:700;white-space:nowrap;box-shadow:0 12px 30px -14px rgb(0 0 0 / .55)}
+.toast{position:fixed;z-index:80;top:calc(env(safe-area-inset-top,0px) + 76px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:99px;background:var(--ink);color:var(--paper);font-size:17px;font-weight:700;width:max-content;max-width:calc(100vw - 32px);box-shadow:0 12px 30px -14px rgb(0 0 0 / .55)}
 .toast svg{color:var(--xp-fill);fill:var(--xp-fill)}
+.toast svg.ln{fill:none}
 .toast.in{animation:toast-in .4s cubic-bezier(.3,1.4,.5,1)}
 @keyframes toast-in{from{transform:translate(-50%,-18px);opacity:0}}
 
 /* today */
 .player{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;padding:10px 4px 4px;border:0;background:none;text-align:start}
 .p-ava{width:72px;height:72px;border-radius:50%;overflow:hidden;background:var(--accent-soft);transition:transform .08s}
-.p-ava.r0{background:var(--surface-3)}.p-ava.r4,.p-ava.r5,.p-ava.r6{background:var(--xp-soft)}
+.p-ava.r0{background:var(--surface-3)}.p-ava.r4,.p-ava.r5,.p-ava.r6,.p-ava.r7,.p-ava.r8,.p-ava.r9{background:var(--xp-soft)}
 .p-txt{display:grid;gap:6px;min-width:0}
 .p-txt>b{font-size:27px;font-weight:800;line-height:1.15;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .p-rank{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--ink-2)}
@@ -182,23 +183,144 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .next .k{font-size:15px;font-weight:600;color:var(--ink-2)}
 .next h2{font-size:38px;font-weight:800;line-height:1.12;letter-spacing:-.02em}
 .next .meta{font-size:15px;color:var(--ink-2);padding:2px 0 16px}
-.week{display:grid;gap:4px;padding:8px 12px 14px}
-.card-h{display:flex;align-items:center;gap:8px;min-height:44px;padding-inline:8px}
-.card-h h2{flex:1;font-size:17px;font-weight:700}
-.card-h h2 small{font-size:14px;font-weight:500;color:var(--ink-2)}
 .go-link{display:inline-flex;align-items:center;gap:2px;min-height:44px;border:0;background:none;color:var(--accent);font-size:15px;font-weight:600;padding:0}
 .go-link svg{width:18px;height:18px;stroke-width:2.2}
-/* the week as a path: four stops joined by a line that fills as workouts are finished */
-.week-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-.tab{position:relative;display:grid;justify-items:center;gap:6px;padding:6px 2px 4px;border:0;background:none;min-width:0}
-.tab+.tab::before{content:"";position:absolute;top:31px;inset-inline-start:-50%;width:100%;height:3px;background:var(--surface-3)}
-.tab.done+.tab::before{background:var(--accent)}
-.tab .dot{position:relative;z-index:1;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--ink-2);font-size:19px;font-weight:800;line-height:1;transition:transform .08s}
-.tab .dot svg{width:24px;height:24px;stroke-width:2.6}
-.tab.done .dot{background:var(--accent);color:var(--on-accent)}
-.tab.next .dot,.tab.live .dot{background:var(--surface);box-shadow:inset 0 0 0 3px var(--accent);color:var(--accent-ink)}
-.tab b{font-size:13.5px;font-weight:600;line-height:1.3;white-space:nowrap;color:var(--ink-2)}
-.tab.next b,.tab.live b{color:var(--accent-ink);font-weight:700}
+/* ---- the road of the round: stops that wind down the screen, a trail between them, friends at the sides.
+   A stop is a coin: gold once its workout is done, the colour of the workout when it is next, white while it waits, grey further down ---- */
+.road{display:grid;gap:4px;min-width:0;padding-top:10px}
+.road-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-inline:6px}
+.road-h h2{font-size:24px;font-weight:800;letter-spacing:-.015em;line-height:1.2}
+.road-h p{margin-top:1px;font-size:14.5px;font-weight:500;color:var(--ink-3)}
+.pw{display:grid;gap:2px;min-width:0}
+.pw-road{position:relative;width:min(100%,340px);margin-inline:auto}
+.pw-road ol{list-style:none;margin:0;padding:0}
+.pw-trail{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.pw-trail path{fill:none;stroke:var(--surface-3);stroke-width:9;stroke-linecap:round;stroke-dasharray:.1 17;vector-effect:non-scaling-stroke}
+.pw-trail path.on{stroke:var(--gold);stroke-width:7;stroke-dasharray:none}
+.stop{position:absolute;width:104px;margin-left:-52px;display:grid;justify-items:center}
+.stop>button{position:relative;display:grid;justify-items:center;gap:8px;width:100%;padding:0;border:0;background:none;color:inherit}
+.stop .dot{position:relative;z-index:1;display:grid;place-items:center;width:76px;height:76px;border-radius:50%;background:var(--coin);color:var(--wk-ink);font-size:26px;font-weight:800;line-height:1;letter-spacing:-.02em;box-shadow:0 6px 0 var(--coin-lip),inset 0 0 0 3px var(--wk-soft);transition:transform .3s cubic-bezier(.34,1.45,.64,1)}
+.stop .dot svg{width:34px;height:34px;stroke-width:2.4}
+.stop .dot svg.f{fill:currentColor;stroke:currentColor;stroke-width:1.1}
+.stop b{position:relative;z-index:1;max-width:132px;padding:2px 10px;border-radius:99px;background:var(--paper);font-size:14px;font-weight:700;line-height:1.35;color:var(--ink-2);white-space:nowrap}
+.stop.done .dot{background:var(--gold);color:var(--gold-ink);box-shadow:0 6px 0 var(--gold-lip)}
+.stop.done .dot svg{width:36px;height:36px;stroke-width:3.4}
+.stop.next .dot,.stop.live .dot{width:84px;height:84px;margin:-4px 0;background:var(--wk);color:#fff;box-shadow:0 7px 0 var(--wk-lip)}
+.stop.next .dot svg,.stop.live .dot svg{width:38px;height:38px}
+.stop.next .dot::after,.stop.live .dot::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:4px solid var(--wk);opacity:0;animation:stop-ring 1.9s ease-out infinite}
+@keyframes stop-ring{0%{transform:scale(.9);opacity:.55}75%,100%{transform:scale(1.16);opacity:0}}
+.stop.next b,.stop.live b{color:var(--wk-ink);font-weight:800}
+.stop.later b{color:var(--ink-4);font-weight:600}
+.lk:active{transform:none}
+.lk:active .dot{transform:scale(.94)}
+.lk.no .dot{animation:stop-no .45s ease-in-out}
+@keyframes stop-no{25%{transform:rotate(-8deg)}50%{transform:rotate(7deg)}75%{transform:rotate(-3deg)}}
+/* the word over the stop that is next: it bobs, so the eye finds where to press */
+.go-chip{position:absolute;z-index:2;bottom:calc(100% + 1px);left:50%;padding:6px 14px;border-radius:13px;background:var(--coin);color:var(--wk-ink);font-size:15px;font-weight:800;line-height:1.3;white-space:nowrap;box-shadow:0 3px 0 var(--coin-lip),0 12px 22px -14px rgb(40 20 100 / .6);transform:translateX(-50%);animation:chip-bob 1.7s ease-in-out infinite}
+.go-chip::after{content:"";position:absolute;top:100%;left:50%;width:11px;height:11px;margin:-6px 0 0 -5.5px;border-radius:2px;background:inherit;transform:rotate(45deg);box-shadow:3px 3px 0 var(--coin-lip)}
+@keyframes chip-bob{50%{transform:translate(-50%,-5px)}}
+/* a figure beside a stop: the lifter at the stop that is next, the coach or a friend on a wide side of the road. Left and right are the screen's own */
+.pal{position:absolute;top:-10px;display:flex;align-items:center;gap:7px;width:max-content;pointer-events:none}
+.pal.l{right:calc(100% - 4px);flex-direction:row-reverse}
+.pal.r{left:calc(100% - 4px)}
+.pal-fig{flex:none;width:60px}
+.pal.me .pal-fig{width:66px}
+.pal-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.pal-fig .av-aura,.pal-fig .av-glow{display:none}
+.pal-say{position:relative;max-width:min(112px,28vw);padding:8px 11px;border-radius:14px;background:var(--coin);color:var(--ink);font-size:13px;font-weight:600;line-height:1.3;box-shadow:0 2px 0 var(--coin-lip)}
+.pal-say::after{content:"";position:absolute;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:2px;background:inherit;transform:rotate(45deg)}
+.pal.l .pal-say::after{right:-4px}
+.pal.r .pal-say::after{left:-4px}
+.pal.coach .pal-say{background:var(--accent-soft);color:var(--accent-ink);font-weight:700;box-shadow:none}
+/* the weeks further down the road */
+.pw-h{display:flex;align-items:center;justify-content:center;gap:10px;margin:22px 0 0;font-size:13.5px;font-weight:500;color:var(--ink-3)}
+.pw-h::before,.pw-h::after{content:"";flex:1;height:2px;border-radius:2px;background:var(--surface-3)}
+.pw-h b{padding:5px 14px;border-radius:99px;background:var(--surface-3);color:var(--ink-2);font-size:13.5px;font-weight:800}
+.pw.easy .pw-h b{background:var(--calm-soft);color:var(--calm)}
+.pw.far .pal{opacity:.92}
+.pw-end{display:grid;justify-items:center;gap:3px;margin:18px 0 8px;text-align:center}
+.pw-end .cup{display:grid;place-items:center;width:88px;height:88px;margin-bottom:10px;border-radius:50%;background:var(--xp-soft);color:var(--xp);box-shadow:0 6px 0 color-mix(in srgb,var(--xp-fill) 45%,var(--lip))}
+.pw-end .cup svg{width:42px;height:42px;stroke-width:1.9}
+.pw-end b{font-size:17px;font-weight:800}
+.pw-end>span:last-child{font-size:14px;color:var(--ink-3)}
+/* coming to the screen, the stops of the road pop in one after the other */
+.view.enter .stop{animation:stop-in .5s cubic-bezier(.3,1.45,.5,1) both;animation-delay:calc(var(--i,0) * 70ms + 140ms)}
+.view.enter .pal{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .55s both}
+@keyframes stop-in{from{opacity:0;transform:scale(.55)}}
+/* the weeks further down the road are drawn smaller, as a road looks from where one stands */
+.pw.far .stop .dot{width:64px;height:64px}
+.pw.far .stop .dot svg{width:28px;height:28px}
+.pw.far .stop b{font-size:13px}
+.pw.far .pal{top:-16px}
+.pw.far .pal-fig{width:54px}
+.stop.later .dot{background:var(--wk-soft);color:color-mix(in srgb,var(--wk) 42%,var(--ink-4));box-shadow:0 5px 0 var(--coin-lip)}
+.pw.easy .stop.later .dot{background:var(--calm-soft);color:color-mix(in srgb,var(--calm) 55%,var(--ink-4))}
+/* ---- the first tour: the screen dims around one lit thing, and the coach stands at the right with a word about it ---- */
+.tour{position:fixed;inset:0;z-index:88;touch-action:none;-webkit-tap-highlight-color:transparent;animation:tour-fade .35s ease-out}
+@keyframes tour-fade{from{opacity:0}}
+.tour-hole{position:fixed;border-radius:20px;box-shadow:0 0 0 200vmax rgb(10 7 22 / .8);outline:3px solid #fff;outline-offset:2px;pointer-events:none;transition:left .45s cubic-bezier(.3,.8,.2,1),top .45s cubic-bezier(.3,.8,.2,1),width .45s cubic-bezier(.3,.8,.2,1),height .45s cubic-bezier(.3,.8,.2,1),border-radius .45s;animation:tour-ring 1.7s ease-in-out infinite}
+@keyframes tour-ring{50%{outline-offset:8px;outline-color:rgb(255 255 255 / .28)}}
+.tour.now .tour-hole{transition:none}
+.tour-skip{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);inset-inline-end:14px;min-height:40px;padding:0 16px;border:0;border-radius:99px;background:rgb(255 255 255 / .16);color:#fff;font-size:15px;font-weight:700}
+.tour-card{position:fixed;left:10px;right:10px;display:flex;flex-direction:row-reverse;align-items:flex-end;gap:2px;max-width:440px;margin-inline:auto;direction:ltr}
+.tour-fig{flex:none;width:108px;margin-right:-4px;transform-origin:50% 100%;animation:tour-in .7s cubic-bezier(.2,.9,.3,1.12) both,tour-sway 3.4s ease-in-out .7s infinite}
+.tour-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.tour-fig .av-aura{display:none}
+.tour-fig .av-shadow{fill:rgb(0 0 0 / .4)}
+@keyframes tour-in{from{transform:translateX(150%) rotate(16deg)}}
+@keyframes tour-sway{0%,100%{transform:rotate(0)}50%{transform:rotate(-3.5deg)}}
+.tour-say{position:relative;flex:1;min-width:0;margin-bottom:30px;padding:14px 16px 12px;border-radius:20px;background:#fff;color:#14101F;box-shadow:0 18px 40px -16px rgb(0 0 0 / .7);animation:tour-pop .45s cubic-bezier(.3,1.4,.5,1) .4s both}
+.tour-say::after{content:"";position:absolute;right:-6px;bottom:30px;width:16px;height:16px;border-radius:3px;background:inherit;transform:rotate(45deg)}
+.tour-say p{font-size:16.5px;font-weight:600;line-height:1.42}
+.tour-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.tour-dots{display:flex;align-items:center;gap:5px}
+.tour-dots i{width:7px;height:7px;border-radius:99px;background:#D9D5E6;transition:width .3s,background-color .3s}
+.tour-dots i.on{width:20px;background:#6D3FE0}
+.tour-foot .btn{flex:none;min-height:44px;padding:0 20px;border-radius:14px;font-size:16px;white-space:nowrap;background:#6D3FE0;color:#fff}
+.btn.nudge{animation:nudge 1.25s ease-in-out 2}
+@keyframes nudge{50%{transform:scale(1.035)}}
+.tour-card.hop .tour-say{animation:tour-pop .36s cubic-bezier(.3,1.4,.5,1) both}
+.tour-card.hop .tour-fig{animation:tour-hop .46s cubic-bezier(.3,1.4,.5,1),tour-sway 3.4s ease-in-out .46s infinite}
+@keyframes tour-pop{from{opacity:0;transform:translateY(10px) scale(.94)}}
+@keyframes tour-hop{45%{transform:translateY(-11px) rotate(-3deg)}}
+/* ---- the journey: a dark stage with the character today and at the hundredth level, then the levels as a road ---- */
+.jr-hero{position:relative;isolation:isolate;overflow:hidden;display:grid;justify-items:center;gap:4px;padding:22px 20px 20px;border-radius:28px;text-align:center;color:#fff;background:radial-gradient(130% 90% at 50% 30%,#3B2477 0%,#1A1038 52%,#0B0716 100%)}
+.jr-hero::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(60% 40% at 72% 62%,rgb(242 176 46 / .22),transparent 70%)}
+[dir="rtl"] .jr-hero::before{background:radial-gradient(60% 40% at 28% 62%,rgb(242 176 46 / .22),transparent 70%)}
+.jr-k{display:inline-block;padding:4px 14px;border-radius:99px;background:rgb(255 255 255 / .14);font-size:13.5px;font-weight:700}
+.jr-hero h1{margin-top:8px;font-size:28px;font-weight:800;line-height:1.15;letter-spacing:-.02em}
+.jr-hero .ob-ladder{margin-top:10px;max-width:340px}
+.ob-ladder figcaption b{white-space:nowrap}
+.jr-hero .av-aura,.jr-hero .av-glow{display:none}
+.jr-hero .av-shadow{fill:rgb(0 0 0 / .3)}
+.jr-lv{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;max-width:340px;margin-top:18px}
+.jr-lv .lv-badge{height:30px;padding:0 12px;font-size:14.5px;background:#fff;color:#2A1866}
+.jr-lv .xpbar{height:14px;background:rgb(255 255 255 / .16)}
+.jr-lv .xpbar i{background:var(--gold)}
+.jr-nx{display:grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:99px;background:rgb(255 255 255 / .2);font-size:14.5px;font-weight:800}
+.jr-line{margin-top:6px;font-size:14.5px;font-weight:500;color:rgb(255 255 255 / .72)}
+.road.jr{padding-top:16px}
+.road.jr .stop b{width:max-content;max-width:150px;border-radius:12px;white-space:normal;text-align:center;font-size:13.5px;line-height:1.3}
+.road.jr .stop.next .dot{font-size:28px}
+.road.jr .stop.done .dot{font-size:25px}
+.road.jr .stop.later .dot{background:var(--surface-3);color:var(--ink-3);box-shadow:0 6px 0 var(--coin-lip)}
+.road.jr .stop.top .dot{width:92px;height:92px;margin:-8px 0;font-size:30px}
+.road.jr .stop.top.later .dot{background:var(--xp-soft);color:var(--xp);box-shadow:0 6px 0 color-mix(in srgb,var(--xp-fill) 45%,var(--lip))}
+.road.jr .stop.top b{color:var(--ink);font-weight:800}
+.lv:active{transform:none}
+.lv:active .dot{transform:scale(.93)}
+.pal.pv .pal-fig{width:66px}
+.pal.pv{top:-14px}
+.jr-after{margin:6px 0 10px;text-align:center;font-size:15px;font-weight:600;color:var(--ink-3)}
+/* a stop of the journey, opened: the character at that level, on the dark stage */
+.sheet-in.lvs{gap:14px}
+.lvs-stage{display:grid;place-items:center;padding:14px 0 6px;border-radius:24px;background:radial-gradient(120% 90% at 50% 34%,#3B2477 0%,#1A1038 56%,#0B0716 100%)}
+.lvs-fig{display:block;width:min(200px,50vw)}
+.lvs-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.lvs-fig .av-aura{display:none}
+.lvs-fig .av-shadow{fill:rgb(0 0 0 / .3)}
+.lvs-t{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:8px 16px;border-radius:18px;background:var(--xp-soft);color:var(--xp);font-size:17px;font-weight:700;text-align:center}
+.lvs-t svg{flex:none;width:22px;height:22px}
 
 /* one workout: a progress strip, then one exercise at a time */
 .hero{display:grid;gap:10px}
@@ -487,6 +609,23 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .ed>.link{justify-self:start;padding-inline:0}
 .ed-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));background:var(--surface);padding-block:12px calc(20px + env(safe-area-inset-bottom,0px));margin-bottom:calc(-20px - env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
 .ed-act .btn.primary{margin-inline-start:auto}
+/* the plan, plainly: four workouts as cards, each in its own violet; what steers the round is folded away under them */
+.pl-sub{font-size:15px;color:var(--ink-2)}
+.pl-cards{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.pl-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;min-height:76px;padding:12px 14px;border:0;border-radius:22px;background:var(--wk-soft);color:var(--ink);text-align:start}
+.pl-ic{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--wk);color:#fff;box-shadow:0 4px 0 var(--wk-lip)}
+.pl-ic svg{width:26px;height:26px}
+.pl-ic svg.f{fill:currentColor;stroke:currentColor;stroke-width:1.1}
+.pl-t{display:grid;gap:1px;min-width:0}
+.pl-t b{font-size:18px;font-weight:800;line-height:1.25;letter-spacing:-.01em}
+.pl-t small{font-size:14px;font-weight:500;color:var(--ink-2)}
+.pl-card>svg{width:20px;height:20px;color:var(--wk-ink);stroke-width:2.4}
+.pl-adv{display:flex;align-items:center;gap:8px;width:100%;min-height:50px;padding:0 4px;border:0;background:none;color:var(--ink-2);font-size:15px;font-weight:700;text-align:start}
+.pl-adv>span{flex:1}
+.pl-adv>svg{width:20px;height:20px;transition:transform .25s}
+.pl-adv[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.pl-dot{width:9px;height:9px;border-radius:50%;background:var(--warn)}
+.pl-more{display:grid;gap:14px;animation:ob-rise .3s cubic-bezier(.2,.8,.2,1)}
 .ms-act{display:flex;flex-wrap:wrap;gap:4px 20px;align-items:center}
 .ms-act:empty{display:none}
 .ms-act .link{padding-inline:0}
@@ -607,7 +746,12 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 /* the character */
 .av{display:block;width:100%;height:auto;overflow:visible}
 .av-aura{fill:var(--accent-soft)}
-.av-aura.r0{fill:var(--surface-3)}.av-aura.r4,.av-aura.r5,.av-aura.r6{fill:var(--xp-soft)}
+.av-aura.r0{fill:var(--surface-3)}.av-aura.r4,.av-aura.r5,.av-aura.r6,.av-aura.r7,.av-aura.r8,.av-aura.r9{fill:var(--xp-soft)}
+.av-glow{animation:av-glow 3.4s ease-in-out infinite}
+@keyframes av-glow{50%{opacity:.5}}
+.av-spark{transform-box:fill-box;transform-origin:center;animation:av-spark 2.6s ease-in-out infinite}
+@keyframes av-spark{0%,100%{opacity:.25;transform:scale(.55)}50%{opacity:1;transform:scale(1.1)}}
+.av.still .av-glow,.av.still .av-spark{animation:none}
 .av-shadow{fill:var(--shadow)}
 .av-arm,.av-fore,.av-bi{transition:transform .55s cubic-bezier(.3,1.5,.5,1),opacity .3s}
 .av-arm.l{transform:rotate(9deg)}.av-arm.r{transform:rotate(-9deg)}
@@ -686,11 +830,6 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .card.next .btn.primary:active:not(:disabled){box-shadow:0 0 0 rgb(0 0 0 / .22)}
 .w-dot{display:inline-block;width:12px;height:12px;margin-inline-end:10px;border-radius:50%;background:var(--wk);box-shadow:0 2px 0 var(--wk-lip)}
 .sum .kicker{display:inline-block;padding:4px 14px;border-radius:99px;background:var(--wk-soft);color:var(--wk-ink)}
-/* the week: each stop in the colour of its workout */
-.tab.done .dot{background:var(--wk);color:#fff;box-shadow:0 3px 0 var(--wk-lip)}
-.tab.next .dot,.tab.live .dot{background:var(--surface);box-shadow:inset 0 0 0 3px var(--wk),0 3px 0 var(--wk-soft);color:var(--wk-ink)}
-.tab.next b,.tab.live b{color:var(--wk-ink)}
-.tab.done+.tab::before{background:var(--wk)}
 /* the streak: a flame that flickers */
 .p-streak{display:flex;align-items:center;gap:2px;color:var(--flame-ink);padding-inline:2px}
 .p-streak .flame{width:30px;height:30px;fill:none;transform-origin:50% 92%;animation:flicker 2.6s ease-in-out infinite}

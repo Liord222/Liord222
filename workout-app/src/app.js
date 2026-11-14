@@ -36,8 +36,15 @@ const anyLeft = (s) => exList(S.tab, s).some((x) => firstUndone(s, x) >= 0);
 function setView(v, keep) {
   S.view = v; $('#app').dataset.view = v; $('#app').dataset.w = S.tab;
   for (const b of $$('#tabbar [data-view]')) { if (b.dataset.view === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }
-  if (v === 'profile') renderProfile();
+  if (v === 'profile') renderProfile(); else if (v === 'journey') renderJourney();
   if (!keep) window.scrollTo(0, 0);
+  arrive(v);
+}
+/* a screen that is come to plays its entrance once: the class is taken off again, so that a redraw in place stays still */
+function arrive(v) {
+  const el = $('.v-' + v); if (!el || reduced) return;
+  el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter');
+  clearTimeout(S.enterT); S.enterT = setTimeout(() => el.classList.remove('enter'), 1500);
 }
 /* what belongs to the workout on screen (the open exercise, a set being edited, the rest and its Undo) is let go when another workout opens */
 function leaveWorkout() { S.open = null; S.edit = null; S.drafts = {}; S.resetAsk = false; S.fbFor = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; clearTimeout(S.slideT); if (rest.on) { clearInterval(rest.iv); rest.on = false; rest.last = null; } }
@@ -50,21 +57,83 @@ function openWorkout(w, picked) {
 /* how long a workout really takes (see workMins) */
 const minsOf = (list) => workMins(list);
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
-/* today: the player, the workout that is next (or running), and the week as a path of four stops */
+/* ---- the round as a road. Each workout is a stop; the stops of a week wind down the screen, week under week, from the week that is
+   being trained down to the cup at the end of the round. Friends stand along the road, and the coach says how the week is going ---- */
+/* where a stop stands across the road (the middle, one side, the middle, the other side), how far apart two stops are down the road,
+   how far to a side (in hundredths of the road's width), and the room above the first stop */
+const STOP_X = [0, 1, 0, -1], PITCH = 118, AMP = 21, ROAD_TOP = 40, FAR = { pitch: 100, top: 12, rad: 32, foot: 94 }, NEAR = { pitch: PITCH, top: ROAD_TOP, rad: 38, foot: 112 };
+const ROAD_I = {
+  tee: '<svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 3.6c.7 1.3 1.9 2 3.4 2s2.7-.7 3.4-2l5.1 2.3-1.9 4.3-2.3-.9v11.2H7.7V9.3l-2.3.9-1.9-4.3z"/></svg>',
+  shorts: '<svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14l1.6 14.5h-6.9L12 11.2 10.3 19H3.4z"/></svg>',
+  lock: '<svg class="i ln" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>',
+};
+/* a workout is drawn by what it trains: a shirt for the upper body, shorts for the lower */
+const stopIcon = (w) => ROAD_I[/Lower/.test(PLAN[w].name) ? 'shorts' : 'tee'];
+/* the friends along the road: four looks of the same figure, at a middling level and with no gear */
+const PALS = [{ skin: 2, hair: 4, hc: 1, beard: 0, shirt: 6, gear: false }, { skin: 4, hair: 6, hc: 0, beard: 1, shirt: 4, gear: false }, { skin: 0, hair: 8, hc: 5, beard: 0, shirt: 1, gear: false }, { skin: 3, hair: 3, hc: 0, beard: 2, shirt: 5, gear: false }];
+const CHEERS = () => [say('כל הכבוד!', 'Well done!'), say('ממשיכים!', 'Keep going!'), say('יש לך את זה!', 'You\'ve got this!'), say('עוד קצת!', 'A little more!'), say('לא עוצרים!', 'No stopping now!'), say('ככה בונים גוף', 'This is how it\'s built')];
+/* what a week is called on the road: a word for its place in the round, never a number of reps */
+function weekWord(k, W, easy) {
+  if (easy) return say('נותנים לגוף לנוח', 'Letting the body rest');
+  return k <= 1 ? say('נכנסים לקצב', 'Finding the rhythm') : k >= W - 1 ? say('הכי קרוב לקצה', 'Closest to the edge') : k === 2 ? say('מעלים הילוך', 'Shifting up') : say('דוחפים חזק', 'Pushing hard');
+}
+/* the coach, beside the week that is being trained: where it stands, in a few words */
+function coachLine(dn, on, easy, first) {
+  if (on) return say('אימון באמצע. ממשיכים?', 'A workout is under way. Shall we go on?');
+  if (first) return say('האימון הראשון מחכה. אני איתך.', 'Your first workout is waiting. I\'m with you.');
+  if (easy) return say('שבוע קל: פחות סטים, רחוק מכשל.', 'Easy week: fewer sets, far from failure.');
+  return [say('שבוע חדש. מתחילים חזק.', 'A new week. Start strong.'), say('אחד בפנים. ממשיכים!', 'One down. Keep going!'), say('חצי שבוע מאחוריך.', 'Half the week is behind you.'), say('עוד אימון אחד וסגרת שבוע!', 'One more workout and the week is done!')][Math.min(3, dn)];
+}
+/* a figure beside a stop, on the side of the road that is free: side is 'l' or 'r' on the screen, whatever the language */
+function palHTML(side, fig, words, cls) {
+  return '<span class="pal ' + side + (cls ? ' ' + cls : '') + '" dir="ltr"><span class="pal-fig" aria-hidden="true">' + fig + '</span>' + (words ? '<span class="pal-say" dir="' + (LANG === 'he' ? 'rtl' : 'ltr') + '">' + words + '</span>' : '') + '</span>';
+}
+/* the line of the road between two stops: (x in hundredths of the width, y in pixels), a curve that leaves and arrives straight down */
+const trailSeg = (x1, y1, x2, y2, on) => '<path' + (on ? ' class="on"' : '') + ' d="M' + x1 + ' ' + y1 + 'C' + x1 + ' ' + (y1 + (y2 - y1) / 2) + ' ' + x2 + ' ' + (y2 - (y2 - y1) / 2) + ' ' + x2 + ' ' + y2 + '"/>';
+function roadHTML(nu, w, P, lvl) {
+  const M = S.cfg.meso, over = mesoDone(M), W = S.cfg.weeks, mine = over ? [] : mesoSessions(M.id), early = !over && !!M.early;
+  /* how many times each workout was finished in this round, and whether one of it is under way */
+  const E = [0, 1, 2, 3].map((i) => mine.filter((x) => x.w === i && x.end).length), on = [0, 1, 2, 3].map((i) => { const L = live(i); return !!(L && hasDone(L)); });
+  const r0 = E[nu.next] + 1, last = early ? Math.max.apply(null, E.map((e) => e + 1)) : Math.max(W, r0), first = !sorted().some(hasDone);
+  /* in the week that is being trained every stop can be opened: the one under way, the next, the ones done and the ones still to do.
+     Further down the road a stop only shows what is coming */
+  const state = (r, i) => (r === r0 ? (on[i] ? 'live' : i === nu.next ? 'next' : E[i] >= r ? 'done' : 'todo') : E[i] >= r ? 'done' : 'later');
+  const SAY = { live: say('באמצע', 'in progress'), next: say('הבא', 'next'), done: say('הושלם', 'complete'), todo: say('עוד לא', 'not yet'), later: say('בהמשך', 'later on') };
+  const week = (r, k) => {
+    const easy = early || r >= W, cur = r === r0, st = [0, 1, 2, 3].map((i) => state(r, i)), dn = st.filter((x) => x === 'done').length;
+    /* the lifter's own figure stands by the stop the big card is about; the coach (or a friend, further down) takes a wide side that is free */
+    const meAt = cur ? w : -1, palAt = cur ? (meAt === 1 ? 3 : 1) : k % 2 ? 1 : 3, G = cur ? NEAR : FAR;
+    let stops = '', trail = '';
+    for (let i = 0; i < 4; i++) {
+      const x = 50 + STOP_X[i] * AMP, y = G.top + i * G.pitch, s = st[i], side = STOP_X[i] > 0 ? 'l' : 'r', lab = wkFull(i) + ', ' + SAY[s];
+      const coin = '<span class="dot" aria-hidden="true">' + (s === 'done' ? ICON.check : stopIcon(i)) + '</span><b>' + wkShort(i) + '</b>';
+      stops += '<li class="stop ' + s + '" style="top:' + y + 'px;left:' + x + '%;--i:' + i + '">' +
+        (cur ? '<button class="tab w' + i + ' ' + s + '" type="button" data-tab="' + i + '" aria-label="' + lab + '"' + (i === w ? ' aria-current="true"' : '') + '>' + (i === meAt ? '<span class="go-chip" aria-hidden="true">' + (s === 'live' ? say('המשך', 'Go on') : say('התחל', 'Start')) + '</span>' : '') + coin + '</button>'
+          : '<button class="lk w' + i + ' ' + s + '" type="button" tabindex="-1" data-lock="1" aria-label="' + say('שבוע ', 'Week ') + r + ', ' + lab + '">' + coin + '</button>') +
+        (i === meAt ? palHTML(side, avatar(lvl), '', 'me') : '') +
+        (i === palAt ? (cur ? palHTML(side, avatarSVG(COACH, 12, { still: true }), coachLine(dn, on.some(Boolean), easy, first), 'coach') : palHTML(side, avatarSVG(PALS[(r + k) % PALS.length], 12, { still: true }), CHEERS()[(r * 2 + k) % 6], '')) : '') + '</li>';
+      if (i < 3) trail += trailSeg(x, y + G.rad, 50 + STOP_X[i + 1] * AMP, y + G.rad + G.pitch, s === 'done' && st[i + 1] !== 'todo' && st[i + 1] !== 'later');
+    }
+    const H = G.top + 3 * G.pitch + G.foot;
+    return '<div class="pw' + (cur ? ' cur' : ' far') + (easy ? ' easy' : '') + '">' + (cur ? '' : '<p class="pw-h"><b>' + (easy ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + r) + '</b><span>' + weekWord(r, W, easy) + '</span></p>') +
+      '<div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol' + (cur ? ' id="tabs"' : '') + '>' + stops + '</ol></div></div>';
+  };
+  let weeks = '';
+  for (let r = r0, k = 0; r <= last; r++, k++) weeks += week(r, k);
+  const easyNow = P.m && P.dl;
+  return '<section class="road week" aria-label="' + say('המסלול של הסבב', 'The road of this round') + '"><div class="road-h"><div><h2>' + (easyNow ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2><p>' + weekWord(r0, W, early || r0 >= W) + '</p></div>' +
+    '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית שלי', 'My plan') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div>' + weeks +
+    '<div class="pw-end"><span class="cup" aria-hidden="true">' + glyph('cup') + '</span><b>' + say('סוף סבב ', 'End of round ') + (over ? M.n + 1 : M.n) + '</b><span>' + say('מכאן מתחילים חזק יותר', 'From here you start stronger') + '</span></div></section>';
+}
+/* the first screen: the player, the workout that is next (or running), and the road of the round */
 function renderHome() {
-  const nu = nextUp(), w = nu.live >= 0 ? nu.live : nu.next, s = live(w), list = exList(w, s), P = phase(w, s), M = S.cfg.meso;
+  const nu = nextUp(), w = nu.live >= 0 ? nu.live : nu.next, s = live(w), list = exList(w, s), P = phase(w, s), me = meNow();
   const total = list.reduce((n, e) => n + e.sets, 0), dn = s ? list.reduce((n, e) => n + doneCount(s, e), 0) : 0;
-  const ended = (i) => mesoSessions(M.id).filter((x) => x.w === i && x.end).length, over = mesoDone(M), base = ended(nu.next);
-  const SAY = { live: say('באמצע', 'in progress'), next: say('הבא', 'next'), done: say('הושלם', 'complete'), todo: say('עוד לא', 'not yet') };
-  const week = PLAN.map((x, i) => {
-    const L = live(i), st = L && hasDone(L) ? 'live' : i === nu.next ? 'next' : !over && ended(i) > base ? 'done' : 'todo';
-    return '<button class="tab w' + i + ' ' + st + '" type="button" data-tab="' + i + '" aria-label="' + wkFull(i) + ', ' + SAY[st] + '"' + (i === w ? ' aria-current="true"' : '') + '><span class="dot" aria-hidden="true">' + (st === 'done' ? ICON.check : i + 1) + '</span><b>' + wkShort(i) + '</b></button>';
-  }).join('');
-  $('#home').innerHTML = playerHTML(meNow()) + bannerHTML() +
+  $('#home').innerHTML = playerHTML(me) + bannerHTML() +
     '<section class="card next w' + w + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + wkOrd(w) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
     '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
-    '<section class="card week" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="card-h"><h2>' + (P.m && P.dl ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2>' + '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית והסבב', 'The plan and the round') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div><div class="week-row" id="tabs">' + week + '</div></section>';
+    roadHTML(nu, w, P, me.L.lvl);
 }
 function renderTabs() { renderHome(); }
 /* a workout that is under way is marked on "today", from wherever the lifter is looking */
@@ -714,8 +783,8 @@ function closeSheet() {
   /* the picker for adding an exercise was opened from the plan: closing it goes back there */
   if (kind === 'swap' && S.pick && S.pick.mode === 'add') { S.pick = null; S.sheet = 'meso'; renderMeso(); return; }
   sheetGhost(sh);
-  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.pick = null; S.blEdit = null; S.msPage = null;
-  if (kind && kind !== 'sum' && kind !== 'list') renderAll();
+  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.msAdv = false; S.pick = null; S.blEdit = null; S.msPage = null;
+  if (kind && kind !== 'sum' && kind !== 'list' && kind !== 'lv') renderAll();
 }
 function editorInput(rowEl) {
   const s = S.sessions[S.edSid]; if (!s || !rowEl) return;
@@ -797,6 +866,7 @@ function wireApp() {
     else if (b.id === 'playerBtn') setView('profile');
     else if (b.id === 'planBtn') openMeso();
     else if (b.classList.contains('tab')) openWorkout(+b.dataset.tab, true);
+    else if (b.dataset.lock) { b.classList.remove('no'); void b.offsetWidth; b.classList.add('no'); toast(ROAD_I.lock + '<b>' + say('נפתח בהמשך המסלול', 'Opens further down the road') + '</b>'); }
   });
   const list = $('#exList');
   list.addEventListener('click', (ev) => {
@@ -941,9 +1011,9 @@ function wireApp() {
   });
   /* a sheet or the opening screens, while open, are the only thing in reach: the focus moves in, the page behind is out of reach
      (for the keyboard and for a screen reader), and on closing the focus goes back to what opened it */
-  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'); let opener = null;
+  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'), tour = $('#tour'); let opener = null;
   const modal = () => {
-    const box = !ob.hidden ? ob : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    const box = !ob.hidden ? ob : !tour.hidden ? tour : !sheet.hidden ? $('.sheet-in', sheet) : null;
     for (const el of behind) el.inert = !!box;
     if (box) {
       if (!opener) { const a = document.activeElement; opener = a && a !== document.body ? { el: a, id: a.id } : {}; }
@@ -954,7 +1024,7 @@ function wireApp() {
     }
   };
   const watch = new MutationObserver(modal);
-  watch.observe(sheet, { attributes: true, attributeFilter: ['hidden'] }); watch.observe(ob, { attributes: true, attributeFilter: ['hidden'] });
+  for (const el of [sheet, ob, tour]) watch.observe(el, { attributes: true, attributeFilter: ['hidden'] });
   sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); });
   sheet.addEventListener('change', (ev) => {
     if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }
@@ -963,12 +1033,13 @@ function wireApp() {
     if (ev.target.classList.contains('note-in')) { const e = S.open && findEx(S.open); if (e) saveNote(e.mv, ev.target.value); return; }
     coachSheetChange(ev); meSheetChange(ev);
   });
-  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on) { if (!sheet.hidden) closeSheet(); else closeChat(); } });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on) { if (TR.on) tourEnd(); else if (!sheet.hidden) closeSheet(); else closeChat(); } });
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (rest.on) tickRest(); if (live(S.tab)) keepAwake(); });
   /* the phone's back button, when gymi runs inside its native shell: close what is open, else go back to today */
   window.gymiBack = () => {
+    if (TR.on) { tourEnd(); return true; }
     if (!sheet.hidden) { if (S.sheet === 'meso' && S.msPage) { S.msPage = null; S.blEdit = null; renderMeso(); } else closeSheet(); return true; }
     if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }
     if (OB.on) { if (OB.step > 0) { obStep(-1); return true; } if (S.cfg.me.ob) { closeOb(); return true; } return false; }

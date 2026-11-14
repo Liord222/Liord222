@@ -47,6 +47,35 @@ const REWARDS = [
 ];
 const nextReward = (lvl) => REWARDS.find((r) => r.at > lvl) || null;
 const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);
+/* ---- the kiosk: what the character can wear beyond what the levels open. Every ten points earned are a coin, and coins buy.
+   slot: one thing of a slot is worn at a time. The level and its points are never spent: the coins are counted beside them */
+const SHOP = [
+  { id: 'towel', slot: 'neck', cost: 30, he: 'מגבת', en: 'Towel' }, { id: 'kicksW', slot: 'feet', cost: 50, he: 'נעליים לבנות', en: 'White sneakers' }, { id: 'cap', slot: 'head', cost: 60, he: 'כובע מצחייה', en: 'Cap' },
+  { id: 'gloves', slot: 'hands', cost: 70, he: 'כפפות אימון', en: 'Training gloves' }, { id: 'shades', slot: 'eyes', cost: 90, he: 'משקפי שמש', en: 'Sunglasses' }, { id: 'watch', slot: 'wrist', cost: 110, he: 'שעון ספורט', en: 'Sports watch' },
+  { id: 'kicksP', slot: 'feet', cost: 120, he: 'נעליים סגולות', en: 'Purple sneakers' }, { id: 'phones', slot: 'ears', cost: 150, he: 'אוזניות', en: 'Headphones' }, { id: 'chain', slot: 'neck', cost: 200, he: 'שרשרת זהב', en: 'Gold chain' },
+];
+const shopItem = (id) => SHOP.find((x) => x.id === id) || null;
+const coinsOf = (xp) => Math.floor((xp > 0 && isFinite(xp) ? xp : 0) / 10);
+/* a wardrobe read from a file or from the account: only things the kiosk sells, each owned once, and of the worn ones one to a slot */
+function cleanShop(v) {
+  const ok = (a) => (Array.isArray(a) ? a.filter((id, i) => !!shopItem(id) && a.indexOf(id) === i) : []);
+  const own = ok(v && v.own), slots = {};
+  return { own, on: ok(v && v.on).filter((id) => { const s = shopItem(id).slot; if (!own.includes(id) || slots[s]) return false; slots[s] = 1; return true; }) };
+}
+const spentOf = (shop) => shop.own.reduce((n, id) => n + shopItem(id).cost, 0);
+/* what is left to spend: never under zero, even when a deleted workout took points away after they were spent */
+const coinsLeft = (xp, shop) => Math.max(0, coinsOf(xp) - spentOf(shop));
+/* putting a thing on takes off what was worn in its slot; null when it is not owned */
+function shopWear(shop, id, on) {
+  const it = shopItem(id); if (!it || !shop.own.includes(id)) return null;
+  const rest = shop.on.filter((k) => k !== id && shopItem(k).slot !== it.slot);
+  return { own: shop.own.slice(), on: on ? rest.concat(id) : rest };
+}
+/* buying: the coins must be there and the thing not owned yet. It is put on at once. null when it cannot be bought */
+function shopBuy(shop, id, xp) {
+  const it = shopItem(id); if (!it || shop.own.includes(id) || coinsLeft(xp, shop) < it.cost) return null;
+  return shopWear({ own: shop.own.concat(id), on: shop.on }, id, true);
+}
 /* how muscular the character is drawn: 0 at level 1, fully built at level 30 */
 const buildOf = (lvl) => Math.max(0, Math.min(1, (lvl - 1) / 29));
 /* calendar week of a moment, in the device's own time; weeks start on Sunday */

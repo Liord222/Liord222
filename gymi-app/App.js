@@ -34,8 +34,8 @@ const hapticOf = (kind) => {
 };
 const KEY_NAME = 'gymi.anthropic.key';
 const THEME = {
-  light: { paper: '#F5F5F8', surface: '#FFFFFF', field: '#F2F2F6', ink: '#0F0E14', ink2: '#4D4B58', accent: '#6D3FE0', onAccent: '#FFFFFF', danger: '#D12D45' },
-  dark: { paper: '#0B0A0F', surface: '#17161D', field: '#22212A', ink: '#F5F4F8', ink2: '#B8B5C4', accent: '#A98BFF', onAccent: '#1A0B3D', danger: '#FF6B7D' },
+  light: { paper: '#F5F5F8', surface: '#FFFFFF', field: '#F2F2F6', ink: '#0F0E14', ink2: '#4D4B58', accent: '#6D3FE0', onAccent: '#FFFFFF', danger: '#D12D45', head: '#5A2FCC' },
+  dark: { paper: '#0B0A0F', surface: '#17161D', field: '#22212A', ink: '#F5F4F8', ink2: '#B8B5C4', accent: '#A98BFF', onAccent: '#1A0B3D', danger: '#FF6B7D', head: '#3B2477' },
 };
 /* the API key lives in the phone's keychain; the browser preview has none, so it falls back to plain storage there */
 const keyStore = Platform.OS === 'web'
@@ -60,13 +60,17 @@ async function exportFile(filename, data) {
 /* the shell's own texts, in the language the page is in */
 const TEXT = {
   he: {
-    title: 'החיבור של אילון', on: 'אילון מחובר. אפשר להחליף את המפתח או לנתק אותו.',
-    off: 'מדביקים כאן מפתח API של Anthropic. הוא נשמר רק בטלפון הזה, באחסון המאובטח שלו, ונשלח רק ל-Anthropic. השימוש מחויב בחשבון Anthropic שלך.',
+    title: 'החיבור של אילון', stateOn: 'מחובר', stateOff: 'לא מחובר',
+    on: 'אילון מחובר ומוכן לעזור. אפשר להחליף את המפתח או לנתק אותו.',
+    off: 'בינתיים אילון מתחבר עם מפתח API של Anthropic, וזה מיועד לבעל האפליקציה. בקרוב הוא יענה לכולם, בלי מפתח.',
+    note: 'המפתח נשמר רק בטלפון הזה, באחסון המאובטח שלו, ונשלח רק ל-Anthropic. השימוש מחויב בחשבון Anthropic של בעל המפתח.',
     field: 'מפתח API של Anthropic', replace: 'החלפת המפתח', save: 'שמירה וחיבור', remove: 'ניתוק אילון ומחיקת המפתח', close: 'סגירה',
   },
   en: {
-    title: 'Eilon\'s connection', on: 'Eilon is connected. You can replace the key or disconnect it.',
-    off: 'Paste an Anthropic API key here. It is kept only on this phone, in its secure storage, and is sent only to Anthropic. Usage is billed to your Anthropic account.',
+    title: 'Eilon\'s connection', stateOn: 'Connected', stateOff: 'Not connected',
+    on: 'Eilon is connected and ready to help. You can replace the key or disconnect it.',
+    off: 'For now Eilon connects with an Anthropic API key, which is meant for the owner of the app. Soon he will answer everyone, with no key.',
+    note: 'The key is kept only on this phone, in its secure storage, and is sent only to Anthropic. Usage is billed to the Anthropic account of the key\'s owner.',
     field: 'Anthropic API key', replace: 'Replace the key', save: 'Save and connect', remove: 'Disconnect Eilon and delete the key', close: 'Close',
   },
 };
@@ -81,12 +85,23 @@ function KeySheet({ open, hasKey, lang, c, onSave, onRemove, onClose }) {
   const rtl = lang === 'en' ? { writingDirection: 'ltr', textAlign: side('left') } : { writingDirection: 'rtl', textAlign: side('right') };
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(8,10,14,0.45)' }}>
-        <View style={{ backgroundColor: c.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 34, gap: 14 }}>
-          <Text accessibilityRole="header" style={[rtl, { color: c.ink, fontSize: 26, fontWeight: '800' }]}>{T.title}</Text>
-          <Text style={[rtl, { color: c.ink2, fontSize: 15, lineHeight: 22 }]}>
-            {hasKey ? T.on : T.off}
-          </Text>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(10,7,22,0.6)' }}>
+        <View style={{ backgroundColor: c.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, overflow: 'hidden' }}>
+          {/* a purple head, like the coach's own in the page: what this is, and whether he is connected */}
+          <View style={{ backgroundColor: c.head, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 18, gap: 8 }}>
+            <View style={{ flexDirection: 'row', justifyContent: side(lang === 'en' ? 'left' : 'right') === 'left' ? 'flex-start' : 'flex-end' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, height: 28, paddingHorizontal: 12, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.16)' }}>
+                <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: hasKey ? '#3DDC84' : '#B9B5C9' }} />
+                <Text testID="keyState" style={{ color: '#FFFFFF', fontSize: 13.5, fontWeight: '700' }}>{hasKey ? T.stateOn : T.stateOff}</Text>
+              </View>
+            </View>
+            <Text accessibilityRole="header" style={[rtl, { color: '#FFFFFF', fontSize: 26, fontWeight: '800' }]}>{T.title}</Text>
+            <Text style={[rtl, { color: 'rgba(255,255,255,0.88)', fontSize: 15, lineHeight: 22 }]}>
+              {hasKey ? T.on : T.off}
+            </Text>
+          </View>
+          <View style={{ padding: 20, paddingBottom: 34, gap: 14 }}>
+          <Text style={[rtl, { color: c.ink2, fontSize: 13.5, lineHeight: 20 }]}>{T.note}</Text>
           <TextInput
             testID="keyInput" value={value} onChangeText={setValue} placeholder="sk-ant-..." placeholderTextColor={c.ink2}
             secureTextEntry autoCapitalize="none" autoCorrect={false} accessibilityLabel={T.field}
@@ -103,6 +118,7 @@ function KeySheet({ open, hasKey, lang, c, onSave, onRemove, onClose }) {
           <Pressable testID="keyClose" accessibilityRole="button" onPress={onClose} style={{ height: 48, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: c.accent, fontSize: 16, fontWeight: '600' }}>{T.close}</Text>
           </Pressable>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -162,6 +178,8 @@ export default function App() {
     }
     else if (m.type === 'key-get' && typeof m.id === 'string') keyStore.get().catch(() => null).then((key) => { if (shell.current) shell.current.run('window.__gymiReply(' + JSON.stringify(m.id) + ',' + JSON.stringify(key || null) + ')'); });
     else if (m.type === 'key-edit') setKeyOpen(true);
+    /* the account was deleted in the page: the key goes with it */
+    else if (m.type === 'key-del') keyStore.del().catch(() => {}).then(() => coachState(false));
     else if (m.type === 'lang') {
       /* the page has started and drawn: a frame later the curtain lifts onto it */
       setTimeout(liftSplash, 60);

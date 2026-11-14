@@ -7,6 +7,7 @@ function boot(data) {
   if (d.sessions) S.sessions = d.sessions;
   if (typeof d.sound === 'boolean') S.sound = d.sound;
   if (typeof d.buzz === 'boolean') S.buzz = d.buzz;
+  if (d.shopBal > 0) S.shopBal = +d.shopBal || 0;
   if (Array.isArray(d.dirty)) S.dirty = new Set(d.dirty);
   if (Array.isArray(d.gone)) S.gone = new Set(d.gone);
   if (d.cfg) S.cfg = normCfg(d.cfg);
@@ -24,7 +25,7 @@ function boot(data) {
   readColors(); wireApp(); wireFeel(); wireCoach(); wireChat(); wireMe(); wireOb();
   setView(['workout', 'home', 'profile', 'journey'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
-  splash(); renderAll(); initChat();
+  splash(); renderAll(); initChat(); maybeLock();
   initCloud(onRemoteChange);
   if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then((dl) => { if (dl) { S.dl = dl; renderHistory(); } }).catch(() => {});
 }

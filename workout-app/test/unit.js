@@ -1,7 +1,7 @@
 // Unit checks for the pure parts: the progression engine (plan.js + lib.js + prog.js) and the game layer (game.js): node test/unit.js
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = process.argv[2] || path.join(__dirname, '..', 'src');
-const GAME = ['rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'startKg', 'stepUp', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned'];
+const GAME = ['rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'startKg', 'stepUp', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned', 'SHOP', 'shopItem', 'coinsOf', 'cleanShop', 'spentOf', 'coinsLeft', 'shopWear', 'shopBuy'];
 const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') +
   '\n;globalThis.X = { PLAN, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
   '\n;globalThis.G = {' + GAME.map((k) => k + ': typeof ' + k + " === 'undefined' ? undefined : " + k).join(', ') + '};';
@@ -122,6 +122,14 @@ t('next reward', () => [G.nextReward(1).at, G.nextReward(3).at, G.nextReward(39)
 t('the road of rewards runs to the hundredth level, each level once and in order', () => [G.REWARDS[G.REWARDS.length - 1].at, G.REWARDS.every((r, i, a) => !i || r.at > a[i - 1].at), G.RANKS.every((r) => r.at === 1 || G.REWARDS.some((x) => x.at === r.at))], [100, true, true]);
 t('rewards opened by a level-up', () => [G.rewardsBetween(2, 5).map((r) => r.at), G.rewardsBetween(5, 5).length, G.rewardsBetween(1, 2).length], [[3, 5], 0, 0]);
 t('the body grows with the level', () => [G.buildOf(1), G.buildOf(30), G.buildOf(200), G.buildOf(16) > G.buildOf(8)], [0, 1, 1, true]);
+
+// the kiosk: coins, buying and wearing
+t('every ten points are a coin, and odd totals are no coins at all', () => [0, 9, 10, 315, -40, NaN, Infinity].map((x) => G.coinsOf(x)), [0, 0, 1, 31, 0, 0, 0]);
+t('the kiosk sells each thing once, at a price, for one slot, with a name in both languages', () => [G.SHOP.length, new Set(G.SHOP.map((x) => x.id)).size, G.SHOP.every((x) => x.cost > 0 && x.slot && x.he && x.en && !/[\u0590-\u05FF]/.test(x.en))], [9, 9, true]);
+t('a first workout buys the first thing on the shelf', () => { const xp = 310, shop = G.shopBuy({ own: [], on: [] }, 'towel', xp); return [shop, G.coinsLeft(xp, shop), G.shopBuy(shop, 'towel', xp), G.shopBuy(shop, 'cap', xp)]; }, [{ own: ['towel'], on: ['towel'] }, 1, null, null]);
+t('a thing that is put on takes the place of what its slot held, and can be taken off', () => { let s = { own: ['towel', 'chain', 'cap'], on: ['towel', 'cap'] }; const a = G.shopWear(s, 'chain', true), b = G.shopWear(a, 'chain', false); return [a.on, b.on, G.shopWear(s, 'shades', true), s.on]; }, [['cap', 'chain'], ['cap'], null, ['towel', 'cap']]);
+t('what was spent is the price of all that is owned, and the coins left never go under zero', () => [G.spentOf({ own: ['towel', 'cap'], on: [] }), G.coinsLeft(1000, { own: ['towel', 'cap'], on: [] }), G.coinsLeft(200, { own: ['chain'], on: [] })], [90, 10, 0]);
+t('a wardrobe from a file is cleaned: only things that are sold, each once, worn only when owned, one to a slot', () => [G.cleanShop({ own: ['cap', 'cap', 'nope', 'towel', 'chain', 7], on: ['chain', 'towel', 'shades', 'cap'] }), G.cleanShop(null), G.cleanShop({ own: 'cap', on: {} })], [{ own: ['cap', 'towel', 'chain'], on: ['chain', 'cap'] }, { own: [], on: [] }, { own: [], on: [] }]);
 
 // totals: the archive plus every workout newer than it
 const zero = () => G.archZero();

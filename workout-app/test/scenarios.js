@@ -407,18 +407,18 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     /* an account with a whole profile in it. Its settings arrive late; every write is kept with what was written */
     const acct = { kind: 'cfg', upd: now - 3 * day, lang: 'he', weeks: 6, inc: {}, swap: { ua5: 'inclineDb' }, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm3', n: 3, start: now - 9 * day, early: 0, asked: '' }, past: [],
       me: { name: 'ליאור', look: { skin: 2, hair: 3, hc: 1, beard: 2, shirt: 4 }, made: now - 60 * day, ob: now - 60 * day, exp: 1, goal: 0, badges: { first: now - 50 * day } } };
-    const withAccount = async (store, cfgAt) => {
+    const withAccount = async (store, cfgAt, other) => {
       const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'he-IL' }), q = await ctx.newPage();
       q.on('pageerror', (e) => errs.push('PAGEERR ' + e.message));
       await q.addInitScript(([s, cloud, at]) => {
         if (s && !localStorage.getItem('ul4:v1')) localStorage.setItem('ul4:v1', s);
         window.__w = []; window.__cfgAt = Infinity;
         const col = { orderBy() { return col; }, limit() { return col; },
-          doc: (id) => ({ async set(v) { window.__w.push({ id, at: Date.now(), v: JSON.parse(JSON.stringify(v)) }); }, async delete() {},
+          doc: (id) => ({ async set(v) { window.__w.push({ id, at: Date.now(), v: JSON.parse(JSON.stringify(v)) }); }, async delete() { window.__d = (window.__d || []).concat(id); },
             onSnapshot(next) { setTimeout(() => { window.__cfgAt = Date.now(); next({ id, exists: true, data: () => JSON.parse(cloud) }); }, at); return () => {}; } }),
           onSnapshot(next) { setTimeout(() => next({ docChanges: () => [] }), 5); return () => {}; } };
         window.claude = { use: async (n) => (n === 'user' ? { id: async () => 'u1' } : n === 'db' ? { collection: () => col } : null) };
-      }, [store ? JSON.stringify(store) : '', JSON.stringify(acct), cfgAt]);
+      }, [store ? JSON.stringify(store) : '', JSON.stringify(other || acct), cfgAt]);
       await q.goto(PREVIEW);
       return q;
     };
@@ -426,6 +426,20 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
       return { now: pick(c), sent: pick(last), early: w.filter((x) => x.at < window.__cfgAt).length, ob: !document.querySelector('#ob').hidden }; });
     const whole = (x, note) => !!x && x.weeks === 6 && x.meso === 'm3' && x.name === 'ליאור' && x.swap === 'inclineDb' && x.note === note;
 
+    /* the account was deleted on another device: this one, which still holds the profile, workouts and an exercise of its own, lets it all go */
+    {
+      const mine = { sound: false, dirty: ['s9'], gone: [], sessions: { s9: { id: 's9', v: 3, w: 0, ts: now - 2 * day, end: now - 2 * day + 3e6, mt: 1, upd: now - 2 * day, ft: 1, m: 'm3', wk: 1, dl: 0, rir: 3, n: {}, mv: {}, sore: {}, cut: {}, fb: {}, sets: { ua1: [{ kg: 50, reps: 8, done: true, t: now - 2 * day }] } } },
+        cfg: Object.assign({}, acct, { upd: now - 1000, slots: { cmine0001: { w: 1, a: 'legExt', sets: 3, reps: '8–12', rest: [60, 60] } }, order: { 1: ['la1', 'cmine0001'] } }) };
+      /* the account answers before this device has sent anything of its own */
+      const w = await withAccount(mine, 60, { kind: 'cfg', upd: now - 5000, wiped: now - 5000, lang: 'he', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: {} });
+      await w.waitForTimeout(1500);
+      const dead = await w.evaluate(() => ({ sessions: Object.keys(S.sessions).length, off: (window.__d || []).join(), name: S.cfg.me.name, slots: Object.keys(S.cfg.slots).length, order: Object.keys(S.cfg.order).length, wiped: S.cfg.wiped > 0, sent: window.__w.length, opening: !document.querySelector('#ob').hidden, ls: Object.keys(JSON.parse(localStorage.getItem('ul4:v1')).sessions).length, dirty: Array.from(S.dirty).join() }));
+      check('a deletion made on another device reaches this one: its workouts, its profile and its own exercise are let go, nothing is sent back up (its own copy of a workout is taken off the account instead), and the opening starts', dead.sessions === 0 && dead.off === 's9' && dead.name === '' && dead.slots === 0 && dead.order === 0 && dead.wiped && dead.sent === 0 && dead.opening && dead.ls === 0, dead);
+      /* and a workout from before the deletion that some other device sends up again is not taken back in */
+      const late = await w.evaluate(() => { const before = Object.keys(S.sessions).length; return { before, wiped: S.cfg.wiped, old: S.cfg.wiped - 1000 }; });
+      check('(the device knows when the account was deleted)', late.before === 0 && late.wiped > 0, late);
+      await w.context().close();
+    }
     /* a new device: a note is written before the account answered */
     let q = await withAccount(null, 2000);
     await q.waitForTimeout(400);
@@ -512,6 +526,113 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     const cut = await q.evaluate(() => ({ last: chat.turns.length ? chat.turns[chat.turns.length - 1] : null, shown: $('#msgs').innerText }));
     check('an answer cut in the middle keeps the part that came', !!cut.last && cut.last.role === 'assistant' && cut.last.content === 'הנה חצי תשובה' && cut.shown.includes('הנה חצי תשובה'), cut);
     await ctx.close();
+  }
+
+  // ---- 16. the kiosk: coins from the points that were earned, a thing tried on, bought, worn and taken off ----
+  {
+    const p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { name: 'דנה', made: 5, exp: 1, goals: [0], arch: { until: 1, xp: 1000, wk: 4, sets: 80, prs: 3, kg: 9000, sw: 1, lw: 1 } } } }), txt = T(p);
+    const st = () => p.evaluate(() => ({ own: S.cfg.me.shop.own.join(), on: S.cfg.me.shop.on.join(), bal: coinsLeft(meNow().T.xp, S.cfg.me.shop), dot: document.querySelector('#tabbar [data-view="profile"]').classList.contains('new'), lvl: meNow().L.lvl }));
+    const s0 = await st();
+    check('the points that were earned are coins, and the profile\'s tab is marked while they can buy something that was not looked at yet', s0.bal === 100 && s0.dot && s0.own === '', s0);
+    await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(300); await p.click('#shopBtn'); await p.waitForTimeout(400);
+    const k0 = await p.evaluate(() => ({ tiles: [...document.querySelectorAll('#sheet .ks-it')].map((x) => x.dataset.shop + ':' + (x.classList.contains('far') ? 'far' : 'can')).join(), say: document.querySelector('#sheet .ks-say').innerText.replace(/\s+/g, ' '), fits: document.documentElement.scrollWidth <= innerWidth, tap: Math.min.apply(null, [...document.querySelectorAll('#sheet .ks-it')].map((x) => x.getBoundingClientRect().height)) }));
+    check('the kiosk shows what the coins can buy and what they cannot buy yet, and the mark on the tab is gone once it was looked at', k0.tiles === 'towel:can,kicksW:can,cap:can,gloves:can,shades:can,watch:far,kicksP:far,phones:far,chain:far' && k0.say.includes('מה בא לך?') && k0.fits && k0.tap >= 44 && !(await st()).dot, k0);
+    await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
+    const tr = await p.evaluate(() => ({ fig: document.querySelector('#sheet .ks-fig svg').outerHTML.includes('#F4F4F6'), buy: (document.querySelector('#shopBuy') || { innerText: '' }).innerText.replace(/\s+/g, ' ').trim(), own: S.cfg.me.shop.own.length, face: document.querySelector('#tbMe svg').outerHTML.includes('#F4F4F6') }));
+    check('a tap tries a thing on: the figure on the stage wears it, nothing is bought, and its price stands on the button', tr.fig && tr.buy === 'קנה ב- 30' && tr.own === 0 && !tr.face, tr);
+    await p.click('#shopBuy'); await p.waitForTimeout(450);
+    const b1 = await st(), seen = await p.evaluate(() => ({ tile: document.querySelector('#sheet [data-shop="towel"]').className, st: document.querySelector('#sheet [data-shop="towel"] .ks-st').innerText.trim(), face: document.querySelector('#tbMe svg').outerHTML.includes('#F4F4F6'), stage: document.querySelector('#pfStage svg').outerHTML.includes('#F4F4F6'), kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.shop, toast: document.querySelector('#toast').innerText, bal: document.querySelector('#sheet .coin-tag').innerText.trim() }));
+    check('buying takes the coins and puts the thing on at once, wherever the character is drawn, and it is kept', b1.own === 'towel' && b1.on === 'towel' && b1.bal === 70 && seen.tile.includes('on') && seen.st === 'עליך' && seen.face && seen.stage && seen.kept.own.join() === 'towel' && seen.kept.on.join() === 'towel' && seen.toast.includes('שלך: מגבת') && seen.bal === '70' && b1.lvl === s0.lvl, [b1, seen]);
+    await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
+    const off = await st();
+    await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
+    check('what is owned goes off and on with a tap, and costs nothing more', off.own === 'towel' && off.on === '' && off.bal === 70 && (await st()).on === 'towel' && (await st()).bal === 70, off);
+    await p.click('#sheet [data-shop="cap"]'); await p.waitForTimeout(250); await p.click('#shopBuy'); await p.waitForTimeout(400);
+    await p.click('#sheet [data-shop="chain"]'); await p.waitForTimeout(300);
+    const far = await p.evaluate(() => ({ say: document.querySelector('#sheet .ks-say').innerText.replace(/\s+/g, ' '), buy: !!document.querySelector('#shopBuy'), tried: document.querySelector('#sheet .ks-fig svg').outerHTML.includes('#FFD76A'), worn: S.cfg.me.shop.on.join() }));
+    check('a thing the coins cannot buy can still be tried on: it says how many are missing, and what is worn stays worn', (await st()).bal === 10 && (await st()).own === 'towel,cap' && far.say.includes('חסרים עוד 190 מטבעות') && !far.buy && far.tried && far.worn === 'towel,cap', far);
+    await p.click('#sheet [data-close]'); await p.waitForTimeout(300); await p.reload(); await p.waitForTimeout(800);
+    const back = await p.evaluate(() => ({ own: S.cfg.me.shop.own.join(), on: S.cfg.me.shop.on.join(), cap: document.querySelector('#tbMe svg').outerHTML.includes('#5229C4'), home: document.querySelector('#playerBtn svg').outerHTML.includes('#5229C4'), dot: document.querySelector('#tabbar [data-view="profile"]').classList.contains('new') }));
+    check('the wardrobe is there on the next visit, on the character everywhere, with no mark for coins that buy nothing new', back.own === 'towel,cap' && back.on === 'towel,cap' && back.cap && back.home && !back.dot, back);
+    await p.context().close();
+  }
+
+  // ---- 17. the answers in the settings: a plan the app built follows them at once; one the lifter changed stays, and can be built again ----
+  {
+    const p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { tour: 5 } } }, true), txt = T(p);
+    await p.evaluate(() => { Object.assign(OB, { name: 'טל', exp: 1, goals: [0], time: 0, eq: 0, fb: 2 }); obFinish(false); }); await p.waitForTimeout(400);
+    await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(250); await p.click('#setBtn'); await p.waitForTimeout(300);
+    const plan = () => p.evaluate(() => ({ eq: [0, 1, 2, 3].every((w) => planSlots(w).every((pe) => !EQ_OK[S.cfg.me.eq] || EQ_OK[S.cfg.me.eq].includes(LIB[moveOf(pe, null)].eq))), n: [0, 1, 2, 3].map((w) => planSlots(w).length).join(), mins: [0, 1, 2, 3].map((w) => workMins(exList(w, null, true))).join(), changed: planChanged(), note: !!document.querySelector('#sheet .st-note'), first: moveOf(planSlots(0)[0], null) }));
+    const p0 = await plan();
+    await p.click('#sheet [data-set="eq"][data-v="1"]'); await p.waitForTimeout(250);
+    const p1 = await plan();
+    check('a gym without machines: the plan that the app built changes to movements that gym has, at once and without a word', p0.n === '8,6,9,7' && !p0.changed && (await p.evaluate(() => S.cfg.me.eq)) === 1 && p1.eq && !p1.changed && !p1.note && p1.first !== p0.first, [p0, p1]);
+    await p.click('#sheet [data-set="time"][data-v="30"]'); await p.waitForTimeout(250);
+    const p2 = await plan();
+    check('half an hour: every workout is cut to what fits, and the settings stay quiet', (await p.evaluate(() => S.cfg.me.time)) === 30 && p2.n.split(',').every((x) => +x <= 5 && +x >= 4) && p2.mins.split(',').every((x) => +x <= 40) && !p2.changed && !p2.note && p2.eq, p2);
+    /* now the lifter changes the plan by hand, and then an answer */
+    await p.evaluate(() => { const pe = planSlots(0)[0], mv = moveOf(pe, null); swapTo(pe.id, sameKind(mv).find((k) => k !== mv && LIB[k].eq !== 'machine') || 'dbBench', true); }); await p.waitForTimeout(150);
+    const mine = await p.evaluate(() => moveOf(planSlots(0)[0], null));
+    await p.click('#sheet [data-set="time"][data-v="45"]'); await p.waitForTimeout(250);
+    const p3 = await plan();
+    check('a plan the lifter changed by hand stays as it is when an answer changes, and the settings offer to build it again', p3.first === mine && p3.changed && p3.note && p3.n === p2.n && (await txt('#sheet .st-note')).includes('התוכנית נשארה כפי ששינית אותה') && (await txt('#setRefit')) === 'לבנות את התוכנית מחדש', [p3, await txt('#sheet .st-note')]);
+    await p.click('#setRefit'); await p.waitForTimeout(350);
+    const p4 = await plan();
+    check('"build it again" gives the plan the new answers ask for', !p4.changed && !p4.note && p4.first !== mine && p4.eq && p4.n !== p2.n && p4.mins.split(',').every((x) => +x <= 50) && (await txt('#toast')).includes('התוכנית נבנתה מחדש'), p4);
+    await p.context().close();
+  }
+
+  // ---- 18. the code: set in the settings, asked for at the door, changed, taken off; and the way out for one who forgot it ----
+  {
+    const p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { name: 'נועה', made: 5 } } }), txt = T(p);
+    const keys = async (attr, d) => { for (const k of d) { await p.click('[' + attr + '="' + k + '"]'); await p.waitForTimeout(35); } await p.waitForTimeout(280); };
+    const toEnd = () => p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; });
+    const settings = async () => { await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(250); await p.click('#setBtn'); await p.waitForTimeout(300); await toEnd(); };
+    await settings(); await p.click('#pinSet'); await p.waitForTimeout(250);
+    check('a code is four digits on a pad of its own, with a way back', (await p.$$('#sheet [data-pk]')).length === 11 && (await txt('#sheet .pin-ask')) === 'קוד חדש: 4 ספרות' && !!(await p.$('#sheet [data-setpg=""]')) && (await p.evaluate(() => Math.min.apply(null, [...document.querySelectorAll('#sheet .pin-k')].map((x) => x.getBoundingClientRect().width)))) >= 60, await txt('#sheet'));
+    await keys('data-pk', '25'); await p.click('#sheet [data-pk="del"]'); await p.waitForTimeout(80);
+    check('a digit can be taken back', (await p.$$('#setDots i.on')).length === 1, await p.$$eval('#setDots i.on', (l) => l.length));
+    await keys('data-pk', '580'); 
+    check('it is asked for once more', (await txt('#sheet .pin-ask')) === 'עוד פעם, לאישור' && (await p.evaluate(() => S.cfg.me.pin)) === '', await txt('#sheet'));
+    await keys('data-pk', '2581');
+    check('two codes that differ start over, and nothing is saved', (await txt('#setErr')).includes('הקודים לא תואמים') && (await txt('#sheet .pin-ask')) === 'קוד חדש: 4 ספרות' && (await p.evaluate(() => S.cfg.me.pin)) === '', await txt('#sheet'));
+    await keys('data-pk', '2580'); await keys('data-pk', '2580'); await p.waitForTimeout(250);
+    const set1 = await p.evaluate(() => ({ pin: S.cfg.me.pin, kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.pin, door: DOOR.on, page: S.setPg, row: document.querySelector('#pinChange').innerText.replace(/\s+/g, ' ').trim(), toast: document.querySelector('#toast').innerText }));
+    check('the code is kept as a hash, never as its digits; the settings say it is on, and the door stays open for the one who has just set it', /^[0-9a-f]{64}$/.test(set1.pin) && !set1.pin.includes('2580') && set1.kept === set1.pin && !set1.door && !set1.page && set1.row === 'שינוי הקוד פעיל' && set1.toast.includes('הקוד נשמר'), set1);
+    await p.click('#sheet [data-close]'); await p.waitForTimeout(250); await p.reload(); await p.waitForTimeout(800);
+    const door = await p.evaluate(() => ({ on: DOOR.on, shown: !document.querySelector('#lock').hidden, text: document.querySelector('#lock').innerText.replace(/\s+/g, ' '), inert: document.querySelector('.cols').inert && document.querySelector('.brand').inert, top: document.elementFromPoint(195, 300).closest('#lock') != null, face: !!document.querySelector('#lock .lock-ava svg'), fits: document.documentElement.scrollWidth <= innerWidth && document.querySelector('#lock').scrollHeight <= innerHeight + 1 }));
+    check('on the next visit the door is closed: the lifter is greeted by name and asked for the code, and nothing behind it can be reached', door.on && door.shown && door.text.includes('היי, נועה') && door.text.includes('שכחתי את הקוד') && door.inert && door.top && door.face && door.fits, door);
+    await keys('data-lk', '0000'); await p.waitForTimeout(150);
+    check('a wrong code is said so, and the door stays closed', (await txt('#lockErr')) === 'הקוד לא נכון' && (await p.$$('#lockDots i.on')).length === 0 && (await p.evaluate(() => DOOR.on)), await txt('#lock'));
+    await p.keyboard.type('258'); await p.keyboard.press('Backspace'); await p.keyboard.type('80'); await p.waitForTimeout(700);
+    check('the right code opens it, typed on a keyboard as well', (await p.isHidden('#lock')) && (await p.evaluate(() => !DOOR.on && S.unlocked && !document.querySelector('.cols').inert)), await p.evaluate(() => DOOR.on));
+    await p.evaluate(() => { S.awayAt = Date.now() - 4 * 60000; document.dispatchEvent(new Event('visibilitychange')); }); await p.waitForTimeout(200);
+    const soon = await p.evaluate(() => DOOR.on);
+    await p.evaluate(() => { S.awayAt = Date.now() - 11 * 60000; document.dispatchEvent(new Event('visibilitychange')); }); await p.waitForTimeout(300);
+    check('coming back after a few minutes away is free, after a long while the code is asked for again', !soon && (await p.evaluate(() => DOOR.on)) && (await p.isVisible('#lock')), soon);
+    for (let i = 0; i < 5; i++) await keys('data-lk', '1111');
+    const many = await p.evaluate(() => ({ off: [...document.querySelectorAll('#lock [data-lk]')].every((x) => x.disabled), text: document.querySelector('#lockErr').textContent, until: DOOR.until > Date.now() }));
+    check('five wrong codes in a row close the keys for half a minute', many.off && many.text.includes('יותר מדי ניסיונות') && many.until, many);
+    await p.evaluate(() => { DOOR.until = 0; lockDraw(); }); await keys('data-lk', '2580'); await p.waitForTimeout(600);
+    /* changing the code asks for the one that is there */
+    await settings(); await p.click('#pinChange'); await p.waitForTimeout(250);
+    await keys('data-pk', '9999');
+    const wrongCur = await txt('#setErr');
+    await keys('data-pk', '2580'); await keys('data-pk', '1357'); await keys('data-pk', '1357'); await p.waitForTimeout(250);
+    check('changing the code takes the old one first, then the new one twice', wrongCur === 'הקוד לא נכון' && (await p.evaluate((h) => /^[0-9a-f]{64}$/.test(S.cfg.me.pin) && S.cfg.me.pin !== h, set1.pin)), wrongCur);
+    /* the one who forgot: the only way on is to delete the account, by name */
+    await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
+    await p.evaluate(() => { S.sessions.z1 = { id: 'z1', v: 3, w: 0, ts: Date.now() - 864e5, end: Date.now() - 86e6, mt: 1, upd: 1, ft: 1, m: 'm1', wk: 1, dl: 0, rir: 3, n: {}, mv: {}, sore: {}, cut: {}, fb: {}, sets: { ua1: [{ kg: 40, reps: 8, done: true, t: Date.now() - 864e5 }] } }; saveLocal(); S.unlocked = false; maybeLock(); }); await p.waitForTimeout(300);
+    await p.click('#lockForgot'); await p.waitForTimeout(250);
+    const fg = await p.evaluate(() => ({ text: document.querySelector('#lock').innerText.replace(/\s+/g, ' '), off: document.querySelector('#lockWipe').disabled, pad: !!document.querySelector('#lock .pin-pad'), back: document.querySelector('#lockBack').getBoundingClientRect().width }));
+    await p.fill('#lockName', 'מישהי אחרת'); await p.waitForTimeout(80);
+    const fgWrong = await p.isDisabled('#lockWipe');
+    await p.fill('#lockName', 'נועה'); await p.waitForTimeout(80);
+    check('a forgotten code cannot be brought back: the door says so and offers only to delete the account, by the lifter\'s name', fg.text.includes('שכחת את הקוד?') && fg.text.includes('אי אפשר לשחזר אותו') && fg.text.includes('כותבים כאן: נועה') && fg.off && !fg.pad && fg.back > 200 && fgWrong && !(await p.isDisabled('#lockWipe')), fg);
+    await p.click('#lockWipe'); await p.waitForTimeout(900);
+    const gone = await p.evaluate(() => ({ door: DOOR.on, lock: document.querySelector('#lock').hidden, pin: S.cfg.me.pin, name: S.cfg.me.name, sessions: Object.keys(S.sessions).length, ls: Object.keys(JSON.parse(localStorage.getItem('ul4:v1')).sessions).length, opening: !document.querySelector('#ob').hidden, wiped: S.cfg.wiped > 0 }));
+    check('with the name typed everything is deleted, the code with it, and the app starts over at its opening', !gone.door && gone.lock && gone.pin === '' && gone.name === '' && gone.sessions === 0 && gone.ls === 0 && gone.opening && gone.wiped, gone);
+    await p.context().close();
   }
 
   console.log('PASS ' + ok.length); console.log('FAIL ' + bad.length + (bad.length ? ':\n  ' + bad.join('\n  ') : '')); console.log('ERRORS: ' + (errs.join(' | ') || 'none'));

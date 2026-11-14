@@ -711,21 +711,196 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .ms .sum-line{font-size:15px;color:var(--ink-2)}
 
 /* profile */
-.pf-top{position:relative;display:grid;justify-items:center;gap:8px;background:var(--surface);border-radius:var(--r);padding:18px 20px 22px;text-align:center}
-.pf-edit{position:absolute;top:14px;inset-inline-end:14px}
-.pf-edit svg,.pf-top .btn svg{width:18px;height:18px}
-.pf-stage{width:min(220px,60%)}
+/* ---- the profile: the character on a dark stage with the level under it, the kiosk, then the medals, small ---- */
+.pf-top{position:relative;isolation:isolate;overflow:hidden;display:grid;justify-items:center;gap:6px;padding:14px 18px 18px;border-radius:28px;text-align:center;color:#fff;background:radial-gradient(130% 90% at 50% 26%,#3B2477 0%,#1A1038 54%,#0B0716 100%)}
+.pf-top::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(52% 34% at 50% 30%,rgb(138 99 255 / .42),transparent 72%)}
+.pf-bar{display:flex;justify-content:space-between;width:100%;margin-bottom:-34px}
+.pf-ic{position:relative;z-index:1;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:rgb(255 255 255 / .14);color:#fff}
+.pf-ic svg{width:20px;height:20px}
+.pf-stage{width:min(210px,56%)}
+.pf-stage .av{display:block;width:100%;height:auto;overflow:visible}
+.pf-stage .av-aura,.pf-stage .av-glow{display:none}
+.pf-stage .av-shadow{fill:rgb(0 0 0 / .32)}
+.pf-stage.pump .av{animation:pump .65s cubic-bezier(.3,1.5,.5,1)}
 .pf-name{font-size:32px;font-weight:800;line-height:1.12;letter-spacing:-.02em;overflow-wrap:anywhere;min-width:0}
-.pf-rank{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:600;color:var(--ink-2);padding-bottom:6px}
-.pf-top .btn{margin-top:8px}
-.xp{display:grid;gap:6px;width:100%}
-.xp .xpbar{height:12px}
-.xp-l{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
-p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
-.pf-nums{list-style:none;margin:10px 0 0;padding:16px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%;border-top:1px solid var(--line)}
-.pf-nums li{display:grid;gap:3px;justify-items:center;align-content:start;text-align:center}
-.pf-nums b{font-size:22px;font-weight:800;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.pf-nums span{font-size:12px;color:var(--ink-3);font-weight:600;line-height:1.25}
+.pf-rank{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:600;color:rgb(255 255 255 / .78);padding-bottom:4px}
+.pf-rank .lv-badge{background:var(--gold);color:var(--gold-ink)}
+.pf-top .btn{margin-top:8px;background:#fff;color:#2A1866}
+.pf-top .btn svg{width:18px;height:18px}
+.pf-top .xp{display:grid;gap:7px;width:100%;max-width:360px}
+.pf-top .xp .xpbar{height:12px;background:rgb(255 255 255 / .16)}
+.pf-top .xp .xpbar i{background:var(--gold)}
+.pf-top .xp-l{display:flex;justify-content:center;gap:6px;font-size:13.5px;font-weight:600;color:rgb(255 255 255 / .72);font-variant-numeric:tabular-nums}
+.pf-nums{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%}
+.pf-nums li{display:grid;gap:2px;justify-items:center;align-content:start;padding:10px 2px 9px;border-radius:16px;background:rgb(255 255 255 / .1);text-align:center}
+.pf-nums b{font-size:21px;font-weight:800;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pf-nums span{font-size:11.5px;font-weight:600;line-height:1.25;color:rgb(255 255 255 / .7)}
+/* coming to the profile or to the journey, the character steps onto its stage and what is under it rises into place */
+.view.enter .pf-stage,.view.enter .jr-hero .ob-fig{animation:fin-max .7s cubic-bezier(.3,1.35,.5,1) both}
+.view.enter .pf-nums li{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 60ms + 220ms)}
+.view.enter .kiosk{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .18s both}
+.view.enter .pf-sec{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .28s both}
+/* the kiosk on the profile: the purple card, with the coins and the next things on the shelf */
+.coin{flex:none;width:18px;height:18px}
+.coin-tag{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border-radius:99px;background:rgb(0 0 0 / .24);color:#fff;font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr}
+.coin-tag.dark{background:var(--xp-soft);color:var(--xp)}
+.card.kiosk h2{font-size:30px}
+.card.kiosk .meta{padding-bottom:12px}
+.ks-peek{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ks-peek li{display:grid;justify-items:center;gap:5px;padding:8px 4px 9px;border-radius:18px;background:rgb(255 255 255 / .14);font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.ks-peek .ks-pic{width:100%;max-width:78px;background:#EEE8FF}
+.ks-peek span.pr{display:inline-flex;align-items:center;gap:4px;direction:ltr}
+.ks-peek .coin{width:15px;height:15px}
+.ks-pic{display:block;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--accent-soft)}
+.ks-pic .av{display:block;width:100%;height:100%}
+/* the medals, small: a row of four with their names, and all of them a tap away */
+.badges{padding:14px 4px 12px;gap:14px 2px}
+.bdg-i{width:46px;height:46px}
+.bdg-i svg{width:22px;height:22px}
+/* ---- Eilon's chat: a purple head with his face, paper behind the talk, white bubbles for him and purple ones for the lifter ---- */
+.chat{background:var(--paper)}
+.chat-h{gap:12px;padding:12px 14px;border-bottom:0;color:#fff;background:linear-gradient(135deg,#7B4DEB 0%,#5A2FCC 58%,#4521A8 100%)}
+.chat-h .ava{position:relative;width:50px;height:50px;overflow:visible;background:#EDE7FF;box-shadow:0 0 0 2.5px rgb(255 255 255 / .9)}
+.chat-h .ava .av{border-radius:50%;overflow:hidden}
+.chat-h .ava::after{content:"";position:absolute;bottom:-1px;inset-inline-end:-1px;width:13px;height:13px;border-radius:50%;background:#3DDC84;box-shadow:0 0 0 2.5px #5A2FCC}
+.app[data-coach="off"] .chat-h .ava::after{background:#B9B5C9}
+.chat-h h2{color:#fff}
+.chat-h p{color:rgb(255 255 255 / .84)}
+.chat-h .icon-btn{background:rgb(255 255 255 / .16);color:#fff}
+.msgs{padding:16px 14px;gap:10px}
+.msg.a{background:var(--surface);box-shadow:0 1px 0 var(--lip),0 10px 22px -18px rgb(30 20 80 / .4)}
+.msg.u{background:linear-gradient(135deg,#7B4DEB,#5A2FCC);color:#fff}
+.row.new{animation:msg-in .34s cubic-bezier(.2,.85,.25,1.05) both}
+.row.a.new{animation-delay:.08s}
+@keyframes msg-in{from{opacity:0;transform:translateY(12px) scale(.97)}}
+.think i{background:var(--accent)}
+.msg .logged{border-top:0;margin-top:10px;padding:8px 12px;border-radius:12px;background:var(--ok-soft);color:var(--ok)}
+/* nothing said yet: the coach himself waves, and four things to ask stand as cards */
+.empty.hello{gap:6px;padding-block:4px}
+.hello-fig{display:block;width:118px;margin-bottom:2px}
+.hello-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.hello-fig .av-aura{fill:color-mix(in srgb,var(--accent) 16%,transparent)}
+.empty.hello .sugs{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:14px}
+.empty.hello .sug{display:grid;justify-items:start;align-content:start;gap:9px;min-height:106px;margin:0;padding:12px 13px 13px;border-radius:20px;background:var(--surface);box-shadow:0 1px 0 var(--lip),0 10px 22px -18px rgb(30 20 80 / .4);text-align:start;font-size:14.5px;font-weight:700;line-height:1.3}
+.empty.hello .sug:last-child:nth-child(odd){grid-column:1/-1;min-height:0;grid-template-columns:auto minmax(0,1fr);align-items:center}
+.sug-i{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink)}
+.sug-i svg{width:20px;height:20px;stroke-width:2.1}
+.empty.off{gap:8px}
+.empty.off .ava.big{filter:saturate(.75)}
+.empty.off .btn{justify-self:center;min-height:52px;padding:0 22px;border-radius:18px}
+/* the place to write: a white foot, a field the colour of the page, a purple button to send */
+.composer{padding:10px 12px 12px;border-top:0;background:var(--surface);box-shadow:0 -1px 0 var(--line)}
+.comp-row{background:var(--paper)}
+.comp-row .icon-btn.send{background:linear-gradient(135deg,#7B4DEB,#5A2FCC);color:#fff}
+.chat-ctx{background:var(--paper)}
+@media (max-width:999px){.chat.open{animation:chat-in .3s cubic-bezier(.2,.8,.2,1)}}
+@keyframes chat-in{from{opacity:0;transform:translateY(22px)}}
+/* ---- settings: cards of rows, each row with its sign; the one thing that cannot be undone stands alone at the foot ---- */
+.sheet-in.st{gap:16px;background:var(--paper)}
+.st-g{display:grid;gap:0;padding:4px 14px;border-radius:22px;background:var(--surface)}
+.st-t{padding:6px 6px 0;font-size:13.5px;font-weight:700;color:var(--ink-3)}
+.st-grp{display:grid;gap:7px}
+.st-row{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:9px 0;border:0;background:none;color:var(--ink);font-size:16px;font-weight:600;text-align:start}
+.st-row+.st-row{border-top:1px solid var(--line)}
+.st-row.col{display:grid;gap:9px;padding:12px 0 13px}
+.st-h{display:flex;align-items:center;gap:12px}
+.st-row>span.st-l,.st-h>span.st-l{flex:1;min-width:0}
+.st-row small{font-size:14px;font-weight:500;color:var(--ink-3);white-space:nowrap}
+.st-row>svg{flex:none;width:18px;height:18px;color:var(--ink-4)}
+.st-i{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink)}
+.st-i svg{width:19px;height:19px;stroke-width:2.1}
+.st-i.gold{background:var(--xp-soft);color:var(--xp)}
+.st-i.calm{background:var(--calm-soft);color:var(--calm)}
+.st-i.grey{background:var(--surface-2);color:var(--ink-2)}
+.st-i.red{background:var(--muscle-soft);color:var(--muscle-ink)}
+.st-row.col .seg{margin-inline-start:0}
+.seg.wrap{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg.five{grid-auto-columns:minmax(0,1fr)}
+.seg.five button{padding-inline:2px;font-size:13px}
+.st-note{display:grid;gap:8px;padding:12px 14px;border-radius:16px;background:var(--accent-soft);color:var(--accent-ink);font-size:14px;font-weight:600;line-height:1.4}
+.st-note .btn{justify-self:start;min-height:42px;border-radius:13px;background:var(--accent);color:var(--on-accent)}
+.st-g .backup{padding:12px 0 12px}
+.st-g .backup h3{display:none}
+.st-row.red{color:var(--muscle-ink)}
+/* a page of the settings: the code, and the deletion of the account */
+.st-pg{display:grid;justify-items:center;gap:12px;padding:6px 0 10px;text-align:center}
+.st-pg .pin-ask{font-size:17px;font-weight:700}
+.st-pg .pin-k{background:var(--surface)}
+.st-del{display:grid;gap:12px;padding:6px 2px 8px}
+.st-del-i{justify-self:center;display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--muscle-soft);color:var(--muscle-ink)}
+.st-del-i svg{width:30px;height:30px}
+.st-del h3{font-size:24px;font-weight:800;line-height:1.2;letter-spacing:-.01em;text-align:center}
+.st-del p{font-size:15.5px;line-height:1.5;color:var(--ink-2);text-align:center}
+.st-del label{font-size:15px;font-weight:600;color:var(--ink-2)}
+.st-del label b{color:var(--ink)}
+.st-del input{width:100%;height:54px;padding:0 16px;border:0;border-radius:16px;background:var(--surface);font-size:17px;font-weight:600;box-shadow:inset 0 0 0 2px var(--line)}
+.st-del input:focus{outline:none;box-shadow:inset 0 0 0 2.5px var(--muscle)}
+.st-del .btn.danger{background:var(--muscle);color:#fff}
+.st-del .btn.danger:disabled{opacity:.35}
+.st-del .link{justify-self:center}
+.st-del-n{padding:10px 14px;border-radius:14px;background:var(--warn-soft);color:var(--warn)!important;font-weight:600}
+/* ---- the code at the door: the dark stage, the lifter's face, four dots and the keys ---- */
+.lock{position:fixed;inset:0;z-index:92;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 20px calc(env(safe-area-inset-bottom,0px) + 16px);overflow-y:auto;color:#fff;background:radial-gradient(130% 80% at 50% 22%,#3B2477 0%,#1A1038 52%,#07050D 100%);animation:tour-fade .3s ease-out}
+.lock.out{animation:lock-out .35s ease-in forwards}
+@keyframes lock-out{to{opacity:0;transform:scale(1.04)}}
+.lock-in{display:grid;justify-items:center;gap:10px;width:100%;max-width:340px;text-align:center}
+.lock-ava{width:92px;height:92px;border-radius:50%;overflow:hidden;background:rgb(255 255 255 / .12)}
+.lock-ava .av{display:block;width:100%;height:100%}
+.lock h1{font-size:28px;font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-top:4px}
+.lock-sub{font-size:15.5px;font-weight:500;color:rgb(255 255 255 / .72);margin-bottom:8px}
+.lock .pin-dots i{box-shadow:inset 0 0 0 2px rgb(255 255 255 / .5)}
+.lock .pin-dots i.on{background:#fff;box-shadow:none}
+.lock .pin-dots.bad{animation:stop-no .45s ease-in-out}
+.lock .pin-err{color:#FFB4A8}
+.lock .pin-k{background:rgb(255 255 255 / .12);color:#fff;box-shadow:none}
+.lock .pin-k[data-lk="del"]{background:none;color:rgb(255 255 255 / .8)}
+.lock .pin-k:disabled{opacity:.35}
+.lock .link{margin-top:8px;color:rgb(255 255 255 / .78);font-size:15px}
+/* a short screen: the face and the keys are smaller, so that the whole door is in sight */
+@media (max-height:640px){.lock-ava{width:64px;height:64px}.lock h1{font-size:24px;margin-top:0}.lock-sub{margin-bottom:2px}.lock .pin-pad{grid-template-columns:repeat(3,62px);gap:8px 20px}.lock .pin-k{width:62px;height:62px;font-size:24px}.lock .link{margin-top:2px}}
+.lock-forgot{display:grid;gap:12px;width:100%;text-align:center}
+.lock-forgot p{font-size:15.5px;line-height:1.5;color:rgb(255 255 255 / .8)}
+.lock-forgot label{font-size:15px;font-weight:600;color:rgb(255 255 255 / .8)}
+.lock-forgot label b{color:#fff}
+.lock-forgot input{width:100%;height:54px;padding:0 16px;border:0;border-radius:16px;background:rgb(255 255 255 / .14);color:#fff;font-size:17px;font-weight:600;text-align:center}
+.lock-forgot input:focus{outline:none;box-shadow:inset 0 0 0 2px #fff}
+.lock-forgot .btn{min-height:54px;border-radius:18px;font-size:17px}
+.lock-forgot .btn.danger{background:#E0452B;color:#fff}
+.lock-forgot .btn.danger:disabled{opacity:.4}
+.lock-forgot .btn.quiet{background:rgb(255 255 255 / .14);color:#fff}
+/* a mark on the profile's tab when the coins have grown enough to buy something */
+.tabbar button.new{position:relative}
+.tabbar button.new::after{content:"";position:absolute;top:6px;inset-inline-start:calc(50% + 10px);width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--surface)}
+/* ---- the kiosk: the character tries a thing on over the shelf; a thing that is owned goes on and off with a tap ---- */
+.sheet-in.ks{gap:12px;height:100%}
+.ks-stage{position:sticky;top:-2px;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:6px;padding:8px 14px;border-radius:24px;color:#fff;background:radial-gradient(130% 110% at 30% 30%,#3B2477 0%,#1A1038 58%,#0B0716 100%)}
+[dir="rtl"] .ks-stage{background:radial-gradient(130% 110% at 70% 30%,#3B2477 0%,#1A1038 58%,#0B0716 100%)}
+.ks-fig{display:block;width:100%;max-width:150px;justify-self:center}
+.ks-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.ks-fig .av-aura,.ks-fig .av-glow{display:none}
+.ks-fig .av-shadow{fill:rgb(0 0 0 / .32)}
+.ks-fig.pump .av{animation:pump .65s cubic-bezier(.3,1.5,.5,1)}
+.ks-say{display:grid;gap:8px;min-width:0;text-align:start}
+.ks-say b{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
+.ks-say p{font-size:14px;font-weight:500;line-height:1.35;color:rgb(255 255 255 / .74)}
+.ks-say .btn{justify-self:start;min-height:46px;padding:0 16px;border-radius:15px;background:#fff;color:#2A1866;font-size:16px;font-weight:800;white-space:nowrap}
+.ks-say .btn .coin{width:17px;height:17px}
+.ks-say .btn[disabled]{opacity:1;background:rgb(255 255 255 / .16);color:rgb(255 255 255 / .8)}
+.ks-grid{list-style:none;margin:0;padding:0 0 8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ks-it{display:grid;justify-items:center;gap:6px;width:100%;padding:8px 6px 10px;border:0;border-radius:20px;background:var(--surface-2);color:var(--ink);text-align:center}
+.ks-it .ks-pic{width:100%;background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface))}
+.ks-it b{font-size:13.5px;font-weight:700;line-height:1.25;min-height:34px;display:grid;align-items:center}
+.ks-pr,.ks-st{display:inline-flex;align-items:center;gap:4px;min-height:26px;padding:0 10px;border-radius:99px;font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.ks-pr{background:var(--xp-soft);color:var(--xp);direction:ltr}
+.ks-pr .coin{width:15px;height:15px}
+.ks-it.far .ks-pr{background:var(--surface-3);color:var(--ink-3)}
+.ks-it.far .ks-pr .coin{filter:grayscale(1);opacity:.7}
+.ks-st{background:var(--surface-3);color:var(--ink-2)}
+.ks-it.on{background:var(--accent-soft);box-shadow:inset 0 0 0 2.5px var(--accent)}
+.ks-it.on .ks-st{background:var(--accent);color:var(--on-accent)}
+.ks-st svg{width:14px;height:14px;stroke-width:3}
+.ks-it.try{box-shadow:inset 0 0 0 2.5px var(--gold)}
+.ks-it.on.try{box-shadow:inset 0 0 0 2.5px var(--accent)}
 .pf-sec{display:grid;gap:8px}
 .badges{list-style:none;margin:0;padding:18px 6px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 2px;background:var(--surface);border-radius:var(--r)}
 .bdg{display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;font-size:11.5px;font-weight:600;line-height:1.25;color:var(--ink-3)}
@@ -1505,6 +1680,7 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
   <div class="sr" id="srSay" aria-live="polite"></div>
   <div class="tour" id="tour" role="dialog" aria-modal="true" hidden></div>
   <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden></div>
+  <div class="lock" id="lock" role="dialog" aria-modal="true" hidden></div>
   <div class="splash" id="splash" hidden><div class="splash-in" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div></div>
 </div>
 
@@ -2097,6 +2273,35 @@ const REWARDS = [
 ];
 const nextReward = (lvl) => REWARDS.find((r) => r.at > lvl) || null;
 const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);
+/* ---- the kiosk: what the character can wear beyond what the levels open. Every ten points earned are a coin, and coins buy.
+   slot: one thing of a slot is worn at a time. The level and its points are never spent: the coins are counted beside them */
+const SHOP = [
+  { id: 'towel', slot: 'neck', cost: 30, he: 'מגבת', en: 'Towel' }, { id: 'kicksW', slot: 'feet', cost: 50, he: 'נעליים לבנות', en: 'White sneakers' }, { id: 'cap', slot: 'head', cost: 60, he: 'כובע מצחייה', en: 'Cap' },
+  { id: 'gloves', slot: 'hands', cost: 70, he: 'כפפות אימון', en: 'Training gloves' }, { id: 'shades', slot: 'eyes', cost: 90, he: 'משקפי שמש', en: 'Sunglasses' }, { id: 'watch', slot: 'wrist', cost: 110, he: 'שעון ספורט', en: 'Sports watch' },
+  { id: 'kicksP', slot: 'feet', cost: 120, he: 'נעליים סגולות', en: 'Purple sneakers' }, { id: 'phones', slot: 'ears', cost: 150, he: 'אוזניות', en: 'Headphones' }, { id: 'chain', slot: 'neck', cost: 200, he: 'שרשרת זהב', en: 'Gold chain' },
+];
+const shopItem = (id) => SHOP.find((x) => x.id === id) || null;
+const coinsOf = (xp) => Math.floor((xp > 0 && isFinite(xp) ? xp : 0) / 10);
+/* a wardrobe read from a file or from the account: only things the kiosk sells, each owned once, and of the worn ones one to a slot */
+function cleanShop(v) {
+  const ok = (a) => (Array.isArray(a) ? a.filter((id, i) => !!shopItem(id) && a.indexOf(id) === i) : []);
+  const own = ok(v && v.own), slots = {};
+  return { own, on: ok(v && v.on).filter((id) => { const s = shopItem(id).slot; if (!own.includes(id) || slots[s]) return false; slots[s] = 1; return true; }) };
+}
+const spentOf = (shop) => shop.own.reduce((n, id) => n + shopItem(id).cost, 0);
+/* what is left to spend: never under zero, even when a deleted workout took points away after they were spent */
+const coinsLeft = (xp, shop) => Math.max(0, coinsOf(xp) - spentOf(shop));
+/* putting a thing on takes off what was worn in its slot; null when it is not owned */
+function shopWear(shop, id, on) {
+  const it = shopItem(id); if (!it || !shop.own.includes(id)) return null;
+  const rest = shop.on.filter((k) => k !== id && shopItem(k).slot !== it.slot);
+  return { own: shop.own.slice(), on: on ? rest.concat(id) : rest };
+}
+/* buying: the coins must be there and the thing not owned yet. It is put on at once. null when it cannot be bought */
+function shopBuy(shop, id, xp) {
+  const it = shopItem(id); if (!it || shop.own.includes(id) || coinsLeft(xp, shop) < it.cost) return null;
+  return shopWear({ own: shop.own.concat(id), on: shop.on }, id, true);
+}
 /* how muscular the character is drawn: 0 at level 1, fully built at level 30 */
 const buildOf = (lvl) => Math.max(0, Math.min(1, (lvl - 1) / 29));
 /* calendar week of a moment, in the device's own time; weeks start on Sunday */
@@ -2831,6 +3036,7 @@ const ownHex = (v) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v 
    a stud in the ear (stud), and no gear whatever the level (gear: false). A player's look is cleaned to the choices above */
 function avatarSVG(look, lvl, o) {
   o = o || {}; look = look || {};
+  const wear = (k) => Array.isArray(look.wear) && look.wear.includes(k);
   const b = Math.max(buildOf(lvl), o.base || 0), L = (a, z) => +(a + (z - a) * b).toFixed(1), has = (k) => look.gear !== false && REWARDS.some((r) => r.k === k && r.at <= lvl);
   const sk = SKIN[look.skin] || SKIN[1], skin = sk[0], shd = sk[1], hc = ownHex(look.hairC) || HAIRC[look.hc] || HAIRC[0], shirt = ownHex(look.shirtC) || SHIRT[look.shirt] || SHIRT[0], shirt2 = tone(shirt, -0.18);
   const sw = L(31, 43), cw = L(27, 39), ww = L(22, 25), nw = L(8, 11.5), ua = L(12, 19), fa = L(10, 14.5), lg = L(16, 21), sy = L(96, 93.5), tank = has('tank');
@@ -2848,7 +3054,9 @@ function avatarSVG(look, lvl, o) {
     return '<g class="av-arm ' + (d < 0 ? 'l' : 'r') + '" style="transform-origin:' + sx + 'px 104px">' + ln(sx, 104, sx, 139, ua, skin) +
       '<ellipse class="av-bi" style="transform-origin:' + sx + 'px 122px" cx="' + bi + '" cy="122" rx="' + (ua * 0.44).toFixed(1) + '" ry="' + L(9, 12.5) + '" fill="' + skin + '"/>' +
       (tank ? dot(sx, 104, +(ua / 2 + 1.5).toFixed(1), skin) : ln(sx, 104, sx, 118, ua + 4, shirt)) +
-      '<g class="av-fore" style="transform-origin:' + sx + 'px 139px">' + ln(sx, 139, sx, 169, fa, skin) + (has('wraps') ? ln(sx, 161, sx, 168, fa + 1.8, '#ECEEF2') + ln(sx, 164.5, sx, 164.6, fa + 1.8, '#C9CED8') : '') + dot(sx, 175, L(6.6, 8.2), skin) + '</g></g>';
+      '<g class="av-fore" style="transform-origin:' + sx + 'px 139px">' + ln(sx, 139, sx, 169, fa, skin) + (has('wraps') ? ln(sx, 161, sx, 168, fa + 1.8, '#ECEEF2') + ln(sx, 164.5, sx, 164.6, fa + 1.8, '#C9CED8') : '') +
+      (d > 0 && wear('watch') ? ln(sx, 153.6, sx, 156.4, fa + 1.6, '#1E1D24') + '<rect x="' + (sx - 3.6).toFixed(1) + '" y="151.4" width="7.2" height="7.2" rx="2" fill="#EDEBFA" stroke="#1E1D24" stroke-width="1.5"/>' : '') +
+      (wear('gloves') ? dot(sx, 175, L(6.9, 8.5), '#1E1D24') + ln(sx, 169.4, sx, 170.6, fa + 1.4, '#6D3FE0') : dot(sx, 175, L(6.6, 8.2), skin)) + '</g></g>';
   };
 
   /* head: back hair first, so long hair falls behind the shoulders */
@@ -2871,8 +3079,15 @@ function avatarSVG(look, lvl, o) {
   const beard = look.beard === 2 ? P(beardD, hasHair ? hc : '#4A3A30') + '<ellipse cx="100" cy="69.3" rx="7.4" ry="3.9" fill="' + skin + '"/>' : look.beard === 1 ? P(beardD, hasHair ? hc : '#4A3A30', ' opacity=".26"') : '';
   /* gear is won in the game, so it is gold */
   const bandC = '#F2B93B';
-  const band = has('band') ? P('M74.6 44.5C83 38.5 117 38.5 125.4 44.5L125.6 38.5C117 32 83 32 74.4 38.5Z', bandC) + P('M125 39.5L134 35.5L131 42.5ZM125 42L134.5 46L128.5 48.5Z', tone(bandC, -0.12)) : '';
-  const crown = has('crown') ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#6D3FE0') + '</g>' : '';
+  const capOn = wear('cap');
+  const band = has('band') && !capOn ? P('M74.6 44.5C83 38.5 117 38.5 125.4 44.5L125.6 38.5C117 32 83 32 74.4 38.5Z', bandC) + P('M125 39.5L134 35.5L131 42.5ZM125 42L134.5 46L128.5 48.5Z', tone(bandC, -0.12)) : '';
+  const crown = has('crown') && !capOn ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#6D3FE0') + '</g>' : '';
+  const hat = capOn ? P('M73.2 47C71.4 28.5 84.6 17 100 17C115.4 17 128.6 28.5 126.8 47Q100 39.5 73.2 47Z', '#5229C4') + P('M69.6 47.4Q100 36.6 130.4 47.4Q132 50.8 128.6 52Q100 43.4 71.4 52Q68 50.8 69.6 47.4Z', '#3B1E96') + dot(100, 17.6, 2.1, '#3B1E96') + '<path d="M100 19.5V38" stroke="#3B1E96" stroke-width="1.2" opacity=".55"/>' : '';
+  const shades = wear('shades') ? '<g><path d="M82 54L75.6 53M118 54L124.4 53" stroke="#15131C" stroke-width="2" stroke-linecap="round"/><rect x="81.8" y="50" width="16.6" height="11.4" rx="4.8" fill="#15131C"/><rect x="101.6" y="50" width="16.6" height="11.4" rx="4.8" fill="#15131C"/><path d="M98 54.4h4" stroke="#15131C" stroke-width="2"/><path d="M85.6 52.6l3.4 5.4M105.4 52.6l3.4 5.4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".3"/></g>' : '';
+  const phones = wear('phones') ? '<path d="M72.6 52C70.4 26.5 85.5 13.6 100 13.6C114.5 13.6 129.6 26.5 127.4 52" stroke="#1E1D24" stroke-width="4.4" stroke-linecap="round" fill="none"/><rect x="66.6" y="46" width="10.4" height="20" rx="5" fill="#1E1D24"/><rect x="123" y="46" width="10.4" height="20" rx="5" fill="#1E1D24"/><rect x="68.6" y="50" width="3.6" height="12" rx="1.8" fill="#6D3FE0"/><rect x="127.8" y="50" width="3.6" height="12" rx="1.8" fill="#6D3FE0"/>' : '';
+  /* round the neck: a towel that hangs down both sides of the chest, or a gold chain */
+  const towel = wear('towel') ? [-1, 1].map((d) => P('M' + X(d * (nw + 3.6)) + ' 87.5L' + X(d * (nw + 7.2)) + ' 127Q' + X(d * (nw + 2)) + ' 129.4 ' + X(d * (nw - 3.4)) + ' 127.4L' + X(d * (nw - 2.6)) + ' 89.5Z', '#F4F4F6', ' stroke="#D9DAE0" stroke-width="1" stroke-linejoin="round"') + ln(X(d * (nw + 5.6)), 121, X(d * (nw - 2.6)), 121.4, 1.6, '#C9B8F5')).join('') : '';
+  const chain = wear('chain') ? '<path d="M' + X(-nw + 1) + ' 90.5Q100 110 ' + X(nw - 1) + ' 90.5" stroke="#F2B93B" stroke-width="2.6" stroke-linecap="round" fill="none"/><circle cx="100" cy="101.4" r="3.3" fill="#FFD76A" stroke="#C98F1C" stroke-width="1.3"/>' : '';
   const medal = has('medal') ? '<path d="M' + X(-nw + 1) + ' 91L100 113L' + X(nw - 1) + ' 91" stroke="#6D3FE0" stroke-width="3.4" stroke-linejoin="round" fill="none"/><circle cx="100" cy="117" r="7.4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.6"/><path d="M100 113.2l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#C98F1C"/>' : '';
   /* the lifting belt turns into a title belt: gold, with a plate in the middle */
   const belt = has('champ') ? '<rect x="' + X(-ww - 3.5) + '" y="143" width="' + ((ww + 3.5) * 2).toFixed(1) + '" height="13" rx="4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.4"/><ellipse cx="100" cy="149.5" rx="11.5" ry="9" fill="#FFD76A" stroke="#C98F1C" stroke-width="1.8"/>' + dot(100, 149.5, 3.2, '#6D3FE0')
@@ -2881,7 +3096,7 @@ function avatarSVG(look, lvl, o) {
   const cape = has('cape') ? P('M' + X(-sw + 3) + ' ' + (sy + 2) + 'Q' + X(-sw - 17) + ' 150 ' + X(-sw - 11) + ' 210Q100 224 ' + X(sw + 11) + ' 210Q' + X(sw + 17) + ' 150 ' + X(sw - 3) + ' ' + (sy + 2) + 'Z', '#3B1E96', ' stroke="#F2B93B" stroke-width="2.2" stroke-linejoin="round"') +
     '<path d="M' + X(-sw - 12) + ' 178Q100 194 ' + X(sw + 12) + ' 178" stroke="#2A1470" stroke-width="2" fill="none" opacity=".55"/>' : '';
   const clasp = cape ? dot(X(-nw - 5), 93.5, 2.7, '#F2B93B') + dot(X(nw + 5), 93.5, 2.7, '#F2B93B') : '';
-  const kicks = has('kicks'), glow = has('glow') ? '<g class="av-glow"><circle cx="100" cy="116" r="97" fill="#F2B93B" opacity=".1"/><circle cx="100" cy="116" r="80" fill="#F2B93B" opacity=".12"/><circle cx="100" cy="116" r="62" fill="#F2B93B" opacity=".14"/></g>' : '';
+  const shoe = wear('kicksW') ? ['#F4F4F6', '#C9CED8'] : wear('kicksP') ? ['#6D3FE0', '#F4F4F6'] : has('kicks') ? ['#F2B93B', '#FFF6DC'] : ['#3A4152', '#E7E9ED'], glow = has('glow') ? '<g class="av-glow"><circle cx="100" cy="116" r="97" fill="#F2B93B" opacity=".1"/><circle cx="100" cy="116" r="80" fill="#F2B93B" opacity=".12"/><circle cx="100" cy="116" r="62" fill="#F2B93B" opacity=".14"/></g>' : '';
   const star4 = (x, y, r, d) => '<path class="av-spark" style="animation-delay:' + d + 's" d="M' + x + ' ' + (y - r) + 'Q' + x + ' ' + y + ' ' + (x + r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y + r) + 'Q' + x + ' ' + y + ' ' + (x - r) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y - r) + 'Z" fill="#FFD76A"/>';
   const stars = has('stars') ? star4(24, 56, 7, 0) + star4(176, 44, 6, 0.5) + star4(13, 138, 5, 1) + star4(187, 128, 7, 1.4) + star4(36, 208, 5, 0.8) + star4(167, 214, 6, 0.3) : '';
 
@@ -2892,18 +3107,19 @@ function avatarSVG(look, lvl, o) {
     '<path d="M100 59.5q-2.6 3.4 0 4.6" stroke="' + shd + '" stroke-width="1.7" stroke-linecap="round" fill="none"/>' +
     '<path class="av-smile" d="M92.6 68Q100 74 107.4 68" stroke="#1B1F27" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
     '<g class="av-grin"><path d="M91.6 66.6Q100 78 108.4 66.6Z" fill="#1B1F27" stroke="#1B1F27" stroke-width="1.6" stroke-linejoin="round"/><path d="M94.4 67.3h11.2q-1 2.6-5.6 2.6t-5.6-2.6z" fill="#fff"/></g>' +
-    topHair + band + crown +
+    topHair + band + crown + hat + shades + phones +
     (look.stud ? '<circle cx="127.6" cy="58.2" r="1.35" fill="#C9CED8" stroke="#7C8492" stroke-width=".6"/><circle cx="126.8" cy="61.3" r="1.15" fill="#C9CED8" stroke="#7C8492" stroke-width=".6"/>' : '');
 
   const body = '<g class="av-bod">' + (tank ? P(torso, skin) + P(tankTop, shirt) : P(torso, shirt)) + pecs + belt +
     '<rect x="' + X(-nw) + '" y="74" width="' + (nw * 2).toFixed(1) + '" height="20" rx="5" fill="' + skin + '"/><ellipse cx="100" cy="83.5" rx="' + nw + '" ry="4.2" fill="' + shd + '"/>' +
-    (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + clasp + medal + head + arm(-1) + arm(1) + '</g>';
+    (tank ? '' : '<path d="M' + X(-nw - 2.5) + ' 89.5Q100 99.5 ' + X(nw + 2.5) + ' 89.5" stroke="' + shirt2 + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>') + clasp + medal + chain + towel + head + arm(-1) + arm(1) + '</g>';
   /* a bust is cut round under the hair: with the crown on, the frame takes in its points */
   if (o.bust) return '<svg class="av bust' + (o.flex ? ' flex' : '') + (o.grin ? ' grin' : '') + '" viewBox="' + (crown ? '51 -1 98 98' : '58 14 84 84') + '" aria-hidden="true">' + backHair + body + '</svg>';
 
   const legs = [-1, 1].map((d) => ln(X(d * 11.5), 170, X(d * 12.5), 231, lg, skin)).join('') +
-    [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="' + (kicks ? '#F2B93B' : '#3A4152') + '"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="' + (kicks ? '#FFF6DC' : '#E7E9ED') + '"/>'; }).join('') +
+    [-1, 1].map((d) => { const x0 = d < 0 ? X(-12.5 - lg / 2 - 6) : X(12.5 - lg / 2 - 1); return '<rect x="' + x0 + '" y="232.5" width="' + (lg + 7).toFixed(1) + '" height="13.5" rx="6.5" fill="' + shoe[0] + '"/><rect x="' + x0 + '" y="242.6" width="' + (lg + 7).toFixed(1) + '" height="3.4" rx="1.7" fill="' + shoe[1] + '"/>'; }).join('') +
     P('M' + X(-ww - 1.5) + ' 149L' + X(ww + 1.5) + ' 149L' + X(13 + lg / 2 + 2.5) + ' 190L102.5 190L100 177L97.5 190L' + X(-13 - lg / 2 - 2.5) + ' 190Z', '#39415A', ' stroke="#39415A" stroke-width="4" stroke-linejoin="round"');
+  if (o.crop) return '<svg class="av still" viewBox="' + o.crop + '" aria-hidden="true"><g class="av-fig">' + backHair + legs + body + '</g></svg>';
   return '<svg class="av' + (o.flex ? ' flex' : '') + (o.still ? ' still' : '') + '" viewBox="0 -6 200 258" role="img" aria-label="' + say('הדמות שלי, רמה ', 'My character, level ') + lvl + '">' +
     '<circle class="av-aura r' + rankOf(lvl).i + '" cx="100" cy="116" r="90"/>' + glow + '<ellipse class="av-shadow" cx="100" cy="247" rx="48" ry="4.6"/>' +
     '<g class="av-fig">' + backHair + cape + legs + body + '</g>' + stars + '</svg>';
@@ -2950,12 +3166,12 @@ const ICON = {
    pin (the SHA-256 of the 4-digit code, or ''),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', tour: 0, arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', tour: pos(v.tour), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
   out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
@@ -2966,7 +3182,7 @@ function normMe(v) {
 }
 /* S.cfg.slots: exercises the lifter added to the plan, { id: { w, a, sets, reps, rest } }. They are never removed, so old workouts stay readable.
    S.cfg.order: { workout: [slot ids] } for a workout whose list was changed; a workout that is not there follows the plan */
-const cfgDef = () => ({ upd: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
+const cfgDef = () => ({ upd: 0, wiped: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
 const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, buzz: true, col: null, dirty: new Set(), gone: new Set(), touched: false, drafts: {}, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), cfgBase: null, cfgIn: false, cfgFly: 0, pre: {}, day: {}, fbFor: null };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 /* two values are the same whatever order their keys were written in */
@@ -2978,7 +3194,7 @@ function normCfg(v) {
   const d = cfgDef(), obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? clone(x) : {});
   v = v || {};
   return {
-    upd: +v.upd || 0, lang: v.lang === 'en' || v.lang === 'he' ? v.lang : '', weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base), slots: cleanSlots(v.slots), order: obj(v.order),
+    upd: +v.upd || 0, wiped: +v.wiped > 0 && isFinite(+v.wiped) ? +v.wiped : 0, lang: v.lang === 'en' || v.lang === 'he' ? v.lang : '', weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base), slots: cleanSlots(v.slots), order: obj(v.order),
     meso: v.meso && v.meso.id ? { id: String(v.meso.id), n: +v.meso.n || 1, start: +v.meso.start || 0, early: +v.meso.early || 0, asked: String(v.meso.asked || '') } : d.meso,
     past: Array.isArray(v.past) ? clone(v.past).slice(-4) : [], me: normMe(v.me),
   };
@@ -2990,7 +3206,7 @@ function saveLocal() {
     /* what waits to be sent: only workouts that are still here (or deleted), and the newest deletions */
     for (const id of S.dirty) if (id !== 'cfg' && !S.sessions[id] && !S.gone.has(id)) S.dirty.delete(id);
     if (S.gone.size > 300) S.gone = new Set(Array.from(S.gone).slice(-300));
-    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, cb: S.cfgBase, pre: S.pre, day: S.day }));
+    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, cb: S.cfgBase, pre: S.pre, day: S.day, shopBal: S.shopBal || 0 }));
   } catch (e) { /* storage unavailable: keep working in memory */ }
 }
 function saveCfg() { S.cfg.upd = Date.now(); S.dirty.add('cfg'); saveLocal(); schedule('cfg'); }
@@ -3434,7 +3650,8 @@ function docOf(s) { const d = { v: s.v || 2, w: s.w, ts: s.ts, end: s.end || 0, 
 const cfgDoc = () => clone(Object.assign({ kind: 'cfg' }, S.cfg));
 async function flush(id) {
   const w = W(id);
-  if (!S.col || !S.dirty.has(id)) return;
+  /* while the account is being emptied nothing is written to it */
+  if (S.wiping || !S.col || !S.dirty.has(id)) return;
   /* the settings are never written before the account's copy was read: they would replace it */
   if (id === 'cfg' && !S.cfgIn) return;
   if (w.busy) { w.again = true; return; }
@@ -3449,6 +3666,38 @@ async function flush(id) {
     w.fail++; setSync('error');
     if (w.fail < 4) schedule(id, 2500 * w.fail + Math.random() * 900);
   } finally { w.busy = false; if (id === 'cfg') S.cfgFly = 0; if (w.again) { w.again = false; schedule(id, 300); } }
+}
+/* everything this device keeps about the lifter is let go: the account was deleted, here or on another device. Each workout is
+   remembered as gone, so that a copy of it that still arrives is not taken back in */
+function forgetLocal() {
+  for (const w of writers.values()) { clearTimeout(w.timer); w.again = false; }
+  for (const id of Object.keys(S.sessions)) S.gone.add(id);
+  S.sessions = {}; S.dirty = new Set(); S.pre = {}; S.day = {}; S.drafts = {}; S.shopBal = 0; S.open = null; S.edit = null; S.fbFor = null; S.touched = false; S.tab = 0; S.banner = ''; S.bannerKind = '';
+}
+/* the account is emptied: every workout, the settings and the character, in the account and on this device. The language stays, so
+   that the opening that follows speaks it. The account goes first: when it cannot be reached to the end, this device keeps what it
+   has and the answer is false, so that nothing is said to be deleted that is not */
+async function wipeAccount() {
+  const lang = S.cfg.lang || LANG;
+  /* there is an account and it has not answered yet (no connection): deleting here alone would leave everything there */
+  if (S.acct && !S.col) return false;
+  S.wiping = true;
+  /* empty: the account was read once more after the last deletion and held no workout */
+  let empty = !S.col;
+  try {
+    if (S.col) for (let round = 0; round < 130 && !empty; round++) {
+      const snap = await S.col.limit(200).get(), ids = snap.docs.map((d) => d.id).filter((id) => id !== 'cfg');
+      if (!ids.length) { empty = true; break; }
+      /* a few at a time, and each is remembered as gone: a copy of it that still arrives is not taken back in */
+      for (let i = 0; i < ids.length; i += 4) await Promise.all(ids.slice(i, i + 4).map((id) => { S.gone.add(id); return S.col.doc(id).delete(); }));
+    }
+  } catch (e) { empty = false; }
+  if (!empty) { S.wiping = false; return false; }
+  forgetLocal();
+  S.cfg = cfgDef(); S.cfg.lang = lang; S.cfg.upd = S.cfg.wiped = Date.now(); S.cfgBase = clone(S.cfg);
+  S.wiping = false;
+  S.dirty.add('cfg'); saveLocal(); schedule('cfg', 60);
+  return true;
 }
 const sig = (s) => !s ? '' : s.ts + '|' + (s.end || 0) + '|' + (s.ft || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
 /* merge set by set: the row with the later timestamp wins, so two devices never wipe each other */
@@ -3486,7 +3735,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin', 'tour']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;
@@ -3560,7 +3809,8 @@ function restoreData(text) {
   /* settings in the file that differ from this device's newer ones: they stay, and the note says so */
   const plan = (c) => canon([c.weeks, c.inc, c.swap, c.notes, c.base, c.order, c.meso.id]), kept = has && !take && plan(cleanCfg(d.cfg)) !== plan(S.cfg);
   /* taken in, they are the newest change to the settings: the account and the other devices follow them */
-  if (take) { S.cfg = cleanCfg(d.cfg); S.cfg.slots = Object.assign({}, mySlots, S.cfg.slots); S.cfg.upd = Math.max(Date.now(), S.cfg.upd); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
+  const wiped = S.cfg.wiped || 0;
+  if (take) { S.cfg = cleanCfg(d.cfg); S.cfg.wiped = Math.max(wiped, S.cfg.wiped || 0); S.cfg.slots = Object.assign({}, mySlots, S.cfg.slots); S.cfg.upd = Math.max(Date.now(), S.cfg.upd); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   else if (added) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   if (theirs) {
     const me = S.cfg.me, before = JSON.stringify(me), made = me.made ? null : mine.made ? mine : theirs.made ? theirs : null;
@@ -3573,6 +3823,8 @@ function restoreData(text) {
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }
   saveLocal();
+  /* a backup that is restored after the account was deleted brings its workouts back on purpose: the deletion no longer stands */
+  if (S.cfg.wiped && Object.values(S.sessions).some((x) => x.ts <= S.cfg.wiped)) { S.cfg.wiped = 0; S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   return { n, cfg, kept };
 }
 async function initCloud(onChange) {
@@ -3585,6 +3837,7 @@ async function initCloud(onChange) {
     const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
     const uid = db && user ? await user.id() : null;
     if (!uid) { local(); return; }
+    S.acct = true;
     const col = db.collection('data/users/' + uid), seen = new Set(), win = new Map(), NEWEST = 60;
     slow = setTimeout(() => setSync('slow'), 10000);
     col.orderBy('ts', 'desc').limit(NEWEST).onSnapshot((snap) => {
@@ -3599,6 +3852,8 @@ async function initCloud(onChange) {
         win.set(id, v.ts);
         got++; if (v.ts < oldest) oldest = v.ts;
         if (S.gone.has(id)) continue;
+        /* a workout from before the account was deleted, sent up again by a device that was away: it is not taken in, and it is taken off the account */
+        if (S.cfg.wiped && v.ts <= S.cfg.wiped) { S.gone.add(id); S.dirty.add(id); schedule(id, 500); continue; }
         seen.add(id);
         const before = sig(S.sessions[id]), r = { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, ft: v.ft || 0, sets: clone(v.sets || {}) };
         for (const k of XK) if (v[k] != null) r[k] = clone(v[k]);
@@ -3632,6 +3887,15 @@ async function initCloud(onChange) {
     col.doc('cfg').onSnapshot((d) => {
       const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0, mine = S.cfg;
       S.cfgIn = true;
+      /* the account was deleted on another device since this one last heard from it: what is kept here is let go, and none of
+         it goes back up. The page starts over (see onRemoteChange) */
+      if (v && (+v.wiped || 0) > (mine.wiped || 0)) {
+        const had = Object.keys(S.sessions);
+        forgetLocal(); S.cfg = normCfg(v); S.cfgBase = clone(S.cfg); S.wipedNow = true;
+        /* what this device may have sent up since is taken off the account again */
+        for (const id of had) { S.dirty.add(id); schedule(id, 700); }
+        saveLocal(); onChange(); known(); return;
+      }
       /* the account holds what this device holds, or what it has just sent: the next change is measured from that copy */
       if (v && (up === mine.upd || up === S.cfgFly)) S.cfgBase = normCfg(v);
       /* this device changed the settings since the copy it last shared, and the account's copy is no longer that one: a new
@@ -4096,7 +4360,7 @@ function renderList(dir) {
   startPlayer($('.stage', box), e.a, box);
   renderHero(); markCur(); fitStage();
 }
-function renderAll() { renderMe(); renderHome(); renderPre(); renderHero(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); else if (S.sheet === 'set') renderSettings(); freshLogged(); markLive(); }
+function renderAll() { renderMe(); renderHome(); renderPre(); renderHero(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); else if (S.sheet === 'set') renderSettings(); else if (S.sheet === 'shop') renderShop(); freshLogged(); markLive(); }
 /* show another exercise of this workout */
 function openEx(id, scroll, dir) {
   const e = findEx(id); if (!e || wkOf(id) !== S.tab) return;
@@ -4530,7 +4794,7 @@ function closeSheet() {
   /* the picker for adding an exercise was opened from the plan: closing it goes back there */
   if (kind === 'swap' && S.pick && S.pick.mode === 'add') { S.pick = null; S.sheet = 'meso'; renderMeso(); return; }
   sheetGhost(sh);
-  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.msAdv = false; S.pick = null; S.blEdit = null; S.msPage = null;
+  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.msAdv = false; S.pick = null; S.blEdit = null; S.msPage = null; S.setPg = null; S.pinFlow = null; S.del = null;
   if (kind && kind !== 'sum' && kind !== 'list' && kind !== 'lv') renderAll();
 }
 function editorInput(rowEl) {
@@ -4568,9 +4832,12 @@ async function exportCsv() {
   try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited' && e.code !== 'write_failed') { S.dl = null; renderBackup(); } }
 }
 function onRemoteChange() {
+  /* the account was deleted on another device: this one starts over too */
+  if (S.wipedNow) { S.wipedNow = false; if (DOOR.on) unlock(); afterWipe(); return; }
   const a = document.activeElement;
   if (a && a.closest && (a.closest('#dock') || a.closest('#sheet') || a.closest('.note')) && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT')) return;
   sweep(); meSync(); if (!S.touched) S.tab = nextUp().next;
+  maybeLock();
   const draw = () => { maybeOb(); if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap' && S.sheet !== 'look' && S.sheet !== 'sum') renderAll(); };
   /* the account speaks another language than the page does: the page changes to it under a fade, the opening too */
   if ((S.cfg.lang || autoLang()) === LANG) draw();
@@ -4758,9 +5025,10 @@ function wireApp() {
   });
   /* a sheet or the opening screens, while open, are the only thing in reach: the focus moves in, the page behind is out of reach
      (for the keyboard and for a screen reader), and on closing the focus goes back to what opened it */
-  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'), tour = $('#tour'); let opener = null;
+  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'), tour = $('#tour'), lock = $('#lock'); let opener = null;
   const modal = () => {
-    const box = !ob.hidden ? ob : !tour.hidden ? tour : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    const box = !lock.hidden ? lock : !ob.hidden ? ob : !tour.hidden ? tour : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    sheet.inert = !lock.hidden; ob.inert = !lock.hidden;
     for (const el of behind) el.inert = !!box;
     if (box) {
       if (!opener) { const a = document.activeElement; opener = a && a !== document.body ? { el: a, id: a.id } : {}; }
@@ -4771,8 +5039,8 @@ function wireApp() {
     }
   };
   const watch = new MutationObserver(modal);
-  for (const el of [sheet, ob, tour]) watch.observe(el, { attributes: true, attributeFilter: ['hidden'] });
-  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); });
+  for (const el of [sheet, ob, tour, lock]) watch.observe(el, { attributes: true, attributeFilter: ['hidden'] });
+  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); else if (ev.target.id === 'delName' && S.del) { S.del.v = ev.target.value; const b = $('#delYes'); if (b) b.disabled = S.del.busy || !sameWord(S.del.v, delWord()); } });
   sheet.addEventListener('change', (ev) => {
     if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }
     const inp = ev.target.closest('.ed-row input');
@@ -4780,12 +5048,13 @@ function wireApp() {
     if (ev.target.classList.contains('note-in')) { const e = S.open && findEx(S.open); if (e) saveNote(e.mv, ev.target.value); return; }
     coachSheetChange(ev); meSheetChange(ev);
   });
-  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on) { if (TR.on) tourEnd(); else if (!sheet.hidden) closeSheet(); else closeChat(); } });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on && !DOOR.on) { if (TR.on) tourEnd(); else if (!sheet.hidden) closeSheet(); else closeChat(); } });
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (rest.on) tickRest(); if (live(S.tab)) keepAwake(); });
   /* the phone's back button, when gymi runs inside its native shell: close what is open, else go back to today */
   window.gymiBack = () => {
+    if (DOOR.on) return false;
     if (TR.on) { tourEnd(); return true; }
     if (!sheet.hidden) { if (S.sheet === 'meso' && S.msPage) { S.msPage = null; S.blEdit = null; renderMeso(); } else closeSheet(); return true; }
     if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }
@@ -5170,6 +5439,7 @@ const GLYPH = {
   crown: '<path d="M4.5 17.5l-1-9 5 4L12 5.5l3.5 7 5-4-1 9zM5 20.5h14"/>',
   gift: '<path d="M4 10h16v10H4zM3 6.5h18V10H3zM12 6.5V20M12 6.5C10 3 6.5 3.5 7.5 5.5S12 6.5 12 6.5zM12 6.5c2-3.5 5.5-3 4.5-1S12 6.5 12 6.5z"/>',
   pen: '<path d="M4 20l1-4.5L16 4.5a2.1 2.1 0 0 1 3 3L8.5 19zM14 6.5l3 3"/>',
+  gear: '<circle cx="12" cy="12" r="3.1"/><path d="M12 2.9v2.5M12 18.6v2.5M21.1 12h-2.5M5.4 12H2.9M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8M18.4 18.4l-1.8-1.8M7.4 7.4L5.6 5.6"/>',
 };
 /* the streak's flame: drawn in two tones, not a line icon */
 const flameSVG = () => '<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.4 1.6c.5 3.6 6 6 6 12a6.4 6.4 0 0 1-12.8 0c0-2.5 1.1-4.4 2.6-5.7.3 1.8 1 2.9 2.1 3.5-.4-3.6.4-7 2.1-9.8z" fill="var(--flame)"/><path d="M12.1 11.6c.5 1.7 2.7 2.7 2.7 5.2a2.8 2.8 0 0 1-5.6 0c0-2.1 1.9-3 2.9-5.2z" fill="var(--flame-2)"/></svg>';
@@ -5180,7 +5450,7 @@ const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 10
 const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '') + ' style="width:' + p + '%"></i></span>';
 const tons = (kg) => { const t = kg / 1000; return t >= 100 ? nf(t) : (Math.round(t * 10) / 10).toLocaleString('en-US'); };
 /* the player's character: built at least as far as the experience they came with (see EXP_BASE) */
-const avatar = (lvl, o) => avatarSVG(S.cfg.me.look, lvl, Object.assign({ base: EXP_BASE[expNow()] || 0 }, o));
+const avatar = (lvl, o) => avatarSVG(Object.assign({}, S.cfg.me.look, { wear: S.cfg.me.shop.on }), lvl, Object.assign({ base: EXP_BASE[expNow()] || 0 }, o));
 
 /* refresh the player's side after the log changed, and remember the level so that a level-up can be spotted */
 function renderMe() {
@@ -5188,6 +5458,7 @@ function renderMe() {
   S.lvl = P.L.lvl;
   const me = $('#tbMe'); if (me) me.innerHTML = avatar(P.L.lvl, { bust: true });
   if (S.view === 'profile') renderProfile(P); else if (S.view === 'journey') renderJourney(P);
+  markShop();
   return P;
 }
 /* the strip at the top of "today": who is training, at which level, and the run of weeks */
@@ -5198,22 +5469,73 @@ function playerHTML(P) {
     (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + flameSVG() + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
 }
 function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
-/* the profile: the character, where it stands in the game, and the achievements. One card, one row of medals, one way to the settings */
+/* a coin of the kiosk */
+const COIN = '<svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="#F2B02E" stroke="#C98A12" stroke-width="1.6"/><path d="M10 5.5l1.35 2.75 3.05.45-2.2 2.15.5 3-2.7-1.45-2.7 1.45.5-3-2.2-2.15 3.05-.45z" fill="#C98A12"/></svg>';
+/* the part of the figure that a thing of the kiosk is worn on, as a close view of the lifter's own character with that thing alone */
+const CROP = { head: '56 4 88 88', eyes: '60 14 80 80', ears: '54 4 92 92', neck: '58 58 84 84', wrist: '104 112 80 80', hands: '104 124 80 80', feet: '56 176 88 88' };
+const cropFig = (it, lvl) => avatarSVG(Object.assign({}, S.cfg.me.look, { wear: [it.id], gear: false }), lvl, { crop: CROP[it.slot], base: EXP_BASE[expNow()] || 0 });
+/* the profile: the character on its stage with where it stands in the game, the kiosk, and the achievements, small */
 function renderProfile(P) {
   P = P || meNow();
-  const me = S.cfg.me, L = P.L, nx = nextReward(L.lvl), have = new Set(Object.keys(me.badges).concat(earned(P.T, P.X)));
-  const stat = (v, k) => '<li><b>' + v + '</b><span>' + k + '</span></li>';
+  const me = S.cfg.me, L = P.L, nx = nextReward(L.lvl), have = new Set(Object.keys(me.badges).concat(earned(P.T, P.X))), bal = coinsLeft(P.T.xp, me.shop);
+  let si = 0; const stat = (v, k) => '<li style="--i:' + (si++) + '"><b>' + v + '</b><span>' + k + '</span></li>';
   /* the achievements in short: the last ones that were earned, then the next to go for. All of them are a tap away */
   const got = BADGES.filter((b) => have.has(b.id)), todo = BADGES.filter((b) => !have.has(b.id)), few = todo.length ? got.slice(-3).concat(todo).slice(0, 4) : got.slice(-4);
-  $('#profile').innerHTML = '<section class="pf-top">' + (me.made ? '<button class="icon-btn pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '') +
-    '<div class="pf-stage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? '<bdi>' + esc(me.name) + '</bdi>' : say('הדמות שלי', 'My character')) + '</h1>' +
+  /* the shelf in short: the next three things to buy; once everything is owned, the dearest three */
+  const left = SHOP.filter((x) => !me.shop.own.includes(x.id)), peek = left.length ? left.slice(0, 3) : SHOP.slice(-3);
+  $('#profile').innerHTML = '<section class="pf-top"><div class="pf-bar">' + (me.made ? '<button class="pf-ic pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '<span></span>') +
+    '<button class="pf-ic" id="setBtn" type="button" aria-label="' + say('הגדרות', 'Settings') + '">' + glyph('gear') + '</button></div>' +
+    '<div class="pf-stage" id="pfStage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? '<bdi>' + esc(me.name) + '</bdi>' : say('הדמות שלי', 'My character')) + '</h1>' +
     '<p class="pf-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
     '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + (nx ? ' · ' + say('ברמה ' + nx.at + ': ', 'At level ' + nx.at + ': ') + nm(nx) : '') + '</p></div>' +
     (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') +
     '<ul class="pf-nums">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</ul></section>' +
+    '<section class="card next w0 kiosk" aria-label="' + say('הקיוסק', 'The kiosk') + '"><div class="next-top"><p class="k">' + say('הקיוסק', 'The kiosk') + '</p><span class="coin-tag" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span></div>' +
+    '<h2>' + say('ציוד לדמות שלך', 'Gear for your character') + '</h2><p class="meta">' + say('כל אימון מוסיף מטבעות', 'Every workout adds coins') + '</p>' +
+    '<ul class="ks-peek" aria-hidden="true">' + peek.map((it) => '<li><span class="ks-pic">' + cropFig(it, L.lvl) + '</span><span class="pr">' + COIN + it.cost + '</span></li>').join('') + '</ul>' +
+    '<button class="btn primary big" id="shopBtn" type="button">' + say('לקיוסק', 'To the kiosk') + '</button></section>' +
     '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
-    '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>' +
-    '<ul class="rows"><li class="tap"><button class="row-b one" id="setBtn" type="button"><span class="h-t">' + say('הגדרות', 'Settings') + '</span>' + ICON.fwd + '</button></li></ul>';
+    '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>';
+}
+/* ---- the kiosk. The character on the stage tries a thing on; coins buy it; what is owned goes on and off with a tap ---- */
+function renderShop(pump) {
+  const P = meNow(), me = S.cfg.me, shop = me.shop, bal = coinsLeft(P.T.xp, shop), sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0;
+  const it = shopItem(S.shopTry), own = !!it && shop.own.includes(it.id);
+  /* what the figure on the stage wears: the wardrobe, with the thing that is being tried in place of what its slot held */
+  const worn = it && !own ? shop.on.filter((k) => shopItem(k).slot !== it.slot).concat(it.id) : shop.on;
+  const word = !it ? '<b>' + say('מה בא לך?', 'What takes your fancy?') + '</b><p>' + say('לוחצים על פריט כדי למדוד אותו על הדמות.', 'Tap a thing to try it on your character.') + '</p>'
+    : own ? '<b>' + nm(it) + '</b><p>' + (shop.on.includes(it.id) ? say('עליך עכשיו. לחיצה נוספת מורידה.', 'On you now. Another tap takes it off.') : say('בארון שלך. לחיצה נוספת לובשת.', 'In your wardrobe. Another tap puts it on.')) + '</p>'
+    : '<b>' + nm(it) + '</b>' + (bal >= it.cost ? '<button class="btn" id="shopBuy" type="button" data-buy="' + it.id + '">' + say('קנה ב-', 'Buy for ') + COIN + it.cost + '</button>'
+      : '<p>' + (it.cost - bal === 1 ? say('חסר עוד מטבע אחד.', '1 more coin to go.') : say('חסרים עוד ' + (it.cost - bal) + ' מטבעות.', (it.cost - bal) + ' more coins to go.')) + ' ' + say('כל אימון מוסיף.', 'Every workout adds some.') + '</p>');
+  const tile = (x) => {
+    const o = shop.own.includes(x.id), on = shop.on.includes(x.id);
+    return '<li><button class="ks-it' + (on ? ' on' : o ? ' own' : bal >= x.cost ? '' : ' far') + (S.shopTry === x.id ? ' try' : '') + '" type="button" data-shop="' + x.id + '" aria-pressed="' + on + '" aria-label="' + nm(x) + ', ' + (on ? say('עליך', 'on') : o ? say('בארון', 'owned') : x.cost + say(' מטבעות', ' coins')) + '">' +
+      '<span class="ks-pic">' + cropFig(x, P.L.lvl) + '</span><b>' + nm(x) + '</b>' + (on ? '<span class="ks-st">' + ICON.check + say('עליך', 'On') + '</span>' : o ? '<span class="ks-st">' + say('ללבוש', 'Put on') + '</span>' : '<span class="ks-pr">' + COIN + x.cost + '</span>') + '</button></li>';
+  };
+  sh.innerHTML = '<div class="sheet-in ks" role="dialog" aria-modal="true" aria-label="' + say('הקיוסק', 'The kiosk') + '"><div class="ed-h"><div><p class="kicker">' + say('הקיוסק', 'The kiosk') + '</p><h2>' + say('ציוד לדמות', 'Gear for the character') + '</h2></div>' +
+    '<span class="coin-tag dark" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    '<div class="ks-stage"><span class="ks-fig' + (pump ? ' pump' : '') + '" aria-hidden="true">' + avatarSVG(Object.assign({}, me.look, { wear: worn }), P.L.lvl, { base: EXP_BASE[expNow()] || 0 }) + '</span><div class="ks-say" aria-live="polite">' + word + '</div></div>' +
+    '<ul class="ks-grid">' + SHOP.map(tile).join('') + '</ul>' +
+    '<p class="ms-sub">' + say('כל 10 נקודות באימון הן מטבע. הרמה שלך לא יורדת כשקונים.', 'Every 10 points in a workout are a coin. Your level never drops when you buy.') + '</p></div>';
+  $('.sheet-in', sh).scrollTop = top;
+}
+/* a tap on a thing: what is owned goes on or off; what is not is tried on */
+function shopTap(id) {
+  const me = S.cfg.me, it = shopItem(id); if (!it) return;
+  if (me.shop.own.includes(id)) { const next = shopWear(me.shop, id, !me.shop.on.includes(id)); if (next) { me.shop = next; saveCfg(); renderMe(); } }
+  S.shopTry = id; renderShop(true);
+}
+function shopBuyNow(id) {
+  const me = S.cfg.me, xp = meNow().T.xp, next = shopBuy(me.shop, id, xp); if (!next) return;
+  me.shop = next; saveCfg(); S.shopTry = id; S.shopBal = coinsLeft(xp, next); saveLocal();
+  feel('coin', 'success'); renderMe(); renderShop(true);
+  toast(COIN + '<b>' + say('שלך: ', 'Yours: ') + nm(shopItem(id)) + '</b>');
+}
+function openShop() { S.sheet = 'shop'; S.shopTry = null; renderShop(); $('#sheet').hidden = false; S.shopBal = coinsLeft(meNow().T.xp, S.cfg.me.shop); saveLocal(); markShop(); }
+/* the profile's tab is marked once the coins have grown enough to buy something since the kiosk was last looked at */
+function markShop() {
+  const me = S.cfg.me, bal = coinsLeft(meNow().T.xp, me.shop), b = $('#tabbar [data-view="profile"]');
+  if (b) b.classList.toggle('new', bal > (S.shopBal || 0) && SHOP.some((x) => !me.shop.own.includes(x.id) && x.cost <= bal));
 }
 /* ---- the journey: the levels as a road, from the first to the hundredth. Every stop is a level that opens something, and on the
    wide sides of the road stands the player's own character, dressed as it will be there ---- */
@@ -5254,21 +5576,179 @@ function openLevel(at) {
     '<button class="btn primary big" data-close="1" type="button">' + (lvl >= at ? say('סגור', 'Close') : say('ממשיכים לשם', 'On my way')) + '</button></div>';
   sh.hidden = false;
 }
-/* ---- settings: the language, what the plan is built on, sound and vibration, and the backup. Every choice is saved at once ---- */
+/* ---- settings. Every choice is saved at once. They stand in the order a lifter looks for them: me, my training, sound and touch,
+   the code, my data, and at the foot, alone, the one thing that cannot be undone ---- */
+const SET_I = {
+  me: '<circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20c.8-4 3.6-6 7.2-6s6.4 2 7.2 6"/>',
+  lang: '<circle cx="12" cy="12" r="8.6"/><path d="M3.4 12h17.2M12 3.4c2.7 2.5 2.7 14.7 0 17.2M12 3.4c-2.7 2.5-2.7 14.7 0 17.2"/>',
+  exp: '<path d="M5.5 19.5V14M12 19.5V9M18.5 19.5V4.5"/>',
+  goal: '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.3"/><path d="M12 12h.01" stroke-width="3"/>',
+  time: '<circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3 2"/>',
+  eq: '<path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/>',
+  fb: '<path d="M5 5.5h14v10h-8.6L6.5 19v-3.5H5z"/>',
+  sound: '<path d="M4.5 9.5h3l4.5-4v13l-4.5-4h-3zM15.6 9.2a4 4 0 0 1 0 5.6M18.2 6.8a7.6 7.6 0 0 1 0 10.4"/>',
+  buzz: '<rect x="8" y="3.5" width="8" height="17" rx="2.2"/><path d="M4.4 9v6M19.6 9v6"/>',
+  pin: '<rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/>',
+  tour: '<circle cx="12" cy="12" r="8.6"/><path d="M15.4 8.6l-1.9 4.9-4.9 1.9 1.9-4.9z"/>',
+  film: '<rect x="4" y="5.5" width="16" height="13" rx="2.5"/><path d="M10.2 9.4v5.2l4.4-2.6z"/>',
+  del: '<path d="M5 7h14M9.5 7V4.8h5V7M7 7l.8 12.2h8.4L17 7M10.3 10.5v5.5M13.7 10.5v5.5"/>',
+};
+const setIcon = (k, tone) => '<span class="st-i' + (tone ? ' ' + tone : '') + '" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">' + SET_I[k] + '</svg></span>';
+const pinKeys = (attr, off) => ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((k) => (k === '' ? '<span></span>' : '<button type="button" class="pin-k" ' + attr + '="' + k + '"' + (off ? ' disabled' : '') + (k === 'del' ? ' aria-label="' + say('מחק ספרה', 'Delete a digit') + '">' + OBI.del : '>' + k) + '</button>')).join('');
+const pinDots = (id, n) => '<div class="pin-dots" id="' + id + '" role="img" aria-label="' + say('ספרות שהוקלדו: ', 'Digits typed: ') + n + '">' + [0, 1, 2, 3].map((i) => '<i class="' + (i < n ? 'on' : '') + '"></i>').join('') + '</div>';
+/* the word that has to be typed to delete the account: the lifter's own name, or a plain word when there is none */
+const delWord = () => S.cfg.me.name || say('מחק', 'delete');
+const sameWord = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
 function renderSettings() {
-  const me = S.cfg.me, sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0;
-  const pick = (label, key, list, cur) => '<div class="lk-row col"><span>' + label + '</span><div class="seg" role="group" aria-label="' + label + '">' + list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
-  const tog = (label, key, on) => '<div class="set-row"><span>' + label + '</span><button class="tog" type="button" role="switch" aria-checked="' + on + '" aria-label="' + label + '" data-set="' + key + '" data-v="' + (on ? 0 : 1) + '"><i></i></button></div>';
-  sh.innerHTML = '<div class="sheet-in st" role="dialog" aria-modal="true" aria-label="' + say('הגדרות', 'Settings') + '"><div class="ed-h"><div><h2>' + say('הגדרות', 'Settings') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    pick(say('שפה', 'Language'), 'lang', LANGS, LANG) +
-    pick(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp) +
-    pick(say('מטרה', 'Goal'), 'goal', GOALS().map((o, i) => [i, o[0]]), me.goal) +
-    '<div class="set-list">' + tog(say('צליל', 'Sound'), 'sound', !!S.sound) + tog(say('רטט', 'Vibration'), 'buzz', S.buzz !== false) + '</div>' +
-    '<section class="backup" id="backup" aria-label="' + say('גיבוי', 'Backup') + '"></section>' +
-    '<button class="link" id="obAgain" type="button">' + say('מסך הפתיחה', 'The opening screens') + '</button></div>';
+  const me = S.cfg.me, sh = $('#sheet'), old = $('.sheet-in', sh), pg = S.setPg || '', top = old && old.dataset.pg === pg ? old.scrollTop : 0;
+  const x = '<button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button>';
+  const page = (title, body) => '<div class="sheet-in st pg" data-pg="' + pg + '" role="dialog" aria-modal="true" aria-label="' + title + '"><div class="ed-h"><button class="fx-nav" type="button" data-setpg="" aria-label="' + say('חזרה להגדרות', 'Back to the settings') + '">' + ICON.back + '</button><div><h2>' + title + '</h2></div>' + x + '</div>' + body + '</div>';
+  if (pg === 'pin' || (pg === 'del' && me.pin && !(S.pinFlow && S.pinFlow.ok))) { sh.innerHTML = page(pinTitle(), pinPageHTML()); return; }
+  if (pg === 'del') { sh.innerHTML = page(say('מחיקת החשבון', 'Delete the account'), delPageHTML()); return; }
+  const seg = (label, key, list, cur, ic, cls) => '<div class="st-row col"><div class="st-h">' + setIcon(ic) + '<span class="st-l">' + label + '</span></div><div class="seg' + (cls ? ' ' + cls : '') + '" role="group" aria-label="' + label + '">' +
+    list.map((o) => '<button type="button" data-set="' + key + '" data-v="' + o[0] + '" aria-pressed="' + (Array.isArray(cur) ? cur.includes(o[0]) : o[0] === cur) + '">' + o[1] + '</button>').join('') + '</div></div>';
+  const tog = (label, key, on, ic) => '<div class="st-row">' + setIcon(ic) + '<span class="st-l">' + label + '</span><button class="tog" type="button" role="switch" aria-checked="' + on + '" aria-label="' + label + '" data-set="' + key + '" data-v="' + (on ? 0 : 1) + '"><i></i></button></div>';
+  const nav = (label, id, val, ic, tone, cls) => '<button class="st-row nav' + (cls ? ' ' + cls : '') + '" type="button" id="' + id + '">' + setIcon(ic, tone) + '<span class="st-l">' + label + '</span>' + (val ? '<small>' + val + '</small>' : '') + ICON.fwd + '</button>';
+  const grp = (title, rows) => '<div class="st-grp"><h3 class="st-t">' + title + '</h3><section class="st-g">' + rows + '</section></div>';
+  /* an answer about the gym or the time was changed on a plan the lifter had already made their own: the plan stays, and can be built again */
+  const refit = !!S.setRefit && me.exp != null && planChanged();
+  sh.innerHTML = '<div class="sheet-in st" data-pg="" role="dialog" aria-modal="true" aria-label="' + say('הגדרות', 'Settings') + '"><div class="ed-h"><div><h2>' + say('הגדרות', 'Settings') + '</h2></div>' + x + '</div>' +
+    grp(say('אני', 'Me'), nav(say('הדמות והשם', 'Character and name'), 'setLook', me.name ? '<bdi>' + esc(me.name) + '</bdi>' : '', 'me') + seg(say('שפה', 'Language'), 'lang', LANGS, LANG, 'lang', '')) +
+    grp(say('האימון שלי', 'My training'),
+      seg(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp, 'exp') +
+      seg(say('מטרות', 'Goals'), 'goals', GOALS().map((o, i) => [i, o[0]]), me.goals, 'goal') +
+      seg(say('זמן לאימון, בדקות', 'Time for a workout, in minutes'), 'time', [[30, '30'], [45, '45'], [60, '60'], [75, '75'], [0, say('לא משנה', 'Any')]], me.time, 'time', 'five') +
+      seg(say('חדר הכושר', 'The gym'), 'eq', [[0, say('מלא', 'Full')], [1, say('בסיסי', 'Basic')], [2, say('לא בטוח', 'Not sure')]], me.eq, 'eq') +
+      seg(say('אילון שואל איך היה', 'Eilon asks how it went'), 'fb', [[0, say('אף פעם', 'Never')], [1, say('בתרגילים הכבדים', 'On heavy lifts')], [2, say('תמיד', 'Always')]], me.fb, 'fb')) +
+    (refit ? '<div class="st-note" role="status"><span>' + say('התשובות השתנו, והתוכנית נשארה כפי ששינית אותה.', 'The answers changed, and the plan stays as you changed it.') + '</span><button class="btn" id="setRefit" type="button">' + say('לבנות את התוכנית מחדש', 'Build the plan again') + '</button></div>' : '') +
+    grp(say('צליל ומגע', 'Sound and touch'), tog(say('צליל', 'Sound'), 'sound', !!S.sound, 'sound') + tog(say('רטט', 'Vibration'), 'buzz', S.buzz !== false, 'buzz')) +
+    grp(say('פרטיות', 'Privacy'), me.pin ? nav(say('שינוי הקוד', 'Change the code'), 'pinChange', say('פעיל', 'On'), 'pin') + nav(say('ביטול הקוד', 'Remove the code'), 'pinOff', '', 'pin', 'grey') : nav(say('קוד כניסה', 'Entry code'), 'pinSet', say('כבוי', 'Off'), 'pin')) +
+    grp(say('גיבוי', 'Backup'), '<section class="backup" id="backup" aria-label="' + say('גיבוי', 'Backup') + '"></section>') +
+    grp(say('עוד', 'More'), nav(say('סיור באפליקציה', 'A tour of the app'), 'tourAgain', '', 'tour', 'calm') + nav(say('מסך הפתיחה', 'The opening screens'), 'obAgain', '', 'film', 'calm')) +
+    '<section class="st-g"><button class="st-row nav red" type="button" id="delAsk">' + setIcon('del', 'red') + '<span class="st-l">' + say('מחיקת החשבון', 'Delete the account') + '</span>' + ICON.fwd + '</button></section></div>';
   $('.sheet-in', sh).scrollTop = top; renderBackup();
 }
-function openSettings() { S.sheet = 'set'; S.backupNote = ''; renderSettings(); $('#sheet').hidden = false; }
+function openSettings() { S.sheet = 'set'; S.backupNote = ''; S.setPg = null; S.pinFlow = null; S.del = null; S.setRefit = false; renderSettings(); $('#sheet').hidden = false; }
+/* an answer that shapes the plan was changed. A plan that is still the one the app built follows the new answers at once; one the
+   lifter changed by hand stays, and the settings offer to build it again (see renderSettings) */
+function setAnswer(key, v) {
+  const me = S.cfg.me, clean = me.exp != null && !planChanged();
+  if (key === 'goals') { const g = me.goals.includes(v) ? me.goals.filter((x) => x !== v) : me.goals.concat(v).sort(); if (!g.length) return; me.goals = g; me.goal = g[0]; }
+  else me[key] = v;
+  if (key === 'exp') applyExp();
+  if (me.exp != null && key !== 'fb') { if (clean) resetPlan(); S.setRefit = planChanged(); }
+  saveCfg(); renderAll();
+}
+/* ---- the code: setting it, changing it and taking it off, on a page of the settings. F.step: cur (the code as it is), new, again ---- */
+function pinTitle() { const m = (S.pinFlow || {}).mode; return m === 'off' ? say('ביטול הקוד', 'Remove the code') : m === 'change' ? say('שינוי הקוד', 'Change the code') : m === 'del' ? say('מחיקת החשבון', 'Delete the account') : say('קוד כניסה', 'Entry code'); }
+function pinPageHTML() {
+  const F = S.pinFlow, ask = F.step === 'cur' ? say('הקוד הנוכחי', 'The current code') : F.step === 'again' ? say('עוד פעם, לאישור', 'Once more, to confirm') : say('קוד חדש: 4 ספרות', 'A new code: 4 digits');
+  return '<div class="st-pg ob-pin"><p class="pin-ask">' + ask + '</p>' + pinDots('setDots', F.buf.length) + '<p class="pin-err" id="setErr" aria-live="polite">' + (F.err || '') + '</p><div class="pin-pad">' + pinKeys('data-pk', false) + '</div>' +
+    (F.mode === 'set' ? '<p class="ms-sub">' + say('הקוד יידרש כשפותחים את האפליקציה, וכדי למחוק את החשבון. אי אפשר לשחזר אותו.', 'The code is asked when the app opens, and to delete the account. It cannot be recovered.') + '</p>' : '') + '</div>';
+}
+function openPin(mode) { S.pinFlow = { mode, step: mode === 'set' ? 'new' : 'cur', buf: '', first: '', err: '', ok: false }; S.setPg = mode === 'del' ? 'del' : 'pin'; renderSettings(); }
+function pinKey(k) {
+  const F = S.pinFlow; if (!F || F.busy) return;
+  if (k === 'del') F.buf = F.buf.slice(0, -1); else if (F.buf.length < 4) F.buf += k;
+  $$('#setDots i').forEach((d, i) => d.classList.toggle('on', i < F.buf.length));
+  if (F.err) { F.err = ''; const e = $('#setErr'); if (e) e.textContent = ''; }
+  if (F.buf.length < 4) return;
+  const typed = F.buf; F.buf = '';
+  if (F.step === 'new') { F.first = typed; F.step = 'again'; renderSettings(); return; }
+  if (F.step === 'again' && typed !== F.first) { F.step = 'new'; F.first = ''; F.err = say('הקודים לא תואמים. מתחילים מחדש.', 'The codes did not match. Let us start again.'); haptic('warn'); renderSettings(); return; }
+  F.busy = true;
+  pinHash(typed).then((h) => {
+    F.busy = false; if (S.pinFlow !== F || S.sheet !== 'set') return;
+    const me = S.cfg.me, lock = '<svg class="i ln" viewBox="0 0 24 24" aria-hidden="true">' + SET_I.pin + '</svg>';
+    if (F.step === 'cur') {
+      if (h !== me.pin) { F.err = say('הקוד לא נכון', 'That is not the code'); haptic('warn'); renderSettings(); return; }
+      if (F.mode === 'off') { me.pin = ''; saveCfg(); S.setPg = null; S.pinFlow = null; renderSettings(); toast(lock + '<b>' + say('הקוד בוטל', 'The code is off') + '</b>'); return; }
+      if (F.mode === 'del') { F.ok = true; renderSettings(); return; }
+      F.step = 'new'; renderSettings(); return;
+    }
+    me.pin = h; saveCfg(); S.unlocked = true; S.setPg = null; S.pinFlow = null; renderSettings(); feel('set', 'success'); toast(lock + '<b>' + say('הקוד נשמר', 'The code is saved') + '</b>');
+  });
+}
+/* ---- deleting the account: said plainly, confirmed by typing a word, and by the code when there is one ---- */
+function delPageHTML() {
+  const D = S.del || (S.del = { v: '', busy: false, note: '' }), word = delWord();
+  return '<div class="st-del"><span class="st-del-i" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">' + SET_I.del + '</svg></span><h3>' + say('למחוק את החשבון?', 'Delete the account?') + '</h3>' +
+    '<p>' + say('כל האימונים, הדמות, המטבעות וההגדרות יימחקו מהמכשיר הזה ומהחשבון. אי אפשר לבטל את זה.', 'Every workout, the character, the coins and the settings will be erased from this device and from the account. This cannot be undone.') + '</p>' +
+    (S.dl ? '<button class="link" id="backupBtn" type="button">' + say('קודם לשמור גיבוי לקובץ', 'Save a backup file first') + '</button>' : '') +
+    '<label for="delName">' + say('כדי לאשר, כותבים כאן: ', 'To confirm, type: ') + '<b><bdi>' + esc(word) + '</bdi></b></label>' +
+    '<input id="delName" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" value="' + esc(D.v) + '">' +
+    (D.note ? '<p class="st-del-n" role="status">' + D.note + '</p>' : '') +
+    '<button class="btn danger big" id="delYes" type="button"' + (D.busy || !sameWord(D.v, word) ? ' disabled' : '') + '>' + (D.busy ? say('מוחק…', 'Deleting…') : say('מחיקה לצמיתות', 'Delete for good')) + '</button>' +
+    '<button class="btn big" data-setpg="" type="button">' + say('ביטול', 'Cancel') + '</button></div>';
+}
+const WIPE_FAIL = () => say('המחיקה לא הושלמה: אין חיבור לחשבון. אפשר לנסות שוב כשיש חיבור.', 'The deletion did not finish: the account could not be reached. Try again once you are connected.');
+function delNow() {
+  const D = S.del, me = S.cfg.me; if (!D || D.busy || !sameWord(D.v, delWord()) || (me.pin && !(S.pinFlow && S.pinFlow.ok))) return;
+  D.busy = true; D.note = ''; renderSettings();
+  wipeAccount().then((ok) => { if (ok) { afterWipe(); return; } D.busy = false; D.note = WIPE_FAIL(); if (S.sheet === 'set') renderSettings(); });
+}
+/* the account is gone: the page starts over where a new lifter starts, in the language it was in */
+function afterWipe() {
+  chat.msgs = []; chat.turns = []; S.setPg = null; S.pinFlow = null; S.del = null; S.bdgAll = false; S.unlocked = false;
+  if (window.gymiNative && typeof window.gymiNative.forget === 'function') window.gymiNative.forget();
+  if (!$('#sheet').hidden) closeSheet();
+  closeChat(); applyLang(); setView('home'); renderAll(); renderMsgs(); maybeOb();
+}
+/* ---- the code at the door. A lifter who set a code is asked for it when the app opens, and again after the app was away for a
+   while. It is a light lock for the phone in hand: what is kept is a hash of the code, beside the settings ---- */
+const DOOR = { on: false, buf: '', err: '', tries: 0, until: 0, forgot: false, v: '', busy: false, note: '' }, AWAY_MS = 10 * 60000;
+function lockDraw() {
+  const box = $('#lock'), me = S.cfg.me, wait = DOOR.until > Date.now();
+  box.setAttribute('aria-label', say('קוד כניסה', 'Entry code'));
+  box.innerHTML = '<div class="lock-in">' + (DOOR.forgot
+    ? '<h1>' + say('שכחת את הקוד?', 'Forgot the code?') + '</h1><div class="lock-forgot"><p>' + say('הקוד שמור רק אצלך, ואי אפשר לשחזר אותו. אפשר למחוק את החשבון ולהתחיל מחדש.', 'The code is kept only with you and cannot be recovered. You can delete the account and start again.') + '</p>' +
+      '<label for="lockName">' + say('כדי למחוק, כותבים כאן: ', 'To delete, type: ') + '<b><bdi>' + esc(delWord()) + '</bdi></b></label><input id="lockName" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" value="' + esc(DOOR.v) + '">' +
+      (DOOR.note ? '<p role="status">' + DOOR.note + '</p>' : '') +
+      '<button class="btn danger" id="lockWipe" type="button"' + (DOOR.busy || !sameWord(DOOR.v, delWord()) ? ' disabled' : '') + '>' + (DOOR.busy ? say('מוחק…', 'Deleting…') : say('מחיקת החשבון והתחלה מחדש', 'Delete the account and start again')) + '</button>' +
+      '<button class="btn quiet" id="lockBack" type="button">' + say('חזרה לקוד', 'Back to the code') + '</button></div>'
+    : '<span class="lock-ava" aria-hidden="true">' + avatar(meNow().L.lvl, { bust: true }) + '</span><h1>' + (me.name ? say('היי, ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi>' : say('היי!', 'Hi!')) + '</h1><p class="lock-sub">' + say('הקוד שלך, ונכנסים', 'Your code, and you are in') + '</p>' +
+      pinDots('lockDots', DOOR.buf.length) + '<p class="pin-err" id="lockErr" aria-live="polite">' + (wait ? say('יותר מדי ניסיונות. עוד רגע אפשר לנסות שוב.', 'Too many tries. You can try again in a moment.') : DOOR.err) + '</p>' +
+      '<div class="pin-pad">' + pinKeys('data-lk', wait) + '</div><button class="link" id="lockForgot" type="button">' + say('שכחתי את הקוד', 'I forgot the code') + '</button>') + '</div>';
+}
+/* the door closes when there is a code and it was not given yet (or the app was away long enough to ask again) */
+function maybeLock() {
+  if (DOOR.on) { if (!S.cfg.me.pin) unlock(); return; }
+  if (S.unlocked || !S.cfg.me.pin || OB.on) return;
+  DOOR.on = true; DOOR.buf = ''; DOOR.err = ''; DOOR.forgot = false; DOOR.v = ''; DOOR.note = ''; DOOR.busy = false;
+  closeChat(); if (TR.on) tourEnd();
+  lockDraw(); const box = $('#lock'); box.classList.remove('out'); box.hidden = false;
+}
+function unlock() {
+  S.unlocked = true; DOOR.on = false; DOOR.tries = 0;
+  const box = $('#lock'), gone = () => { if (!DOOR.on) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } };
+  if (reduced) gone(); else { box.classList.add('out'); setTimeout(gone, 340); }
+}
+function lockKey(k) {
+  if (!DOOR.on || DOOR.forgot || DOOR.busy || DOOR.until > Date.now()) return;
+  if (k === 'del') DOOR.buf = DOOR.buf.slice(0, -1); else if (DOOR.buf.length < 4) DOOR.buf += k;
+  $$('#lockDots i').forEach((d, i) => d.classList.toggle('on', i < DOOR.buf.length));
+  if (DOOR.err) { DOOR.err = ''; const e = $('#lockErr'); if (e) e.textContent = ''; }
+  if (DOOR.buf.length < 4) return;
+  const typed = DOOR.buf; DOOR.busy = true;
+  pinHash(typed).then((h) => {
+    DOOR.busy = false; DOOR.buf = '';
+    if (!DOOR.on) return;
+    if (h === S.cfg.me.pin) { feel('set', 'success'); unlock(); return; }
+    DOOR.tries++; haptic('warn'); DOOR.err = say('הקוד לא נכון', 'That is not the code');
+    if (DOOR.tries >= 5) { DOOR.tries = 0; DOOR.until = Date.now() + 30000; setTimeout(() => { if (DOOR.on && !DOOR.forgot) { DOOR.err = ''; lockDraw(); } }, 30200); }
+    lockDraw();
+    const d = $('#lockDots'); if (d && !reduced) d.classList.add('bad');
+  });
+}
+function lockWipe() {
+  if (DOOR.busy || !sameWord(DOOR.v, delWord())) return;
+  DOOR.busy = true; DOOR.note = ''; lockDraw();
+  wipeAccount().then((ok) => {
+    DOOR.busy = false;
+    if (!ok) { DOOR.note = WIPE_FAIL(); lockDraw(); return; }
+    DOOR.on = false; const box = $('#lock'); box.hidden = true; box.innerHTML = ''; afterWipe();
+  });
+}
 
 /* ---- the character editor: name and looks; every choice is saved at once. One kind of choice is on screen at a time,
    picked from a row of tabs, so that the whole editor fits on one screen with the character above it ---- */
@@ -5353,17 +5833,29 @@ function meSheetClick(ev) {
   const lk = ev.target.closest('[data-look]'); if (lk) { setLook(lk.dataset.look, +lk.dataset.v); return true; }
   const tb = ev.target.closest('[data-lktab]'); if (tb) { lookTab(tb.dataset.lktab); return true; }
   if (ev.target.closest('#lkPhoto')) { $('#lkFile').click(); return true; }
+  const buy = ev.target.closest('[data-buy]'); if (buy) { shopBuyNow(buy.dataset.buy); return true; }
+  const thing = ev.target.closest('[data-shop]'); if (thing) { shopTap(thing.dataset.shop); return true; }
   if (S.sheet !== 'set') return false;
+  const pk = ev.target.closest('[data-pk]'); if (pk) { pinKey(pk.dataset.pk); return true; }
+  const pg = ev.target.closest('[data-setpg]'); if (pg) { S.setPg = pg.dataset.setpg || null; S.pinFlow = null; S.del = null; renderSettings(); return true; }
   const b = ev.target.closest('button'); if (!b) return false;
   const k = b.dataset.set, v = b.dataset.v;
   if (b.id === 'obAgain') { closeSheet(); openOb(); }
+  else if (b.id === 'tourAgain') { closeSheet(); setTimeout(startTour, 380); }
+  else if (b.id === 'setLook') { closeSheet(); openLook(); }
+  else if (b.id === 'pinSet') openPin('set');
+  else if (b.id === 'pinChange') openPin('change');
+  else if (b.id === 'pinOff') openPin('off');
+  else if (b.id === 'delAsk') { S.del = { v: '', busy: false, note: '' }; if (S.cfg.me.pin) openPin('del'); else { S.setPg = 'del'; renderSettings(); } }
+  else if (b.id === 'delYes') delNow();
+  else if (b.id === 'setRefit') { resetPlan(); S.setRefit = false; renderAll(); toast(ICON.check + '<b>' + say('התוכנית נבנתה מחדש', 'The plan was built again') + '</b>'); }
   else if (b.id === 'backupBtn') exportBackup();
   else if (b.id === 'restoreBtn') $('#restoreFile').click();
   else if (b.id === 'exportBtn') exportCsv();
   else if (k === 'lang') { if (v !== LANG) langFade(() => setLang(v)); }
   else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) sfx('set'); renderSettings(); }
   else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); if (HX.on) document.documentElement.dataset.hx = S.buzz ? 'on' : 'off'; haptic('success'); renderSettings(); }
-  else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); else me.goals = [+v]; saveCfg(); renderAll(); }
+  else if (k === 'exp' || k === 'goals' || k === 'time' || k === 'eq' || k === 'fb') setAnswer(k, +v);
   else return false;
   return true;
 }
@@ -5418,9 +5910,27 @@ function wireMe() {
     const b = ev.target.closest('button'); if (!b) return;
     if (b.id === 'lookBtn') openLook();
     else if (b.id === 'setBtn') openSettings();
+    else if (b.id === 'shopBtn') openShop();
     else if (b.id === 'bdgAll') { S.bdgAll = !S.bdgAll; renderProfile(); const again = $('#bdgAll'); if (again) again.focus({ preventScroll: true }); }
   });
   $('#journey').addEventListener('click', (ev) => { const b = ev.target.closest('button[data-lv]'); if (b) openLevel(+b.dataset.lv); });
+  const lock = $('#lock');
+  lock.addEventListener('click', (ev) => {
+    const k = ev.target.closest('[data-lk]'); if (k) { lockKey(k.dataset.lk); return; }
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.id === 'lockForgot') { DOOR.forgot = true; DOOR.v = ''; DOOR.note = ''; lockDraw(); const i = $('#lockName'); if (i) i.focus({ preventScroll: true }); }
+    else if (b.id === 'lockBack') { DOOR.forgot = false; lockDraw(); }
+    else if (b.id === 'lockWipe') lockWipe();
+  });
+  lock.addEventListener('input', (ev) => { if (ev.target.id !== 'lockName') return; DOOR.v = ev.target.value; const b = $('#lockWipe'); if (b) b.disabled = DOOR.busy || !sameWord(DOOR.v, delWord()); });
+  document.addEventListener('keydown', (ev) => {
+    if (!DOOR.on || DOOR.forgot || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    if (/^[0-9]$/.test(ev.key)) { lockKey(ev.key); ev.preventDefault(); } else if (ev.key === 'Backspace') { lockKey('del'); ev.preventDefault(); }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { S.awayAt = Date.now(); return; }
+    if (S.cfg.me.pin && S.awayAt && Date.now() - S.awayAt > AWAY_MS) { S.unlocked = false; maybeLock(); }
+  });
 }
 
 /* ================================================================== chat with the coach, Eilon
@@ -5471,8 +5981,14 @@ const rulesHe = () => 'אתה אילון, המאמן האישי בתוך gymi, �
   '• מנוחה: 2–3 דקות בתרגיל מורכב וכבד, דקה עד שתיים בתרגיל בידוד.\n' +
   '• תחליף טוב שומר על אותה תנועה, אותם שרירים, אותו טווח חזרות ואותה קרבה לכשל.\n' +
   '• חימום: סט עד שלושה סטים שעולים במשקל, לפני התרגיל הראשון של כל אזור.\n' +
+  '• ביצוע: טווח תנועה מלא, ירידה בשליטה של שתיים עד שלוש שניות, בלי תנופה.\n' +
+  '• טווחי חזרות: 3–6 בעיקר לכוח, 6–15 לבניית שריר, 15 ומעלה לסיבולת. כל טווח בונה שריר כשהסטים קשים.\n' +
+  '• תקיעות של שבועיים-שלושה באותו תרגיל: נשארים במשקל ומוסיפים חזרה, או מורידים 5–10% ובונים מחדש. לא מחליפים תרגיל כל שבוע.\n' +
+  '• שרירים תפוסים הם לא מדד לאימון טוב. עם תפיסות קלות מתאמנים; כשהשריר עדיין כואב מאוד, מורידים סט.\n' +
+  '• אימון שהוחמץ: ממשיכים מהאימון הבא בתור, בלי לפצות עליו.\n' +
+  '• ביום עם פחות זמן: שומרים על התרגילים המורכבים שפותחים את האימון ומוותרים על הסוף שלו.\n' +
   '• כאב חד, או כאב במפרק: עוצרים את התרגיל ומציעים לפנות לאיש מקצוע. אין לך מידע רפואי על המשתמש, ואתה לא מאבחן.\n\n' +
-  'האפליקציה: ארבעה אימונים במחזור (גוף עליון ותחתון). בכל תרגיל יש "החלף", "איך?" ו"עוד". בלשונית "היום" נמצאים האימון הבא והתוכנית, ב"התקדמות" השיאים והאימונים שנעשו, וב"פרופיל" הדמות, הרמות וההגדרות. האפליקציה מנהלת סבב של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל). דבר בשפה פשוטה: "סבב", "שבוע קל" ו"חזרות לפני כשל", לא מזוציקל, דילואד או RIR.\n\n' +
+  'האפליקציה: ארבעה אימונים במחזור (גוף עליון ותחתון). בלשונית "אימונים" נמצאים האימון הבא והמסלול של הסבב: כל אימון הוא תחנה, והכפתור "התוכנית" פותח את ארבעת האימונים, שם מוסיפים, מחליפים ומורידים תרגילים. ב"מסע" רואים את הרמות עד 100 ומה נפתח בכל אחת. ב"פרופיל" נמצאים הדמות, הקיוסק (ציוד לדמות, במטבעות שמרוויחים באימונים), ההישגים, האימונים האחרונים, ובגלגל השיניים ההגדרות. באימון עצמו: לפני הסט הראשון האפליקציה שואלת כמה זמן יש היום ומקצרת את האימון לפי זה; לכל תרגיל יש "פירוט התרגיל" (דגשי ביצוע), ותפריט שלוש הנקודות: החלפת תרגיל, דילוג עליו היום, הערה ומספר הסטים; אחרי כל סט המנוחה תופסת את המסך, והחץ שבראשה מבטל את הסט האחרון. האפליקציה מנהלת סבב של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל). דבר בשפה פשוטה: "סבב", "שבוע קל" ו"חזרות לפני כשל", לא מזוציקל, דילואד או RIR.\n\n' +
   'התוכנית של המשתמש. בסוגריים המרובעים מופיע מזהה התרגיל, ובסוגריים העגולים שמו באנגלית. באפליקציה השמות בעברית, אז השתמש בהם:\n\n' + planText() + '\n\n' +
   aboutUser() + 'מבנה התשובה במקרים מיוחדים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה שורה או שתיים: למה, ומה להתאים (סטים, חזרות או דגש ביצוע אחד).\n' +
@@ -5497,8 +6013,14 @@ const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'
   '• Rest: 2–3 minutes in a heavy compound exercise, one to two minutes in an isolation exercise.\n' +
   '• A good substitute keeps the same movement, the same muscles, the same rep range and the same closeness to failure.\n' +
   '• Warming up: one to three sets that climb in weight, before the first exercise of each area.\n' +
+  '• Form: a full range of motion, a controlled lowering of two to three seconds, no swinging.\n' +
+  '• Rep ranges: 3–6 mostly for strength, 6–15 for building muscle, 15 and up for endurance. Every range builds muscle when the sets are hard.\n' +
+  '• Stuck for two or three weeks on one exercise: keep the weight and add a rep, or take 5–10% off and build back up. Do not change the exercise every week.\n' +
+  '• Sore muscles are no measure of a good workout. Train through mild soreness; when a muscle still hurts a lot, take a set off.\n' +
+  '• A missed workout: go on with the next one in line, without making up for it.\n' +
+  '• On a day with less time: keep the compound lifts that open the workout and drop its end.\n' +
   '• Sharp pain, or pain in a joint: stop the exercise and suggest seeing a professional. You have no medical information about the user, and you do not diagnose.\n\n' +
-  'The app: four workouts in a cycle (upper and lower body). Every exercise has "Swap", "How" and "More". The "Workouts" tab holds the next workout and the plan, and "Profile" holds the character, the levels, the settings and the workouts that were done. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
+  'The app: four workouts in a cycle (upper and lower body). The "Workouts" tab holds the next workout and the road of the round: every workout is a stop, and the "Plan" button opens the four workouts, where exercises are added, swapped and removed. "Journey" shows the levels up to 100 and what each one opens. "Profile" holds the character, the kiosk (gear for the character, bought with coins earned in workouts), the achievements, the recent workouts and, under the gear icon, the settings. In a workout: before the first set the app asks how much time there is today and shortens the workout to fit; every exercise has "Exercise details" (cues), and a three-dot menu: swap the exercise, skip it today, a note and the number of sets; after every set the rest takes the screen, and the arrow at its top takes the last set back. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
   'The user\'s plan. The square brackets hold the id of each exercise. Use the exercise names as they are written here:\n\n' + planText() + '\n\n' +
   aboutUser() + 'The shape of the answer in special cases:\n' +
   '- When asked whether an exercise or a machine can replace an exercise from the plan, the first line is exactly one of these: "Verdict: Suitable", "Verdict: Partly suitable" or "Verdict: Not recommended". After it, a line or two: why, and what to adjust (sets, reps or one form cue).\n' +
@@ -5547,7 +6069,7 @@ const ERR = () => ({
   off_part: say('על השאר אני לא עונה: רק אימונים.', 'I leave the rest: training only.'),
   who: say('אני אילון, מאמן ה-AI של gymi. ליאור דהן יצר אותי. על מה שמאחורי הקלעים אני לא מפרט. מה נעשה באימון?', 'I am Eilon, gymi\'s AI coach. Lior Dahan created me. I don\'t go into what is under the hood. What shall we do in your workout?'),
   /* why the chat is off */
-  native: say('כדי שאילון יענה באפליקציה צריך מפתח API של Anthropic. המפתח נשמר רק בטלפון הזה.', 'For Eilon to answer in the app, an Anthropic API key is needed. The key is kept only on this phone.'),
+  native: say('בינתיים אילון מתחבר עם מפתח API של Anthropic, וזה מיועד לבעל האפליקציה. בקרוב הוא יענה לכולם, בלי מפתח.', 'For now Eilon connects with an Anthropic API key, which is meant for the owner of the app. Soon he will answer everyone, with no key.'),
   outside: say('הצ׳אט פועל רק כשהדף פתוח בתוך Claude.', 'The chat works only when this page is open inside Claude.'),
   view: say('הצ׳אט לא זמין בתצוגה הזאת.', 'The chat is not available in this view.'),
   /* notes under an answer or above the message box */
@@ -5596,17 +6118,24 @@ function loggedHTML(m, idx) {
   return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span>' + (canUnlog(m) ? '<button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button>' : '') + '</div>';
 }
 /* first things to ask, each with its sign */
+const SUG_I = () => [ICON.swap, '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>', ICON.info, ICON.bell];
 const SUGS = () => [say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?'), say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?'), say('דגשים לתרגיל הזה', 'Cues for this exercise'), say('כמה משקל לשים היום?', 'How much weight today?')];
 function renderMsgs() {
   const box = $('#msgs'), face = '<span class="ava big" aria-hidden="true">' + coachFace() + '</span>';
   $('#chatNew').hidden = !chat.msgs.length;
-  if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
+  $('#app').dataset.coach = chat.off ? 'off' : 'on';
+  if (chat.off) { chat.shown = 0; box.innerHTML = '<div class="empty off">' + face + '<strong>' + (chat.needKey ? say('אילון עוד לא מחובר', 'Eilon is not connected yet') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
-    box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('שאל, צלם מכשיר, או כתוב מה עשית ואני ארשום.', 'Ask, snap a machine, or tell me what you did and I will log it.') + '</span><div class="sugs">' +
-      SUGS().map((s, i) => (i === 1 && !chat.canImg ? '' : '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>')).join('') + '</div></div>';
+    /* nothing said yet: the coach himself, waving, and the first things to ask as cards */
+    const icons = SUG_I(); chat.shown = 0;
+    box.innerHTML = '<div class="empty hello"><span class="hello-fig" aria-hidden="true">' + avatarSVG(COACH, 12, {}).replace('class="av', 'class="av wave grin') + '</span><strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('שאל, צלם מכשיר, או כתוב מה עשית ואני ארשום.', 'Ask, snap a machine, or tell me what you did and I will log it.') + '</span><div class="sugs">' +
+      SUGS().map((s, i) => (i === 1 && !chat.canImg ? '' : '<button class="sug" type="button" data-sug="' + i + '"><span class="sug-i" aria-hidden="true">' + icons[i] + '</span><span>' + s + '</span></button>')).join('') + '</div></div>';
     return;
   }
   box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
+  /* what has just joined the talk comes in with a small rise; a talk that is only drawn again stays still */
+  if (chat.msgs.length > (chat.shown || 0)) Array.from(box.children).slice(-Math.min(2, chat.msgs.length - (chat.shown || 0))).forEach((el) => el.classList.add('new'));
+  chat.shown = chat.msgs.length;
 }
 function paintLast() {
   const box = $('#msgs'), el = box.lastElementChild, stick = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
@@ -5756,6 +6285,8 @@ function initChat() {
     if (!sample) { chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? 'native' : 'view'; renderMsgs(); return; }
     try { const lim = await sample.limits(); chat.canImg = !!(lim && lim.images); } catch (e) { chat.canImg = false; }
     chat.limits = true; showImgBtns(); chatText();
+    /* the first screen of the chat offers the photo question only once it is known that photos can be sent */
+    if (!chat.msgs.length && !chat.off) renderMsgs();
   }).catch(() => {});
   renderMsgs();
 }
@@ -6157,7 +6688,7 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) {
     me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goals = OB.goals.slice(); me.goal = OB.goals.length ? OB.goals[0] : null;
-    me.time = OB.time; me.eq = OB.eq; me.fb = OB.fb; if (OB.pin) me.pin = OB.pin; me.made = me.made || Date.now();
+    me.time = OB.time; me.eq = OB.eq; me.fb = OB.fb; if (OB.pin) { me.pin = OB.pin; S.unlocked = true; } me.made = me.made || Date.now();
     fitPlan();
   }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
@@ -6307,6 +6838,7 @@ function boot(data) {
   if (d.sessions) S.sessions = d.sessions;
   if (typeof d.sound === 'boolean') S.sound = d.sound;
   if (typeof d.buzz === 'boolean') S.buzz = d.buzz;
+  if (d.shopBal > 0) S.shopBal = +d.shopBal || 0;
   if (Array.isArray(d.dirty)) S.dirty = new Set(d.dirty);
   if (Array.isArray(d.gone)) S.gone = new Set(d.gone);
   if (d.cfg) S.cfg = normCfg(d.cfg);
@@ -6324,7 +6856,7 @@ function boot(data) {
   readColors(); wireApp(); wireFeel(); wireCoach(); wireChat(); wireMe(); wireOb();
   setView(['workout', 'home', 'profile', 'journey'].includes(data.view) ? data.view : nextUp().live >= 0 ? 'workout' : 'home', true);
   S.open = typeof data.open === 'string' ? data.open : null;
-  splash(); renderAll(); initChat();
+  splash(); renderAll(); initChat(); maybeLock();
   initCloud(onRemoteChange);
   if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then((dl) => { if (dl) { S.dl = dl; renderHistory(); } }).catch(() => {});
 }

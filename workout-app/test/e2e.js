@@ -21,6 +21,7 @@ const initScript = () => {
   const mkCol = (path) => {
     const q = {
       path, where() { return q; }, orderBy() { return q; }, limit() { return q; }, doc: (id) => mkDoc(path + '/' + id),
+      async get() { const all = JSON.parse(await window.__cloudAll()); const ks = Object.keys(all).filter((k) => k.startsWith(path + '/')); Object.assign(docs, all); return { docs: ks.map(snapDoc), size: ks.length, empty: !ks.length }; },
       onSnapshot(next) {
         subs.push({ path, next });
         window.__cloudAll().then((json) => { Object.assign(docs, JSON.parse(json)); const ks = Object.keys(docs).filter((k) => k.startsWith(path + '/')); next({ docs: ks.map(snapDoc), metadata: { fromCache: false }, docChanges: () => ks.map((k) => ({ type: 'added', doc: snapDoc(k) })) }); });
@@ -317,9 +318,9 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('(back to three sets, and the next one is asked for)', (await p.evaluate(() => findEx('ua1').sets)) === 3 && (await tally2(p)) === '2/21' && !!(await p.$('#dkHit')) && (await txt('.dk-set')).includes('3'), await txt('#dock'));
   check('a workout that is under way is marked on "today"', !!(await p.$('#tabbar [data-view="home"].live')) && (await p.evaluate(() => getComputedStyle(document.querySelector('#tabbar [data-view="home"]'), '::after').width)) === '9px', 'live');
   await more(p); await p.click('#moreAsk'); await p.waitForTimeout(250);
-  check('the coach chat opens tidy: a face, four first questions, and what the question is about', !!(await p.$('#chat .chat-h .ava svg')) && !!(await p.$('#msgs .ava.big svg')) && (await p.$$('#msgs .sug')).length === 4 && (await p.isHidden('#chatNew')) && (await p.$eval('#chatCtx', (el) => el.value)) === 'ua1' && !!(await p.$('.composer .chat-ctx #chatCtx')), await txt('#msgs'));
-  const face = await p.evaluate(() => { const el = document.querySelector('#msgs .ava.big svg'), h = el.outerHTML; return { grin: el.classList.contains('grin'), bust: el.classList.contains('bust'), studs: (h.match(/#C9CED8/g) || []).length, band: h.includes('#E0364F'), shirt: h.includes('#F3EDE0'), hair: h.includes('#7A5232'), beard: /opacity="\.26"/.test(h), same: h === document.querySelector('#chat .chat-h .ava svg').outerHTML }; });
-  check('the coach has a face of his own: a fringe, a stud in the ear, an open smile, a light shirt and no gear', face.grin && face.bust && face.studs === 2 && !face.band && face.shirt && face.hair && !face.beard && face.same, face);
+  check('the coach chat opens tidy: his face at the head, the coach himself waving over four first questions, each with its sign, and what the question is about', !!(await p.$('#chat .chat-h .ava svg')) && !!(await p.$('#msgs .hello-fig svg.av.wave.grin')) && (await p.$$('#msgs .sug')).length === 4 && (await p.$$('#msgs .sug .sug-i svg')).length === 4 && (await p.isHidden('#chatNew')) && (await p.$eval('#chatCtx', (el) => el.value)) === 'ua1' && !!(await p.$('.composer .chat-ctx #chatCtx')), await txt('#msgs'));
+  const face = await p.evaluate(() => { const el = document.querySelector('#chat .chat-h .ava svg'), h = el.outerHTML, f = document.querySelector('#msgs .hello-fig svg'), fh = f.outerHTML, r = el.getBoundingClientRect(), bar = document.querySelector('#chat .chat-h').getBoundingClientRect(); return { grin: el.classList.contains('grin'), bust: el.classList.contains('bust'), studs: (h.match(/#C9CED8/g) || []).length, band: h.includes('#E0364F'), shirt: h.includes('#F3EDE0'), hair: h.includes('#7A5232'), beard: /opacity="\.26"/.test(h), same: !f.classList.contains('bust') && fh.includes('#F3EDE0') && fh.includes('#7A5232'), inBar: r.top >= bar.top && r.bottom <= bar.bottom && getComputedStyle(el).overflow === 'hidden' }; });
+  check('the coach has a face of his own: a fringe, a stud in the ear, an open smile, a light shirt and no gear. It stays inside the head of the chat, and the one who waves below is the same coach, whole', face.grin && face.bust && face.studs === 2 && !face.band && face.shirt && face.hair && !face.beard && face.same && face.inBar, face);
   const own = await p.evaluate(() => { const plain = avatarSVG({ skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, 12, { bust: true }), odd = avatarSVG({ skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0, hairC: '"><img src=x>', shirtC: 'red' }, 12, { bust: true }); return { band: plain.includes('M74.6 44.5') && plain.includes('#F2B93B') && !plain.includes('#E0364F'), grin: plain.includes('av bust grin'), safe: odd === plain, me: JSON.stringify(Object.keys(S.cfg.me.look).sort()) }; });
   check('a player\'s character is drawn as before (its band is the gold of the game), and takes no colour that is not one of its own choices', own.band && !own.grin && own.safe && own.me === '["beard","hair","hc","shirt","skin"]', own);
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8z8BQz0AEYBxVSF+FABJADveWkH6oAAAAAElFTkSuQmCC', 'base64');
@@ -392,6 +393,15 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('all of them are a tap away, and a tap puts them away again', (await p.$$('.bdg')).length === 12 && (await p.getAttribute('#bdgAll', 'aria-expanded')) === 'true' && (await p.evaluate(() => document.activeElement.id)) === 'bdgAll', await txt('.badges'));
   await p.click('#bdgAll'); await p.waitForTimeout(200);
   check('(put away)', (await p.$$('.bdg')).length === 4, await txt('.badges'));
+  const ks0 = await p.evaluate(() => ({ coins: document.querySelector('#profile .coin-tag').innerText.trim(), peek: [...document.querySelectorAll('#profile .ks-peek li')].map((x) => x.innerText.trim()).join(), card: document.querySelector('#profile .kiosk h2').textContent, dot: document.querySelector('#tabbar [data-view="profile"]').classList.contains('new'), stage: getComputedStyle(document.querySelector('.pf-top')).backgroundImage.includes('gradient') }));
+  check('the profile is a stage with the character, and under it the kiosk: the coins the first workout earned and the next things on its shelf', ks0.coins === '15' && ks0.peek === '30,50,60' && ks0.card === 'ציוד לדמות שלך' && !ks0.dot && ks0.stage, ks0);
+  await p.click('#shopBtn'); await p.waitForTimeout(400); await shot('f6-kiosk');
+  const ks1 = await p.evaluate(() => ({ n: document.querySelectorAll('#sheet .ks-it').length, pics: document.querySelectorAll('#sheet .ks-it .ks-pic svg').length, far: document.querySelectorAll('#sheet .ks-it.far').length, first: document.querySelector('#sheet .ks-it').innerText.replace(/\s+/g, ' ').trim(), bal: document.querySelector('#sheet .coin-tag').innerText.trim(), fits: document.documentElement.scrollWidth <= innerWidth }));
+  check('the kiosk shows all it sells, each thing on the lifter\'s own character with its price, and what the coins cannot buy yet is quiet', ks1.n === 9 && ks1.pics === 9 && ks1.far === 9 && ks1.first === 'מגבת 30' && ks1.bal === '15' && ks1.fits, ks1);
+  await p.click('#sheet [data-shop="shades"]'); await p.waitForTimeout(350);
+  const ks2 = await p.evaluate(() => ({ on: document.querySelector('#sheet .ks-fig svg').outerHTML.includes('#15131C'), say: document.querySelector('#sheet .ks-say').innerText.replace(/\s+/g, ' ').trim(), buy: !!document.querySelector('#shopBuy'), own: S.cfg.me.shop.own.length, tried: document.querySelector('#sheet [data-shop="shades"]').classList.contains('try') }));
+  check('a tap tries a thing on: the character on the stage wears it, nothing is bought, and it says how many coins are missing', ks2.on && ks2.say.includes('משקפי שמש') && ks2.say.includes('חסרים עוד 75 מטבעות') && !ks2.buy && ks2.own === 0 && ks2.tried, ks2);
+  await p.click('#sheet [data-close]'); await p.waitForTimeout(300);
   check('the achievement reached the cloud with the settings', cloud['data/users/u_test/cfg'].me.badges.first > 0, cloud['data/users/u_test/cfg'].me);
   await p.click('#lookBtn'); await p.waitForTimeout(250);
   await p.fill('#lkName', 'ליאור'); await p.dispatchEvent('#lkName', 'change');
@@ -425,15 +435,25 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('the player strip opens the profile', (await p.evaluate(() => S.view)) === 'profile' && (await p.evaluate(() => document.querySelector('#tabbar [data-view="profile"]').getAttribute('aria-current'))) === 'page', await p.evaluate(() => S.view));
   check('the profile is the character and its game: no settings on it', !(await p.$('#profile [data-set]')) && !(await p.$('#profile .seg')), await txt('#profile'));
   await p.click('#setBtn'); await p.waitForTimeout(250);
-  await p.click('#sheet [data-set="goal"][data-v="1"]'); await p.waitForTimeout(200);
-  check('the answers can be changed in the settings', (await p.evaluate(() => S.cfg.me.goal)) === 1 && (await p.getAttribute('#sheet [data-set="goal"][data-v="1"]', 'aria-pressed')) === 'true' && (await p.getAttribute('#sheet [data-set="exp"][data-v="1"]', 'aria-pressed')) === 'true' && (await p.getAttribute('#sheet [data-set="lang"][data-v="he"]', 'aria-pressed')) === 'true', await txt('#sheet'));
+  await shot('f7-settings');
+  const stG = await p.evaluate(() => ({ groups: [...document.querySelectorAll('#sheet .st-t')].map((x) => x.textContent).join('|'), signs: document.querySelectorAll('#sheet .st-row .st-i svg').length, rows: document.querySelectorAll('#sheet .st-row').length, del: document.querySelector('#delAsk').innerText.trim(), last: document.querySelector('#sheet .sheet-in').lastElementChild.contains(document.querySelector('#delAsk')), time: [...document.querySelectorAll('#sheet [data-set="time"]')].map((x) => x.dataset.v + (x.getAttribute('aria-pressed') === 'true' ? '*' : '')).join(), pin: document.querySelector('#pinSet').innerText.replace(/\s+/g, ' ').trim() }));
+  check('the settings stand in groups, each row with its sign: me, my training, sound and touch, privacy, backup and more, and alone at the foot the deletion of the account', stG.groups === 'אני|האימון שלי|צליל ומגע|פרטיות|גיבוי|עוד' && stG.signs === stG.rows && stG.rows >= 13 && stG.del === 'מחיקת החשבון' && stG.last && stG.time === '30,45,60,75,0*' && stG.pin === 'קוד כניסה כבוי', stG);
+  const press = (k, v) => p.getAttribute('#sheet [data-set="' + k + '"][data-v="' + v + '"]', 'aria-pressed');
+  await p.click('#sheet [data-set="goals"][data-v="1"]'); await p.waitForTimeout(200);
+  check('the answers can be changed in the settings, and the goals are several', (await p.evaluate(() => S.cfg.me.goals.join('+') + ':' + S.cfg.me.goal)) === '0+1:0' && (await press('goals', 1)) === 'true' && (await press('goals', 0)) === 'true' && (await press('goals', 2)) === 'false' && (await press('exp', 1)) === 'true' && (await press('lang', 'he')) === 'true', await txt('#sheet'));
   /* the goals bend the written plan: strength takes the heavy lifts lower, with longer rests; back on physique it is the plan as written */
+  await p.click('#sheet [data-set="goals"][data-v="0"]'); await p.waitForTimeout(150);
   const bent = await p.evaluate(() => { const a = findEx('ua1'), b = findEx('ua4'); return [a.reps, a.rest.join('-'), b.reps, b.rest.join('-'), S.cfg.me.goals.join('+')].join(); });
-  await p.click('#sheet [data-set="goal"][data-v="2"]'); await p.waitForTimeout(150);
+  await p.click('#sheet [data-set="goals"][data-v="1"]'); await p.waitForTimeout(150);
+  check('one goal always stays: the last one cannot be taken off', (await p.evaluate(() => S.cfg.me.goals.join('+'))) === '1' && (await press('goals', 1)) === 'true', await p.evaluate(() => S.cfg.me.goals));
+  await p.click('#sheet [data-set="goals"][data-v="2"]'); await p.waitForTimeout(150); await p.click('#sheet [data-set="goals"][data-v="1"]'); await p.waitForTimeout(150);
   const high = await p.evaluate(() => { const a = findEx('ua1'), b = findEx('ua4'); return [a.reps, a.rest.join('-'), b.reps, b.rest.join('-')].join(); });
-  await p.click('#sheet [data-set="goal"][data-v="0"]'); await p.waitForTimeout(150);
+  await p.click('#sheet [data-set="goals"][data-v="0"]'); await p.waitForTimeout(150); await p.click('#sheet [data-set="goals"][data-v="2"]'); await p.waitForTimeout(150);
   const flat = await p.evaluate(() => { const a = findEx('ua1'), b = findEx('ua4'); return [a.reps, a.rest.join('-'), b.reps, b.rest.join('-'), S.cfg.me.goal, S.cfg.me.goals.join('+')].join(); });
   check('the goal bends the plan: for strength the heavy lifts go lower with longer rests, for fitness every range goes a step up with shorter rests, and for physique it is the plan as written', bent === '4–6,150-210,12–15,75-75,1' && high === '8–12,90-135,12–20,60-60' && flat === '6–10,120-180,12–15,75-75,0,0', [bent, high, flat]);
+  await p.click('#sheet [data-set="fb"][data-v="1"]'); await p.waitForTimeout(150);
+  check('how often Eilon asks after an exercise is a setting too', (await p.evaluate(() => S.cfg.me.fb)) === 1 && (await press('fb', 1)) === 'true' && (await press('fb', 2)) === 'false', await p.evaluate(() => S.cfg.me.fb));
+  await p.click('#sheet [data-set="fb"][data-v="2"]'); await p.waitForTimeout(150);
   await p.click('#sheet [data-set="buzz"]'); await p.waitForTimeout(150);
   check('vibration is a switch, and it is kept on this device', (await p.getAttribute('#sheet [data-set="buzz"]', 'aria-checked')) === 'false' && (await p.getAttribute('#sheet [data-set="buzz"]', 'role')) === 'switch' && (await p.evaluate(() => [S.buzz, JSON.parse(localStorage.getItem('ul4:v1')).buzz].join())) === 'false,false', await txt('#sheet'));
   await p.click('#sheet [data-set="buzz"]'); await p.waitForTimeout(150);
@@ -707,6 +727,26 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   const kept = await p.evaluate(() => [S.cfg.weeks, S.cfg.me.name, S.cfg.me.look.shirt, !!S.cfg.me.badges.first].join()), back = cloud['data/users/u_test/cfg'].me;
   check('settings saved by an older copy of the page do not erase the player', kept === '6,ליאור,2,true' && !!back && back.name === 'ליאור' && back.badges.first > 0, [kept, back]);
   await snap(p, 'g11-end', true);
+  // ---------- deleting the account: asked for by name, and then nothing is left, on the device or in the account ----------
+  await p.evaluate(() => { if (!$('#sheet').hidden) closeSheet(); closeChat(); setView('home'); renderAll(); }); await p.waitForTimeout(300);
+  await tab(p, 'profile'); await p.click('#setBtn'); await p.waitForTimeout(300);
+  await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; }); await p.click('#delAsk'); await p.waitForTimeout(300);
+  const d0 = await p.evaluate(() => ({ title: document.querySelector('#sheet h2').textContent, text: document.querySelector('#sheet .st-del').innerText.replace(/\s+/g, ' '), off: document.querySelector('#delYes').disabled, pin: !!document.querySelector('#sheet .pin-pad'), back: !!document.querySelector('#sheet [data-setpg=""]') }));
+  check('deleting the account is a page of its own: it says what goes and that it cannot be undone, and its button waits for the lifter\'s name', d0.title === 'מחיקת החשבון' && d0.text.includes('כל האימונים, הדמות, המטבעות וההגדרות יימחקו') && d0.text.includes('אי אפשר לבטל') && d0.text.includes('כותבים כאן: ליאור') && d0.off && !d0.pin && d0.back, d0);
+  await p.fill('#delName', 'מישהו אחר'); await p.waitForTimeout(100);
+  const wrong = await p.isDisabled('#delYes');
+  await p.fill('#delName', ' ליאור '); await p.waitForTimeout(100); await shot('g12-delete');
+  check('another name leaves the button asleep, and the right one wakes it', wrong && !(await p.isDisabled('#delYes')) && sess().length > 0 && (await p.evaluate(() => Object.keys(S.sessions).length)) > 0, sess().length);
+  await p.click('#delYes'); await p.waitForTimeout(2200);
+  const d1 = await p.evaluate(() => { const me = S.cfg.me, ls = JSON.parse(localStorage.getItem('ul4:v1')); return { sessions: Object.keys(S.sessions).length, ls: Object.keys(ls.sessions).length, name: me.name, ob: me.ob, xp: meNow().T.xp, lvl: meNow().L.lvl, shop: me.shop.own.length, lang: S.cfg.lang, opening: !document.querySelector('#ob').hidden, sheet: document.querySelector('#sheet').hidden, msgs: chat.msgs.length, dirty: Array.from(S.dirty).join(), wiping: !!S.wiping, order: Object.keys(S.cfg.order).length + Object.keys(S.cfg.swap).length + Object.keys(S.cfg.slots).length }; });
+  check('with the name typed the account is emptied on this device: no workout, no character, no points, the plan as new, and the opening screens come back in the same language', d1.sessions === 0 && d1.ls === 0 && d1.name === '' && d1.ob === 0 && d1.xp === 0 && d1.lvl === 1 && d1.shop === 0 && d1.lang === 'he' && d1.opening && d1.sheet && d1.msgs === 0 && !d1.wiping && d1.order === 0, d1);
+  const left = cloud[cfgK];
+  check('and in the account: every workout is gone, and the settings that are kept there are a new lifter\'s', sess().length === 0 && Object.keys(cloud).join() === cfgK && !!left && left.me.name === '' && left.me.ob === 0 && left.me.arch.xp === 0 && Object.keys(left.me.badges).length === 0 && left.lang === 'he', [Object.keys(cloud), left && left.me]);
+  /* a device that was away sends a workout from before the deletion up again; a workout from after it is a new lifter's */
+  const oldK = 'data/users/u_test/late1', newK = 'data/users/u_test/fresh1', mk = (ts) => ({ v: 3, w: 0, ts, end: ts + 3e6, mt: ts, upd: ts, ft: ts, m: 'm1', wk: 1, dl: 0, rir: 3, sets: { ua1: [{ kg: 40, reps: 8, done: true, t: ts + 1000 }] } });
+  cloud[oldK] = mk(Date.now() - 3 * 864e5); await p.evaluate(([k, j]) => window.__remote(k, j), [oldK, JSON.stringify(cloud[oldK])]);
+  cloud[newK] = mk(Date.now() + 2000); await p.evaluate(([k, j]) => window.__remote(k, j), [newK, JSON.stringify(cloud[newK])]); await p.waitForTimeout(1500);
+  check('a workout from before the deletion that comes back from another device is not taken in, and is taken off the account; one from after it is', (await p.evaluate(() => Object.keys(S.sessions).join())) === 'fresh1' && !cloud[oldK] && !!cloud[newK], [await p.evaluate(() => Object.keys(S.sessions)), Object.keys(cloud)]);
   report();
   await b.close();
 })().catch((e) => { report(); console.log('CRASH', e.message.split('\n').slice(0, 6).join('\n')); process.exit(1); });

@@ -39,12 +39,12 @@ const ICON = {
    pin (the SHA-256 of the 4-digit code, or ''),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', tour: 0, arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', tour: pos(v.tour), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
   out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
@@ -55,7 +55,7 @@ function normMe(v) {
 }
 /* S.cfg.slots: exercises the lifter added to the plan, { id: { w, a, sets, reps, rest } }. They are never removed, so old workouts stay readable.
    S.cfg.order: { workout: [slot ids] } for a workout whose list was changed; a workout that is not there follows the plan */
-const cfgDef = () => ({ upd: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
+const cfgDef = () => ({ upd: 0, wiped: 0, lang: '', weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, slots: {}, order: {}, meso: { id: 'm1', n: 1, start: 0, early: 0, asked: '' }, past: [], me: meDef() });
 const S = { view: 'home', cfgReady: false, tab: 0, open: null, sessions: {}, sound: true, buzz: true, col: null, dirty: new Set(), gone: new Set(), touched: false, drafts: {}, edit: null, mini: false, resetAsk: false, banner: '', bannerKind: '', cfg: cfgDef(), cfgBase: null, cfgIn: false, cfgFly: 0, pre: {}, day: {}, fbFor: null };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 /* two values are the same whatever order their keys were written in */
@@ -67,7 +67,7 @@ function normCfg(v) {
   const d = cfgDef(), obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? clone(x) : {});
   v = v || {};
   return {
-    upd: +v.upd || 0, lang: v.lang === 'en' || v.lang === 'he' ? v.lang : '', weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base), slots: cleanSlots(v.slots), order: obj(v.order),
+    upd: +v.upd || 0, wiped: +v.wiped > 0 && isFinite(+v.wiped) ? +v.wiped : 0, lang: v.lang === 'en' || v.lang === 'he' ? v.lang : '', weeks: clamp(Math.round(+v.weeks) || 5, 4, 7), inc: obj(v.inc), swap: obj(v.swap), notes: obj(v.notes), base: obj(v.base), slots: cleanSlots(v.slots), order: obj(v.order),
     meso: v.meso && v.meso.id ? { id: String(v.meso.id), n: +v.meso.n || 1, start: +v.meso.start || 0, early: +v.meso.early || 0, asked: String(v.meso.asked || '') } : d.meso,
     past: Array.isArray(v.past) ? clone(v.past).slice(-4) : [], me: normMe(v.me),
   };
@@ -79,7 +79,7 @@ function saveLocal() {
     /* what waits to be sent: only workouts that are still here (or deleted), and the newest deletions */
     for (const id of S.dirty) if (id !== 'cfg' && !S.sessions[id] && !S.gone.has(id)) S.dirty.delete(id);
     if (S.gone.size > 300) S.gone = new Set(Array.from(S.gone).slice(-300));
-    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, cb: S.cfgBase, pre: S.pre, day: S.day }));
+    localStorage.setItem(LS_KEY, JSON.stringify({ sessions: Object.fromEntries(keep.map((s) => [s.id, s])), sound: S.sound, buzz: S.buzz, dirty: Array.from(S.dirty), gone: Array.from(S.gone), cfg: S.cfg, cb: S.cfgBase, pre: S.pre, day: S.day, shopBal: S.shopBal || 0 }));
   } catch (e) { /* storage unavailable: keep working in memory */ }
 }
 function saveCfg() { S.cfg.upd = Date.now(); S.dirty.add('cfg'); saveLocal(); schedule('cfg'); }
@@ -523,7 +523,8 @@ function docOf(s) { const d = { v: s.v || 2, w: s.w, ts: s.ts, end: s.end || 0, 
 const cfgDoc = () => clone(Object.assign({ kind: 'cfg' }, S.cfg));
 async function flush(id) {
   const w = W(id);
-  if (!S.col || !S.dirty.has(id)) return;
+  /* while the account is being emptied nothing is written to it */
+  if (S.wiping || !S.col || !S.dirty.has(id)) return;
   /* the settings are never written before the account's copy was read: they would replace it */
   if (id === 'cfg' && !S.cfgIn) return;
   if (w.busy) { w.again = true; return; }
@@ -538,6 +539,38 @@ async function flush(id) {
     w.fail++; setSync('error');
     if (w.fail < 4) schedule(id, 2500 * w.fail + Math.random() * 900);
   } finally { w.busy = false; if (id === 'cfg') S.cfgFly = 0; if (w.again) { w.again = false; schedule(id, 300); } }
+}
+/* everything this device keeps about the lifter is let go: the account was deleted, here or on another device. Each workout is
+   remembered as gone, so that a copy of it that still arrives is not taken back in */
+function forgetLocal() {
+  for (const w of writers.values()) { clearTimeout(w.timer); w.again = false; }
+  for (const id of Object.keys(S.sessions)) S.gone.add(id);
+  S.sessions = {}; S.dirty = new Set(); S.pre = {}; S.day = {}; S.drafts = {}; S.shopBal = 0; S.open = null; S.edit = null; S.fbFor = null; S.touched = false; S.tab = 0; S.banner = ''; S.bannerKind = '';
+}
+/* the account is emptied: every workout, the settings and the character, in the account and on this device. The language stays, so
+   that the opening that follows speaks it. The account goes first: when it cannot be reached to the end, this device keeps what it
+   has and the answer is false, so that nothing is said to be deleted that is not */
+async function wipeAccount() {
+  const lang = S.cfg.lang || LANG;
+  /* there is an account and it has not answered yet (no connection): deleting here alone would leave everything there */
+  if (S.acct && !S.col) return false;
+  S.wiping = true;
+  /* empty: the account was read once more after the last deletion and held no workout */
+  let empty = !S.col;
+  try {
+    if (S.col) for (let round = 0; round < 130 && !empty; round++) {
+      const snap = await S.col.limit(200).get(), ids = snap.docs.map((d) => d.id).filter((id) => id !== 'cfg');
+      if (!ids.length) { empty = true; break; }
+      /* a few at a time, and each is remembered as gone: a copy of it that still arrives is not taken back in */
+      for (let i = 0; i < ids.length; i += 4) await Promise.all(ids.slice(i, i + 4).map((id) => { S.gone.add(id); return S.col.doc(id).delete(); }));
+    }
+  } catch (e) { empty = false; }
+  if (!empty) { S.wiping = false; return false; }
+  forgetLocal();
+  S.cfg = cfgDef(); S.cfg.lang = lang; S.cfg.upd = S.cfg.wiped = Date.now(); S.cfgBase = clone(S.cfg);
+  S.wiping = false;
+  S.dirty.add('cfg'); saveLocal(); schedule('cfg', 60);
+  return true;
 }
 const sig = (s) => !s ? '' : s.ts + '|' + (s.end || 0) + '|' + (s.ft || 0) + '|' + Object.keys(s.sets || {}).sort().map((k) => k + ':' + (s.sets[k] || []).map((r) => (r ? [r.kg, r.reps, r.done ? 1 : 0, r.t || 0].join(',') : '-')).join(';')).join('|');
 /* merge set by set: the row with the later timestamp wins, so two devices never wipe each other */
@@ -575,7 +608,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin', 'tour']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;
@@ -649,7 +682,8 @@ function restoreData(text) {
   /* settings in the file that differ from this device's newer ones: they stay, and the note says so */
   const plan = (c) => canon([c.weeks, c.inc, c.swap, c.notes, c.base, c.order, c.meso.id]), kept = has && !take && plan(cleanCfg(d.cfg)) !== plan(S.cfg);
   /* taken in, they are the newest change to the settings: the account and the other devices follow them */
-  if (take) { S.cfg = cleanCfg(d.cfg); S.cfg.slots = Object.assign({}, mySlots, S.cfg.slots); S.cfg.upd = Math.max(Date.now(), S.cfg.upd); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
+  const wiped = S.cfg.wiped || 0;
+  if (take) { S.cfg = cleanCfg(d.cfg); S.cfg.wiped = Math.max(wiped, S.cfg.wiped || 0); S.cfg.slots = Object.assign({}, mySlots, S.cfg.slots); S.cfg.upd = Math.max(Date.now(), S.cfg.upd); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   else if (added) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   if (theirs) {
     const me = S.cfg.me, before = JSON.stringify(me), made = me.made ? null : mine.made ? mine : theirs.made ? theirs : null;
@@ -662,6 +696,8 @@ function restoreData(text) {
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }
   saveLocal();
+  /* a backup that is restored after the account was deleted brings its workouts back on purpose: the deletion no longer stands */
+  if (S.cfg.wiped && Object.values(S.sessions).some((x) => x.ts <= S.cfg.wiped)) { S.cfg.wiped = 0; S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   return { n, cfg, kept };
 }
 async function initCloud(onChange) {
@@ -674,6 +710,7 @@ async function initCloud(onChange) {
     const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
     const uid = db && user ? await user.id() : null;
     if (!uid) { local(); return; }
+    S.acct = true;
     const col = db.collection('data/users/' + uid), seen = new Set(), win = new Map(), NEWEST = 60;
     slow = setTimeout(() => setSync('slow'), 10000);
     col.orderBy('ts', 'desc').limit(NEWEST).onSnapshot((snap) => {
@@ -688,6 +725,8 @@ async function initCloud(onChange) {
         win.set(id, v.ts);
         got++; if (v.ts < oldest) oldest = v.ts;
         if (S.gone.has(id)) continue;
+        /* a workout from before the account was deleted, sent up again by a device that was away: it is not taken in, and it is taken off the account */
+        if (S.cfg.wiped && v.ts <= S.cfg.wiped) { S.gone.add(id); S.dirty.add(id); schedule(id, 500); continue; }
         seen.add(id);
         const before = sig(S.sessions[id]), r = { id, v: v.v || 1, w: v.w, ts: v.ts, end: v.end || 0, mt: v.mt || 0, upd: v.upd || v.ts, ft: v.ft || 0, sets: clone(v.sets || {}) };
         for (const k of XK) if (v[k] != null) r[k] = clone(v[k]);
@@ -721,6 +760,15 @@ async function initCloud(onChange) {
     col.doc('cfg').onSnapshot((d) => {
       const v = d && d.exists ? d.data() : null, up = v ? +v.upd || 0 : 0, mine = S.cfg;
       S.cfgIn = true;
+      /* the account was deleted on another device since this one last heard from it: what is kept here is let go, and none of
+         it goes back up. The page starts over (see onRemoteChange) */
+      if (v && (+v.wiped || 0) > (mine.wiped || 0)) {
+        const had = Object.keys(S.sessions);
+        forgetLocal(); S.cfg = normCfg(v); S.cfgBase = clone(S.cfg); S.wipedNow = true;
+        /* what this device may have sent up since is taken off the account again */
+        for (const id of had) { S.dirty.add(id); schedule(id, 700); }
+        saveLocal(); onChange(); known(); return;
+      }
       /* the account holds what this device holds, or what it has just sent: the next change is measured from that copy */
       if (v && (up === mine.upd || up === S.cfgFly)) S.cfgBase = normCfg(v);
       /* this device changed the settings since the copy it last shared, and the account's copy is no longer that one: a new

@@ -707,21 +707,196 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .ms .sum-line{font-size:15px;color:var(--ink-2)}
 
 /* profile */
-.pf-top{position:relative;display:grid;justify-items:center;gap:8px;background:var(--surface);border-radius:var(--r);padding:18px 20px 22px;text-align:center}
-.pf-edit{position:absolute;top:14px;inset-inline-end:14px}
-.pf-edit svg,.pf-top .btn svg{width:18px;height:18px}
-.pf-stage{width:min(220px,60%)}
+/* ---- the profile: the character on a dark stage with the level under it, the kiosk, then the medals, small ---- */
+.pf-top{position:relative;isolation:isolate;overflow:hidden;display:grid;justify-items:center;gap:6px;padding:14px 18px 18px;border-radius:28px;text-align:center;color:#fff;background:radial-gradient(130% 90% at 50% 26%,#3B2477 0%,#1A1038 54%,#0B0716 100%)}
+.pf-top::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(52% 34% at 50% 30%,rgb(138 99 255 / .42),transparent 72%)}
+.pf-bar{display:flex;justify-content:space-between;width:100%;margin-bottom:-34px}
+.pf-ic{position:relative;z-index:1;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:rgb(255 255 255 / .14);color:#fff}
+.pf-ic svg{width:20px;height:20px}
+.pf-stage{width:min(210px,56%)}
+.pf-stage .av{display:block;width:100%;height:auto;overflow:visible}
+.pf-stage .av-aura,.pf-stage .av-glow{display:none}
+.pf-stage .av-shadow{fill:rgb(0 0 0 / .32)}
+.pf-stage.pump .av{animation:pump .65s cubic-bezier(.3,1.5,.5,1)}
 .pf-name{font-size:32px;font-weight:800;line-height:1.12;letter-spacing:-.02em;overflow-wrap:anywhere;min-width:0}
-.pf-rank{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:600;color:var(--ink-2);padding-bottom:6px}
-.pf-top .btn{margin-top:8px}
-.xp{display:grid;gap:6px;width:100%}
-.xp .xpbar{height:12px}
-.xp-l{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
-p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
-.pf-nums{list-style:none;margin:10px 0 0;padding:16px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%;border-top:1px solid var(--line)}
-.pf-nums li{display:grid;gap:3px;justify-items:center;align-content:start;text-align:center}
-.pf-nums b{font-size:22px;font-weight:800;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.pf-nums span{font-size:12px;color:var(--ink-3);font-weight:600;line-height:1.25}
+.pf-rank{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:600;color:rgb(255 255 255 / .78);padding-bottom:4px}
+.pf-rank .lv-badge{background:var(--gold);color:var(--gold-ink)}
+.pf-top .btn{margin-top:8px;background:#fff;color:#2A1866}
+.pf-top .btn svg{width:18px;height:18px}
+.pf-top .xp{display:grid;gap:7px;width:100%;max-width:360px}
+.pf-top .xp .xpbar{height:12px;background:rgb(255 255 255 / .16)}
+.pf-top .xp .xpbar i{background:var(--gold)}
+.pf-top .xp-l{display:flex;justify-content:center;gap:6px;font-size:13.5px;font-weight:600;color:rgb(255 255 255 / .72);font-variant-numeric:tabular-nums}
+.pf-nums{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%}
+.pf-nums li{display:grid;gap:2px;justify-items:center;align-content:start;padding:10px 2px 9px;border-radius:16px;background:rgb(255 255 255 / .1);text-align:center}
+.pf-nums b{font-size:21px;font-weight:800;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pf-nums span{font-size:11.5px;font-weight:600;line-height:1.25;color:rgb(255 255 255 / .7)}
+/* coming to the profile or to the journey, the character steps onto its stage and what is under it rises into place */
+.view.enter .pf-stage,.view.enter .jr-hero .ob-fig{animation:fin-max .7s cubic-bezier(.3,1.35,.5,1) both}
+.view.enter .pf-nums li{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 60ms + 220ms)}
+.view.enter .kiosk{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .18s both}
+.view.enter .pf-sec{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .28s both}
+/* the kiosk on the profile: the purple card, with the coins and the next things on the shelf */
+.coin{flex:none;width:18px;height:18px}
+.coin-tag{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border-radius:99px;background:rgb(0 0 0 / .24);color:#fff;font-size:15.5px;font-weight:800;font-variant-numeric:tabular-nums;direction:ltr}
+.coin-tag.dark{background:var(--xp-soft);color:var(--xp)}
+.card.kiosk h2{font-size:30px}
+.card.kiosk .meta{padding-bottom:12px}
+.ks-peek{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ks-peek li{display:grid;justify-items:center;gap:5px;padding:8px 4px 9px;border-radius:18px;background:rgb(255 255 255 / .14);font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.ks-peek .ks-pic{width:100%;max-width:78px;background:#EEE8FF}
+.ks-peek span.pr{display:inline-flex;align-items:center;gap:4px;direction:ltr}
+.ks-peek .coin{width:15px;height:15px}
+.ks-pic{display:block;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--accent-soft)}
+.ks-pic .av{display:block;width:100%;height:100%}
+/* the medals, small: a row of four with their names, and all of them a tap away */
+.badges{padding:14px 4px 12px;gap:14px 2px}
+.bdg-i{width:46px;height:46px}
+.bdg-i svg{width:22px;height:22px}
+/* ---- Eilon's chat: a purple head with his face, paper behind the talk, white bubbles for him and purple ones for the lifter ---- */
+.chat{background:var(--paper)}
+.chat-h{gap:12px;padding:12px 14px;border-bottom:0;color:#fff;background:linear-gradient(135deg,#7B4DEB 0%,#5A2FCC 58%,#4521A8 100%)}
+.chat-h .ava{position:relative;width:50px;height:50px;overflow:visible;background:#EDE7FF;box-shadow:0 0 0 2.5px rgb(255 255 255 / .9)}
+.chat-h .ava .av{border-radius:50%;overflow:hidden}
+.chat-h .ava::after{content:"";position:absolute;bottom:-1px;inset-inline-end:-1px;width:13px;height:13px;border-radius:50%;background:#3DDC84;box-shadow:0 0 0 2.5px #5A2FCC}
+.app[data-coach="off"] .chat-h .ava::after{background:#B9B5C9}
+.chat-h h2{color:#fff}
+.chat-h p{color:rgb(255 255 255 / .84)}
+.chat-h .icon-btn{background:rgb(255 255 255 / .16);color:#fff}
+.msgs{padding:16px 14px;gap:10px}
+.msg.a{background:var(--surface);box-shadow:0 1px 0 var(--lip),0 10px 22px -18px rgb(30 20 80 / .4)}
+.msg.u{background:linear-gradient(135deg,#7B4DEB,#5A2FCC);color:#fff}
+.row.new{animation:msg-in .34s cubic-bezier(.2,.85,.25,1.05) both}
+.row.a.new{animation-delay:.08s}
+@keyframes msg-in{from{opacity:0;transform:translateY(12px) scale(.97)}}
+.think i{background:var(--accent)}
+.msg .logged{border-top:0;margin-top:10px;padding:8px 12px;border-radius:12px;background:var(--ok-soft);color:var(--ok)}
+/* nothing said yet: the coach himself waves, and four things to ask stand as cards */
+.empty.hello{gap:6px;padding-block:4px}
+.hello-fig{display:block;width:118px;margin-bottom:2px}
+.hello-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.hello-fig .av-aura{fill:color-mix(in srgb,var(--accent) 16%,transparent)}
+.empty.hello .sugs{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:14px}
+.empty.hello .sug{display:grid;justify-items:start;align-content:start;gap:9px;min-height:106px;margin:0;padding:12px 13px 13px;border-radius:20px;background:var(--surface);box-shadow:0 1px 0 var(--lip),0 10px 22px -18px rgb(30 20 80 / .4);text-align:start;font-size:14.5px;font-weight:700;line-height:1.3}
+.empty.hello .sug:last-child:nth-child(odd){grid-column:1/-1;min-height:0;grid-template-columns:auto minmax(0,1fr);align-items:center}
+.sug-i{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink)}
+.sug-i svg{width:20px;height:20px;stroke-width:2.1}
+.empty.off{gap:8px}
+.empty.off .ava.big{filter:saturate(.75)}
+.empty.off .btn{justify-self:center;min-height:52px;padding:0 22px;border-radius:18px}
+/* the place to write: a white foot, a field the colour of the page, a purple button to send */
+.composer{padding:10px 12px 12px;border-top:0;background:var(--surface);box-shadow:0 -1px 0 var(--line)}
+.comp-row{background:var(--paper)}
+.comp-row .icon-btn.send{background:linear-gradient(135deg,#7B4DEB,#5A2FCC);color:#fff}
+.chat-ctx{background:var(--paper)}
+@media (max-width:999px){.chat.open{animation:chat-in .3s cubic-bezier(.2,.8,.2,1)}}
+@keyframes chat-in{from{opacity:0;transform:translateY(22px)}}
+/* ---- settings: cards of rows, each row with its sign; the one thing that cannot be undone stands alone at the foot ---- */
+.sheet-in.st{gap:16px;background:var(--paper)}
+.st-g{display:grid;gap:0;padding:4px 14px;border-radius:22px;background:var(--surface)}
+.st-t{padding:6px 6px 0;font-size:13.5px;font-weight:700;color:var(--ink-3)}
+.st-grp{display:grid;gap:7px}
+.st-row{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:9px 0;border:0;background:none;color:var(--ink);font-size:16px;font-weight:600;text-align:start}
+.st-row+.st-row{border-top:1px solid var(--line)}
+.st-row.col{display:grid;gap:9px;padding:12px 0 13px}
+.st-h{display:flex;align-items:center;gap:12px}
+.st-row>span.st-l,.st-h>span.st-l{flex:1;min-width:0}
+.st-row small{font-size:14px;font-weight:500;color:var(--ink-3);white-space:nowrap}
+.st-row>svg{flex:none;width:18px;height:18px;color:var(--ink-4)}
+.st-i{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink)}
+.st-i svg{width:19px;height:19px;stroke-width:2.1}
+.st-i.gold{background:var(--xp-soft);color:var(--xp)}
+.st-i.calm{background:var(--calm-soft);color:var(--calm)}
+.st-i.grey{background:var(--surface-2);color:var(--ink-2)}
+.st-i.red{background:var(--muscle-soft);color:var(--muscle-ink)}
+.st-row.col .seg{margin-inline-start:0}
+.seg.wrap{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg.five{grid-auto-columns:minmax(0,1fr)}
+.seg.five button{padding-inline:2px;font-size:13px}
+.st-note{display:grid;gap:8px;padding:12px 14px;border-radius:16px;background:var(--accent-soft);color:var(--accent-ink);font-size:14px;font-weight:600;line-height:1.4}
+.st-note .btn{justify-self:start;min-height:42px;border-radius:13px;background:var(--accent);color:var(--on-accent)}
+.st-g .backup{padding:12px 0 12px}
+.st-g .backup h3{display:none}
+.st-row.red{color:var(--muscle-ink)}
+/* a page of the settings: the code, and the deletion of the account */
+.st-pg{display:grid;justify-items:center;gap:12px;padding:6px 0 10px;text-align:center}
+.st-pg .pin-ask{font-size:17px;font-weight:700}
+.st-pg .pin-k{background:var(--surface)}
+.st-del{display:grid;gap:12px;padding:6px 2px 8px}
+.st-del-i{justify-self:center;display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--muscle-soft);color:var(--muscle-ink)}
+.st-del-i svg{width:30px;height:30px}
+.st-del h3{font-size:24px;font-weight:800;line-height:1.2;letter-spacing:-.01em;text-align:center}
+.st-del p{font-size:15.5px;line-height:1.5;color:var(--ink-2);text-align:center}
+.st-del label{font-size:15px;font-weight:600;color:var(--ink-2)}
+.st-del label b{color:var(--ink)}
+.st-del input{width:100%;height:54px;padding:0 16px;border:0;border-radius:16px;background:var(--surface);font-size:17px;font-weight:600;box-shadow:inset 0 0 0 2px var(--line)}
+.st-del input:focus{outline:none;box-shadow:inset 0 0 0 2.5px var(--muscle)}
+.st-del .btn.danger{background:var(--muscle);color:#fff}
+.st-del .btn.danger:disabled{opacity:.35}
+.st-del .link{justify-self:center}
+.st-del-n{padding:10px 14px;border-radius:14px;background:var(--warn-soft);color:var(--warn)!important;font-weight:600}
+/* ---- the code at the door: the dark stage, the lifter's face, four dots and the keys ---- */
+.lock{position:fixed;inset:0;z-index:92;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 20px calc(env(safe-area-inset-bottom,0px) + 16px);overflow-y:auto;color:#fff;background:radial-gradient(130% 80% at 50% 22%,#3B2477 0%,#1A1038 52%,#07050D 100%);animation:tour-fade .3s ease-out}
+.lock.out{animation:lock-out .35s ease-in forwards}
+@keyframes lock-out{to{opacity:0;transform:scale(1.04)}}
+.lock-in{display:grid;justify-items:center;gap:10px;width:100%;max-width:340px;text-align:center}
+.lock-ava{width:92px;height:92px;border-radius:50%;overflow:hidden;background:rgb(255 255 255 / .12)}
+.lock-ava .av{display:block;width:100%;height:100%}
+.lock h1{font-size:28px;font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-top:4px}
+.lock-sub{font-size:15.5px;font-weight:500;color:rgb(255 255 255 / .72);margin-bottom:8px}
+.lock .pin-dots i{box-shadow:inset 0 0 0 2px rgb(255 255 255 / .5)}
+.lock .pin-dots i.on{background:#fff;box-shadow:none}
+.lock .pin-dots.bad{animation:stop-no .45s ease-in-out}
+.lock .pin-err{color:#FFB4A8}
+.lock .pin-k{background:rgb(255 255 255 / .12);color:#fff;box-shadow:none}
+.lock .pin-k[data-lk="del"]{background:none;color:rgb(255 255 255 / .8)}
+.lock .pin-k:disabled{opacity:.35}
+.lock .link{margin-top:8px;color:rgb(255 255 255 / .78);font-size:15px}
+/* a short screen: the face and the keys are smaller, so that the whole door is in sight */
+@media (max-height:640px){.lock-ava{width:64px;height:64px}.lock h1{font-size:24px;margin-top:0}.lock-sub{margin-bottom:2px}.lock .pin-pad{grid-template-columns:repeat(3,62px);gap:8px 20px}.lock .pin-k{width:62px;height:62px;font-size:24px}.lock .link{margin-top:2px}}
+.lock-forgot{display:grid;gap:12px;width:100%;text-align:center}
+.lock-forgot p{font-size:15.5px;line-height:1.5;color:rgb(255 255 255 / .8)}
+.lock-forgot label{font-size:15px;font-weight:600;color:rgb(255 255 255 / .8)}
+.lock-forgot label b{color:#fff}
+.lock-forgot input{width:100%;height:54px;padding:0 16px;border:0;border-radius:16px;background:rgb(255 255 255 / .14);color:#fff;font-size:17px;font-weight:600;text-align:center}
+.lock-forgot input:focus{outline:none;box-shadow:inset 0 0 0 2px #fff}
+.lock-forgot .btn{min-height:54px;border-radius:18px;font-size:17px}
+.lock-forgot .btn.danger{background:#E0452B;color:#fff}
+.lock-forgot .btn.danger:disabled{opacity:.4}
+.lock-forgot .btn.quiet{background:rgb(255 255 255 / .14);color:#fff}
+/* a mark on the profile's tab when the coins have grown enough to buy something */
+.tabbar button.new{position:relative}
+.tabbar button.new::after{content:"";position:absolute;top:6px;inset-inline-start:calc(50% + 10px);width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--surface)}
+/* ---- the kiosk: the character tries a thing on over the shelf; a thing that is owned goes on and off with a tap ---- */
+.sheet-in.ks{gap:12px;height:100%}
+.ks-stage{position:sticky;top:-2px;z-index:2;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:6px;padding:8px 14px;border-radius:24px;color:#fff;background:radial-gradient(130% 110% at 30% 30%,#3B2477 0%,#1A1038 58%,#0B0716 100%)}
+[dir="rtl"] .ks-stage{background:radial-gradient(130% 110% at 70% 30%,#3B2477 0%,#1A1038 58%,#0B0716 100%)}
+.ks-fig{display:block;width:100%;max-width:150px;justify-self:center}
+.ks-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.ks-fig .av-aura,.ks-fig .av-glow{display:none}
+.ks-fig .av-shadow{fill:rgb(0 0 0 / .32)}
+.ks-fig.pump .av{animation:pump .65s cubic-bezier(.3,1.5,.5,1)}
+.ks-say{display:grid;gap:8px;min-width:0;text-align:start}
+.ks-say b{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
+.ks-say p{font-size:14px;font-weight:500;line-height:1.35;color:rgb(255 255 255 / .74)}
+.ks-say .btn{justify-self:start;min-height:46px;padding:0 16px;border-radius:15px;background:#fff;color:#2A1866;font-size:16px;font-weight:800;white-space:nowrap}
+.ks-say .btn .coin{width:17px;height:17px}
+.ks-say .btn[disabled]{opacity:1;background:rgb(255 255 255 / .16);color:rgb(255 255 255 / .8)}
+.ks-grid{list-style:none;margin:0;padding:0 0 8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ks-it{display:grid;justify-items:center;gap:6px;width:100%;padding:8px 6px 10px;border:0;border-radius:20px;background:var(--surface-2);color:var(--ink);text-align:center}
+.ks-it .ks-pic{width:100%;background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface))}
+.ks-it b{font-size:13.5px;font-weight:700;line-height:1.25;min-height:34px;display:grid;align-items:center}
+.ks-pr,.ks-st{display:inline-flex;align-items:center;gap:4px;min-height:26px;padding:0 10px;border-radius:99px;font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.ks-pr{background:var(--xp-soft);color:var(--xp);direction:ltr}
+.ks-pr .coin{width:15px;height:15px}
+.ks-it.far .ks-pr{background:var(--surface-3);color:var(--ink-3)}
+.ks-it.far .ks-pr .coin{filter:grayscale(1);opacity:.7}
+.ks-st{background:var(--surface-3);color:var(--ink-2)}
+.ks-it.on{background:var(--accent-soft);box-shadow:inset 0 0 0 2.5px var(--accent)}
+.ks-it.on .ks-st{background:var(--accent);color:var(--on-accent)}
+.ks-st svg{width:14px;height:14px;stroke-width:3}
+.ks-it.try{box-shadow:inset 0 0 0 2.5px var(--gold)}
+.ks-it.on.try{box-shadow:inset 0 0 0 2.5px var(--accent)}
 .pf-sec{display:grid;gap:8px}
 .badges{list-style:none;margin:0;padding:18px 6px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 2px;background:var(--surface);border-radius:var(--r)}
 .bdg{display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;font-size:11.5px;font-weight:600;line-height:1.25;color:var(--ink-3)}

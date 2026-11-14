@@ -46,8 +46,14 @@ const rulesHe = () => 'אתה אילון, המאמן האישי בתוך gymi, �
   '• מנוחה: 2–3 דקות בתרגיל מורכב וכבד, דקה עד שתיים בתרגיל בידוד.\n' +
   '• תחליף טוב שומר על אותה תנועה, אותם שרירים, אותו טווח חזרות ואותה קרבה לכשל.\n' +
   '• חימום: סט עד שלושה סטים שעולים במשקל, לפני התרגיל הראשון של כל אזור.\n' +
+  '• ביצוע: טווח תנועה מלא, ירידה בשליטה של שתיים עד שלוש שניות, בלי תנופה.\n' +
+  '• טווחי חזרות: 3–6 בעיקר לכוח, 6–15 לבניית שריר, 15 ומעלה לסיבולת. כל טווח בונה שריר כשהסטים קשים.\n' +
+  '• תקיעות של שבועיים-שלושה באותו תרגיל: נשארים במשקל ומוסיפים חזרה, או מורידים 5–10% ובונים מחדש. לא מחליפים תרגיל כל שבוע.\n' +
+  '• שרירים תפוסים הם לא מדד לאימון טוב. עם תפיסות קלות מתאמנים; כשהשריר עדיין כואב מאוד, מורידים סט.\n' +
+  '• אימון שהוחמץ: ממשיכים מהאימון הבא בתור, בלי לפצות עליו.\n' +
+  '• ביום עם פחות זמן: שומרים על התרגילים המורכבים שפותחים את האימון ומוותרים על הסוף שלו.\n' +
   '• כאב חד, או כאב במפרק: עוצרים את התרגיל ומציעים לפנות לאיש מקצוע. אין לך מידע רפואי על המשתמש, ואתה לא מאבחן.\n\n' +
-  'האפליקציה: ארבעה אימונים במחזור (גוף עליון ותחתון). בכל תרגיל יש "החלף", "איך?" ו"עוד". בלשונית "היום" נמצאים האימון הבא והתוכנית, ב"התקדמות" השיאים והאימונים שנעשו, וב"פרופיל" הדמות, הרמות וההגדרות. האפליקציה מנהלת סבב של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל). דבר בשפה פשוטה: "סבב", "שבוע קל" ו"חזרות לפני כשל", לא מזוציקל, דילואד או RIR.\n\n' +
+  'האפליקציה: ארבעה אימונים במחזור (גוף עליון ותחתון). בלשונית "אימונים" נמצאים האימון הבא והמסלול של הסבב: כל אימון הוא תחנה, והכפתור "התוכנית" פותח את ארבעת האימונים, שם מוסיפים, מחליפים ומורידים תרגילים. ב"מסע" רואים את הרמות עד 100 ומה נפתח בכל אחת. ב"פרופיל" נמצאים הדמות, הקיוסק (ציוד לדמות, במטבעות שמרוויחים באימונים), ההישגים, האימונים האחרונים, ובגלגל השיניים ההגדרות. באימון עצמו: לפני הסט הראשון האפליקציה שואלת כמה זמן יש היום ומקצרת את האימון לפי זה; לכל תרגיל יש "פירוט התרגיל" (דגשי ביצוע), ותפריט שלוש הנקודות: החלפת תרגיל, דילוג עליו היום, הערה ומספר הסטים; אחרי כל סט המנוחה תופסת את המסך, והחץ שבראשה מבטל את הסט האחרון. האפליקציה מנהלת סבב של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל). דבר בשפה פשוטה: "סבב", "שבוע קל" ו"חזרות לפני כשל", לא מזוציקל, דילואד או RIR.\n\n' +
   'התוכנית של המשתמש. בסוגריים המרובעים מופיע מזהה התרגיל, ובסוגריים העגולים שמו באנגלית. באפליקציה השמות בעברית, אז השתמש בהם:\n\n' + planText() + '\n\n' +
   aboutUser() + 'מבנה התשובה במקרים מיוחדים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה שורה או שתיים: למה, ומה להתאים (סטים, חזרות או דגש ביצוע אחד).\n' +
@@ -72,8 +78,14 @@ const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'
   '• Rest: 2–3 minutes in a heavy compound exercise, one to two minutes in an isolation exercise.\n' +
   '• A good substitute keeps the same movement, the same muscles, the same rep range and the same closeness to failure.\n' +
   '• Warming up: one to three sets that climb in weight, before the first exercise of each area.\n' +
+  '• Form: a full range of motion, a controlled lowering of two to three seconds, no swinging.\n' +
+  '• Rep ranges: 3–6 mostly for strength, 6–15 for building muscle, 15 and up for endurance. Every range builds muscle when the sets are hard.\n' +
+  '• Stuck for two or three weeks on one exercise: keep the weight and add a rep, or take 5–10% off and build back up. Do not change the exercise every week.\n' +
+  '• Sore muscles are no measure of a good workout. Train through mild soreness; when a muscle still hurts a lot, take a set off.\n' +
+  '• A missed workout: go on with the next one in line, without making up for it.\n' +
+  '• On a day with less time: keep the compound lifts that open the workout and drop its end.\n' +
   '• Sharp pain, or pain in a joint: stop the exercise and suggest seeing a professional. You have no medical information about the user, and you do not diagnose.\n\n' +
-  'The app: four workouts in a cycle (upper and lower body). Every exercise has "Swap", "How" and "More". The "Workouts" tab holds the next workout and the plan, and "Profile" holds the character, the levels, the settings and the workouts that were done. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
+  'The app: four workouts in a cycle (upper and lower body). The "Workouts" tab holds the next workout and the road of the round: every workout is a stop, and the "Plan" button opens the four workouts, where exercises are added, swapped and removed. "Journey" shows the levels up to 100 and what each one opens. "Profile" holds the character, the kiosk (gear for the character, bought with coins earned in workouts), the achievements, the recent workouts and, under the gear icon, the settings. In a workout: before the first set the app asks how much time there is today and shortens the workout to fit; every exercise has "Exercise details" (cues), and a three-dot menu: swap the exercise, skip it today, a note and the number of sets; after every set the rest takes the screen, and the arrow at its top takes the last set back. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
   'The user\'s plan. The square brackets hold the id of each exercise. Use the exercise names as they are written here:\n\n' + planText() + '\n\n' +
   aboutUser() + 'The shape of the answer in special cases:\n' +
   '- When asked whether an exercise or a machine can replace an exercise from the plan, the first line is exactly one of these: "Verdict: Suitable", "Verdict: Partly suitable" or "Verdict: Not recommended". After it, a line or two: why, and what to adjust (sets, reps or one form cue).\n' +
@@ -122,7 +134,7 @@ const ERR = () => ({
   off_part: say('על השאר אני לא עונה: רק אימונים.', 'I leave the rest: training only.'),
   who: say('אני אילון, מאמן ה-AI של gymi. ליאור דהן יצר אותי. על מה שמאחורי הקלעים אני לא מפרט. מה נעשה באימון?', 'I am Eilon, gymi\'s AI coach. Lior Dahan created me. I don\'t go into what is under the hood. What shall we do in your workout?'),
   /* why the chat is off */
-  native: say('כדי שאילון יענה באפליקציה צריך מפתח API של Anthropic. המפתח נשמר רק בטלפון הזה.', 'For Eilon to answer in the app, an Anthropic API key is needed. The key is kept only on this phone.'),
+  native: say('בינתיים אילון מתחבר עם מפתח API של Anthropic, וזה מיועד לבעל האפליקציה. בקרוב הוא יענה לכולם, בלי מפתח.', 'For now Eilon connects with an Anthropic API key, which is meant for the owner of the app. Soon he will answer everyone, with no key.'),
   outside: say('הצ׳אט פועל רק כשהדף פתוח בתוך Claude.', 'The chat works only when this page is open inside Claude.'),
   view: say('הצ׳אט לא זמין בתצוגה הזאת.', 'The chat is not available in this view.'),
   /* notes under an answer or above the message box */
@@ -171,17 +183,24 @@ function loggedHTML(m, idx) {
   return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span>' + (canUnlog(m) ? '<button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button>' : '') + '</div>';
 }
 /* first things to ask, each with its sign */
+const SUG_I = () => [ICON.swap, '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>', ICON.info, ICON.bell];
 const SUGS = () => [say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?'), say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?'), say('דגשים לתרגיל הזה', 'Cues for this exercise'), say('כמה משקל לשים היום?', 'How much weight today?')];
 function renderMsgs() {
   const box = $('#msgs'), face = '<span class="ava big" aria-hidden="true">' + coachFace() + '</span>';
   $('#chatNew').hidden = !chat.msgs.length;
-  if (chat.off) { box.innerHTML = '<div class="empty">' + face + '<strong>' + (chat.needKey ? say('חיבור אילון', 'Connect Eilon') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
+  $('#app').dataset.coach = chat.off ? 'off' : 'on';
+  if (chat.off) { chat.shown = 0; box.innerHTML = '<div class="empty off">' + face + '<strong>' + (chat.needKey ? say('אילון עוד לא מחובר', 'Eilon is not connected yet') : say('הצ׳אט לא זמין כרגע', 'The chat is not available right now')) + '</strong><span>' + esc(errText(chat.off)) + '</span>' + (chat.needKey ? '<button class="btn primary" id="coachKey" type="button">' + say('חיבור עם מפתח API', 'Connect with an API key') + '</button>' : '') + '</div>'; return; }
   if (!chat.msgs.length) {
-    box.innerHTML = '<div class="empty">' + face + '<strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('שאל, צלם מכשיר, או כתוב מה עשית ואני ארשום.', 'Ask, snap a machine, or tell me what you did and I will log it.') + '</span><div class="sugs">' +
-      SUGS().map((s, i) => (i === 1 && !chat.canImg ? '' : '<button class="sug" type="button" data-sug="' + i + '">' + s + '</button>')).join('') + '</div></div>';
+    /* nothing said yet: the coach himself, waving, and the first things to ask as cards */
+    const icons = SUG_I(); chat.shown = 0;
+    box.innerHTML = '<div class="empty hello"><span class="hello-fig" aria-hidden="true">' + avatarSVG(COACH, 12, {}).replace('class="av', 'class="av wave grin') + '</span><strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('שאל, צלם מכשיר, או כתוב מה עשית ואני ארשום.', 'Ask, snap a machine, or tell me what you did and I will log it.') + '</span><div class="sugs">' +
+      SUGS().map((s, i) => (i === 1 && !chat.canImg ? '' : '<button class="sug" type="button" data-sug="' + i + '"><span class="sug-i" aria-hidden="true">' + icons[i] + '</span><span>' + s + '</span></button>')).join('') + '</div></div>';
     return;
   }
   box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
+  /* what has just joined the talk comes in with a small rise; a talk that is only drawn again stays still */
+  if (chat.msgs.length > (chat.shown || 0)) Array.from(box.children).slice(-Math.min(2, chat.msgs.length - (chat.shown || 0))).forEach((el) => el.classList.add('new'));
+  chat.shown = chat.msgs.length;
 }
 function paintLast() {
   const box = $('#msgs'), el = box.lastElementChild, stick = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
@@ -331,6 +350,8 @@ function initChat() {
     if (!sample) { chat.needKey = !!window.GYMI_NATIVE; chat.off = window.GYMI_NATIVE ? 'native' : 'view'; renderMsgs(); return; }
     try { const lim = await sample.limits(); chat.canImg = !!(lim && lim.images); } catch (e) { chat.canImg = false; }
     chat.limits = true; showImgBtns(); chatText();
+    /* the first screen of the chat offers the photo question only once it is known that photos can be sent */
+    if (!chat.msgs.length && !chat.off) renderMsgs();
   }).catch(() => {});
   renderMsgs();
 }

@@ -25,7 +25,7 @@ function bridge(saved, theme, platform, hasKey) {
   window.__gymiReply = function (id, v) { var w = waits[id]; if (w) { delete waits[id]; w(v); } };
   window.GYMI_NATIVE = ${lit(platform)};
   window.GYMI_COACH = ${lit(!!hasKey)};
-  window.gymiNative = { key: function () { post({ type: 'key-edit' }); }, lang: function (l) { post({ type: 'lang', lang: l === 'en' ? 'en' : 'he' }); } };
+  window.gymiNative = { key: function () { post({ type: 'key-edit' }); }, forget: function () { post({ type: 'key-del' }); }, lang: function (l) { post({ type: 'lang', lang: l === 'en' ? 'en' : 'he' }); } };
   document.documentElement.setAttribute('data-theme', ${lit(theme)});
   /* the phone keeps its own copy of the log: put it back if this view's storage came up empty */
   try { if (saved && !localStorage.getItem(KEY)) localStorage.setItem(KEY, saved); } catch (e) {}

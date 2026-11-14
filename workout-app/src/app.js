@@ -349,7 +349,7 @@ function renderList(dir) {
   startPlayer($('.stage', box), e.a, box);
   renderHero(); markCur(); fitStage();
 }
-function renderAll() { renderMe(); renderHome(); renderPre(); renderHero(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); else if (S.sheet === 'set') renderSettings(); freshLogged(); markLive(); }
+function renderAll() { renderMe(); renderHome(); renderPre(); renderHero(); renderList(); renderHistory(); renderDock(); if (S.sheet === 'list') renderListSheet(); else if (S.sheet === 'set') renderSettings(); else if (S.sheet === 'shop') renderShop(); freshLogged(); markLive(); }
 /* show another exercise of this workout */
 function openEx(id, scroll, dir) {
   const e = findEx(id); if (!e || wkOf(id) !== S.tab) return;
@@ -783,7 +783,7 @@ function closeSheet() {
   /* the picker for adding an exercise was opened from the plan: closing it goes back there */
   if (kind === 'swap' && S.pick && S.pick.mode === 'add') { S.pick = null; S.sheet = 'meso'; renderMeso(); return; }
   sheetGhost(sh);
-  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.msAdv = false; S.pick = null; S.blEdit = null; S.msPage = null;
+  sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.msAdv = false; S.pick = null; S.blEdit = null; S.msPage = null; S.setPg = null; S.pinFlow = null; S.del = null;
   if (kind && kind !== 'sum' && kind !== 'list' && kind !== 'lv') renderAll();
 }
 function editorInput(rowEl) {
@@ -821,9 +821,12 @@ async function exportCsv() {
   try { await S.dl.save({ filename: 'gymi-log.csv', data: '﻿' + lines.join('\r\n') }); } catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited' && e.code !== 'write_failed') { S.dl = null; renderBackup(); } }
 }
 function onRemoteChange() {
+  /* the account was deleted on another device: this one starts over too */
+  if (S.wipedNow) { S.wipedNow = false; if (DOOR.on) unlock(); afterWipe(); return; }
   const a = document.activeElement;
   if (a && a.closest && (a.closest('#dock') || a.closest('#sheet') || a.closest('.note')) && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT')) return;
   sweep(); meSync(); if (!S.touched) S.tab = nextUp().next;
+  maybeLock();
   const draw = () => { maybeOb(); if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap' && S.sheet !== 'look' && S.sheet !== 'sum') renderAll(); };
   /* the account speaks another language than the page does: the page changes to it under a fade, the opening too */
   if ((S.cfg.lang || autoLang()) === LANG) draw();
@@ -1011,9 +1014,10 @@ function wireApp() {
   });
   /* a sheet or the opening screens, while open, are the only thing in reach: the focus moves in, the page behind is out of reach
      (for the keyboard and for a screen reader), and on closing the focus goes back to what opened it */
-  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'), tour = $('#tour'); let opener = null;
+  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'), tour = $('#tour'), lock = $('#lock'); let opener = null;
   const modal = () => {
-    const box = !ob.hidden ? ob : !tour.hidden ? tour : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    const box = !lock.hidden ? lock : !ob.hidden ? ob : !tour.hidden ? tour : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    sheet.inert = !lock.hidden; ob.inert = !lock.hidden;
     for (const el of behind) el.inert = !!box;
     if (box) {
       if (!opener) { const a = document.activeElement; opener = a && a !== document.body ? { el: a, id: a.id } : {}; }
@@ -1024,8 +1028,8 @@ function wireApp() {
     }
   };
   const watch = new MutationObserver(modal);
-  for (const el of [sheet, ob, tour]) watch.observe(el, { attributes: true, attributeFilter: ['hidden'] });
-  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); });
+  for (const el of [sheet, ob, tour, lock]) watch.observe(el, { attributes: true, attributeFilter: ['hidden'] });
+  sheet.addEventListener('input', (ev) => { const inp = ev.target.closest('.ed-row input'); if (inp) editorInput(inp.closest('.ed-row')); else if (ev.target.id === 'lkName') setName(ev.target.value); else if (ev.target.id === 'delName' && S.del) { S.del.v = ev.target.value; const b = $('#delYes'); if (b) b.disabled = S.del.busy || !sameWord(S.del.v, delWord()); } });
   sheet.addEventListener('change', (ev) => {
     if (ev.target.id === 'edDate') { editorDate(ev.target.value); return; }
     const inp = ev.target.closest('.ed-row input');
@@ -1033,12 +1037,13 @@ function wireApp() {
     if (ev.target.classList.contains('note-in')) { const e = S.open && findEx(S.open); if (e) saveNote(e.mv, ev.target.value); return; }
     coachSheetChange(ev); meSheetChange(ev);
   });
-  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on) { if (TR.on) tourEnd(); else if (!sheet.hidden) closeSheet(); else closeChat(); } });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !OB.on && !DOOR.on) { if (TR.on) tourEnd(); else if (!sheet.hidden) closeSheet(); else closeChat(); } });
   if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
   new MutationObserver(onTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (rest.on) tickRest(); if (live(S.tab)) keepAwake(); });
   /* the phone's back button, when gymi runs inside its native shell: close what is open, else go back to today */
   window.gymiBack = () => {
+    if (DOOR.on) return false;
     if (TR.on) { tourEnd(); return true; }
     if (!sheet.hidden) { if (S.sheet === 'meso' && S.msPage) { S.msPage = null; S.blEdit = null; renderMeso(); } else closeSheet(); return true; }
     if ($('#chat').classList.contains('open') && !matchMedia('(min-width:1000px)').matches) { closeChat(); return true; }

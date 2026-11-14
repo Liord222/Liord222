@@ -255,16 +255,57 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   // ---- the profile and the character
   await tab('profile');
   const pf = await txt('#profile');
-  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('week streak') && pf.includes('PRs') && pf.includes('tons lifted') && /At level \d+: [A-Z]/.test(pf) && pf.includes('Achievements') && pf.includes('All of them') && pf.includes('Settings') && !pf.includes('A set +10') && !pf.includes('Language'), pf.slice(0, 600));
+  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('week streak') && pf.includes('PRs') && pf.includes('tons lifted') && /At level \d+: [A-Z]/.test(pf) && pf.includes('Achievements') && pf.includes('All of them') && pf.includes('The kiosk') && pf.includes('Gear for your character') && pf.includes('Every workout adds coins') && pf.includes('To the kiosk') && (await p.getAttribute('#setBtn', 'aria-label')) === 'Settings' && (await p.getAttribute('#lookBtn', 'aria-label')) === 'Edit the character' && /^[\d,]+ coins$/.test(await p.getAttribute('#profile .coin-tag', 'aria-label')) && !pf.includes('A set +10') && !pf.includes('Language'), pf.slice(0, 600));
   check('an achievement is read out in English', /^[A-Za-z0-9 ]+, (earned|not yet)$/.test(await p.getAttribute('#profile .bdg', 'aria-label')), await p.getAttribute('#profile .bdg', 'aria-label'));
   await clean('the profile'); await snap(p, 'en15-profile', true);
   await p.click('#bdgAll'); await p.waitForTimeout(200);
   check('every achievement has an English name', (await p.$$('#profile .bdg')).length === 12 && (await txt('#bdgAll')) === 'Fewer' && (await txt('#profile .badges')).includes('First workout'), await txt('#profile .badges'));
   await clean('the profile, all achievements'); await p.click('#bdgAll'); await p.waitForTimeout(200);
+  /* the kiosk: its things, a thing tried on, and what it says about the coins */
+  await p.click('#shopBtn'); await p.waitForTimeout(350);
+  const ksE = await txt('#sheet');
+  check('the kiosk is in English', ksE.includes('The kiosk') && ksE.includes('Gear for the character') && ksE.includes('What takes your fancy?') && ksE.includes('Tap a thing to try it on your character.') && ksE.includes('Towel') && ksE.includes('White sneakers') && ksE.includes('Gold chain') && ksE.includes('Every 10 points in a workout are a coin.') && /^[A-Z][a-z ]+, (\d+ coins|owned|on)$/.test(await p.getAttribute('#sheet .ks-it', 'aria-label')), ksE.slice(0, 300));
+  await clean('the kiosk');
+  await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
+  const tryE = await txt('#sheet .ks-say');
+  check('a thing that is tried on is named in English, with its price or what is missing', tryE.includes('Towel') && (/Buy for\s*30/.test(tryE) || /\d+ more coins? to go\. Every workout adds some\./.test(tryE)), tryE);
+  if (await p.$('#shopBuy')) { await p.click('#shopBuy'); await p.waitForTimeout(400); check('and bought in English', (await txt('#toast')).includes('Yours: Towel') && (await txt('#sheet .ks-say')).includes('On you now. Another tap takes it off.') && (await txt('#sheet [data-shop="towel"] .ks-st')) === 'On', await txt('#sheet .ks-say')); await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(250); check('and what is taken off stays in the wardrobe', (await txt('#sheet .ks-say')).includes('In your wardrobe. Another tap puts it on.') && (await txt('#sheet [data-shop="towel"] .ks-st')) === 'Put on', await txt('#sheet .ks-say')); }
+  await clean('the kiosk, a thing tried on'); await snap(p, 'en15a-kiosk', true);
+  await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#setBtn'); await p.waitForTimeout(300);
   const st = await txt('#sheet');
-  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Physique') && st.includes('Fitness and health') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
+  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Physique') && st.includes('Fitness and health') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && st.includes('Character and name') && st.includes('My training') && st.includes('Goals') && st.includes('Time for a workout, in minutes') && st.includes('The gym') && st.includes('Not sure') && st.includes('Eilon asks how it went') && st.includes('On heavy lifts') && st.includes('Sound and touch') && st.includes('Privacy') && st.includes('Entry code') && st.includes('A tour of the app') && st.includes('Delete the account') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
   await clean('the settings'); await snap(p, 'en15b-settings', true);
+  /* the code, the page that deletes the account, and the door */
+  const keysE = async (attr, d) => { for (const k of d) { await p.click('[' + attr + '="' + k + '"]'); await p.waitForTimeout(40); } await p.waitForTimeout(260); };
+  await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; }); await p.click('#pinSet'); await p.waitForTimeout(250);
+  const pinE = await txt('#sheet');
+  check('setting a code is in English', pinE.includes('Entry code') && pinE.includes('A new code: 4 digits') && pinE.includes('It cannot be recovered.') && (await p.getAttribute('#sheet [data-pk="del"]', 'aria-label')) === 'Delete a digit' && (await p.getAttribute('#setDots', 'aria-label')) === 'Digits typed: 0' && (await p.getAttribute('#sheet [data-setpg=""]', 'aria-label')) === 'Back to the settings', pinE);
+  await keysE('data-pk', '4826'); check('and asked for twice', (await txt('#sheet .pin-ask')) === 'Once more, to confirm', await txt('#sheet'));
+  await keysE('data-pk', '4827'); check('two codes that differ are said so', (await txt('#setErr')) === 'The codes did not match. Let us start again.', await txt('#setErr'));
+  await clean('the code page'); await keysE('data-pk', '4826'); await keysE('data-pk', '4826'); await p.waitForTimeout(200);
+  check('a code that is saved is said so, and the settings know it', (await txt('#toast')).includes('The code is saved') && (await txt('#pinChange')).replace(/\s+/g, ' ').includes('Change the code On') && (await txt('#pinOff')).includes('Remove the code'), await txt('#sheet'));
+  await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; }); await p.click('#delAsk'); await p.waitForTimeout(250);
+  check('deleting asks for the code first, in English', (await txt('#sheet h2')) === 'Delete the account' && (await txt('#sheet .pin-ask')) === 'The current code', await txt('#sheet'));
+  await keysE('data-pk', '1111'); check('a wrong code is said so', (await txt('#setErr')) === 'That is not the code', await txt('#setErr'));
+  await keysE('data-pk', '4826');
+  const delE = await txt('#sheet');
+  check('the page that deletes the account is in English', delE.includes('Delete the account?') && delE.includes('Every workout, the character, the coins and the settings will be erased from this device and from the account. This cannot be undone.') && delE.includes('To confirm, type: Sam') && delE.includes('Delete for good') && delE.includes('Cancel') && delE.includes('Save a backup file first'), delE);
+  await clean('the page that deletes the account'); await snap(p, 'en15c-delete', true);
+  await p.click('#sheet .st-del [data-setpg=""]'); await p.waitForTimeout(200); await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
+  await p.evaluate(() => { S.unlocked = false; maybeLock(); }); await p.waitForTimeout(300);
+  const doorE = await txt('#lock');
+  check('the door is in English', doorE.includes('Hi, Sam') && doorE.includes('Your code, and you are in') && doorE.includes('I forgot the code') && (await p.getAttribute('#lock', 'aria-label')) === 'Entry code', doorE);
+  await keysE('data-lk', '0000'); check('a wrong code at the door is said so', (await txt('#lockErr')) === 'That is not the code', await txt('#lockErr'));
+  await clean('the door'); await snap(p, 'en15d-door');
+  await p.click('#lockForgot'); await p.waitForTimeout(200);
+  const fgE = await txt('#lock');
+  check('and so is what it says to one who forgot the code', fgE.includes('Forgot the code?') && fgE.includes('The code is kept only with you and cannot be recovered.') && fgE.includes('To delete, type: Sam') && fgE.includes('Delete the account and start again') && fgE.includes('Back to the code'), fgE);
+  await clean('the door, the code forgotten'); await p.click('#lockBack'); await p.waitForTimeout(200); await keysE('data-lk', '4826'); await p.waitForTimeout(500);
+  check('the right code opens the door', (await p.isHidden('#lock')) && (await p.evaluate(() => !DOOR.on && S.unlocked)), await txt('#lock'));
+  /* the code is taken off again, so that the rest of the visit is as it was */
+  await p.click('#setBtn'); await p.waitForTimeout(300); await p.evaluate(() => { const el = document.querySelector('#sheet .sheet-in'); el.scrollTop = el.scrollHeight; }); await p.click('#pinOff'); await p.waitForTimeout(250); await keysE('data-pk', '4826'); await p.waitForTimeout(200);
+  check('and the code can be taken off', (await p.evaluate(() => S.cfg.me.pin)) === '' && (await txt('#toast')).includes('The code is off') && (await txt('#pinSet')).replace(/\s+/g, ' ').includes('Entry code Off'), await txt('#sheet'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#lookBtn'); await p.waitForTimeout(300);
   let lk = await txt('#sheet');

@@ -352,7 +352,7 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) {
     me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goals = OB.goals.slice(); me.goal = OB.goals.length ? OB.goals[0] : null;
-    me.time = OB.time; me.eq = OB.eq; me.fb = OB.fb; if (OB.pin) me.pin = OB.pin; me.made = me.made || Date.now();
+    me.time = OB.time; me.eq = OB.eq; me.fb = OB.fb; if (OB.pin) { me.pin = OB.pin; S.unlocked = true; } me.made = me.made || Date.now();
     fitPlan();
   }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();

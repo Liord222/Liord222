@@ -5,6 +5,8 @@ const js = ['plan.js', 'lib.js', 'prog.js', 'game.js', 'rig.js', 'moves.js', 'av
 const html = '<title>gymi</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n' +
   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap">\n' +
   '<style>\n' + read('styles.css') + '</style>\n' + read('body.html') + '\n<script>\n\'use strict\';\n' + js + '</script>\n';
+/* a script that does not parse would leave a blank page: the build stops on it instead */
+try { new (require('vm').Script)("'use strict';\n" + js, { filename: 'gymi.js' }); } catch (e) { console.error('build stopped: the script does not parse:', e.message); process.exit(1); }
 /* written under another name and moved into place, so that nothing ever reads half a page */
 const out = path.join(__dirname, 'index.html'), tmp = out + '.' + process.pid + '.tmp';
 fs.writeFileSync(tmp, html); fs.renameSync(tmp, out);

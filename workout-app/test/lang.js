@@ -37,6 +37,27 @@ const hebOn = (p) => p.evaluate(() => {
   for (const el of app.querySelectorAll('*')) { if (el.matches(skip)) continue; for (const a of ['aria-label', 'title', 'placeholder', 'alt', 'label']) { const v = el.getAttribute(a); if (v && H.test(v)) out.push(a + '=' + v.slice(0, 40)); } }
   return out;
 });
+/* through the opening screens with these answers: as far as the plan (which is waited for while it is built), the code, or the last screen.
+   seen: called on every screen that is passed */
+const obWalk = async (pg, a, to, seen) => {
+  const look = async (k) => { if (seen) await seen(k); };
+  const next = async () => { await pg.click('#obNext'); await pg.waitForTimeout(380); };
+  await look('film'); await next();
+  if (a.name != null) await pg.fill('#obName', a.name);
+  await look('name'); await next();
+  await pg.click('.ob-opt[data-v="' + a.exp + '"]'); await look('exp'); await next();
+  for (const g of a.goals) await pg.click('.ob-opt[data-v="' + g + '"]');
+  await look('goals'); await next();
+  await pg.click('.ob-time[data-v="' + a.time + '"]'); await look('time'); await next();
+  await pg.click('.ob-opt[data-v="' + a.eq + '"]'); await look('eq'); await next();
+  for (const t of ['hair', 'hc', 'beard', 'shirt', 'skin']) { await pg.click('#ob [data-lktab="' + t + '"]'); await look('look-' + t); }
+  await next(); await look('build');
+  await pg.waitForSelector('#obNext:not([disabled])', { timeout: 9000 }); await pg.waitForTimeout(300); await look('plan');
+  if (to === 'plan') return;
+  await next(); await look('pin');
+  if (to === 'pin') return;
+  await next(); await look('done');
+};
 (async () => {
   const b = await chromium.launch();
   /* the log: three weeks of the four workouts, every set done, each exercise rated */
@@ -179,7 +200,7 @@ const hebOn = (p) => p.evaluate(() => {
   await clean('the chat, empty'); await snap(p, 'en10-chat');
   await p.fill('#chatInput', 'Can a seated chest press replace this?'); await p.click('#sendBtn'); await p.waitForTimeout(600);
   const call = await p.evaluate(() => window.__calls[0]);
-  check('the coach gets his rules in English, with the plan and the lifter', !/[֐-׿]/.test(call.first) && call.first.startsWith('You are Eilon') && call.first.includes('Workout 1 – Upper Body A') && call.first.includes('1. [ua1] Incline Smith Machine Press: 3 sets × 6–10 reps | rest 2–3 min') && call.first.includes('About the user: Name: Sam · Gym experience: Regular (Six months to two years) · Goal: Build muscle') && call.first.includes('"Verdict: Partly suitable"'), call.first.slice(0, 200));
+  check('the coach gets his rules in English, with the plan and the lifter', !/[֐-׿]/.test(call.first) && call.first.startsWith('You are Eilon') && call.first.includes('Workout 1 – Upper Body A') && call.first.includes('1. [ua1] Incline Smith Machine Press: 3 sets × 6–10 reps | rest 2–3 min') && call.first.includes('About the user: Name: Sam · Gym experience: Regular (Six months to two years) · Goal: Physique') && call.first.includes('"Verdict: Partly suitable"'), call.first.slice(0, 200));
   check('the question goes with its context in English', !/[֐-׿]/.test(call.last) && call.last.startsWith('[Context from the app.') && call.last.includes('The question is about the exercise [ua2] "Assisted Pull-ups" (Workout 1): 3 sets × 6–10 reps, rest 2 min, To failure.') && /Recent results \(kg×reps\): \d+ days ago: /.test(call.last) && call.last.endsWith('Can a seated chest press replace this?'), call.last);
   check('an English verdict is shown as a verdict', (await txt('#msgs .verdict.mid')) === 'Partly suitable' && (await txt('#msgs')).includes('About Assisted Pull-ups') && !(await txt('#msgs .msg.a')).includes('Verdict:'), await txt('#msgs'));
   await p.fill('#chatInput', 'log 40 kg 8 8 7'); await p.click('#sendBtn'); await p.waitForTimeout(700);
@@ -226,12 +247,14 @@ const hebOn = (p) => p.evaluate(() => {
   await clean('the profile, all achievements'); await p.click('#bdgAll'); await p.waitForTimeout(200);
   await p.click('#setBtn'); await p.waitForTimeout(300);
   const st = await txt('#sheet');
-  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Build muscle') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
+  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Physique') && st.includes('Fitness and health') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
   await clean('the settings'); await snap(p, 'en15b-settings', true);
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#lookBtn'); await p.waitForTimeout(300);
-  const lk = await txt('#sheet');
-  check('the character sheet is in English', lk.includes('My character') && lk.includes('Name') && lk.includes('Skin') && lk.includes('Hair') && lk.includes('Curly') && lk.includes('Beard') && lk.includes('Stubble') && lk.includes('Shirt') && lk.includes('Done') && (await p.getAttribute('#lkName', 'placeholder')) === 'Your name' && (await p.getAttribute('#lkStage svg', 'aria-label')).startsWith('My character, level '), lk);
+  let lk = await txt('#sheet');
+  /* the editor shows one kind of choice at a time: the haircuts and the beards are read from their own tabs */
+  for (const tb of ['hair', 'beard']) { await p.click('#sheet [data-lktab="' + tb + '"]'); await p.waitForTimeout(120); lk += ' | ' + (await txt('#sheet .lk-pane')); if ((await hebOn(p)).length) bad.push('Hebrew in the character editor, tab ' + tb + ' -> ' + JSON.stringify(await hebOn(p))); }
+  check('the character sheet is in English', lk.includes('My character') && lk.includes('Name') && lk.includes('Skin') && lk.includes('Haircut') && lk.includes('Hair colour') && lk.includes('Short Buzz cut Side part Fringe Swept up Curly Medium Long Bald') && lk.includes('Beard') && lk.includes('None Stubble Full') && lk.includes('Shirt') && lk.includes('Done') && (await p.getAttribute('#lkName', 'placeholder')) === 'Your name' && (await p.getAttribute('#lkStage svg', 'aria-label')).startsWith('My character, level '), lk);
   await clean('the character sheet'); await snap(p, 'en16-look');
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
 
@@ -283,7 +306,10 @@ const hebOn = (p) => p.evaluate(() => {
   // ---- a first visit in English: the opening screens, then an app with nothing Hebrew in it
   p = await open(b, null, { locale: 'en-GB' });
   check('a first visit on an English phone opens in English', (await p.isVisible('#ob')) && (await p.evaluate(() => LANG)) === 'en' && (await hebOn(p)).length === 0, await hebOn(p));
-  for (let i = 0; i < 7; i++) { if (i === 1) await p.fill('#obName', 'Ann'); if (i === 2 || i === 3) await p.click('.ob-opt[data-v="1"]'); if ((await hebOn(p)).length) bad.push('Hebrew on opening screen ' + i + ' -> ' + JSON.stringify(await hebOn(p))); await p.click('#obNext'); await p.waitForTimeout(350); }
+  const seenOb = [];
+  await obWalk(p, { name: 'Ann', exp: 1, goals: [0, 1], time: 45, eq: 2 }, 'done', async (k) => { seenOb.push(k); const h = await hebOn(p); if (h.length) bad.push('Hebrew on opening screen ' + k + ' -> ' + JSON.stringify(h)); if (k === 'film' || k === 'exp' || k === 'look-hair' || k === 'plan' || k === 'done') await snap(p, 'en19-ob-' + k); });
+  check('every screen of the opening was seen in English', seenOb.join() === 'film,name,exp,goals,time,eq,look-hair,look-hc,look-beard,look-shirt,look-skin,build,plan,pin,done', seenOb.join());
+  await p.click('#obNext'); await p.waitForTimeout(400);
   check('after the opening screens the app is in English', (await p.isHidden('#ob')) && (await p.evaluate(() => (document.querySelector('#home').innerText || '').includes('Hi, Ann'))) && (await hebOn(p)).length === 0, await hebOn(p));
   await p.context().close();
 

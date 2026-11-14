@@ -1,7 +1,7 @@
 // Unit checks for the pure parts: the progression engine (plan.js + lib.js + prog.js) and the game layer (game.js): node test/unit.js
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const src = process.argv[2] || path.join(__dirname, '..', 'src');
-const GAME = ['rxOf', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned'];
+const GAME = ['rxOf', 'goalRx', 'workMins', 'sameKind', 'fitPlanData', 'orderOf', 'cleanSlot', 'XP', 'RANKS', 'REWARDS', 'BADGES', 'ORD', 'wkOrd', 'wkFull', 'tally', 'xpStep', 'levelOf', 'rankOf', 'nextReward', 'rewardsBetween', 'buildOf', 'weekIdx', 'archZero', 'totalsOf', 'archiveStep', 'streakOf', 'fullWeek', 'roundsDone', 'earned'];
 const code = ['plan.js', 'lib.js', 'prog.js', 'game.js'].map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('\n') +
   '\n;globalThis.X = { PLAN, LIB, MUSCLE, PATTERN, EQUIP, EN, e1rm, repRange, roundTo, rirFor, score, nextTarget, adjustTarget, muscleVolume, landmark };' +
   '\n;globalThis.G = {' + GAME.map((k) => k + ': typeof ' + k + " === 'undefined' ? undefined : " + k).join(', ') + '};';
@@ -164,6 +164,34 @@ t('a big lift added by hand', () => G.rxOf('legPress'), { sets: 3, reps: '8–12
 t('a small lift added by hand', () => G.rxOf('hammerCurl'), { sets: 2, reps: '10–15', rest: [75, 75], lvl: 3 });
 t('calves and core have their own', () => [G.rxOf('seatedCalf').reps, G.rxOf('pallof').reps, G.rxOf('pallof').lvl], ['12–20', '10–15', 0]);
 t('every movement in the library has a prescription', () => Object.keys(LIB).filter((k) => { const r = G.rxOf(k); return !r || !(r.sets >= 1) || !/^\d+–\d+$/.test(r.reps) || r.rest.length !== 2; }), []);
+// the goals bend the written plan
+t('no goal, or physique alone: the plan as written', () => [G.goalRx('6–10', [120, 180], [], 1), G.goalRx('6–10', [120, 180], [0], 1), G.goalRx('12–15', [75, 75], [0], 2)], [null, null, null]);
+t('strength alone: the heavy lifts go low, with longer rests', () => [G.goalRx('6–10', [120, 180], [1], 1), G.goalRx('8–10', [120, 180], [1], 2), G.goalRx('8–12', [120, 120], [1], 1)], [{ reps: '4–6', rest: [150, 210] }, { reps: '5–8', rest: [150, 210] }, { reps: '6–8', rest: [150, 150] }]);
+t('strength leaves the small lifts alone', () => [G.goalRx('12–15', [75, 75], [1], 1), G.goalRx('8–12', [90, 90], [1], 1), G.goalRx('12', [60, 60], [1], 1)], [null, null, null]);
+t('a beginner who wants strength is not sent under five reps', () => G.goalRx('6–10', [120, 180], [1], 0), { reps: '5–8', rest: [120, 210] });
+t('strength beside another goal bends half as far', () => [G.goalRx('6–10', [120, 180], [0, 1], 1), G.goalRx('8–12', [120, 120], [1, 2], 2)], [{ reps: '5–8', rest: [120, 210] }, { reps: '6–10', rest: [120, 150] }]);
+t('fitness alone: every range a step higher, rests a quarter shorter', () => [G.goalRx('6–10', [120, 180], [2], 1), G.goalRx('12–15', [75, 75], [2], 1), G.goalRx('10–15', [60, 60], [2], 1), G.goalRx('12', [60, 60], [2], 1)], [{ reps: '8–12', rest: [90, 135] }, { reps: '12–20', rest: [60, 60] }, { reps: '12–15', rest: [45, 45] }, { reps: '12', rest: [45, 45] }]);
+t('fitness beside another goal keeps the reps and trims the rests', () => [G.goalRx('12–15', [75, 75], [0, 2], 1), G.goalRx('10–15', [60, 60], [1, 2], 1), G.goalRx('8–15', [60, 60], [0, 2], 1)], [{ reps: '12–15', rest: [60, 60] }, { reps: '10–15', rest: [45, 45] }, { reps: '8–15', rest: [45, 45] }]);
+t('a rest is never cut under 45 seconds, nor stretched over four minutes', () => [G.goalRx('10–15', [45, 50], [2], 1).rest, G.goalRx('6–10', [200, 230], [1], 1).rest], [[45, 45], [230, 240]]);
+t('every range the plan and the library use is known to the bend or left as it is', () => { const all = new Set(); for (const w of PLAN) for (const e of w.ex) all.add(e.reps); for (const k of Object.keys(LIB)) all.add(G.rxOf(k).reps); return [...all].filter((r) => { const a = G.goalRx(r, [120, 180], [1], 1), b = G.goalRx(r, [60, 60], [2], 1); return (a && !/^\d+–\d+$/.test(a.reps)) || !b || !/^\d+(–\d+)?$/.test(b.reps); }); }, []);
+// how long a workout takes, and the plan fitted to its lifter
+t('a workout takes its sets, its rests, the moves between exercises and a warm-up', () => [G.workMins([]), G.workMins([{ sets: 3, reps: '6–10', rest: [120, 180] }]), G.workMins(PLAN[0].ex), G.workMins(PLAN[1].ex)], [10, 15, 55, 50]);
+(() => {
+  const BASIC = ['db', 'bar', 'cable', 'bw'], fit = (a) => G.fitPlanData(Object.assign({ exp: 1, goals: [0], time: 0, ok: null }, a));
+  const mins = (l) => G.workMins(l.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })));
+  t('a full gym, any length, a regular lifter: the plan as it is written', () => fit({}).map((l, w) => l.map((x) => x.id + ':' + x.mv + ':' + x.sets + ':' + x.kind).join()), PLAN.map((wk) => wk.ex.map((e) => e.id + ':' + e.a + ':' + e.sets + ':').join()));
+  t('a gym without machines: every movement is one it has the equipment for', () => fit({ ok: BASIC }).map((l) => l.filter((x) => !BASIC.includes(LIB[x.mv].eq)).map((x) => x.mv)), [[], [], [], []]);
+  t('and no movement comes twice in a workout, and none is left short', () => fit({ ok: BASIC }).map((l) => new Set(l.map((x) => x.mv)).size === l.length && l.length >= 4), [true, true, true, true]);
+  t('a swap keeps the slot and its numbers; another movement for the muscle brings its own', () => fit({ ok: BASIC }).every((l, w) => l.every((x) => { const e = PLAN[w].ex.find((y) => y.id === x.id); return x.kind === 'repl' ? x.full === G.rxOf(x.mv).sets && x.reps === G.rxOf(x.mv).reps : x.full === e.sets && x.reps === e.reps && (x.kind === 'swap') === (x.mv !== e.a); })), true);
+  t('a slot is swapped for the same kind of movement where the gym has one', () => fit({ ok: BASIC }).every((l) => l.every((x) => x.kind !== 'repl' || !G.sameKind(PLAN.flatMap((w) => w.ex).find((e) => e.id === x.id).a).some((k) => BASIC.includes(LIB[k].eq) && !l.some((y) => y.mv === k && y.id !== x.id)))), true);
+  t('a beginner does one set less where there were three or more', () => [fit({ exp: 0 }).every((l) => l.every((x) => x.sets === (x.full >= 3 ? x.full - 1 : x.full))), fit({ exp: 2 }).every((l) => l.every((x) => x.sets === x.full))], [true, true]);
+  for (const time of [30, 45, 60, 75]) t('a workout of ' + time + ' minutes runs no longer, unless it is down to four exercises', () => fit({ time }).map((l) => mins(l) <= time || l.length === 4), [true, true, true, true]);
+  t('what leaves is the end of the workout: the heavy lifts that open it stay', () => fit({ time: 30 }).map((l, w) => l.map((x) => x.id).join() === PLAN[w].ex.slice(0, l.length).map((e) => e.id).join()), [true, true, true, true]);
+  t('more time never means fewer exercises', () => { const n = [30, 45, 60, 75, 0].map((time) => fit({ time }).map((l) => l.length)); return n.every((a, i) => !i || a.every((v, w) => v >= n[i - 1][w])); }, true);
+  t('a short workout keeps what it can, never less than four', () => fit({ time: 30, exp: 2, goals: [1] }).map((l) => l.length >= 4), [true, true, true, true]);
+  t('the reps and rests of the fitted plan are the ones the goals ask for', () => { const l = fit({ goals: [1] })[0][0], e = PLAN[0].ex[0]; return [l.reps, l.r, l.rest.join(), l.t.join(), e.reps]; }, ['6–10', '4–6', '120,180', '150,210', '6–10']);
+  t('fitting leaves the plan itself as it was', () => { const before = JSON.stringify(PLAN); fit({ ok: BASIC, time: 30, exp: 0, goals: [1, 2] }); return JSON.stringify(PLAN) === before; }, true);
+})();
 // the order of a workout: the saved one, cleaned, else the plan's own
 const known = (id) => ['a', 'b', 'c', 'x'].includes(id);
 t('no saved order: the plan\'s own', () => G.orderOf(['a', 'b', 'c'], undefined, known), ['a', 'b', 'c']);
@@ -194,7 +222,7 @@ t('"from, to" points the way the page is read', () => [L('arrow')(), inEn(() => 
 // ---- a guard: in the files that draw the screens, every Hebrew text sits inside say(...) or cnt(...), so that it has an English twin.
 // The few texts that are Hebrew on purpose are listed here.
 (() => {
-  const KEEP = { 'chat.js': ['מתאים', 'מתאים חלקית'], 'avatar.js': ['קירח', 'קצר', 'בלורית', 'מתולתל', 'ארוך', 'בלי', 'זיפים', 'מלא'] };
+  const KEEP = { 'chat.js': ['מתאים', 'מתאים חלקית'], 'avatar.js': ['קרחת', 'קצר', 'מורם', 'מתולתל', 'ארוך', 'פוני', 'קצוץ', 'שביל בצד', 'בינוני', 'בלי', 'זיפים', 'זקן מלא'] };
   const spans = (s, re, firstArgOnly) => { const out = []; let m; while ((m = re.exec(s))) { let i = re.lastIndex, depth = 0, q = null; const a = i; for (; i < s.length; i++) { const c = s[i]; if (q) { if (c === '\\') i++; else if (c === q) q = null; } else if (c === "'" || c === '"' || c === '`') q = c; else if ('([{'.includes(c)) depth++; else if (')]}'.includes(c)) { if (!depth) break; depth--; } else if (c === ',' && !depth && firstArgOnly) break; } out.push([a, i]); } return out; };
   const open = [];
   for (const file of ['app.js', 'coach.js', 'me.js', 'chat.js', 'store.js', 'stage.js', 'onboard.js', 'boot.js', 'moves.js', 'avatar.js', 'prog.js', 'rig.js']) {

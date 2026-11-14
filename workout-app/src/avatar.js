@@ -2,13 +2,17 @@
    One SVG figure, drawn from a few choices (skin, hair, beard, shirt) and from the level: the body fills out as the
    level climbs, and the gear opened along the way (see REWARDS) is worn from then on. The arms are two jointed groups,
    so a class on the root is enough to move between standing and flexing. */
-const SKIN = [['#F9DCC4', '#E6B596'], ['#EFC09A', '#D69D72'], ['#D8A070', '#B87E50'], ['#B07A48', '#8C5C31'], ['#7A4E2D', '#5C381D']];
-const HAIR = ['קירח', 'קצר', 'בלורית', 'מתולתל', 'ארוך'];
-const HAIRS = () => (LANG === 'en' ? ['Bald', 'Short', 'Quiff', 'Curly', 'Long'] : HAIR);
+const SKIN = [['#F8DEC9', '#E8BEA0'], ['#EFC4A0', '#D7A07A'], ['#DDAA80', '#C0885E'], ['#C18A5B', '#A06C42'], ['#8F5C38', '#714525'], ['#5F3C25', '#472B18']];
+/* a haircut is drawn by its number; the list shows them in this order, each by the name a barber would use */
+const HAIR = ['קרחת', 'קצר', 'מורם', 'מתולתל', 'ארוך', 'פוני', 'קצוץ', 'שביל בצד', 'בינוני'];
+const HAIR_EN = ['Bald', 'Short', 'Swept up', 'Curly', 'Long', 'Fringe', 'Buzz cut', 'Side part', 'Medium'];
+const HAIR_ORDER = [1, 6, 7, 5, 2, 3, 8, 4, 0];
+const hairName = (i) => (LANG === 'en' ? HAIR_EN[i] : HAIR[i]);
 const BEARDS = () => (LANG === 'en' ? ['None', 'Stubble', 'Full'] : BEARD);
-const HAIRC = ['#26211F', '#4E3222', '#8B5E34', '#D9A94E', '#B9482B', '#A7ADB8'];
-const BEARD = ['בלי', 'זיפים', 'מלא'];
-const SHIRT = ['#6D3FE0', '#0E9F6E', '#E0364F', '#F08C1A', '#7B4BE0', '#3A4152'];
+const HAIRC = ['#1E1A18', '#3A2A21', '#5E4130', '#8A6446', '#B89058', '#DDBB78', '#A9502C', '#9B9AA0'];
+const BEARD = ['בלי', 'זיפים', 'זקן מלא'];
+/* shirts in the colours shirts come in: the gymi purple, white, black, grey, navy, olive, burgundy and sand */
+const SHIRT = ['#6D3FE0', '#F2F2F4', '#1E1D24', '#8E8C97', '#25315E', '#5C6B3C', '#7A2340', '#CDBB9A'];
 const tone = (hex, k) => mixRgb(hexRgb(hex), k < 0 ? [0, 0, 0] : [255, 255, 255], Math.abs(k));
 /* a colour of its own is taken only when it is a plain six-digit hex colour: it ends up inside the drawing's markup */
 const ownHex = (v) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v : null);
@@ -18,7 +22,7 @@ const ownHex = (v) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v 
    a stud in the ear (stud), and no gear whatever the level (gear: false). A player's look is cleaned to the choices above */
 function avatarSVG(look, lvl, o) {
   o = o || {}; look = look || {};
-  const b = buildOf(lvl), L = (a, z) => +(a + (z - a) * b).toFixed(1), has = (k) => look.gear !== false && REWARDS.some((r) => r.k === k && r.at <= lvl);
+  const b = Math.max(buildOf(lvl), o.base || 0), L = (a, z) => +(a + (z - a) * b).toFixed(1), has = (k) => look.gear !== false && REWARDS.some((r) => r.k === k && r.at <= lvl);
   const sk = SKIN[look.skin] || SKIN[1], skin = sk[0], shd = sk[1], hc = ownHex(look.hairC) || HAIRC[look.hc] || HAIRC[0], shirt = ownHex(look.shirtC) || SHIRT[look.shirt] || SHIRT[0], shirt2 = tone(shirt, -0.18);
   const sw = L(31, 43), cw = L(27, 39), ww = L(22, 25), nw = L(8, 11.5), ua = L(12, 19), fa = L(10, 14.5), lg = L(16, 21), sy = L(96, 93.5), tank = has('tank');
   const ln = (x1, y1, x2, y2, w, c) => '<path d="M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2 + '" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="round" fill="none"/>';
@@ -46,13 +50,18 @@ function avatarSVG(look, lvl, o) {
   if (hair === 1 || hair === 4) topHair = P(cap, hc);
   else if (hair === 2) topHair = P(cap, hc) + P('M80 31C83 15 110 9 124 25C116 22.5 108 25 100 29.5C93 33.5 86 34.5 80 31Z', hc) + '<path d="M90 24Q101 17 114 21" stroke="' + tone(hc, 0.22) + '" stroke-width="1.6" stroke-linecap="round" fill="none"/>';
   else if (hair === 3) topHair = P(cap, hc) + [[78, 41, 8], [84, 31, 8.5], [93, 25, 8.5], [103, 23, 8.5], [113, 26, 8.5], [121, 33, 8], [124.5, 43, 7], [76, 50, 5.5]].map((c) => dot(c[0], c[1], c[2], hc)).join('');
+  else if (hair === 6) topHair = P('M75.4 50.5C74.8 33 87 24.4 100 24.4C113 24.4 125.2 33 124.6 50.5C122.4 43.4 116.4 39.6 108.4 38.7C102.6 38 97.4 38 91.6 38.7C83.6 39.6 77.6 43.4 75.4 50.5Z', hc, ' opacity=".82"');
+  else if (hair === 7) topHair = P(cap, hc) + P('M77 41C79 26 95 17.5 112 20.5C121.5 22.4 128 30.5 127.6 41.5C122.6 33.2 113.4 29.4 103 30.4C93.6 31.3 84.6 35 77 41Z', hc) +
+    '<path d="M93.5 22.5Q90.2 29.8 88.6 38" stroke="' + tone(hc, 0.26) + '" stroke-width="1.5" stroke-linecap="round" fill="none"/>';
+  else if (hair === 8) topHair = P('M71.8 60.5C66.8 33 82 18.4 100 18.4C118 18.4 133.2 33 128.2 60.5C126.4 55 125.2 50.6 123.2 46.4C117.4 40.6 109.2 38.4 100 38.4C90.8 38.4 82.6 40.6 76.8 46.4C74.8 50.6 73.6 55 71.8 60.5Z', hc) +
+    '<path d="M86 24.5Q95 21 104 24.2M108 23.6Q116 25.4 121 31" stroke="' + tone(hc, 0.22) + '" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".8"/>';
   /* the fringe: full on top, falling straight over the forehead in loose strands that reach the brows */
   else if (hair === 5) topHair = P('M73.6 54C70 39 74.5 24 86 18.5Q91 13.8 97 16.6Q102.5 12.6 109.5 16.2C121.5 19.5 130.2 38 126.4 54C125.2 50 124 46.8 121.8 45Q119.6 47.8 116.2 47.4Q115.4 45 114.2 43.2Q111.8 47.6 107.6 48.2Q106.6 45.4 105.6 43.4Q103 48 98.6 48.6Q97.4 45.8 96.4 43.6Q94.2 47.4 89.8 47.8Q88.6 45.2 87.6 43Q85.6 46.2 81.6 46.4Q80.4 44.6 79.6 43.2Q77.4 46 75.6 50Q74.4 52 73.6 54Z', hc) +
     '<path d="M112.6 25.5Q116.4 34 115.6 44M102.6 20.5Q106.2 31 106.6 44.2M93.4 21Q95.2 32 97.4 44.4M85 26.5Q86.2 35 88.6 43.8" stroke="' + tone(hc, 0.24) + '" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".75"/>';
   const beardD = 'M75.5 55C75.5 72 86 85.5 100 85.5C114 85.5 124.5 72 124.5 55C121.5 62 117 64.5 112 64.5C108 61 92 61 88 64.5C83 64.5 78.5 62 75.5 55Z';
   const beard = look.beard === 2 ? P(beardD, hasHair ? hc : '#4A3A30') + '<ellipse cx="100" cy="69.3" rx="7.4" ry="3.9" fill="' + skin + '"/>' : look.beard === 1 ? P(beardD, hasHair ? hc : '#4A3A30', ' opacity=".26"') : '';
-  /* gear is won in the game, so it is gold; on an orange shirt the band is white */
-  const bandC = look.shirt === 3 ? '#F4F5F7' : '#F2B93B';
+  /* gear is won in the game, so it is gold */
+  const bandC = '#F2B93B';
   const band = has('band') ? P('M74.6 44.5C83 38.5 117 38.5 125.4 44.5L125.6 38.5C117 32 83 32 74.4 38.5Z', bandC) + P('M125 39.5L134 35.5L131 42.5ZM125 42L134.5 46L128.5 48.5Z', tone(bandC, -0.12)) : '';
   const crown = has('crown') ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#6D3FE0') + '</g>' : '';
   const medal = has('medal') ? '<path d="M' + X(-nw + 1) + ' 91L100 113L' + X(nw - 1) + ' 91" stroke="#6D3FE0" stroke-width="3.4" stroke-linejoin="round" fill="none"/><circle cx="100" cy="117" r="7.4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.6"/><path d="M100 113.2l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#C98F1C"/>' : '';

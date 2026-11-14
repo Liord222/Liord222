@@ -70,7 +70,7 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   const back = await f.evaluate(() => { const s = Object.values(S.sessions)[0]; return s ? [Object.keys(S.sessions).length, s.sets.ua1[0].kg, s.sets.ua1[0].done, S.view].join() : 'none'; });
   check('the log comes back from the phone\'s copy after the page storage is emptied', back === '1,60,true,workout', back);
   await f.evaluate(() => setView('profile')); await f.waitForTimeout(300); await f.click('#lookBtn'); await f.waitForTimeout(200);
-  await f.fill('#lkName', 'ליאור'); await f.dispatchEvent('#lkName', 'change'); await f.click('#sheet [data-look="shirt"][data-v="1"]'); await f.click('#sheet [data-close]'); await p.waitForTimeout(700);
+  await f.fill('#lkName', 'ליאור'); await f.dispatchEvent('#lkName', 'change'); await f.click('#sheet [data-lktab="shirt"]'); await f.click('#sheet [data-look="shirt"][data-v="1"]'); await f.click('#sheet [data-close]'); await p.waitForTimeout(700);
   const kept = JSON.parse(await p.evaluate(() => localStorage.getItem('gymi:log:v1')) || '{}');
   check('the character is kept in the phone\'s copy', (await txt('.pf-name')) === 'ליאור' && !!kept.cfg && kept.cfg.me.name === 'ליאור' && kept.cfg.me.look.shirt === 1, kept.cfg && kept.cfg.me);
   await f.evaluate(() => { setView('workout', true); });

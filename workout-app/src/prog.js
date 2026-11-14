@@ -106,7 +106,70 @@ const landmark = (k, total) => (total > MUSCLE[k].mrv ? 'over' : total < MUSCLE[
 /* what a movement gets when the lifter adds it by hand, by the kind of movement it is: sets, rep range, rest and how hard (lvl as in the plan) */
 const RX = { big: { sets: 3, reps: '8–12', rest: [120, 120], lvl: 2 }, small: { sets: 2, reps: '10–15', rest: [75, 75], lvl: 3 }, calf: { sets: 3, reps: '12–20', rest: [60, 60], lvl: 3 }, core: { sets: 3, reps: '10–15', rest: [60, 60], lvl: 0 } };
 const RX_KIND = { hpress: 'big', vpress: 'big', vpull: 'big', hpull: 'big', squat: 'big', lunge: 'big', hinge: 'big', thrust: 'big', raise: 'small', rearfly: 'small', ext: 'small', curl: 'small', kcurl: 'small', kext: 'small', calf: 'calf', flex: 'core', antirot: 'core' };
+/* ---- the goals bend the written plan (goals: any of 0 physique, 1 strength, 2 fitness and health; exp: 0 for a beginner).
+   Strength takes the heavy lifts that open a workout (a range that starts at eight or under, and two minutes of rest or
+   more) lower, with longer rests; fitness and health takes every range a step higher, with shorter rests. Physique is the
+   plan as written, and a goal that is chosen beside another bends half as far. A beginner is never sent under five reps.
+   Returns the bent { reps, rest }, or null where the plan stands as it is written ---- */
+const RX_LOW = [{ '6–10': '5–8', '8–10': '6–8', '8–12': '6–10' }, { '6–10': '4–6', '8–10': '5–8', '8–12': '6–8' }];
+const RX_HIGH = { '6–10': '8–12', '8–10': '10–12', '8–12': '10–15', '10–15': '12–15', '12–15': '12–20' };
+function goalRx(reps, rest, goals, exp) {
+  const g = Array.isArray(goals) ? goals : [];
+  if (!g.length || !Array.isArray(rest)) return null;
+  const str = g.includes(1), fit = g.includes(2), many = g.length > 1, m = /^(\d+)–\d+$/.exec(String(reps));
+  const heavy = !!m && +m[1] <= 8 && rest[0] >= 120, r15 = (v) => Math.round(v / 15) * 15;
+  if (str && heavy) {
+    const k = many || exp === 0 ? 0 : 1;
+    return { reps: RX_LOW[k][reps] || reps, rest: [rest[0] + (k ? 30 : 0), Math.min(240, rest[1] + 30)] };
+  }
+  if (fit) {
+    const k = many ? 0 : 1, cut = (v) => Math.max(45, k ? r15(v * 0.75) : v - 15);
+    return { reps: (k && RX_HIGH[reps]) || reps, rest: [cut(rest[0]), cut(rest[1])] };
+  }
+  return null;
+}
 function rxOf(mv) { const r = RX[RX_KIND[LIB[mv].pat] || 'small']; return { sets: r.sets, reps: r.reps, rest: r.rest.slice(), lvl: r.lvl }; }
+/* ---- how long a list of exercises really takes: each set (setting up, then the reps), the rest after every set but the last of
+   an exercise, the move to the next one, and a warm-up. To the nearest five minutes ---- */
+function workMins(list) {
+  const sec = list.reduce((n, e) => {
+    if (!e.sets) return n;
+    const r = String(e.reps || '').match(/\d+/g) || [10], reps = (+r[0] + +(r[1] || r[0])) / 2, rest = (e.rest[0] + e.rest[1]) / 2;
+    return n + e.sets * (15 + reps * 3.5) + (e.sets - 1) * rest + 90;
+  }, 300);
+  return Math.max(10, Math.round(sec / 300) * 5);
+}
+/* the movements that can stand in for one: the same pattern and the same main muscle, joint-friendly ones first */
+const sameKind = (mv) => { const L = LIB[mv]; return Object.keys(LIB).filter((k) => k !== mv && LIB[k].pat === L.pat && LIB[k].p === L.p).sort((a, b) => (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0)); };
+/* ---- the plan fitted to its lifter, as data. ans: { exp (0 for a beginner), goals, time (minutes a workout may take, 0 or null
+   for any), ok (the equipment the gym has, null for all of it) }. For each workout, the slots it keeps, in order:
+   { id, mv, kind, full, sets, reps, rest, r, t }
+   - a movement the gym has no equipment for gives its slot to one of the same kind that the gym has (kind 'swap': the slot and
+     its numbers stay), or to another for the same muscle, with the numbers that suit that one ('repl'), or leaves the workout;
+   - full is the number of sets as written, sets what this lifter does: a beginner does one less where there were three or more;
+   - reps and rest are as written, r and t as the goals bend them;
+   - while a workout runs longer than the time and keeps more than four exercises, its last one leaves ---- */
+const FIT_MIN = 4;
+function fitPlanData(ans) {
+  const ok = ans.ok || null, mins = (list) => workMins(list.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })));
+  return PLAN.map((wk) => {
+    const used = wk.ex.map((e) => e.a); let list = [];
+    wk.ex.forEach((e, i) => {
+      let mv = e.a, full = e.sets, reps = e.reps, rest = e.rest, kind = '';
+      if (ok && !ok.includes(LIB[mv].eq)) {
+        const fits = (k) => ok.includes(LIB[k].eq) && !used.includes(k), same = sameKind(mv).find(fits), near = same ? null : Object.keys(LIB).find((k) => LIB[k].p === LIB[mv].p && fits(k));
+        if (same) { kind = 'swap'; mv = same; }
+        else if (near) { const rx = rxOf(near); kind = 'repl'; mv = near; full = rx.sets; reps = rx.reps; rest = rx.rest; }
+        else { used[i] = null; return; }
+        used[i] = mv;
+      }
+      const g = goalRx(reps, rest, ans.goals, ans.exp) || { reps, rest };
+      list.push({ id: e.id, mv, kind, full, sets: ans.exp === 0 && full >= 3 ? full - 1 : full, reps, rest, r: g.reps, t: g.rest });
+    });
+    if (ans.time) while (list.length > FIT_MIN && mins(list) > ans.time) list = list.slice(0, -1);
+    return list;
+  });
+}
 /* the slots of a workout in order: the saved order with unknown and repeated ids dropped, else the plan's own */
 function orderOf(dflt, saved, known) {
   if (!Array.isArray(saved)) return dflt;

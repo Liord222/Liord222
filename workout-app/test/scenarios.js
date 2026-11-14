@@ -17,6 +17,27 @@ async function open(b, store, fresh, locale) {
   return p;
 }
 const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
+/* through the opening screens with these answers: as far as the plan (which is waited for while it is built), the code, or the last screen.
+   seen: called on every screen that is passed */
+const obWalk = async (pg, a, to, seen) => {
+  const look = async (k) => { if (seen) await seen(k); };
+  const next = async () => { await pg.click('#obNext'); await pg.waitForTimeout(380); };
+  await look('film'); await next();
+  if (a.name != null) await pg.fill('#obName', a.name);
+  await look('name'); await next();
+  await pg.click('.ob-opt[data-v="' + a.exp + '"]'); await look('exp'); await next();
+  for (const g of a.goals) await pg.click('.ob-opt[data-v="' + g + '"]');
+  await look('goals'); await next();
+  await pg.click('.ob-time[data-v="' + a.time + '"]'); await look('time'); await next();
+  await pg.click('.ob-opt[data-v="' + a.eq + '"]'); await look('eq'); await next();
+  for (const t of ['hair', 'hc', 'beard', 'shirt', 'skin']) { await pg.click('#ob [data-lktab="' + t + '"]'); await look('look-' + t); }
+  await next(); await look('build');
+  await pg.waitForSelector('#obNext:not([disabled])', { timeout: 9000 }); await pg.waitForTimeout(300); await look('plan');
+  if (to === 'plan') return;
+  await next(); await look('pin');
+  if (to === 'pin') return;
+  await next(); await look('done');
+};
 (async () => {
   const b = await chromium.launch(), day = 864e5, now = Date.now();
   // ---- 1. data saved by the previous version: no mesocycle fields at all, one finished and one running workout ----
@@ -134,16 +155,28 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   // ---- 6. a new player on an English phone: the opening screens in English, and a beginner's plan ----
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: {} }, true, 'en-US'); txt = T(p);
   check('an English phone is met in English', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'Welcome to gymi' && (await p.evaluate(() => document.documentElement.dir)) === 'ltr' && (await p.getAttribute('#ob [data-lang="en"]', 'aria-pressed')) === 'true', await txt('#ob'));
-  await p.click('#obNext'); await p.waitForTimeout(350); await p.fill('#obName', 'Sam'); await p.click('#obNext'); await p.waitForTimeout(350);
-  await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(350);
-  await p.click('.ob-opt[data-v="2"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(350);
-  check('the plan is offered in English, with the lighter start a beginner gets', (await txt('#obTitle')) === 'I think this plan will suit you' && (await txt('.ob-lines')).includes('2 sets an exercise') && (await txt('.ob-lines')).includes('By your experience: Beginner') && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
+  /* a beginner, for fitness and health, with half an hour and a gym without machines */
+  const heb6 = [];
+  await obWalk(p, { name: 'Sam', exp: 0, goals: [2], time: 30, eq: 1 }, 'plan', async (k) => { const t = await p.evaluate(() => { const c = document.querySelector('#ob').cloneNode(true); for (const x of c.querySelectorAll('.ob-lang')) x.remove(); return c.textContent; }); if (/[\u0590-\u05FF]/.test(t)) heb6.push(k + ': ' + t.slice(0, 80)); });
+  await snap(p, 'h6-plan-en');
+  const off6 = await p.evaluate(() => ({ title: document.querySelector('#obTitle').textContent, stats: [...document.querySelectorAll('.ob-stats li')].map((x) => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent).join('|'), wks: [...document.querySelectorAll('.ob-wks li')].map((x) => x.textContent).join('|') }));
+  check('the plan is offered in English, with the lighter start a beginner gets and the half hour that was asked for', off6.title === 'Your plan is ready' && off6.stats === '5 exercises a workout|2 sets each|30 minutes a workout' && off6.wks === 'Upper Body A|Lower Body A|Upper Body B|Lower Body B' && heb6.length === 0, [off6, heb6]);
+  await p.click('#obNext'); await p.waitForTimeout(400);
+  check('the code is asked for in English, and can be left for later', (await txt('#obTitle')) === 'A personal code' && (await txt('#obNext')) === 'Skip for now' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
   await p.click('#obNext'); await p.waitForTimeout(500);
   await snap(p, 'h6-ready-en');
   check('the last screen is in English too', (await txt('#obTitle')) === 'Sam, you are all set!' && (await txt('#obNext')) === 'To the first workout' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
   await p.click('#obNext'); await p.waitForTimeout(400);
-  const beg = await p.evaluate(() => ({ lang: S.cfg.lang, exp: S.cfg.me.exp, goal: S.cfg.me.goal, sets: [planned(0, {}).ua1, planned(0, {}).ua5, planned(1, {}).la1, planned(1, {}).la6].join(), tag: document.querySelector('#home .xp-tag').textContent, hidden: document.querySelector('#ob').hidden }));
-  check('a beginner starts with one set less where there were three', beg.lang === 'en' && beg.exp === 0 && beg.goal === 2 && beg.sets === '2,2,2,2' && beg.tag === '+260' && beg.hidden, beg);
+  const beg = await p.evaluate(() => ({ lang: S.cfg.lang, exp: S.cfg.me.exp, goal: S.cfg.me.goal, goals: S.cfg.me.goals.join(), time: S.cfg.me.time, eq: S.cfg.me.eq, sets: [0, 1, 2, 3].map((w) => exList(w).map((e) => e.sets).join('')).join(), hidden: document.querySelector('#ob').hidden, view: S.view,
+    /* what the plan became: the equipment of every movement, how long each workout runs, and how many exercises it kept */
+    gear: [...new Set([0, 1, 2, 3].flatMap((w) => exList(w).map((e) => LIB[e.mv].eq)))].sort().join(), mins: [0, 1, 2, 3].map((w) => minsOf(exList(w))), n: [0, 1, 2, 3].map((w) => exList(w).length), first: exList(0)[0].reps + ' ' + exList(0)[0].rest.join('-'),
+    twice: [0, 1, 2, 3].some((w) => { const m = exList(w).map((e) => e.mv); return new Set(m).size !== m.length; }), tag: document.querySelector('#home .xp-tag').textContent, card: document.querySelector('#home .card.next .meta').textContent }));
+  check('a beginner starts with one set less where there were three', beg.lang === 'en' && beg.exp === 0 && beg.goal === 2 && beg.goals === '2' && /^2+(,2+){3}$/.test(beg.sets) && beg.hidden && beg.view === 'home', beg);
+  check('the plan is fitted to the gym: nothing in it needs a machine, and no movement comes twice in a workout', beg.eq === 1 && beg.gear.split(',').every((g) => ['bar', 'bw', 'cable', 'db'].includes(g)) && !beg.twice, beg.gear);
+  check('and to the time: every workout runs half an hour at most, and keeps at least four exercises', beg.time === 30 && beg.mins.every((m) => m <= 30) && beg.n.every((n) => n >= 4 && n <= 5), [beg.mins, beg.n]);
+  check('what was offered is what was made: the same number of exercises, sets and minutes', off6.stats === beg.n[0] + ' exercises a workout|' + beg.sets[0] + ' sets each|' + beg.mins[0] + ' minutes a workout' && new Set(beg.n).size === 1 && new Set(beg.mins).size === 1, [off6.stats, beg.n, beg.mins]);
+  check('and to the goal: for fitness the first lift goes a step up, with a shorter rest', beg.first === '8–12 90-135', beg.first);
+  check('the workout card tells the truth about it', beg.card.includes(beg.n[0] + ' exercises') && beg.card.includes(beg.mins[0] + ' min') && beg.tag === '+' + (beg.n[0] * 20 + 100), [beg.card, beg.tag]);
   /* the next visit starts from what this one kept (a new copy with the same storage: a reload right after a save can come too early for the test browser) */
   const keptEn = JSON.parse(await p.evaluate(() => localStorage.getItem('ul4:v1')));
   await p.context().close();
@@ -153,12 +186,12 @@ const T = (p) => (sel) => p.evaluate((s) => (document.querySelector(s) || { inne
   /* a copy that already has workouts, from before the opening screens existed: they are shown once, in Hebrew, and nothing in the plan changes */
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: { s01: ses.s01 }, cfg: { upd: 3, weeks: 5, me: { name: 'ליאור', made: 4 } } }, true, 'en-US'); txt = T(p);
   check('an existing player sees the opening screens once, in the language the app always had', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'ברוכים הבאים ל-gymi', await txt('#obTitle'));
-  await p.click('#obNext'); await p.waitForTimeout(350);
-  check('with the name already there', (await p.inputValue('#obName')) === 'ליאור', await p.inputValue('#obName'));
-  await p.click('#obNext'); await p.waitForTimeout(350); await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('.ob-opt[data-v="0"]'); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(350); await p.click('#obNext'); await p.waitForTimeout(450);
+  let had = '';
+  await obWalk(p, { exp: 0, goals: [0], time: 30, eq: 1 }, 'done', async (k) => { if (k === 'name') had = await p.inputValue('#obName'); });
+  check('with the name already there', had === 'ליאור', had);
   check('and is sent on, not to a "first" workout', (await txt('#obNext')) === 'קדימה', await txt('#obNext'));
   await p.click('#obNext'); await p.waitForTimeout(400);
-  check('a plan that was already trained is left as it is', (await p.evaluate(() => [S.cfg.me.exp, planned(0, {}).ua1, Object.keys(S.cfg.base).length, S.cfg.lang].join())) === '0,3,0,he', await p.evaluate(() => JSON.stringify(S.cfg.base)));
+  check('a plan that was already trained is left as it is: no sets taken off, no movement swapped and no exercise dropped, whatever the gym and the time', (await p.evaluate(() => [S.cfg.me.exp, planned(0, {}).ua1, Object.keys(S.cfg.base).length, S.cfg.lang, exList(0).length, Object.keys(S.cfg.swap).length, S.cfg.me.time, S.cfg.me.eq].join())) === '0,3,0,he,8,0,30,1', await p.evaluate(() => JSON.stringify([S.cfg.base, S.cfg.swap, S.cfg.me])));
   await p.context().close();
 
   // ---- 7. numbers at the edges: nothing typed, pasted, restored or written by the coach may leave an absurd set in the log ----

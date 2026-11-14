@@ -23,7 +23,8 @@ const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
 const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '') + ' style="width:' + p + '%"></i></span>';
 const tons = (kg) => { const t = kg / 1000; return t >= 100 ? nf(t) : (Math.round(t * 10) / 10).toLocaleString('en-US'); };
-const avatar = (lvl, o) => avatarSVG(S.cfg.me.look, lvl, o);
+/* the player's character: built at least as far as the experience they came with (see EXP_BASE) */
+const avatar = (lvl, o) => avatarSVG(S.cfg.me.look, lvl, Object.assign({ base: EXP_BASE[expNow()] || 0 }, o));
 
 /* refresh the player's side after the log changed, and remember the level so that a level-up can be spotted */
 function renderMe() {
@@ -74,34 +75,89 @@ function renderSettings() {
 }
 function openSettings() { S.sheet = 'set'; S.backupNote = ''; renderSettings(); $('#sheet').hidden = false; }
 
-/* ---- the character sheet: name and looks; every choice is saved at once ---- */
+/* ---- the character editor: name and looks; every choice is saved at once. One kind of choice is on screen at a time,
+   picked from a row of tabs, so that the whole editor fits on one screen with the character above it ---- */
+const LK = { tab: 'skin', busy: false, note: '' };
+const LOOK_TABS = () => [['skin', say('עור', 'Skin')], ['hair', say('תספורת', 'Haircut')], ['hc', say('צבע שיער', 'Hair colour')], ['beard', say('זקן', 'Beard')], ['shirt', say('חולצה', 'Shirt')]];
+/* a T-shirt, for the shirt colours: a colour is easier to choose on the thing it colours */
+const TEE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 3.6c.7 1.3 1.9 2 3.4 2s2.7-.7 3.4-2l5.1 2.3-1.9 4.3-2.3-.9v11.2H7.7V9.3l-2.3.9-1.9-4.3z"/></svg>';
 function lookRows() {
-  /* each row is a named group, and each colour says what it is the colour of: 'Shirt 3', not 'Option 3' three times over */
-  const k = S.cfg.me.look, sw = (key, list, hex, label) => '<div class="lk-opts" role="group" aria-label="' + label + '">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
-  const seg = (key, list, label) => '<div class="seg" role="group" aria-label="' + label + '">' + list.map((t, i) => '<button type="button" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '">' + t + '</button>').join('') + '</div>';
-  const row = (label, body) => '<div class="lk-row col"><span aria-hidden="true">' + label + '</span>' + body + '</div>';
-  const L = { skin: say('עור', 'Skin'), hair: say('שיער', 'Hair'), hc: say('צבע שיער', 'Hair colour'), beard: say('זקן', 'Beard'), shirt: say('חולצה', 'Shirt') };
-  return row(L.skin, sw('skin', SKIN, (c) => c[0], L.skin)) + row(L.hair, seg('hair', HAIRS(), L.hair)) + row(L.hc, sw('hc', HAIRC, (c) => c, L.hc)) + row(L.beard, seg('beard', BEARDS(), L.beard)) + row(L.shirt, sw('shirt', SHIRT, (c) => c, L.shirt));
+  const k = S.cfg.me.look, tabs = LOOK_TABS(), cur = tabs.find((t) => t[0] === LK.tab) || tabs[0], key = cur[0], label = cur[1];
+  /* each colour says what it is the colour of: 'Shirt 3', not 'Option 3' three times over */
+  const sw = (list, hex) => '<div class="lk-opts" style="--n:' + list.length + '">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
+  const face = (look, i, name) => '<button type="button" class="lk-cut" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '"><span class="lk-face" aria-hidden="true">' + avatarSVG(look, 1, { bust: true }) + '</span><small>' + name + '</small></button>';
+  let body;
+  if (key === 'skin') body = sw(SKIN, (c) => c[0]);
+  else if (key === 'hair') body = '<div class="lk-cuts">' + HAIR_ORDER.map((i) => face(Object.assign({}, k, { hair: i }), i, hairName(i))).join('') + '</div>';
+  else if (key === 'hc') body = sw(HAIRC, (c) => c);
+  else if (key === 'beard') body = '<div class="lk-cuts three">' + BEARDS().map((t, i) => face(Object.assign({}, k, { beard: i }), i, t)).join('') + '</div>';
+  else body = '<div class="lk-tees">' + SHIRT.map((c, i) => '<button type="button" class="lk-tee" data-look="shirt" data-v="' + i + '" aria-pressed="' + (k.shirt === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + c + '">' + TEE + '</button>').join('') + '</div>';
+  return '<div class="lk-tabs" role="tablist" aria-label="' + say('מה לשנות', 'What to change') + '">' + tabs.map((t) => '<button type="button" role="tab" data-lktab="' + t[0] + '" aria-selected="' + (t[0] === key) + '">' + t[1] + '</button>').join('') + '</div>' +
+    '<div class="lk-pane" role="tabpanel" aria-label="' + label + '">' + body + '</div>';
+}
+/* the button that makes the character from a photo: only where Eilon can be shown one */
+const CAM = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>';
+function lookPhoto() {
+  if (!chat.canImg) return '';
+  return '<button type="button" class="lk-photo" id="lkPhoto"' + (LK.busy ? ' disabled' : '') + '>' + (LK.busy ? '<i class="spin" aria-hidden="true"></i>' + say('מסתכל…', 'Looking…') : CAM + say('ליצור מתמונה', 'Make it from a photo')) + '</button>' +
+    '<p class="lk-note" id="lkNote" role="status"' + (LK.note ? '' : ' hidden') + '>' + (LK.note || '') + '</p>';
+}
+function lookTab(t) { LK.tab = t; const box = $('#lkRows'); if (box) box.innerHTML = lookRows(); haptic('select'); }
+function lookDraw(pump) {
+  const st = $('#lkStage'), rows = $('#lkRows'), ph = $('#lkPhotoBox');
+  if (st) { st.innerHTML = avatar(S.lvl || 1); if (pump) { st.classList.remove('pump'); void st.offsetWidth; st.classList.add('pump'); } }
+  if (rows) rows.innerHTML = lookRows();
+  if (ph) ph.innerHTML = lookPhoto();
+  if (player.cv && !player.playing) paintStage(player.lastT);
 }
 function openLook() {
   const me = S.cfg.me, sh = $('#sheet');
-  S.sheet = 'look';
+  S.sheet = 'look'; LK.note = '';
   sh.innerHTML = '<div class="sheet-in lk" role="dialog" aria-modal="true" aria-label="' + say('הדמות שלי', 'My character') + '"><div class="ed-h"><div><h2>' + say('הדמות שלי', 'My character') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div>' +
+    '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div><div class="lk-photo-box" id="lkPhotoBox">' + lookPhoto() + '</div>' +
     '<label class="lk-row" for="lkName"><span>' + say('שם', 'Name') + '</span><input id="lkName" type="text" dir="auto" maxlength="16" autocomplete="off" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(me.name) + '"></label>' +
-    '<div id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
+    '<div class="lk-ed" id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
   sh.hidden = false;
 }
 function setLook(key, v) {
   const me = S.cfg.me; if (!(key in me.look)) return;
   me.look[key] = v; me.made = me.made || Date.now(); saveCfg();
-  $('#lkStage').innerHTML = avatar(S.lvl || 1); $('#lkRows').innerHTML = lookRows();
-  if (player.cv && !player.playing) paintStage(player.lastT);
+  lookDraw(false);
+}
+/* ---- the character from a photo: Eilon looks at it once and picks the closest of each choice. The photo is not kept ---- */
+const LOOK_ASK = 'You are setting up a simple cartoon avatar for a fitness app. Look at the main person in the photo and pick the closest option in each list. ' +
+  'Reply with one line of JSON and nothing else: {"skin":N,"hair":N,"hc":N,"beard":N}\n' +
+  'skin, the tone from light to deep: 0 very fair, 1 fair, 2 light tan, 3 tan or olive, 4 brown, 5 deep brown.\n' +
+  'hair, the cut: 0 bald or shaved, 1 short, 2 swept up, 3 curly, 4 long (past the chin), 5 a fringe over the forehead, 6 buzz cut, 7 side part, 8 medium (over the ears).\n' +
+  'hc, the hair colour: 0 black, 1 dark brown, 2 brown, 3 light brown, 4 dark blond, 5 blond, 6 red or ginger, 7 grey or white.\n' +
+  'beard: 0 none, 1 stubble or a short beard, 2 a full beard.\n' +
+  'If no person can be seen in the photo, reply {"none":true}.';
+async function lookFromPhoto(file) {
+  if (!file || LK.busy) return;
+  const say2 = (t) => { LK.note = t || ''; const ph = $('#lkPhotoBox'); if (ph) ph.innerHTML = lookPhoto(); };
+  LK.busy = true; say2('');
+  try {
+    const blob = await shrinkImage(file, 1024), sample = await chat.sampleP;
+    if (!sample) throw new Error('no coach');
+    const res = await sample([{ role: 'user', content: LOOK_ASK }], { cache: false, images: [blob] });
+    const m = String((res && res.text) || '').match(/\{[^{}]*\}/); let o = null;
+    try { o = m ? JSON.parse(m[0]) : null; } catch (e) { o = null; }
+    LK.busy = false;
+    if (o && o.none) { say2(say('לא מצאתי פנים בתמונה. אפשר לנסות תמונה אחרת.', 'I could not find a face in the photo. Try another one.')); return; }
+    const me = S.cfg.me, lim = { skin: SKIN.length, hair: HAIR.length, hc: HAIRC.length, beard: BEARD.length }; let n = 0;
+    if (o) for (const key of Object.keys(lim)) if (Number.isInteger(o[key]) && o[key] >= 0 && o[key] < lim[key]) { me.look[key] = o[key]; n++; }
+    if (!o || !n) { say2(say('לא הצלחתי לקרוא את התמונה. אפשר לנסות שוב.', 'I could not read the photo. Try again.')); return; }
+    me.made = me.made || Date.now(); saveCfg(); LK.note = say('הנה. אפשר לשנות כל פרט.', 'There. Every detail can still be changed.'); lookDraw(true); feel('set', 'success');
+  } catch (e) {
+    LK.busy = false; say2(say('לא הצלחתי לקרוא את התמונה כרגע. אפשר לבחור ידנית.', 'I could not read the photo right now. You can choose by hand.'));
+  }
 }
 function setName(v) { const me = S.cfg.me, n = String(v || '').trim().slice(0, 16); if (n === me.name) return; me.name = n; me.made = me.made || Date.now(); saveCfg(); }
 /* clicks and typing inside the sheet that belong to this file; returns true when the click was handled */
 function meSheetClick(ev) {
   const lk = ev.target.closest('[data-look]'); if (lk) { setLook(lk.dataset.look, +lk.dataset.v); return true; }
+  const tb = ev.target.closest('[data-lktab]'); if (tb) { lookTab(tb.dataset.lktab); return true; }
+  if (ev.target.closest('#lkPhoto')) { $('#lkFile').click(); return true; }
   if (S.sheet !== 'set') return false;
   const b = ev.target.closest('button'); if (!b) return false;
   const k = b.dataset.set, v = b.dataset.v;
@@ -109,10 +165,10 @@ function meSheetClick(ev) {
   else if (b.id === 'backupBtn') exportBackup();
   else if (b.id === 'restoreBtn') $('#restoreFile').click();
   else if (b.id === 'exportBtn') exportCsv();
-  else if (k === 'lang') setLang(v);
+  else if (k === 'lang') { if (v !== LANG) langFade(() => setLang(v)); }
   else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) sfx('set'); renderSettings(); }
   else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); if (HX.on) document.documentElement.dataset.hx = S.buzz ? 'on' : 'off'; haptic('success'); renderSettings(); }
-  else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
+  else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); else me.goals = [+v]; saveCfg(); renderAll(); }
   else return false;
   return true;
 }
@@ -162,6 +218,7 @@ function countUp(el, to) {
   requestAnimationFrame(step);
 }
 function wireMe() {
+  $('#lkFile').addEventListener('change', (ev) => { const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; lookFromPhoto(f); });
   $('#profile').addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
     if (b.id === 'lookBtn') openLook();

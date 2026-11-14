@@ -19,6 +19,8 @@ function wearLook() {
   let shirt = hexRgb(SHIRT[k.shirt] || SHIRT[0]);
   /* a shirt too close to the colour that marks the working muscle would hide it: it goes darker */
   if (Math.hypot(shirt[0] - mu[0], shirt[1] - mu[1], shirt[2] - mu[2]) < 110) shirt = shirt.map((v) => Math.round(v * 0.55));
+  /* and one the colour of the stage behind it (white on a light stage, black on a dark one) is shaded, so the figure stays whole */
+  if (Math.hypot(shirt[0] - bg[0], shirt[1] - bg[1], shirt[2] - bg[2]) < 70) shirt = to(shirt, dark ? [255, 255, 255] : [0, 0, 0], 0.22);
   const shorts = dark ? [86, 96, 138] : [57, 65, 90], hairOn = (k.hair | 0) > 0, hc = HAIRC[k.hc] || HAIRC[0];
   C.fig = sk[0]; C.figLo = sk[1]; C._fig = skin; C._lo = shade; C._hi = to(skin, [255, 255, 255], 0.3);
   C.far = css(to(shade, bg, 0.22));

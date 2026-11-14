@@ -12,8 +12,8 @@
       "bundleIdentifier": "com.liord222.gymi",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "To take a photo of a gym machine and ask Eilon, the coach, about it.",
-        "NSPhotoLibraryUsageDescription": "To choose a photo of a gym machine and ask Eilon, the coach, about it.",
+        "NSCameraUsageDescription": "To take a photo for Eilon, the coach: of a gym machine, to ask about it, or of you, to make your character.",
+        "NSPhotoLibraryUsageDescription": "To choose a photo for Eilon, the coach: of a gym machine, to ask about it, or of you, to make your character.",
         "CFBundleAllowMixedLocalizations": true
       }
     },

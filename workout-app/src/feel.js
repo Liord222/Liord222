@@ -10,6 +10,8 @@ const SFX = {
   pr: [[659, 0, 0.1, 0.065, 'sine'], [880, 0.09, 0.1, 0.065, 'sine'], [1175, 0.18, 0.3, 0.07, 'sine']],
   coin: [[880, 0, 0.08, 0.05, 'sine'], [1175, 0.07, 0.16, 0.05, 'sine']],
   done: [[523, 0, 0.13, 0.07, 'sine'], [659, 0.12, 0.13, 0.07, 'sine'], [784, 0.24, 0.13, 0.07, 'sine'], [1047, 0.36, 0.5, 0.08, 'sine']],
+  /* a small fanfare: a rising run that lands on an open chord and rings */
+  glory: [[392, 0, 0.12, 0.055, 'triangle'], [523, 0.1, 0.12, 0.055, 'triangle'], [659, 0.2, 0.12, 0.06, 'triangle'], [784, 0.3, 0.16, 0.065, 'triangle'], [1047, 0.46, 0.75, 0.075, 'sine'], [784, 0.46, 0.75, 0.04, 'sine'], [1319, 0.5, 0.8, 0.035, 'sine'], [1568, 0.56, 0.9, 0.022, 'sine']],
 };
 /* one note: [frequency, start, length, volume, wave] with a soft start and a long tail, like a struck bar */
 function sfx(kind) {

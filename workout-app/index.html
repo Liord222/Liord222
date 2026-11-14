@@ -625,6 +625,15 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .av-eyes{transform-origin:100px 56px;animation:av-blink 4.8s infinite}
 .av.still .av-bod,.av.bust .av-bod,.av.bust .av-eyes{animation:none}
 .av.flex .av-fig{animation:av-hop 1s ease-in-out 3}
+/* a wave: one arm up and out, its forearm swinging */
+.av.wave .av-arm.r{transform:rotate(-128deg)}
+.av.wave .av-arm.r .av-fore{animation:av-wave .85s ease-in-out infinite}
+@keyframes av-wave{0%,100%{transform:rotate(-38deg)}50%{transform:rotate(4deg)}}
+/* a cheer: both arms up, and a few hops */
+.av.cheer .av-arm.l{transform:rotate(152deg)}.av.cheer .av-arm.r{transform:rotate(-152deg)}
+.av.cheer .av-arm.l .av-fore{transform:rotate(16deg)}.av.cheer .av-arm.r .av-fore{transform:rotate(-16deg)}
+.av.cheer .av-fig{animation:av-hop .62s ease-in-out 4}
+.av.cheer .av-smile{opacity:0}.av.cheer .av-grin{opacity:1}
 @keyframes av-breathe{50%{transform:translateY(-1.5px)}}
 @keyframes av-blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
 @keyframes av-hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-9px)}}
@@ -657,46 +666,6 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .sum .sum-next{font-size:13.5px}
 .sum .btn{position:relative}
 .xp-line{display:flex;align-items:center;gap:8px;font-weight:600}
-
-/* the opening screens: one question at a time, asked by the coach */
-.ob{position:fixed;inset:0;z-index:90;background:var(--paper);overflow-x:clip;overflow-y:auto;overscroll-behavior:contain}
-.ob-in{min-height:100%;max-width:480px;margin-inline:auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:18px;padding:calc(env(safe-area-inset-top,0px) + 10px) max(20px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(20px,env(safe-area-inset-left,0px))}
-.ob-top{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:44px}
-.ob-top .link{min-height:44px;padding:0 6px;justify-self:end;white-space:nowrap}
-.ob-sp{width:44px}
-.ob-prog{direction:ltr;height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
-.ob-prog i{display:block;height:100%;min-width:8px;border-radius:99px;background:var(--accent);transition:width .35s cubic-bezier(.2,.8,.2,1)}
-.ob-body{display:grid;gap:18px;align-content:start}
-.ob-body.in-next,.ob-body.in-prev{animation:ob-rise .34s cubic-bezier(.2,.8,.2,1)}
-[dir="ltr"] .ob-body.in-next{animation-name:fx-prev}
-[dir="ltr"] .ob-body.in-prev{animation-name:fx-next}
-.ob-hero{display:grid;justify-items:center;text-align:center;gap:10px;padding-top:4vh;position:relative}
-.ob-hero .logo{justify-items:center}
-.ob-av{width:min(210px,56%);margin-block:8px 2px}
-.ob-hero h1{font-size:30px;font-weight:800;line-height:1.15;letter-spacing:-.02em;text-wrap:balance}
-.ob-hero>p{font-size:16px;color:var(--ink-2);max-width:320px;text-wrap:balance}
-.ob-q{display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:start;padding-top:8px}
-.ob-q .ava{width:56px;height:56px}
-.ob-bub{position:relative;background:var(--surface);border-radius:22px;border-start-start-radius:6px;padding:16px 18px;display:grid;gap:6px}
-.ob-bub h1{font-size:23px;font-weight:800;line-height:1.2;letter-spacing:-.02em;text-wrap:balance}
-.ob-bub p{font-size:14.5px;color:var(--ink-2)}
-.ob-in-name{width:100%;height:60px;border-radius:20px;border:0;background:var(--surface);padding:0 18px;font-size:20px;font-weight:600}
-.ob-in-name:focus{outline:2px solid var(--accent);outline-offset:0}
-.ob-opts{display:grid;gap:10px}
-.ob-opt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;min-height:68px;padding:10px 18px;border:0;border-radius:20px;background:var(--surface);text-align:start;box-shadow:inset 0 0 0 2px transparent;transition:box-shadow .15s,transform .08s}
-.ob-opt:active{transform:scale(.985)}
-.ob-opt>svg{width:26px;height:26px;color:var(--accent)}
-.ob-opt span{display:grid;min-width:0}
-.ob-opt b{font-size:17px;font-weight:700;line-height:1.3}
-.ob-opt small{font-size:13.5px;color:var(--ink-2)}
-.ob-chk{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--ink-3);color:transparent}
-.ob-chk svg{width:15px;height:15px;stroke-width:3}
-.ob-opt[aria-checked="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
-.ob-opt[aria-checked="true"] .ob-chk{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-.ob .lk-stage{width:132px}
-.ob #lkRows{background:var(--surface);border-radius:22px;padding:16px}
-.ob-note{font-size:12.5px;color:var(--ink-3);max-width:340px}
-.ob-foot{position:sticky;bottom:0;z-index:2;padding-top:10px;background:linear-gradient(to top,var(--paper) 78%,transparent)}
 
 /* ================================================================== a livelier look
    Colour means something: each workout has its own blue, what is done takes that blue, the streak burns, the game is gold.
@@ -759,128 +728,323 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
 .bdg-i{width:54px;height:54px;background:var(--surface-3);color:var(--ink-4);box-shadow:0 3px 0 var(--lip)}
 .bdg-i svg{width:26px;height:26px;stroke-width:2.3}
 .bdg.on .bdg-i{background:var(--gold);color:var(--gold-ink);box-shadow:0 3px 0 var(--gold-lip)}
-/* answers to choose from: a card on its lip; the chosen one is lit */
-.ob-opt{box-shadow:inset 0 0 0 2px var(--line),0 4px 0 var(--lip);margin-bottom:4px}
-.ob-opt:active{transform:scale(.96)}
-.ob-opt[aria-checked="true"]{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent),0 4px 0 var(--accent)}
 .sug{background:var(--surface);box-shadow:inset 0 0 0 2px var(--line),0 3px 0 var(--lip);margin-bottom:3px}
 .sug:active{transform:scale(.96)}
 
-/* ---- the opening ----
-   A black curtain with the name, as when a phone wakes up, lifts onto a scene that fills the whole screen: shapes that
-   drift from top to bottom, the player's character in the middle (a tap takes it up a level), and Eilon, who comes in
-   from the side and speaks. On the questions that follow he comes in the same way, and the answers arrive after him. */
+/* ================================================================== the opening
+   A black curtain with the name lifts onto a short film on a night-purple stage: the camera finds Eilon, who waves, pulls
+   back onto the player's character, and pushes in as it grows. Then the questions, on the page's own paper: Eilon beside
+   each one, the answers under him. The plan is built in front of the lifter, and the last screen is the stage again, with
+   today's character and the one at level 100. Things rise softly into place; nothing slides in from the side */
 .splash{position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#000;color:#fff}
 .splash[hidden]{display:none}
 .splash.out{animation:splash-out .44s ease-in forwards;pointer-events:none}
 .splash-in{display:grid;justify-items:center;gap:12px;direction:ltr;animation:splash-logo 1.7s cubic-bezier(.2,.8,.2,1) both}
 .splash .logo-w{font-size:60px;color:#fff}
 .splash .logo-i{color:#A98BFF}
-.splash small{font-size:12px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:#9299A6;animation:ob-rise .6s ease-out .5s both}
+.splash small{font-size:12px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:#9693A3;animation:ob-rise .6s ease-out .5s both}
 @keyframes splash-logo{0%{opacity:0;transform:scale(.84)}30%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1.04)}}
 @keyframes splash-out{to{opacity:0;visibility:hidden}}
-.ic-tile{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:13px;background:var(--wk);color:#fff;box-shadow:0 3px 0 var(--wk-lip)}
-.ic-tile svg{width:24px;height:24px;stroke-width:2.3}
-.ob-opt>.ic-tile svg{color:#fff}
-/* the scene behind every opening screen: it is fixed to the screen itself, so it always reaches from top to bottom */
-.ob-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;transition:opacity .4s}
-.ob-bg::before{content:"";position:absolute;left:50%;top:40%;width:150vmin;height:150vmin;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,var(--accent-soft),transparent 72%)}
-.ob-bg::after{content:"";position:absolute;inset:auto 0 0;height:34%;background:linear-gradient(to top,var(--accent-soft),transparent)}
-.ob-bg i{position:absolute;z-index:1;border-radius:50%;animation:ob-float 6s ease-in-out infinite}
-.ob-bg i:nth-child(1){width:58px;height:58px;top:9%;inset-inline-start:5%;background:var(--w0-soft)}
-.ob-bg i:nth-child(2){width:30px;height:30px;top:17%;inset-inline-end:8%;border-radius:9px;background:var(--w2-soft);animation-duration:7.5s;animation-delay:-2s}
-.ob-bg i:nth-child(3){width:40px;height:40px;top:36%;inset-inline-start:2%;background:none;box-shadow:inset 0 0 0 7px var(--w1-soft);animation-duration:8s;animation-delay:-4s}
-.ob-bg i:nth-child(4){width:16px;height:16px;top:6%;inset-inline-end:30%;background:var(--gold);opacity:.55;animation-duration:5.5s;animation-delay:-1s}
-.ob-bg i:nth-child(5){width:26px;height:26px;top:47%;inset-inline-end:3%;background:var(--xp-soft);animation-duration:7s;animation-delay:-3s}
-.ob-bg i:nth-child(6){width:14px;height:14px;top:28%;inset-inline-start:16%;border-radius:4px;background:var(--w3-soft);animation-duration:6.5s;animation-delay:-5s}
-.ob-bg i:nth-child(7){width:46px;height:46px;top:63%;inset-inline-start:6%;background:var(--w1-soft);animation-duration:9s;animation-delay:-2.5s}
-.ob-bg i:nth-child(8){width:34px;height:34px;top:72%;inset-inline-end:7%;background:none;box-shadow:inset 0 0 0 6px var(--w2-soft);animation-duration:7.2s;animation-delay:-1.5s}
-.ob-bg i:nth-child(9){width:12px;height:12px;top:84%;inset-inline-start:28%;background:var(--gold);opacity:.5;animation-duration:6s;animation-delay:-3.5s}
-.ob-bg i:nth-child(10){width:22px;height:22px;top:90%;inset-inline-end:24%;border-radius:7px;background:var(--w0-soft);animation-duration:8.4s;animation-delay:-.5s}
-@keyframes ob-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(14deg)}}
-.ob-in{position:relative;z-index:1}
-.ob:not([data-step="0"]) .ob-bg{opacity:.55}
-/* nothing is seen, and nothing moves, until the curtain is up */
-.ob:not(.play) .ob-in{visibility:hidden}
-.ob:not(.play) .ob-in *{animation-play-state:paused!important}
-.ob-in[data-step="0"]{gap:8px}
-.ob-in[data-step="0"] .ob-body,.ob-in[data-step="6"] .ob-body{align-content:stretch}
-.ob-in[data-step="0"] .ob-foot{background:none}
-.ob-top.first{grid-template-columns:auto minmax(0,1fr) auto}
-.ob-top .ob-lang{width:auto;margin:0;padding:3px;border-radius:14px;background:var(--surface)}
-.ob-top .ob-lang button{min-height:38px;padding:0 12px;font-size:13.5px;border-radius:11px}
-.ob-stage{display:grid;grid-template-rows:auto minmax(0,1fr) auto;justify-items:center;align-items:center;gap:8px;min-height:100%}
-.ob-stage .logo{justify-items:center}
-.ob-stage .logo-w{font-size:30px}
-/* the character: a button, because a tap on it plays */
-/* its size follows the height that is left between the name and the coach, so that all of it fits on a short screen too */
-.ob-me{position:relative;display:grid;place-items:center;width:max(140px,min(84vw,350px,(100vh - 350px) * .775));padding:0;border:0;background:none;-webkit-tap-highlight-color:transparent}
-@supports (height:100dvh){.ob-me{width:max(140px,min(84vw,350px,(100dvh - 350px) * .775))}}
-.ob-me .ob-av{display:block;width:100%;margin:0}
-.ob-av .av-aura.r0{fill:var(--accent-soft)}
-.ob-rings{position:absolute;inset:0;pointer-events:none}
-.ob-rings i{position:absolute;left:50%;top:47%;width:70%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 34%,transparent);animation:ob-wave 3.2s ease-out infinite}
-.ob-rings i+i{animation-delay:-1.6s}
-@keyframes ob-wave{0%{opacity:.9;transform:translate(-50%,-50%) scale(.9)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.45)}}
-.ob-me.bump .ob-av{animation:ob-hit .5s cubic-bezier(.3,1.6,.5,1)}
-@keyframes ob-hit{0%{transform:scale(1)}30%{transform:scale(.9,1.06)}60%{transform:scale(1.07,.96)}100%{transform:none}}
-.ob-lv{position:absolute;top:1%;inset-inline-end:1%;height:34px;padding:0 14px;font-size:16.5px;box-shadow:0 3px 0 color-mix(in srgb,var(--xp) 30%,var(--xp-soft))}
-.ob-lv.pop{animation:pop .5s cubic-bezier(.3,1.7,.5,1)}
-.ob-tap{position:absolute;bottom:-10px;left:0;right:0;width:max-content;margin-inline:auto;padding:5px 14px;border-radius:99px;background:var(--ink);color:var(--surface);font-size:13px;font-weight:700;white-space:nowrap;animation:ob-bob 1.6s ease-in-out infinite;transition:opacity .3s}
-.ob-me.tapped .ob-tap{opacity:0}
-@keyframes ob-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-/* under a question: the player's character, in whatever room is left down to the button. On a short screen it steps aside */
-.ob-in[data-step="1"] .ob-body,.ob-in[data-step="2"] .ob-body,.ob-in[data-step="3"] .ob-body,.ob-in[data-step="5"] .ob-body{grid-template-rows:auto auto minmax(0,1fr)}
-.ob-buddy{min-height:0;display:grid;justify-items:center;align-items:end;overflow:hidden;animation:ob-rise .6s cubic-bezier(.2,.8,.2,1) .5s both}
-.ob-buddy .av{width:auto;height:100%;max-height:300px;min-height:0}
-.ob-buddy .av-aura{fill:var(--accent-soft)}
-@media (max-height:719.98px){.ob-buddy{display:none}}
-@media (max-height:640px){.ob-lines{gap:8px}.ob-lines li{min-height:56px;padding:8px 14px}.ob-stage .logo-w{font-size:26px}.ob-hi .ava{width:60px;height:60px}.ob-hi{grid-template-columns:60px minmax(0,1fr)}}
-@media (max-width:359.98px){.ob-bub h1,.ob-hi .ob-bub h1{font-size:20px}.ob-bub{padding:13px 15px}}
-.ob-hi{width:100%;padding:0 0 6px}
-.ob-hi{grid-template-columns:76px minmax(0,1fr)}
-.ob-hi .ava{width:76px;height:76px}
-.ob-hi .ob-bub h1{font-size:22px}
-.ob-q{grid-template-columns:64px minmax(0,1fr)}
-.ob-q .ava{width:64px;height:64px;box-shadow:0 0 0 3px var(--surface),0 4px 0 var(--lip)}
-@keyframes ob-rise{from{opacity:0;transform:translateY(18px)}}
-@keyframes ob-drop{0%{opacity:0;transform:translateY(-34px) scale(.9)}60%{opacity:1;transform:translateY(5px) scale(1.03)}100%{transform:none}}
-@keyframes ob-grow{0%{opacity:0;transform:scale(.55)}65%{opacity:1;transform:scale(1.06)}100%{transform:none}}
-@keyframes ob-fall{0%{opacity:0;transform:translateY(-60vh) scale(.92)}55%{opacity:1;transform:translateY(10px) scale(1.04,.95)}75%{transform:translateY(-8px) scale(.98,1.03)}100%{transform:none}}
-/* Eilon comes in from the side he sits on, leaning, and straightens up */
-@keyframes ob-side{0%{opacity:0;transform:translateY(14px) scale(.96)}100%{transform:none}}
-.ob{--side:1}
+
+.ob{position:fixed;inset:0;z-index:90;background:var(--paper);overflow-x:clip;overflow-y:auto;overscroll-behavior:none;--side:1}
 [dir="ltr"] .ob,.ob[dir="ltr"]{--side:-1}
-.ob-q .ava{animation:ob-side .6s cubic-bezier(.2,.8,.2,1) both}
-.ob-bub{transform-origin:100% 20%;animation:ob-grow .45s cubic-bezier(.2,.8,.2,1) .28s both}
-[dir="ltr"] .ob-bub{transform-origin:0 20%}
-.ob-in[data-step="0"]:not(.quiet) .logo{animation:ob-drop .6s cubic-bezier(.2,.8,.2,1) .05s both}
-.ob-in[data-step="0"]:not(.quiet) .ob-me{animation:ob-fall .85s cubic-bezier(.2,.8,.2,1) .2s both}
-.ob-in[data-step="0"]:not(.quiet) .ob-lv{animation:ob-grow .45s cubic-bezier(.2,.8,.2,1) 1s both}
-.ob-in[data-step="0"]:not(.quiet) .ob-tap{animation:ob-grow .45s cubic-bezier(.2,.8,.2,1) 2.3s both,ob-bob 1.6s ease-in-out 2.8s infinite}
-.ob-in[data-step="0"]:not(.quiet) .ob-hi .ava{animation-delay:1.15s}
-.ob-in[data-step="0"]:not(.quiet) .ob-hi .ob-bub{animation-delay:1.5s}
-.ob-in[data-step="0"]:not(.quiet) .ob-foot .btn{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) 1.9s both}
-.ob-in.quiet .ob-q .ava,.ob-in.quiet .ob-bub{animation:none}
-.ob-in[data-step="0"] .ob-foot .btn{position:relative}
-/* the way in calls for a tap: a ring that spreads from the button and fades (the button itself stays put) */
-.ob-in[data-step="0"] .ob-foot .btn::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;animation:ob-ring 2.2s ease-out 2.6s infinite}
-@keyframes ob-ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 50%,transparent)}70%,100%{box-shadow:0 0 0 18px transparent}}
-/* the answers arrive one after the other, once he has spoken */
-.ob-opt,.ob-in-name{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) both}
-.ob-opt:nth-child(1),.ob-in-name{animation-delay:.45s}.ob-opt:nth-child(2){animation-delay:.55s}.ob-opt:nth-child(3){animation-delay:.65s}
-.ob-opt[aria-checked="true"] .ob-chk{animation:pop .4s cubic-bezier(.3,1.7,.5,1)}
-/* his plan, said slowly: one line, then the next */
-.ob-lines{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.ob-lines li{display:flex;align-items:center;gap:14px;min-height:66px;padding:10px 16px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 2px var(--line),0 4px 0 var(--lip);margin-bottom:4px;animation:ob-line .5s cubic-bezier(.2,.8,.2,1) both}
-.ob-lines li:nth-child(1){animation-delay:.7s}.ob-lines li:nth-child(2){animation-delay:1.3s}.ob-lines li:nth-child(3){animation-delay:1.9s}.ob-lines li:nth-child(4){animation-delay:2.5s}
-.ob-lines span{display:grid;min-width:0}
-.ob-lines b{font-size:17px;font-weight:700;line-height:1.3}
-.ob-lines small{font-size:13.5px;color:var(--ink-2)}
-@keyframes ob-line{0%{opacity:0;transform:translateX(calc(var(--side) * 46px))}100%{transform:none}}
-.ob-hero.done{align-content:center;min-height:100%;padding-top:0}
-.ob-hero.done .ob-av{width:min(240px,62%,38vh);animation:ob-grow .6s cubic-bezier(.2,.8,.2,1) both}
-.ob-hero.done h1{animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .2s both}
+.ob[data-k="film"],.ob[data-k="done"]{background:#07050D}
+.ob[data-k="film"]{overflow:hidden}
+.ob-in{position:relative;z-index:1;box-sizing:border-box;min-height:100%;max-width:480px;margin-inline:auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:14px;padding:calc(10px + env(safe-area-inset-top,0px)) 20px 0}
+/* nothing is seen, and nothing moves, until the curtain is up */
+.ob:not(.play) .ob-in,.ob:not(.play) .ob-film{visibility:hidden}
+.ob:not(.play) *{animation-play-state:paused!important}
+.ob-top{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:12px;min-height:44px}
+.ob-top.first{grid-template-columns:auto minmax(0,1fr) auto}
+.ob-top .link{min-height:44px;padding:0 6px;justify-self:end;white-space:nowrap}
+.ob-sp{width:44px}
+.ob-top .ob-lang{width:auto;margin:0;padding:3px;border-radius:14px;background:var(--surface)}
+.ob-top .ob-lang button{min-height:36px;padding:0 12px;font-size:13.5px;border-radius:11px}
+/* the steps fill from left to right, in both languages */
+.ob-prog{direction:ltr;height:6px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.ob-prog i{display:block;height:100%;min-width:6px;border-radius:99px;background:var(--accent);transition:width .55s cubic-bezier(.2,.8,.2,1)}
+.ob-body{display:grid;gap:18px;align-content:start;min-height:0}
+.ob-foot{position:sticky;bottom:0;z-index:2;padding:12px 0 calc(16px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--paper) 72%,transparent)}
+.ob-foot .btn{width:100%}
+
+/* ---- the stage: the film at the start, and the last screen ---- */
+.ob-film{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(130% 90% at 50% 38%,#3B2477 0%,#1A1038 46%,#07050D 100%);color:#fff}
+.ob-film::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,#07050D 0%,rgb(7 5 13 / .72) 14%,transparent 31%),radial-gradient(120% 85% at 50% 45%,transparent 55%,rgb(0 0 0 / .5) 100%)}
+.ob-cam{position:absolute;inset:0;display:grid;place-items:center;animation:cam-drift 11s ease-in-out infinite alternate}
+@keyframes cam-drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(calc(var(--side) * -1.4%),-1%,0) scale(1.035)}}
+/* the camera: it moves by moving the whole set under it. The feet stay where they stand, so a figure grows upwards */
+.ob-set{position:relative;width:min(100vw,460px);height:min(60vh,520px);margin-top:-8vh;transform-origin:50% 92%;transition:transform 1.4s cubic-bezier(.65,0,.35,1)}
+.ob-film[data-beat="0"] .ob-set{transform:scale(1.45) translateX(calc(var(--side) * -23%))}
+.ob-film[data-beat="2"] .ob-set{transform:scale(1.4) translateX(calc(var(--side) * 24%))}
+.ob-floor{position:absolute;left:4%;right:4%;bottom:2.5%;height:15%;border-radius:50%;background:radial-gradient(ellipse at center,rgb(169 139 255 / .3),transparent 70%)}
+.ob-coach,.ob-you{position:absolute;bottom:5%;display:block;isolation:isolate}
+/* each figure carries its own light, so whoever the camera is on stands in it */
+.ob-coach::before,.ob-you::before,.ob-fig::before{content:"";position:absolute;z-index:-1;left:50%;top:42%;width:190%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgb(169 139 255 / .42) 0%,rgb(109 63 224 / .14) 42%,transparent 68%);animation:ob-glow 4.5s ease-in-out infinite alternate}
+@keyframes ob-glow{to{opacity:.62;transform:translate(-50%,-50%) scale(1.08)}}
+.ob-coach{inset-inline-start:5%;width:43%;transition:opacity .7s ease}
+.ob-film[data-beat="2"] .ob-coach{opacity:0}
+.ob-you{inset-inline-end:6%;width:40%;transition:opacity .8s ease .25s}
+.ob-film[data-beat="0"] .ob-you{opacity:0;transition-delay:0s}
+.ob-coach .av,.ob-you .av{display:block;width:100%;height:auto;overflow:visible}
+.ob-film .av-aura,.ob-done .av-aura{display:none}
+.ob-film .av-shadow,.ob-done .av-shadow{fill:rgb(0 0 0 / .4)}
+.ob-you .y1,.ob-you .y2{display:block;transition:opacity .7s ease,transform .8s cubic-bezier(.3,1.4,.5,1);transform-origin:50% 95%}
+.ob-you .y2{position:absolute;inset:0;opacity:0;transform:scale(.94)}
+.ob-film[data-beat="2"] .ob-you .y1{opacity:0;transform:scale(1.03)}
+.ob-film[data-beat="2"] .ob-you .y2{opacity:1;transform:none}
+.ob-you .lv-badge{position:absolute;top:4%;inset-inline-end:-4%;height:26px;padding:0 10px;font-size:12.5px;background:#F2B02E;color:#3D2600;box-shadow:0 6px 18px rgb(242 176 46 / .35);opacity:0;transform:scale(.6);transition:opacity .4s,transform .5s cubic-bezier(.3,1.6,.5,1)}
+.ob-film:not([data-beat="0"]) .ob-you .lv-badge{opacity:1;transform:none;transition-delay:.6s}
+.ob-in.film,.ob-in.fin{color:#fff}
+.ob-in.film .ob-body{grid-template-rows:auto minmax(0,1fr) auto;gap:8px}
+.ob-in.film .ob-foot,.ob-in.fin .ob-foot{background:none}
+.ob-head{display:grid;justify-items:center}
+.ob-head .logo{justify-items:center;animation:ob-rise .7s cubic-bezier(.2,.8,.2,1) both}
+.ob-in.film .logo-w{color:#fff;font-size:32px}
+.ob-in.film .logo-i{color:#A98BFF}
+.ob-in.film .logo small{color:rgb(255 255 255 / .55)}
+.ob-tap{min-height:0;cursor:pointer}
+.ob-cap{margin:0;min-height:2.5em;font-size:25px;font-weight:800;line-height:1.22;letter-spacing:-.015em;text-align:center;text-wrap:balance;text-shadow:0 2px 20px rgb(0 0 0 / .45)}
+.ob-cap.in{animation:cap-in .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cap-in{from{opacity:0;transform:translateY(10px);filter:blur(4px)}}
+.ob-story{display:flex;gap:6px;direction:ltr;align-self:center;max-width:160px;width:100%;justify-self:center}
+.ob-story i{flex:1;height:3px;border-radius:2px;background:rgb(255 255 255 / .22);overflow:hidden}
+.ob-story b{display:block;width:0;height:100%;border-radius:inherit;background:#fff}
+.ob-story i.full b{width:100%}
+.ob-story i.run b{animation:story 3.2s linear forwards}
+@keyframes story{to{width:100%}}
+.ob-in.film .ob-lang{background:rgb(255 255 255 / .1)}
+.ob-in.film .ob-lang button{color:rgb(255 255 255 / .75);background:none}
+.ob-in.film .ob-lang button[aria-pressed="true"]{background:#fff;color:#22134F}
+.ob-in.film .link{color:rgb(255 255 255 / .8)}
+.ob-in.fin .fx-nav{color:rgb(255 255 255 / .7)}
+.ob-in.film .btn.primary,.ob-in.fin .btn.primary{background:#fff;color:#2A1866;box-shadow:0 12px 34px rgb(109 63 224 / .45);animation:ob-rise .6s cubic-bezier(.2,.8,.2,1) .5s both}
+
+/* ---- a question: Eilon beside it, the answers under it ---- */
+.ob-q{display:grid;grid-template-columns:86px minmax(0,1fr);gap:12px;align-items:end}
+.ob-eilon{position:relative;display:block;width:86px}
+.ob-eilon .av{display:block;width:100%;height:auto;overflow:visible}
+.ob-eilon .av-aura{fill:var(--accent-soft)}
+.ob-bub{position:relative;align-self:center;background:var(--surface);border-radius:22px;border-end-start-radius:6px;padding:14px 18px;box-shadow:0 1px 0 var(--line),0 12px 30px -20px rgb(40 20 90 / .45);transform-origin:var(--bub-o,0 100%)}
+.ob-bub h1{margin:0;font-size:22px;font-weight:800;line-height:1.2;letter-spacing:-.02em;text-wrap:balance}
+.ob-bub p{margin:4px 0 0;font-size:14.5px;color:var(--ink-2)}
+.ob-q.big{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:14px;padding-top:2vh}
+.ob-q.big .ob-eilon{width:min(150px,36vw)}
+.ob-q.big .ob-bub{border-radius:22px;--bub-o:50% 0}
+.ob-q.big .ob-bub::before{content:"";position:absolute;top:-6px;left:50%;width:14px;height:14px;border-radius:3px;background:inherit;transform:translateX(-50%) rotate(45deg)}
+/* a large figure stands in a soft light, not on a disc */
+.ob-q.big .av-aura,.ob-pre .av-aura,.ob-stage .av-aura{display:none}
+.ob-q.big .ob-eilon,.ob-pre,.ob-stage .lk-stage{isolation:isolate}
+.ob-q.big .ob-eilon::before,.ob-pre::before,.ob-stage .lk-stage::before{content:"";position:absolute;z-index:-1;left:50%;top:48%;height:104%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,var(--accent-soft) 0%,color-mix(in srgb,var(--accent-soft) 60%,transparent) 55%,transparent 100%)}
+@keyframes ob-pop{from{opacity:0;transform:translateY(12px) scale(.92)}}
+@keyframes bub-in{from{opacity:0;transform:scale(.95)}}
+@keyframes ob-rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes fade-in{from{opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* a screen that is arrived at rises into place, its answers one after the other; one that is only drawn again stands still.
+   From one question to the next Eilon stays where he stands */
+.ob-body.in .ob-eilon{animation:ob-pop .55s cubic-bezier(.3,1.4,.5,1) both}
+.ob-in.stay .ob-body.in .ob-eilon{animation:none}
+.ob-body.in .ob-bub{animation:bub-in .45s cubic-bezier(.2,.8,.2,1) .06s both}
+.ob-body.in .ob-opts>*,.ob-body.in .ob-times>*{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) both}
+.ob-opts>:nth-child(1),.ob-times>:nth-child(1){animation-delay:.1s}
+.ob-opts>:nth-child(2),.ob-times>:nth-child(2){animation-delay:.16s}
+.ob-opts>:nth-child(3),.ob-times>:nth-child(3){animation-delay:.22s}
+.ob-times>:nth-child(4){animation-delay:.28s}
+.ob-times>:nth-child(5){animation-delay:.34s}
+.ob-body.in .ob-name,.ob-body.in .ob-pre,.ob-body.in .ob-plan,.ob-body.in .ob-fb,.ob-body.in .ob-pin,.ob-body.in .ob-stage,.ob-body.in .ob-look,.ob-body.in .ob-build{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .12s both}
+.ob-body.in .ob-look{animation-delay:.2s}
+
+/* the name, large, in the middle of the screen */
+.ob-name{display:grid;justify-items:center;gap:8px;padding-top:3vh}
+.ob-in-name{box-sizing:border-box;width:100%;max-width:340px;height:66px;border:0;border-radius:20px;background:var(--surface);padding:0 18px;text-align:center;font:inherit;font-size:28px;font-weight:800;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line);transition:box-shadow .2s}
+.ob-in-name:focus{outline:none;box-shadow:inset 0 0 0 2.5px var(--accent),0 0 0 6px var(--accent-soft)}
+.ob-in-name::placeholder{color:var(--ink-4);font-weight:600}
+.ob-hint{margin:0;font-size:13.5px;color:var(--ink-3)}
+
+/* answers: a card each, with an icon on a tint; the chosen one is lit */
+.ob-opts{display:grid;gap:10px}
+.ob-opt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;min-height:70px;padding:12px 16px;border:0;border-radius:20px;background:var(--surface);color:var(--ink);text-align:start;box-shadow:inset 0 0 0 1.5px var(--line);transition:box-shadow .2s,background-color .2s,transform .3s cubic-bezier(.34,1.45,.64,1)}
+.ob-opt:active{transform:scale(.98)}
+.ob-opt .ob-ic{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--accent-soft);color:var(--accent);transition:background-color .2s,color .2s}
+.ob-opt .ob-ic svg{width:24px;height:24px;stroke-width:2.2}
+.ob-opt .ob-ic svg.pl{width:30px;height:30px;fill:currentColor}
+.ob-opt span{display:grid;min-width:0;gap:1px}
+.ob-opt b{font-size:17px;font-weight:700;line-height:1.3}
+.ob-opt small{font-size:13.5px;color:var(--ink-2)}
+.ob-chk{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink-4);color:transparent;transition:background-color .2s,border-color .2s,color .2s}
+.ob-opt[role="checkbox"] .ob-chk{border-radius:8px}
+.ob-chk svg{width:15px;height:15px;stroke-width:3}
+.ob-opt[aria-checked="true"]{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.ob-opt[aria-checked="true"] .ob-ic{background:var(--accent);color:var(--on-accent)}
+.ob-opt[aria-checked="true"] .ob-chk{background:var(--accent);border-color:var(--accent);color:var(--on-accent);animation:pop .35s cubic-bezier(.3,1.7,.5,1)}
+
+/* the character under the experience question, as built as the answer: it takes the room that is left, so the screen never scrolls */
+.ob-in[data-k="exp"] .ob-body{grid-template-rows:auto auto minmax(96px,1fr)}
+.ob-pre{position:relative;align-self:center;width:100%;height:100%;max-height:310px;min-height:0}
+.ob-pre .av,.ob-stage .lk-stage .av{position:absolute;inset:0;width:100%;height:100%;transform-origin:50% 92%}
+.ob-pre.pump .av,.lk-stage.pump .av{animation:pump .65s cubic-bezier(.3,1.5,.5,1)}
+@keyframes pump{0%{transform:scale(.9)}45%{transform:scale(1.07)}100%{transform:none}}
+
+/* the time: four tiles with the minutes large, and "any length" across the bottom */
+.ob-times{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ob-time{display:grid;justify-items:center;align-content:center;min-height:106px;padding:12px;border:0;border-radius:22px;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line);transition:box-shadow .2s,background-color .2s,color .2s,transform .3s cubic-bezier(.34,1.45,.64,1)}
+.ob-time b{font-size:34px;font-weight:800;line-height:1.05;letter-spacing:-.02em}
+.ob-time span{font-size:13px;font-weight:600;color:var(--ink-2)}
+.ob-time small{margin-top:4px;font-size:12.5px;color:var(--ink-3)}
+.ob-time.any{grid-column:1/-1;min-height:60px;grid-auto-flow:column;justify-content:center;gap:10px}
+.ob-time.any span{font-size:16px;font-weight:700;color:var(--ink)}
+.ob-time.any svg{width:22px;height:22px;color:var(--accent)}
+.ob-time[aria-checked="true"]{background:var(--accent);box-shadow:0 10px 24px -12px var(--accent);color:var(--on-accent)}
+.ob-time[aria-checked="true"] span,.ob-time[aria-checked="true"] small,.ob-time[aria-checked="true"] svg{color:inherit;opacity:.88}
+
+/* the look: the character in the room that is left, and under it the editor */
+.ob-in[data-k="look"] .ob-body{grid-template-rows:auto minmax(120px,1fr) auto}
+.ob-stage{position:relative;display:grid;min-height:0}
+.ob-stage .lk-stage{position:relative;justify-self:stretch;align-self:center;width:100%;height:100%;max-height:310px;min-height:0}
+/* the photo button stands beside the head, where the figure leaves room on both sides */
+.ob-stage .lk-photo-box{position:absolute;inset-inline-end:0;top:4px;justify-items:end}
+.ob-stage .lk-note{max-width:128px;text-align:end}
+.ob-look{padding:14px;border-radius:22px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+
+/* ---- the character editor (here and in the profile): tabs, and the choices of the tab that is open ---- */
+.lk-ed{display:grid;gap:12px;min-width:0}
+.lk-tabs{display:flex;gap:2px;padding:4px;border-radius:14px;background:var(--surface-2);overflow-x:auto;scrollbar-width:none}
+.lk-tabs::-webkit-scrollbar{display:none}
+.lk-tabs button{flex:1 0 auto;min-height:38px;padding:0 9px;border:0;border-radius:11px;background:none;font-size:13.5px;font-weight:600;color:var(--ink-2);white-space:nowrap}
+.lk-tabs button[aria-selected="true"]{background:var(--surface);color:var(--accent-ink);box-shadow:0 1px 4px rgb(20 10 50 / .16)}
+.lk-pane{display:grid;align-content:center;min-height:164px}
+.lk-opts{display:grid;grid-template-columns:repeat(var(--n,6),minmax(0,1fr));gap:8px;justify-items:center;padding:4px 2px}
+.lk-opts .lk-sw{width:100%;max-width:46px;height:auto;aspect-ratio:1}
+.lk-sw:not([aria-pressed="true"]){box-shadow:inset 0 0 0 1px rgb(0 0 0 / .14)}
+.lk-cuts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.lk-cuts.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.lk-cut{display:grid;justify-items:center;gap:3px;min-width:0;padding:6px 0 7px;border:0;border-radius:14px;background:var(--surface-2);color:var(--ink-2)}
+.lk-cut small{max-width:100%;overflow:hidden;text-overflow:ellipsis;font-size:10.5px;font-weight:600;white-space:nowrap}
+.lk-face{display:block;width:42px;height:42px;border-radius:50%;overflow:hidden;background:var(--surface-3)}
+.lk-face .av{display:block;width:100%;height:100%}
+.lk-cuts.three .lk-cut{padding:10px 0}
+.lk-cuts.three .lk-face{width:60px;height:60px}
+.lk-cuts.three .lk-cut small{font-size:13px}
+.lk-cut[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-ink);box-shadow:inset 0 0 0 2px var(--accent)}
+.lk-tees{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.lk-tee{display:grid;place-items:center;height:64px;border:0;border-radius:16px;background:var(--surface-2)}
+.lk-tee svg{width:42px;height:42px;fill:var(--c);stroke:color-mix(in srgb,var(--ink) 26%,transparent);stroke-width:.7;stroke-linejoin:round}
+.lk-tee[aria-pressed="true"]{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.lk-photo-box{display:grid;justify-items:center;gap:4px}
+.lk-photo{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 13px;border:0;border-radius:99px;background:var(--surface);color:var(--accent-ink);font-size:13.5px;font-weight:700;box-shadow:inset 0 0 0 1.5px var(--line),0 8px 18px -12px rgb(40 20 90 / .55)}
+.lk-photo svg{width:18px;height:18px}
+.lk-photo:disabled{opacity:.8}
+.spin{box-sizing:border-box;width:15px;height:15px;border-radius:50%;border:2px solid color-mix(in srgb,currentColor 25%,transparent);border-top-color:currentColor;animation:spin .8s linear infinite}
+.lk-note{margin:0;max-width:180px;font-size:12px;font-weight:600;line-height:1.35;color:var(--ink-2)}
+
+/* the plan is built in front of the lifter: a ring that fills, and each thing it is fitted to, ticked */
+.ob-build{display:grid;justify-items:center;gap:22px;padding-top:1vh;cursor:pointer}
+.ob-ring{position:relative;display:grid;place-items:center;width:128px;height:128px}
+.ob-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ob-ring circle{fill:none;stroke-width:9}
+.ob-ring .t{stroke:var(--surface-3)}
+.ob-ring .f{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100}
+.ob-ring b{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.ob-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;width:100%}
+.ob-steps li{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 16px;border-radius:18px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);font-size:15.5px;font-weight:600;color:var(--ink-3);opacity:.5;transition:opacity .3s,color .3s}
+.ob-steps li.on{opacity:1;color:var(--ink)}
+.ob-steps i{box-sizing:border-box;flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:2.5px solid var(--surface-3);color:transparent}
+.ob-steps li.on i{border-color:color-mix(in srgb,var(--accent) 22%,transparent);border-top-color:var(--accent);animation:spin .7s linear infinite}
+.ob-steps li.done i{border-color:var(--accent);background:var(--accent);color:var(--on-accent);animation:pop .35s cubic-bezier(.3,1.7,.5,1)}
+.ob-steps i svg{width:14px;height:14px;stroke-width:3.2}
+
+/* the plan: the purple card of the workouts page, with its numbers; under it, whether Eilon asks */
+.card.next.ob-plan{display:grid;gap:14px;padding:20px}
+.ob-plan .k{margin:0;font-size:13px;font-weight:700;opacity:.85}
+.ob-plan h2{margin:-8px 0 0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.ob-stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ob-stats li{display:grid;justify-items:center;gap:2px;padding:12px 4px;border-radius:16px;background:rgb(255 255 255 / .14)}
+.ob-stats b{font-size:23px;font-weight:800;line-height:1.1}
+.ob-stats span{font-size:12px;font-weight:600;opacity:.88;text-align:center}
+.ob-wks{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ob-wks li{display:flex;align-items:center;gap:8px;min-width:0;padding:9px 10px;border-radius:12px;background:rgb(0 0 0 / .16);font-size:13.5px;font-weight:600}
+.ob-wks .w-dot{flex:none;margin:0;box-shadow:0 0 0 2px rgb(255 255 255 / .7)}
+.ob-shine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 36%,rgb(255 255 255 / .3) 50%,transparent 64%);transform:translateX(-130%)}
+.ob-plan.reveal{animation:plan-in .7s cubic-bezier(.2,.9,.3,1.15) both}
+@keyframes plan-in{from{opacity:0;transform:translateY(20px) scale(.93)}}
+.ob-plan.reveal .ob-shine{animation:shine 1.1s ease .55s both}
+@keyframes shine{to{transform:translateX(130%)}}
+.ob-plan.reveal .ob-stats li{animation:ob-pop .5s cubic-bezier(.3,1.5,.5,1) both}
+.ob-plan.reveal .ob-stats li:nth-child(1){animation-delay:.3s}
+.ob-plan.reveal .ob-stats li:nth-child(2){animation-delay:.42s}
+.ob-plan.reveal .ob-stats li:nth-child(3){animation-delay:.54s}
+.ob-plan.reveal .ob-wks{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .7s both}
+.ob-plan.reveal+.ob-fb{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .85s both}
+.ob-fb{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.ob-fb span{flex:1;display:grid;min-width:0}
+.ob-fb b{font-size:16px;font-weight:700}
+.ob-fb small{font-size:13px;color:var(--ink-2)}
+
+/* the code: four dots and a keypad, as on a phone */
+.ob-pin{display:grid;justify-items:center;gap:10px;padding-top:1vh}
+.pin-dots{display:flex;gap:16px;direction:ltr}
+.pin-dots i{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--ink-4);transition:background-color .15s,box-shadow .15s,transform .25s cubic-bezier(.3,1.6,.5,1)}
+.pin-dots i.on{background:var(--accent);box-shadow:none;transform:scale(1.12)}
+.pin-dots.ok i{background:var(--ok)}
+.pin-err{min-height:20px;margin:0;font-size:13.5px;font-weight:600;color:var(--muscle-ink)}
+.pin-pad{direction:ltr;display:grid;grid-template-columns:repeat(3,74px);gap:12px 22px}
+.pin-k{display:grid;place-items:center;width:74px;height:74px;border:0;border-radius:50%;background:var(--surface);color:var(--ink);font-size:28px;font-weight:600;box-shadow:inset 0 0 0 1.5px var(--line)}
+.pin-k svg{width:28px;height:28px}
+.pin-k[data-pin="del"]{background:none;box-shadow:none;color:var(--ink-2)}
+.pin-k:disabled{opacity:.35}
+
+/* all set: on the stage again, today's character and the same one at level 100 */
+.ob-in.fin .ob-body{align-content:center}
+.ob-done{position:relative;display:grid;justify-items:center;gap:8px;text-align:center}
+.ob-done h1{margin:0;font-size:32px;font-weight:800;line-height:1.15;letter-spacing:-.02em;text-wrap:balance;animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .1s both}
+.ob-sub{margin:0;font-size:16px;color:rgb(255 255 255 / .72);animation:ob-rise .5s cubic-bezier(.2,.8,.2,1) .2s both}
+.ob-ladder{display:grid;grid-template-columns:minmax(0,.8fr) auto minmax(0,1.2fr);align-items:end;gap:4px;width:100%;margin-top:22px}
+.ob-ladder figure{margin:0;display:grid;justify-items:center;gap:10px;min-width:0}
+.ob-fig{position:relative;display:block;width:100%;isolation:isolate}
+.ob-fig .av{display:block;width:100%;height:auto;overflow:visible}
+.ob-ladder .now{animation:ob-rise .55s cubic-bezier(.2,.8,.2,1) .35s both}
+.ob-ladder .max{animation:fin-max .8s cubic-bezier(.3,1.35,.5,1) 1.05s both}
+@keyframes fin-max{from{opacity:0;transform:translateY(16px) scale(.8)}}
+.ob-ladder .max .ob-fig::before{width:150%;background:radial-gradient(circle,rgb(242 176 46 / .5) 0%,rgb(242 176 46 / .15) 42%,transparent 68%)}
+.ob-ladder figcaption{display:grid;justify-items:center;gap:4px;font-size:12.5px;font-weight:600;color:rgb(255 255 255 / .6)}
+.ob-ladder figcaption b{padding:3px 12px;border-radius:99px;background:rgb(255 255 255 / .14);font-size:14.5px;font-weight:800;color:#fff}
+.ob-ladder .max figcaption b{background:#F2B02E;color:#3D2600;box-shadow:0 6px 20px rgb(242 176 46 / .4)}
+/* the way from one to the other: three arrowheads that light up in turn */
+.ob-go{align-self:center;display:flex;gap:0;padding-bottom:34%;color:#A98BFF;animation:ob-rise .4s cubic-bezier(.2,.8,.2,1) .75s both}
+.ob-go svg{width:20px;height:20px;margin-inline:-4px;stroke-width:2.6;opacity:.25;animation:go 1.5s ease-in-out infinite}
+.ob-go svg:nth-child(2){animation-delay:.2s}
+.ob-go svg:nth-child(3){animation-delay:.4s}
+@keyframes go{0%,60%,100%{opacity:.25}25%{opacity:1}}
+.ob-note{margin:18px 0 0;max-width:340px;font-size:12.5px;line-height:1.45;color:rgb(255 255 255 / .5);animation:fade-in .6s ease 1.4s both}
+.ob-done .confetti{position:absolute;inset:-10% -20px;width:calc(100% + 40px);height:120%;pointer-events:none;z-index:2}
+
+/* a change of language: what is on screen fades out, and comes back in the other one */
+.ob-in.out{opacity:0;transition:opacity .17s ease}
+.ob.swap .ob-film{opacity:.4;transition:opacity .17s ease}
+.ob.swapin>*{animation:fade-in .32s ease both}
+#app.lang-out>.brand,#app.lang-out>.cols,#app.lang-out>.dock,#app.lang-out>.sheet{opacity:0;transition:opacity .15s ease}
+#app.lang-in>.brand,#app.lang-in>.cols,#app.lang-in>.dock,#app.lang-in>.sheet{animation:fade-in .3s ease}
+
+@media (max-height:700px){
+  .ob-q{grid-template-columns:64px minmax(0,1fr)}
+  .ob-eilon{width:64px}
+  .ob-q.big .ob-eilon{width:min(110px,30vw)}
+  .ob-body{gap:14px}
+  .ob-opt{min-height:62px;padding:10px 14px}
+  .ob-time{min-height:88px}
+  .ob-time b{font-size:28px}
+  .pin-k{width:62px;height:62px;font-size:24px}
+  .pin-pad{grid-template-columns:repeat(3,62px);gap:10px 18px}
+  .ob-set{height:min(54vh,460px)}
+  .ob-cap{font-size:22px}
+  .lk-pane{min-height:150px}
+  .ob-ring{width:104px;height:104px}
+  .ob-steps li{min-height:48px}
+  .ob-ladder{margin-top:10px;padding-inline:8%}
+  .ob-done h1{font-size:28px}
+}
+@media (max-height:600px){.ob-pre{display:none}.ob-in[data-k="exp"] .ob-body{grid-template-rows:auto auto}}
+@media (max-width:359.98px){.ob-bub h1{font-size:20px}.ob-bub{padding:12px 14px}.lk-tabs button{padding:0 7px;font-size:12.5px}}
 
 /* the clear label over every control on an iPhone browser, and the hidden switch it belongs to (feel.js) */
 .hxp{position:relative}
@@ -925,7 +1089,7 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
   .dock{left:auto;right:auto;inset-inline-start:max(20px,calc((100vw - 1180px)/2 + 20px));bottom:16px;width:min(620px,calc(100vw - 452px));border-radius:28px;padding:16px}
 }
 /* touch that feels like an app: a long press on a control does not select its words or open the system's menu */
-button,[role="button"],.tabbar,.dock,.splash,.ob-bg,.stage-wrap,canvas,.hx{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* a place opens with a short rise; a sheet slides up from the bottom, can be pulled back down by a finger, and slides away when it closes */
 .view{animation:view-in .26s cubic-bezier(.2,.8,.2,1)}
 @keyframes view-in{from{opacity:0;transform:translateY(8px)}}
@@ -1008,6 +1172,7 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-bg,.stage-wrap,canvas,.hx{-webk
   <div class="dock" id="dock" role="region" aria-label="רישום סטים וטיימר מנוחה"></div>
   <div class="sheet" id="sheet" hidden></div>
   <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+  <input type="file" id="lkFile" accept="image/*" hidden>
   <div class="toast" id="toast" role="status" hidden></div>
   <div class="sr" id="srSay" aria-live="polite"></div>
   <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden></div>
@@ -1453,7 +1618,70 @@ const landmark = (k, total) => (total > MUSCLE[k].mrv ? 'over' : total < MUSCLE[
 /* what a movement gets when the lifter adds it by hand, by the kind of movement it is: sets, rep range, rest and how hard (lvl as in the plan) */
 const RX = { big: { sets: 3, reps: '8–12', rest: [120, 120], lvl: 2 }, small: { sets: 2, reps: '10–15', rest: [75, 75], lvl: 3 }, calf: { sets: 3, reps: '12–20', rest: [60, 60], lvl: 3 }, core: { sets: 3, reps: '10–15', rest: [60, 60], lvl: 0 } };
 const RX_KIND = { hpress: 'big', vpress: 'big', vpull: 'big', hpull: 'big', squat: 'big', lunge: 'big', hinge: 'big', thrust: 'big', raise: 'small', rearfly: 'small', ext: 'small', curl: 'small', kcurl: 'small', kext: 'small', calf: 'calf', flex: 'core', antirot: 'core' };
+/* ---- the goals bend the written plan (goals: any of 0 physique, 1 strength, 2 fitness and health; exp: 0 for a beginner).
+   Strength takes the heavy lifts that open a workout (a range that starts at eight or under, and two minutes of rest or
+   more) lower, with longer rests; fitness and health takes every range a step higher, with shorter rests. Physique is the
+   plan as written, and a goal that is chosen beside another bends half as far. A beginner is never sent under five reps.
+   Returns the bent { reps, rest }, or null where the plan stands as it is written ---- */
+const RX_LOW = [{ '6–10': '5–8', '8–10': '6–8', '8–12': '6–10' }, { '6–10': '4–6', '8–10': '5–8', '8–12': '6–8' }];
+const RX_HIGH = { '6–10': '8–12', '8–10': '10–12', '8–12': '10–15', '10–15': '12–15', '12–15': '12–20' };
+function goalRx(reps, rest, goals, exp) {
+  const g = Array.isArray(goals) ? goals : [];
+  if (!g.length || !Array.isArray(rest)) return null;
+  const str = g.includes(1), fit = g.includes(2), many = g.length > 1, m = /^(\d+)–\d+$/.exec(String(reps));
+  const heavy = !!m && +m[1] <= 8 && rest[0] >= 120, r15 = (v) => Math.round(v / 15) * 15;
+  if (str && heavy) {
+    const k = many || exp === 0 ? 0 : 1;
+    return { reps: RX_LOW[k][reps] || reps, rest: [rest[0] + (k ? 30 : 0), Math.min(240, rest[1] + 30)] };
+  }
+  if (fit) {
+    const k = many ? 0 : 1, cut = (v) => Math.max(45, k ? r15(v * 0.75) : v - 15);
+    return { reps: (k && RX_HIGH[reps]) || reps, rest: [cut(rest[0]), cut(rest[1])] };
+  }
+  return null;
+}
 function rxOf(mv) { const r = RX[RX_KIND[LIB[mv].pat] || 'small']; return { sets: r.sets, reps: r.reps, rest: r.rest.slice(), lvl: r.lvl }; }
+/* ---- how long a list of exercises really takes: each set (setting up, then the reps), the rest after every set but the last of
+   an exercise, the move to the next one, and a warm-up. To the nearest five minutes ---- */
+function workMins(list) {
+  const sec = list.reduce((n, e) => {
+    if (!e.sets) return n;
+    const r = String(e.reps || '').match(/\d+/g) || [10], reps = (+r[0] + +(r[1] || r[0])) / 2, rest = (e.rest[0] + e.rest[1]) / 2;
+    return n + e.sets * (15 + reps * 3.5) + (e.sets - 1) * rest + 90;
+  }, 300);
+  return Math.max(10, Math.round(sec / 300) * 5);
+}
+/* the movements that can stand in for one: the same pattern and the same main muscle, joint-friendly ones first */
+const sameKind = (mv) => { const L = LIB[mv]; return Object.keys(LIB).filter((k) => k !== mv && LIB[k].pat === L.pat && LIB[k].p === L.p).sort((a, b) => (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0)); };
+/* ---- the plan fitted to its lifter, as data. ans: { exp (0 for a beginner), goals, time (minutes a workout may take, 0 or null
+   for any), ok (the equipment the gym has, null for all of it) }. For each workout, the slots it keeps, in order:
+   { id, mv, kind, full, sets, reps, rest, r, t }
+   - a movement the gym has no equipment for gives its slot to one of the same kind that the gym has (kind 'swap': the slot and
+     its numbers stay), or to another for the same muscle, with the numbers that suit that one ('repl'), or leaves the workout;
+   - full is the number of sets as written, sets what this lifter does: a beginner does one less where there were three or more;
+   - reps and rest are as written, r and t as the goals bend them;
+   - while a workout runs longer than the time and keeps more than four exercises, its last one leaves ---- */
+const FIT_MIN = 4;
+function fitPlanData(ans) {
+  const ok = ans.ok || null, mins = (list) => workMins(list.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })));
+  return PLAN.map((wk) => {
+    const used = wk.ex.map((e) => e.a); let list = [];
+    wk.ex.forEach((e, i) => {
+      let mv = e.a, full = e.sets, reps = e.reps, rest = e.rest, kind = '';
+      if (ok && !ok.includes(LIB[mv].eq)) {
+        const fits = (k) => ok.includes(LIB[k].eq) && !used.includes(k), same = sameKind(mv).find(fits), near = same ? null : Object.keys(LIB).find((k) => LIB[k].p === LIB[mv].p && fits(k));
+        if (same) { kind = 'swap'; mv = same; }
+        else if (near) { const rx = rxOf(near); kind = 'repl'; mv = near; full = rx.sets; reps = rx.reps; rest = rx.rest; }
+        else { used[i] = null; return; }
+        used[i] = mv;
+      }
+      const g = goalRx(reps, rest, ans.goals, ans.exp) || { reps, rest };
+      list.push({ id: e.id, mv, kind, full, sets: ans.exp === 0 && full >= 3 ? full - 1 : full, reps, rest, r: g.reps, t: g.rest });
+    });
+    if (ans.time) while (list.length > FIT_MIN && mins(list) > ans.time) list = list.slice(0, -1);
+    return list;
+  });
+}
 /* the slots of a workout in order: the saved order with unknown and repeated ids dropped, else the plan's own */
 function orderOf(dflt, saved, known) {
   if (!Array.isArray(saved)) return dflt;
@@ -2228,13 +2456,17 @@ def('seatedCalf', {
    One SVG figure, drawn from a few choices (skin, hair, beard, shirt) and from the level: the body fills out as the
    level climbs, and the gear opened along the way (see REWARDS) is worn from then on. The arms are two jointed groups,
    so a class on the root is enough to move between standing and flexing. */
-const SKIN = [['#F9DCC4', '#E6B596'], ['#EFC09A', '#D69D72'], ['#D8A070', '#B87E50'], ['#B07A48', '#8C5C31'], ['#7A4E2D', '#5C381D']];
-const HAIR = ['קירח', 'קצר', 'בלורית', 'מתולתל', 'ארוך'];
-const HAIRS = () => (LANG === 'en' ? ['Bald', 'Short', 'Quiff', 'Curly', 'Long'] : HAIR);
+const SKIN = [['#F8DEC9', '#E8BEA0'], ['#EFC4A0', '#D7A07A'], ['#DDAA80', '#C0885E'], ['#C18A5B', '#A06C42'], ['#8F5C38', '#714525'], ['#5F3C25', '#472B18']];
+/* a haircut is drawn by its number; the list shows them in this order, each by the name a barber would use */
+const HAIR = ['קרחת', 'קצר', 'מורם', 'מתולתל', 'ארוך', 'פוני', 'קצוץ', 'שביל בצד', 'בינוני'];
+const HAIR_EN = ['Bald', 'Short', 'Swept up', 'Curly', 'Long', 'Fringe', 'Buzz cut', 'Side part', 'Medium'];
+const HAIR_ORDER = [1, 6, 7, 5, 2, 3, 8, 4, 0];
+const hairName = (i) => (LANG === 'en' ? HAIR_EN[i] : HAIR[i]);
 const BEARDS = () => (LANG === 'en' ? ['None', 'Stubble', 'Full'] : BEARD);
-const HAIRC = ['#26211F', '#4E3222', '#8B5E34', '#D9A94E', '#B9482B', '#A7ADB8'];
-const BEARD = ['בלי', 'זיפים', 'מלא'];
-const SHIRT = ['#6D3FE0', '#0E9F6E', '#E0364F', '#F08C1A', '#7B4BE0', '#3A4152'];
+const HAIRC = ['#1E1A18', '#3A2A21', '#5E4130', '#8A6446', '#B89058', '#DDBB78', '#A9502C', '#9B9AA0'];
+const BEARD = ['בלי', 'זיפים', 'זקן מלא'];
+/* shirts in the colours shirts come in: the gymi purple, white, black, grey, navy, olive, burgundy and sand */
+const SHIRT = ['#6D3FE0', '#F2F2F4', '#1E1D24', '#8E8C97', '#25315E', '#5C6B3C', '#7A2340', '#CDBB9A'];
 const tone = (hex, k) => mixRgb(hexRgb(hex), k < 0 ? [0, 0, 0] : [255, 255, 255], Math.abs(k));
 /* a colour of its own is taken only when it is a plain six-digit hex colour: it ends up inside the drawing's markup */
 const ownHex = (v) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v : null);
@@ -2244,7 +2476,7 @@ const ownHex = (v) => (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v 
    a stud in the ear (stud), and no gear whatever the level (gear: false). A player's look is cleaned to the choices above */
 function avatarSVG(look, lvl, o) {
   o = o || {}; look = look || {};
-  const b = buildOf(lvl), L = (a, z) => +(a + (z - a) * b).toFixed(1), has = (k) => look.gear !== false && REWARDS.some((r) => r.k === k && r.at <= lvl);
+  const b = Math.max(buildOf(lvl), o.base || 0), L = (a, z) => +(a + (z - a) * b).toFixed(1), has = (k) => look.gear !== false && REWARDS.some((r) => r.k === k && r.at <= lvl);
   const sk = SKIN[look.skin] || SKIN[1], skin = sk[0], shd = sk[1], hc = ownHex(look.hairC) || HAIRC[look.hc] || HAIRC[0], shirt = ownHex(look.shirtC) || SHIRT[look.shirt] || SHIRT[0], shirt2 = tone(shirt, -0.18);
   const sw = L(31, 43), cw = L(27, 39), ww = L(22, 25), nw = L(8, 11.5), ua = L(12, 19), fa = L(10, 14.5), lg = L(16, 21), sy = L(96, 93.5), tank = has('tank');
   const ln = (x1, y1, x2, y2, w, c) => '<path d="M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2 + '" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="round" fill="none"/>';
@@ -2272,13 +2504,18 @@ function avatarSVG(look, lvl, o) {
   if (hair === 1 || hair === 4) topHair = P(cap, hc);
   else if (hair === 2) topHair = P(cap, hc) + P('M80 31C83 15 110 9 124 25C116 22.5 108 25 100 29.5C93 33.5 86 34.5 80 31Z', hc) + '<path d="M90 24Q101 17 114 21" stroke="' + tone(hc, 0.22) + '" stroke-width="1.6" stroke-linecap="round" fill="none"/>';
   else if (hair === 3) topHair = P(cap, hc) + [[78, 41, 8], [84, 31, 8.5], [93, 25, 8.5], [103, 23, 8.5], [113, 26, 8.5], [121, 33, 8], [124.5, 43, 7], [76, 50, 5.5]].map((c) => dot(c[0], c[1], c[2], hc)).join('');
+  else if (hair === 6) topHair = P('M75.4 50.5C74.8 33 87 24.4 100 24.4C113 24.4 125.2 33 124.6 50.5C122.4 43.4 116.4 39.6 108.4 38.7C102.6 38 97.4 38 91.6 38.7C83.6 39.6 77.6 43.4 75.4 50.5Z', hc, ' opacity=".82"');
+  else if (hair === 7) topHair = P(cap, hc) + P('M77 41C79 26 95 17.5 112 20.5C121.5 22.4 128 30.5 127.6 41.5C122.6 33.2 113.4 29.4 103 30.4C93.6 31.3 84.6 35 77 41Z', hc) +
+    '<path d="M93.5 22.5Q90.2 29.8 88.6 38" stroke="' + tone(hc, 0.26) + '" stroke-width="1.5" stroke-linecap="round" fill="none"/>';
+  else if (hair === 8) topHair = P('M71.8 60.5C66.8 33 82 18.4 100 18.4C118 18.4 133.2 33 128.2 60.5C126.4 55 125.2 50.6 123.2 46.4C117.4 40.6 109.2 38.4 100 38.4C90.8 38.4 82.6 40.6 76.8 46.4C74.8 50.6 73.6 55 71.8 60.5Z', hc) +
+    '<path d="M86 24.5Q95 21 104 24.2M108 23.6Q116 25.4 121 31" stroke="' + tone(hc, 0.22) + '" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".8"/>';
   /* the fringe: full on top, falling straight over the forehead in loose strands that reach the brows */
   else if (hair === 5) topHair = P('M73.6 54C70 39 74.5 24 86 18.5Q91 13.8 97 16.6Q102.5 12.6 109.5 16.2C121.5 19.5 130.2 38 126.4 54C125.2 50 124 46.8 121.8 45Q119.6 47.8 116.2 47.4Q115.4 45 114.2 43.2Q111.8 47.6 107.6 48.2Q106.6 45.4 105.6 43.4Q103 48 98.6 48.6Q97.4 45.8 96.4 43.6Q94.2 47.4 89.8 47.8Q88.6 45.2 87.6 43Q85.6 46.2 81.6 46.4Q80.4 44.6 79.6 43.2Q77.4 46 75.6 50Q74.4 52 73.6 54Z', hc) +
     '<path d="M112.6 25.5Q116.4 34 115.6 44M102.6 20.5Q106.2 31 106.6 44.2M93.4 21Q95.2 32 97.4 44.4M85 26.5Q86.2 35 88.6 43.8" stroke="' + tone(hc, 0.24) + '" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".75"/>';
   const beardD = 'M75.5 55C75.5 72 86 85.5 100 85.5C114 85.5 124.5 72 124.5 55C121.5 62 117 64.5 112 64.5C108 61 92 61 88 64.5C83 64.5 78.5 62 75.5 55Z';
   const beard = look.beard === 2 ? P(beardD, hasHair ? hc : '#4A3A30') + '<ellipse cx="100" cy="69.3" rx="7.4" ry="3.9" fill="' + skin + '"/>' : look.beard === 1 ? P(beardD, hasHair ? hc : '#4A3A30', ' opacity=".26"') : '';
-  /* gear is won in the game, so it is gold; on an orange shirt the band is white */
-  const bandC = look.shirt === 3 ? '#F4F5F7' : '#F2B93B';
+  /* gear is won in the game, so it is gold */
+  const bandC = '#F2B93B';
   const band = has('band') ? P('M74.6 44.5C83 38.5 117 38.5 125.4 44.5L125.6 38.5C117 32 83 32 74.4 38.5Z', bandC) + P('M125 39.5L134 35.5L131 42.5ZM125 42L134.5 46L128.5 48.5Z', tone(bandC, -0.12)) : '';
   const crown = has('crown') ? '<g>' + P('M82 19L79.5 3.5L91 11L100 0.5L109 11L120.5 3.5L118 19Z', '#F2B93B', ' stroke="#C98F1C" stroke-width="1.5" stroke-linejoin="round"') + dot(100, 13, 2.2, '#6D3FE0') + '</g>' : '';
   const medal = has('medal') ? '<path d="M' + X(-nw + 1) + ' 91L100 113L' + X(nw - 1) + ' 91" stroke="#6D3FE0" stroke-width="3.4" stroke-linejoin="round" fill="none"/><circle cx="100" cy="117" r="7.4" fill="#F2B93B" stroke="#C98F1C" stroke-width="1.6"/><path d="M100 113.2l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#C98F1C"/>' : '';
@@ -2340,14 +2577,21 @@ const ICON = {
      fb: { slotId: { pain, pump, load } }, cut: { slotId: slot whose pain report cancelled it }, ft (time of the last change to these) }
    S.cfg: settings and the running mesocycle, one document shared by the viewer's devices */
 /* S.cfg.me: the player. name and look (the character's choices, see avatar.js), made (when the character was set up),
-   ob (when the opening screens were passed), exp (gym experience: 0 beginner, 1 regular, 2 experienced), goal (0 muscle, 1 strength, 2 fitness),
+   ob (when the opening screens were passed), exp (gym experience: 0 beginner, 1 regular, 2 experienced), goals (any of 0 physique, 1 strength,
+   2 fitness; goal is the first of them, for what read it before), time (minutes a workout may take: 30, 45, 60, 75, or 0 for any),
+   eq (0 a full gym, 1 a basic gym, 2 not sure yet), fb (how often Eilon asks how an exercise went: 0 never, 1 now and then, 2 always),
+   pin (the SHA-256 of the 4-digit code, or ''),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', arch: archZero(), badges: {} });
+const TIME_OK = [30, 45, 60, 75, 0];
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', arch: {}, badges: {} };
+  /* the goals: a list of different ones; a profile from before the list has its one goal in it */
+  out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
+  if (out.goals.length) out.goal = out.goals[0];
   /* an archive from a file is held to real sizes: a total no lifter reaches, or an end in the future, would hide the log or stall the page */
   for (const k of Object.keys(d.arch)) out.arch[k] = Math.min(pos(a[k]), k === 'until' ? Date.now() + 864e5 : k === 'kg' ? 1e10 : 1e7);
   for (const x of BADGES) if (pos(b[x.id])) out.badges[x.id] = b[x.id];
@@ -2506,7 +2750,8 @@ function view(pe, s, plan) {
   const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id] != null ? plan[pe.id] : pe.sets;
   let n = n0;
   if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
-  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: planNote(pe.int), lvl: pe.lvl, suf: planNote(pe.suf), cut, swapped: mv !== pe.a };
+  const rx = goalRx(pe.reps, pe.rest, S.cfg.me.goals, S.cfg.me.exp) || pe;
+  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: rx.reps, rest: rx.rest, int: planNote(pe.int), lvl: pe.lvl, suf: planNote(pe.suf), cut, swapped: mv !== pe.a };
 }
 function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return (s ? sessSlots(s) : planSlots(w)).map((pe) => view(pe, s, plan)); }
 function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
@@ -2594,10 +2839,7 @@ function fatigued() {
   return l.length === 2 && l.every((x) => missedMuscles(x).size >= 2);
 }
 /* swap options for a slot: the same movement pattern only, joint-friendly ones first */
-function swapOptions(e) {
-  const L = LIB[e.mv];
-  return Object.keys(LIB).filter((k) => k !== e.mv && LIB[k].pat === L.pat && LIB[k].p === L.p).sort((a, b) => (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0));
-}
+function swapOptions(e) { return sameKind(e.mv); }
 /* after a pain report: a movement of the same pattern that is not already in this workout, a joint-friendly one if there is one */
 function gentleAlt(e) { const used = exList(wkOf(e.id)).map((x) => x.mv), o = swapOptions(e); return o.find((k) => LIB[k].jf && !used.includes(k)) || o.find((k) => !used.includes(k)) || o[0] || null; }
 /* returns true when today's workout switched, false when the change waits for the next one */
@@ -2806,7 +3048,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;
@@ -2887,6 +3129,9 @@ function restoreData(text) {
     me.arch = theirs.arch.until > mine.arch.until ? theirs.arch : mine.arch; me.badges = Object.assign({}, theirs.badges, mine.badges);
     if (made) { me.name = made.name; me.look = made.look; me.made = made.made; }
     me.ob = me.ob || mine.ob || theirs.ob; if (me.exp == null) me.exp = mine.exp != null ? mine.exp : theirs.exp; if (me.goal == null) me.goal = mine.goal != null ? mine.goal : theirs.goal;
+    for (const k of ['time', 'eq']) if (me[k] == null) me[k] = mine[k] != null ? mine[k] : theirs[k];
+    if (!me.goals.length) me.goals = (mine.goals && mine.goals.length ? mine.goals : theirs.goals || []).slice();
+    if (!me.pin) me.pin = mine.pin || theirs.pin || '';
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }
   saveLocal();
@@ -2995,6 +3240,8 @@ function wearLook() {
   let shirt = hexRgb(SHIRT[k.shirt] || SHIRT[0]);
   /* a shirt too close to the colour that marks the working muscle would hide it: it goes darker */
   if (Math.hypot(shirt[0] - mu[0], shirt[1] - mu[1], shirt[2] - mu[2]) < 110) shirt = shirt.map((v) => Math.round(v * 0.55));
+  /* and one the colour of the stage behind it (white on a light stage, black on a dark one) is shaded, so the figure stays whole */
+  if (Math.hypot(shirt[0] - bg[0], shirt[1] - bg[1], shirt[2] - bg[2]) < 70) shirt = to(shirt, dark ? [255, 255, 255] : [0, 0, 0], 0.22);
   const shorts = dark ? [86, 96, 138] : [57, 65, 90], hairOn = (k.hair | 0) > 0, hc = HAIRC[k.hc] || HAIRC[0];
   C.fig = sk[0]; C.figLo = sk[1]; C._fig = skin; C._lo = shade; C._hi = to(skin, [255, 255, 255], 0.3);
   C.far = css(to(shade, bg, 0.22));
@@ -3108,16 +3355,8 @@ function openWorkout(w, picked) {
   if (w !== S.tab) leaveWorkout();
   S.tab = w; setView('workout'); renderAll();
 }
-/* how long a workout really takes: each set (setting up, then the reps), the rest after every set but the last of an exercise,
-   the move to the next one, and a warm-up. To the nearest five minutes */
-const minsOf = (list) => {
-  const sec = list.reduce((n, e) => {
-    if (!e.sets) return n;
-    const r = String(e.reps || '').match(/\d+/g) || [10], reps = (+r[0] + +(r[1] || r[0])) / 2, rest = (e.rest[0] + e.rest[1]) / 2;
-    return n + e.sets * (15 + reps * 3.5) + (e.sets - 1) * rest + 90;
-  }, 300);
-  return Math.max(10, Math.round(sec / 300) * 5);
-};
+/* how long a workout really takes (see workMins) */
+const minsOf = (list) => workMins(list);
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
 /* today: the player, the workout that is next (or running), and the week as a path of four stops */
 function renderHome() {
@@ -3753,9 +3992,11 @@ function onRemoteChange() {
   const a = document.activeElement;
   if (a && a.closest && (a.closest('#dock') || a.closest('#sheet') || a.closest('.note')) && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT')) return;
   sweep(); meSync(); if (!S.touched) S.tab = nextUp().next;
-  if ((S.cfg.lang || autoLang()) !== LANG) applyLang();
-  maybeOb();
-  if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap' && S.sheet !== 'look' && S.sheet !== 'sum') renderAll();
+  const draw = () => { maybeOb(); if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap' && S.sheet !== 'look' && S.sheet !== 'sum') renderAll(); };
+  /* the account speaks another language than the page does: the page changes to it under a fade, the opening too */
+  if ((S.cfg.lang || autoLang()) === LANG) draw();
+  else if (OB.on) obFade(() => { applyLang(); renderOb(); draw(); });
+  else langFade(() => { applyLang(); draw(); });
 }
 function startTab() { S.open = null; renderList(); renderDock(); }
 
@@ -3966,6 +4207,8 @@ const SFX = {
   pr: [[659, 0, 0.1, 0.065, 'sine'], [880, 0.09, 0.1, 0.065, 'sine'], [1175, 0.18, 0.3, 0.07, 'sine']],
   coin: [[880, 0, 0.08, 0.05, 'sine'], [1175, 0.07, 0.16, 0.05, 'sine']],
   done: [[523, 0, 0.13, 0.07, 'sine'], [659, 0.12, 0.13, 0.07, 'sine'], [784, 0.24, 0.13, 0.07, 'sine'], [1047, 0.36, 0.5, 0.08, 'sine']],
+  /* a small fanfare: a rising run that lands on an open chord and rings */
+  glory: [[392, 0, 0.12, 0.055, 'triangle'], [523, 0.1, 0.12, 0.055, 'triangle'], [659, 0.2, 0.12, 0.06, 'triangle'], [784, 0.3, 0.16, 0.065, 'triangle'], [1047, 0.46, 0.75, 0.075, 'sine'], [784, 0.46, 0.75, 0.04, 'sine'], [1319, 0.5, 0.8, 0.035, 'sine'], [1568, 0.56, 0.9, 0.022, 'sine']],
 };
 /* one note: [frequency, start, length, volume, wave] with a soft start and a long tail, like a struck bar */
 function sfx(kind) {
@@ -4302,7 +4545,8 @@ const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
 const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '') + ' style="width:' + p + '%"></i></span>';
 const tons = (kg) => { const t = kg / 1000; return t >= 100 ? nf(t) : (Math.round(t * 10) / 10).toLocaleString('en-US'); };
-const avatar = (lvl, o) => avatarSVG(S.cfg.me.look, lvl, o);
+/* the player's character: built at least as far as the experience they came with (see EXP_BASE) */
+const avatar = (lvl, o) => avatarSVG(S.cfg.me.look, lvl, Object.assign({ base: EXP_BASE[expNow()] || 0 }, o));
 
 /* refresh the player's side after the log changed, and remember the level so that a level-up can be spotted */
 function renderMe() {
@@ -4353,34 +4597,89 @@ function renderSettings() {
 }
 function openSettings() { S.sheet = 'set'; S.backupNote = ''; renderSettings(); $('#sheet').hidden = false; }
 
-/* ---- the character sheet: name and looks; every choice is saved at once ---- */
+/* ---- the character editor: name and looks; every choice is saved at once. One kind of choice is on screen at a time,
+   picked from a row of tabs, so that the whole editor fits on one screen with the character above it ---- */
+const LK = { tab: 'skin', busy: false, note: '' };
+const LOOK_TABS = () => [['skin', say('עור', 'Skin')], ['hair', say('תספורת', 'Haircut')], ['hc', say('צבע שיער', 'Hair colour')], ['beard', say('זקן', 'Beard')], ['shirt', say('חולצה', 'Shirt')]];
+/* a T-shirt, for the shirt colours: a colour is easier to choose on the thing it colours */
+const TEE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 3.6c.7 1.3 1.9 2 3.4 2s2.7-.7 3.4-2l5.1 2.3-1.9 4.3-2.3-.9v11.2H7.7V9.3l-2.3.9-1.9-4.3z"/></svg>';
 function lookRows() {
-  /* each row is a named group, and each colour says what it is the colour of: 'Shirt 3', not 'Option 3' three times over */
-  const k = S.cfg.me.look, sw = (key, list, hex, label) => '<div class="lk-opts" role="group" aria-label="' + label + '">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
-  const seg = (key, list, label) => '<div class="seg" role="group" aria-label="' + label + '">' + list.map((t, i) => '<button type="button" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '">' + t + '</button>').join('') + '</div>';
-  const row = (label, body) => '<div class="lk-row col"><span aria-hidden="true">' + label + '</span>' + body + '</div>';
-  const L = { skin: say('עור', 'Skin'), hair: say('שיער', 'Hair'), hc: say('צבע שיער', 'Hair colour'), beard: say('זקן', 'Beard'), shirt: say('חולצה', 'Shirt') };
-  return row(L.skin, sw('skin', SKIN, (c) => c[0], L.skin)) + row(L.hair, seg('hair', HAIRS(), L.hair)) + row(L.hc, sw('hc', HAIRC, (c) => c, L.hc)) + row(L.beard, seg('beard', BEARDS(), L.beard)) + row(L.shirt, sw('shirt', SHIRT, (c) => c, L.shirt));
+  const k = S.cfg.me.look, tabs = LOOK_TABS(), cur = tabs.find((t) => t[0] === LK.tab) || tabs[0], key = cur[0], label = cur[1];
+  /* each colour says what it is the colour of: 'Shirt 3', not 'Option 3' three times over */
+  const sw = (list, hex) => '<div class="lk-opts" style="--n:' + list.length + '">' + list.map((c, i) => '<button type="button" class="lk-sw" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + hex(c) + '"></button>').join('') + '</div>';
+  const face = (look, i, name) => '<button type="button" class="lk-cut" data-look="' + key + '" data-v="' + i + '" aria-pressed="' + (k[key] === i) + '"><span class="lk-face" aria-hidden="true">' + avatarSVG(look, 1, { bust: true }) + '</span><small>' + name + '</small></button>';
+  let body;
+  if (key === 'skin') body = sw(SKIN, (c) => c[0]);
+  else if (key === 'hair') body = '<div class="lk-cuts">' + HAIR_ORDER.map((i) => face(Object.assign({}, k, { hair: i }), i, hairName(i))).join('') + '</div>';
+  else if (key === 'hc') body = sw(HAIRC, (c) => c);
+  else if (key === 'beard') body = '<div class="lk-cuts three">' + BEARDS().map((t, i) => face(Object.assign({}, k, { beard: i }), i, t)).join('') + '</div>';
+  else body = '<div class="lk-tees">' + SHIRT.map((c, i) => '<button type="button" class="lk-tee" data-look="shirt" data-v="' + i + '" aria-pressed="' + (k.shirt === i) + '" aria-label="' + label + ' ' + (i + 1) + '" style="--c:' + c + '">' + TEE + '</button>').join('') + '</div>';
+  return '<div class="lk-tabs" role="tablist" aria-label="' + say('מה לשנות', 'What to change') + '">' + tabs.map((t) => '<button type="button" role="tab" data-lktab="' + t[0] + '" aria-selected="' + (t[0] === key) + '">' + t[1] + '</button>').join('') + '</div>' +
+    '<div class="lk-pane" role="tabpanel" aria-label="' + label + '">' + body + '</div>';
+}
+/* the button that makes the character from a photo: only where Eilon can be shown one */
+const CAM = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>';
+function lookPhoto() {
+  if (!chat.canImg) return '';
+  return '<button type="button" class="lk-photo" id="lkPhoto"' + (LK.busy ? ' disabled' : '') + '>' + (LK.busy ? '<i class="spin" aria-hidden="true"></i>' + say('מסתכל…', 'Looking…') : CAM + say('ליצור מתמונה', 'Make it from a photo')) + '</button>' +
+    '<p class="lk-note" id="lkNote" role="status"' + (LK.note ? '' : ' hidden') + '>' + (LK.note || '') + '</p>';
+}
+function lookTab(t) { LK.tab = t; const box = $('#lkRows'); if (box) box.innerHTML = lookRows(); haptic('select'); }
+function lookDraw(pump) {
+  const st = $('#lkStage'), rows = $('#lkRows'), ph = $('#lkPhotoBox');
+  if (st) { st.innerHTML = avatar(S.lvl || 1); if (pump) { st.classList.remove('pump'); void st.offsetWidth; st.classList.add('pump'); } }
+  if (rows) rows.innerHTML = lookRows();
+  if (ph) ph.innerHTML = lookPhoto();
+  if (player.cv && !player.playing) paintStage(player.lastT);
 }
 function openLook() {
   const me = S.cfg.me, sh = $('#sheet');
-  S.sheet = 'look';
+  S.sheet = 'look'; LK.note = '';
   sh.innerHTML = '<div class="sheet-in lk" role="dialog" aria-modal="true" aria-label="' + say('הדמות שלי', 'My character') + '"><div class="ed-h"><div><h2>' + say('הדמות שלי', 'My character') + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div>' +
+    '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div><div class="lk-photo-box" id="lkPhotoBox">' + lookPhoto() + '</div>' +
     '<label class="lk-row" for="lkName"><span>' + say('שם', 'Name') + '</span><input id="lkName" type="text" dir="auto" maxlength="16" autocomplete="off" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(me.name) + '"></label>' +
-    '<div id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
+    '<div class="lk-ed" id="lkRows">' + lookRows() + '</div><button class="btn primary big" data-close="1" type="button">' + say('סיום', 'Done') + '</button></div>';
   sh.hidden = false;
 }
 function setLook(key, v) {
   const me = S.cfg.me; if (!(key in me.look)) return;
   me.look[key] = v; me.made = me.made || Date.now(); saveCfg();
-  $('#lkStage').innerHTML = avatar(S.lvl || 1); $('#lkRows').innerHTML = lookRows();
-  if (player.cv && !player.playing) paintStage(player.lastT);
+  lookDraw(false);
+}
+/* ---- the character from a photo: Eilon looks at it once and picks the closest of each choice. The photo is not kept ---- */
+const LOOK_ASK = 'You are setting up a simple cartoon avatar for a fitness app. Look at the main person in the photo and pick the closest option in each list. ' +
+  'Reply with one line of JSON and nothing else: {"skin":N,"hair":N,"hc":N,"beard":N}\n' +
+  'skin, the tone from light to deep: 0 very fair, 1 fair, 2 light tan, 3 tan or olive, 4 brown, 5 deep brown.\n' +
+  'hair, the cut: 0 bald or shaved, 1 short, 2 swept up, 3 curly, 4 long (past the chin), 5 a fringe over the forehead, 6 buzz cut, 7 side part, 8 medium (over the ears).\n' +
+  'hc, the hair colour: 0 black, 1 dark brown, 2 brown, 3 light brown, 4 dark blond, 5 blond, 6 red or ginger, 7 grey or white.\n' +
+  'beard: 0 none, 1 stubble or a short beard, 2 a full beard.\n' +
+  'If no person can be seen in the photo, reply {"none":true}.';
+async function lookFromPhoto(file) {
+  if (!file || LK.busy) return;
+  const say2 = (t) => { LK.note = t || ''; const ph = $('#lkPhotoBox'); if (ph) ph.innerHTML = lookPhoto(); };
+  LK.busy = true; say2('');
+  try {
+    const blob = await shrinkImage(file, 1024), sample = await chat.sampleP;
+    if (!sample) throw new Error('no coach');
+    const res = await sample([{ role: 'user', content: LOOK_ASK }], { cache: false, images: [blob] });
+    const m = String((res && res.text) || '').match(/\{[^{}]*\}/); let o = null;
+    try { o = m ? JSON.parse(m[0]) : null; } catch (e) { o = null; }
+    LK.busy = false;
+    if (o && o.none) { say2(say('לא מצאתי פנים בתמונה. אפשר לנסות תמונה אחרת.', 'I could not find a face in the photo. Try another one.')); return; }
+    const me = S.cfg.me, lim = { skin: SKIN.length, hair: HAIR.length, hc: HAIRC.length, beard: BEARD.length }; let n = 0;
+    if (o) for (const key of Object.keys(lim)) if (Number.isInteger(o[key]) && o[key] >= 0 && o[key] < lim[key]) { me.look[key] = o[key]; n++; }
+    if (!o || !n) { say2(say('לא הצלחתי לקרוא את התמונה. אפשר לנסות שוב.', 'I could not read the photo. Try again.')); return; }
+    me.made = me.made || Date.now(); saveCfg(); LK.note = say('הנה. אפשר לשנות כל פרט.', 'There. Every detail can still be changed.'); lookDraw(true); feel('set', 'success');
+  } catch (e) {
+    LK.busy = false; say2(say('לא הצלחתי לקרוא את התמונה כרגע. אפשר לבחור ידנית.', 'I could not read the photo right now. You can choose by hand.'));
+  }
 }
 function setName(v) { const me = S.cfg.me, n = String(v || '').trim().slice(0, 16); if (n === me.name) return; me.name = n; me.made = me.made || Date.now(); saveCfg(); }
 /* clicks and typing inside the sheet that belong to this file; returns true when the click was handled */
 function meSheetClick(ev) {
   const lk = ev.target.closest('[data-look]'); if (lk) { setLook(lk.dataset.look, +lk.dataset.v); return true; }
+  const tb = ev.target.closest('[data-lktab]'); if (tb) { lookTab(tb.dataset.lktab); return true; }
+  if (ev.target.closest('#lkPhoto')) { $('#lkFile').click(); return true; }
   if (S.sheet !== 'set') return false;
   const b = ev.target.closest('button'); if (!b) return false;
   const k = b.dataset.set, v = b.dataset.v;
@@ -4388,10 +4687,10 @@ function meSheetClick(ev) {
   else if (b.id === 'backupBtn') exportBackup();
   else if (b.id === 'restoreBtn') $('#restoreFile').click();
   else if (b.id === 'exportBtn') exportCsv();
-  else if (k === 'lang') setLang(v);
+  else if (k === 'lang') { if (v !== LANG) langFade(() => setLang(v)); }
   else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) sfx('set'); renderSettings(); }
   else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); if (HX.on) document.documentElement.dataset.hx = S.buzz ? 'on' : 'off'; haptic('success'); renderSettings(); }
-  else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); saveCfg(); renderAll(); }
+  else if (k === 'exp' || k === 'goal') { const me = S.cfg.me; me[k] = +v; if (k === 'exp') applyExp(); else me.goals = [+v]; saveCfg(); renderAll(); }
   else return false;
   return true;
 }
@@ -4441,6 +4740,7 @@ function countUp(el, to) {
   requestAnimationFrame(step);
 }
 function wireMe() {
+  $('#lkFile').addEventListener('change', (ev) => { const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; lookFromPhoto(f); });
   $('#profile').addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
     if (b.id === 'lookBtn') openLook();
@@ -4471,11 +4771,13 @@ function planText() {
 }
 /* what the opening screens learned about the lifter, for the coach */
 function aboutUser() {
-  const me = S.cfg.me, bits = [], exp = EXP()[me.exp], goal = GOALS()[me.goal];
+  const me = S.cfg.me, bits = [], exp = EXP()[me.exp], goals = (me.goals || []).map((i) => GOALS()[i]).filter(Boolean), eq = EQS()[me.eq];
   if (me.name) bits.push(say('שם: ', 'Name: ') + me.name);
   if (exp) bits.push(say('ניסיון בחדר כושר: ', 'Gym experience: ') + exp[0] + ' (' + exp[1] + ')');
-  if (goal) bits.push(say('מטרה: ', 'Goal: ') + goal[0]);
-  return bits.length ? say('על המשתמש: ', 'About the user: ') + bits.join(' · ') + say('. התאם את הטון ואת העצות לניסיון ולמטרה.', '. Fit your tone and your advice to the experience and the goal.') + '\n\n' : '';
+  if (goals.length) bits.push((goals.length > 1 ? say('מטרות: ', 'Goals: ') : say('מטרה: ', 'Goal: ')) + goals.map((o) => o[0]).join(', '));
+  if (me.time) bits.push(say('זמן לאימון: עד ', 'Time for a workout: up to ') + me.time + say(' דקות', ' minutes'));
+  if (eq && me.eq !== 2) bits.push(say('ציוד: ', 'Equipment: ') + eq[0] + ' (' + eq[1] + ')');
+  return bits.length ? say('על המשתמש: ', 'About the user: ') + bits.join(' · ') + say('. התאם את הטון ואת העצות לניסיון, למטרות, לזמן ולציוד.', '. Fit your tone and your advice to the experience, the goals, the time and the equipment.') + '\n\n' : '';
 }
 /* a mark that is written only in the rules: an answer that carries it is quoting them */
 const MARK = 'gymi-K7Q2';
@@ -4644,19 +4946,21 @@ function setAttach(blob) {
   chat.img = blob || null; chat.imgUrl = blob ? URL.createObjectURL(blob) : '';
   $('#attach').hidden = !blob; if (blob) $('#attachImg').src = chat.imgUrl;
 }
+/* a photo as it is sent: upright, no longer than max on its long side, as a JPEG */
+async function shrinkImage(file, max) {
+  let src = null;
+  if (window.createImageBitmap) { try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { src = null; } }
+  if (!src) src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); });
+  const w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, k = Math.min(1, max / Math.max(w, h)), cv = document.createElement('canvas');
+  cv.width = Math.round(w * k); cv.height = Math.round(h * k); cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
+  const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
+  if (!blob) throw new Error('encode');
+  return blob;
+}
 async function pickImage(file) {
   if (!file) return;
   compNote('');
-  try {
-    let src = null;
-    if (window.createImageBitmap) { try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { src = null; } }
-    if (!src) src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); });
-    const w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, k = Math.min(1, 1600 / Math.max(w, h)), cv = document.createElement('canvas');
-    cv.width = Math.round(w * k); cv.height = Math.round(h * k); cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
-    const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
-    if (!blob) throw new Error('encode');
-    setAttach(blob); $('#chatInput').focus();
-  } catch (e) { compNote(errText('no_image')); }
+  try { setAttach(await shrinkImage(file, 1600)); $('#chatInput').focus(); } catch (e) { compNote(errText('no_image')); }
 }
 /* what the page knows, sent with each question: the open workout, the exercise in question and its recent log */
 function ctxLine() {
@@ -4876,55 +5180,107 @@ function setLang(l, keep) {
   S.cfg.lang = l; applyLang();
   if (!keep) { saveCfg(); renderAll(); }
 }
+/* a change of language is never a jump: what is on screen fades out, changes, and fades back in. Behind the curtain there
+   is nothing to see, so there it changes at once. Changes that arrive while one is fading are made together with it */
+const LF = { t: 0, q: [] };
+function langFade(fn) {
+  const app = $('#app');
+  if (reduced || SPLASH.on || document.hidden) { fn(); return; }
+  LF.q.push(fn); if (LF.q.length > 1) return;
+  clearTimeout(LF.t); app.classList.remove('lang-in'); app.classList.add('lang-out');
+  setTimeout(() => {
+    const q = LF.q; LF.q = []; for (const f of q) f();
+    app.classList.remove('lang-out'); app.classList.add('lang-in'); LF.t = setTimeout(() => app.classList.remove('lang-in'), 340);
+  }, 150);
+}
 
-const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goal: null };
-const OB_LAST = 6;
+/* ================================================================== the opening
+   A short film first: the camera finds Eilon, pulls back onto the player's character beside him, and pushes in on it as it
+   grows. Then the questions, one a screen, each asked by Eilon from the same place, so that only what is asked changes. The
+   answers build the plan: experience sets the sets, the time sets how many exercises, and the gym sets the machines */
+const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goals: [], time: null, eq: null, fb: 2, pin: '', pin1: '', pinBuf: '', pinErr: '', beat: 0 };
+const OB_STEPS = ['film', 'name', 'exp', 'goals', 'time', 'eq', 'look', 'plan', 'pin', 'done'];
+const OB_LAST = OB_STEPS.length - 1;
+const obIs = (k) => OB_STEPS[OB.step] === k;
 const EXP = () => [[say('מתחיל', 'Beginner'), say('פחות מחצי שנה', 'Less than six months')], [say('מתאמן קבוע', 'Regular'), say('חצי שנה עד שנתיים', 'Six months to two years')], [say('מנוסה', 'Experienced'), say('יותר משנתיים', 'More than two years')]];
-const GOALS = () => [[say('לבנות שריר', 'Build muscle')], [say('להתחזק', 'Get stronger')], [say('כושר ובריאות', 'Fitness and health')]];
-const barsIcon = (n) => '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + [0, 1, 2].map((k) => '<path d="M' + (6 + k * 6) + ' 19v-' + (5 + k * 4) + '"' + (k < n ? '' : ' opacity=".25"') + '/>').join('') + '</svg>';
-/* an icon on a tile of colour, for the answers and for the three promises at the end */
-const tile = (ic, k) => '<i class="ic-tile w' + k + '" aria-hidden="true">' + ic + '</i>';
-const OB_ICON = { exp: [tile(barsIcon(1), 1), tile(barsIcon(2), 0), tile(barsIcon(3), 2)], goal: [tile(ICON.bell, 0), tile(glyph('bolt'), 3), tile('<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-9.6A4 4 0 0 1 12 8a4 4 0 0 1 7 2.4C19 15.7 12 20 12 20z"/></svg>', 1)] };
-/* the welcome is a small game: a tap on the character takes it up through the levels, filling out and earning its gear.
-   Left alone, it climbs by itself */
-const OB_SHOW = [1, 3, 8, 12, 20, 30, 40];
-function obLevel(tap) {
-  const box = $('#obAv'), chip = $('#obLv'), me = $('#obMe'); if (!box || !chip || !me || !OB.on || OB.step !== 0) return;
-  OB.showI = (OB.showI + 1) % OB_SHOW.length;
-  const lvl = OB_SHOW[OB.showI];
-  box.innerHTML = avatarSVG(S.cfg.me.look, lvl);
-  const av = $('.av', box);
-  requestAnimationFrame(() => requestAnimationFrame(() => { if (av.isConnected) av.classList.add('flex'); }));
-  clearTimeout(OB.flexT); OB.flexT = setTimeout(() => { if (av.isConnected) av.classList.remove('flex'); }, 1100);
-  chip.textContent = say('רמה ', 'Level ') + lvl; chip.classList.remove('pop'); void chip.offsetWidth; chip.classList.add('pop');
-  if (tap) { OB.tapT = Date.now(); me.classList.add('tapped'); me.classList.remove('bump'); void me.offsetWidth; me.classList.add('bump'); sfx('coin'); flyPoints(chip, XP.set); }
+/* how built the character is drawn for each answer, before a single level is earned: as one starts, half way, well trained */
+const EXP_BASE = [0, 0.35, 0.62];
+const GOALS = () => [[say('מראה ומבנה גוף', 'Physique'), say('מסה, חיטוב והגדרה', 'Size, shape and definition')], [say('כוח', 'Strength'), say('להרים יותר משקל', 'Lift heavier')], [say('כושר ובריאות', 'Fitness and health'), say('אנרגיה, יציבה וגוף בריא', 'Energy, posture and a healthy body')]];
+const TIMES = () => [[30, say('קצר וממוקד', 'Short and focused')], [45, say('מאוזן', 'Balanced')], [60, say('אימון מלא', 'A full workout')], [75, say('ארוך ויסודי', 'Long and thorough')]];
+const EQS = () => [[say('חדר כושר מלא', 'A full gym'), say('מכונות, כבלים, מוטות ומשקולות', 'Machines, cables, bars and dumbbells')], [say('חדר כושר בסיסי', 'A basic gym'), say('משקולות, מוטות וכבלים, בלי מכונות', 'Dumbbells, bars and cables, no machines')], [say('עוד לא יודע', 'Not sure yet'), say('מתחילים מחדר מלא, וכל תרגיל מתחלף בלחיצה', 'We start with a full gym; any exercise swaps with a tap')]];
+/* the equipment each answer has: null for all of it */
+const EQ_OK = [null, ['db', 'bar', 'cable', 'bw'], null];
+/* a bar with one, two or three plates a side: the more there is on the bar, the longer one has trained */
+const platesIcon = (n) => {
+  const xs = [7.2, 4.2, 1.2], hs = n === 1 ? [10] : n === 2 ? [14, 10] : [17, 13, 9], r = (x, h) => '<rect x="' + x + '" y="' + (12 - h / 2) + '" width="2.4" height="' + h + '" rx="1.1"/>';
+  return '<svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><rect x=".4" y="11" width="23.2" height="2" rx="1"/>' + hs.map((h, i) => r(xs[i], h) + r(+(21.6 - xs[i]).toFixed(1), h)).join('') + '</svg>';
+};
+const OBI = {
+  body: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.8" r="2.1"/><path d="M5 9.4c2.4 1 4.6 1.5 7 1.5s4.6-.5 7-1.5M12 10.9v4.6M12 15.5l-3 5.4M12 15.5l3 5.4"/></svg>',
+  bell: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5v9M17.5 7.5v9M3.8 10v4M20.2 10v4M6.5 12h11"/></svg>',
+  heart: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-9.6A4 4 0 0 1 12 8a4 4 0 0 1 7 2.4C19 15.7 12 20 12 20z"/></svg>',
+  gym: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17M5 20.5V9.2L12 4.6l7 4.6v11.3M9.2 20.5v-5.2h5.6v5.2"/></svg>',
+  unsure: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M9.7 9.5a2.4 2.4 0 1 1 3.5 2.2c-.8.4-1.2 1-1.2 1.8M12 16.6h.01"/></svg>',
+  clock: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3 2"/></svg>',
+  del: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 5.5h9.3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9.2L3.5 12z"/><path d="M12 9.6l4.6 4.8M16.6 9.6L12 14.4"/></svg>',
+};
+/* the experience the character is drawn with: the answer being given, while the opening is open */
+const expNow = () => (OB.on && OB.exp != null ? OB.exp : S.cfg.me.exp);
+
+/* ---- the film: three beats, each a camera move and a line. It plays by itself and goes round; a touch moves it on ---- */
+const FILM = () => [
+  say('היי, אני אילון. המאמן האישי שלך.', 'Hi, I am Eilon. Your personal coach.'),
+  say('אבנה לך תוכנית שמתאימה בדיוק לך.', 'I will build a plan that fits you exactly.'),
+  say('וכל אימון יעלה אותך רמה.', 'And every workout takes you up a level.'),
+];
+const BEAT_MS = 3200;
+const storyHTML = () => FILM().map((_, i) => '<i class="' + (i < OB.beat ? 'full' : i === OB.beat ? 'run' : '') + '"><b></b></i>').join('');
+function filmHTML() {
+  return '<div class="ob-film" id="obFilm" data-beat="' + OB.beat + '" aria-hidden="true"><div class="ob-cam"><div class="ob-set">' +
+    '<span class="ob-glow"></span><span class="ob-floor"></span>' +
+    '<span class="ob-coach">' + avatarSVG(COACH, 16, {}) + '</span>' +
+    '<span class="ob-you" id="obYou"><span class="y1">' + avatar(1) + '</span><span class="y2">' + avatar(30) + '</span><b class="lv-badge" id="obYouLv">' + say('רמה ', 'Level ') + '1</b></span>' +
+    '</div></div></div>';
 }
-function obShow() {
-  clearInterval(OB.showT); OB.showI = 0;
-  if (reduced || OB.step !== 0) return;
-  OB.showT = setInterval(() => {
-    if (!OB.on || OB.step !== 0 || !$('#obAv')) { clearInterval(OB.showT); return; }
-    if (OB.playT && Date.now() - OB.playT > 3400 && Date.now() - (OB.tapT || 0) > 2600) obLevel(false);
-  }, 2400);
+function filmBeat(n) {
+  const f = $('#obFilm'); clearTimeout(OB.beatT);
+  if (!f || !OB.on || OB.step !== 0) return;
+  OB.beat = ((n % 3) + 3) % 3; f.dataset.beat = OB.beat;
+  /* he waves as he says hello */
+  const co = $('.ob-coach .av', f); if (co) { co.classList.toggle('wave', OB.beat === 0); co.classList.toggle('grin', OB.beat === 0); }
+  const cap = $('#obCap'); if (cap) { cap.textContent = FILM()[OB.beat]; cap.classList.remove('in'); void cap.offsetWidth; cap.classList.add('in'); }
+  const st = $('#obStory'); if (st) st.innerHTML = storyHTML();
+  /* the last beat: the character grows and flexes, and its level climbs */
+  const y2 = $('#obYou .y2 .av'), lv = $('#obYouLv');
+  if (y2) { y2.classList.remove('flex'); if (OB.beat === 2) setTimeout(() => { if (y2.isConnected && OB.beat === 2) y2.classList.add('flex'); }, 650); }
+  if (lv) {
+    cancelAnimationFrame(OB.lvRaf);
+    if (OB.beat !== 2) lv.textContent = say('רמה ', 'Level ') + 1;
+    else { const t0 = performance.now(), step = (now) => { const k = Math.min(1, (now - t0) / 1100); lv.textContent = say('רמה ', 'Level ') + Math.round(1 + 29 * (1 - Math.pow(1 - k, 3))); if (k < 1 && lv.isConnected) OB.lvRaf = requestAnimationFrame(step); }; OB.lvRaf = requestAnimationFrame(step); }
+  }
+  if (!reduced) OB.beatT = setTimeout(() => filmBeat(OB.beat + 1), BEAT_MS);
 }
-/* the curtain: a black screen with the name, as when a phone wakes up. It lifts by itself, or at a touch, onto the app
-   or onto the opening screens. Not in the middle of a workout, and not in the phone app, which has a curtain of its own */
-const SPLASH = { on: false, t: 0 };
+
+/* the curtain: a black screen with the name, as when a phone wakes up. It lifts once the account has said which language
+   to speak (so the first screen seen is already in it), or after a few seconds, or at a touch. Not in the middle of a
+   workout, and not in the phone app, which has a curtain of its own */
+const SPLASH = { on: false, t: 0, t0: 0 };
 function splash() {
   const el = $('#splash');
   if (!el || window.__splash === false || window.GYMI_NATIVE || nextUp().live >= 0) return;
-  SPLASH.on = true; el.hidden = false;
+  SPLASH.on = true; SPLASH.t0 = Date.now(); el.hidden = false;
   const lift = () => {
     if (!SPLASH.on) return;
     SPLASH.on = false; clearTimeout(SPLASH.t); el.classList.add('out');
     setTimeout(() => { el.hidden = true; el.classList.remove('out'); }, reduced ? 0 : 440);
     obPlay();
   };
+  const ready = () => { if (!SPLASH.on) return; if (S.cfgReady || Date.now() - SPLASH.t0 > 3200) lift(); else SPLASH.t = setTimeout(ready, 120); };
   el.addEventListener('click', lift, { once: true });
-  SPLASH.t = setTimeout(lift, reduced ? 800 : 1700);
+  SPLASH.t = setTimeout(ready, reduced ? 800 : 1500);
 }
-/* the opening screens start to move only once the curtain is up */
-function obPlay() { if (!OB.on || SPLASH.on) return; if (!OB.playT) OB.playT = Date.now(); $('#ob').classList.add('play'); }
+/* the opening starts to move only once the curtain is up */
+function obPlay() { if (!OB.on || SPLASH.on) return; if (!OB.playT) OB.playT = Date.now(); $('#ob').classList.add('play'); if (OB.step === 0) filmBeat(OB.beat); }
 
 /* a beginner starts with one set less on the exercises that have three or more; anyone else gets the plan as written.
    Only before the first logged set: after that the plan belongs to what the lifter has done with it */
@@ -4932,85 +5288,232 @@ function applyExp() {
   const me = S.cfg.me;
   if (meNow().T.sets > 0) return;
   /* x marks a count that was set here; a count the lifter chose in the plan has none and is left alone */
-  for (const id of Object.keys(SLOT)) {
-    const b = S.cfg.base[id]; if (b && !b.x) continue;
-    if (me.exp === 0 && SLOT[id].sets >= 3) S.cfg.base[id] = { n: SLOT[id].sets - 1, t: Date.now(), x: 1 }; else delete S.cfg.base[id];
+  for (let w = 0; w < PLAN.length; w++) for (const pe of planSlots(w)) {
+    const b = S.cfg.base[pe.id]; if (b && !b.x) continue;
+    if (me.exp === 0 && pe.sets >= 3) S.cfg.base[pe.id] = { n: pe.sets - 1, t: Date.now(), x: 1 }; else delete S.cfg.base[pe.id];
   }
 }
+/* the answers that shape the plan: the ones being given while the opening is open, else the ones that were kept */
+const fitAns = (a) => ({ exp: a.exp, goals: a.goals || [], time: a.time, ok: EQ_OK[a.eq] || null });
+/* the plan is made for its lifter (see fitPlanData): the movements the gym has, the sets for this experience, and as many
+   exercises as the time holds. It is written from the plan's own slots each time, so going through the opening again with
+   other answers gives the plan those answers ask for. Only before the first logged set, like applyExp */
+function fitPlan() {
+  const me = S.cfg.me;
+  if (meNow().T.sets > 0) return;
+  const now = Date.now(), cfg = S.cfg;
+  cfg.swap = {}; cfg.slots = {}; cfg.order = {}; cfg.base = {};
+  fitPlanData(fitAns(me)).forEach((list, w) => {
+    const ids = list.map((x, i) => {
+      let id = x.id;
+      if (x.kind === 'swap') cfg.swap[id] = x.mv;
+      else if (x.kind === 'repl') { id = 'c' + now.toString(36) + w + i; cfg.slots[id] = { w, a: x.mv, sets: x.full, reps: x.reps, rest: x.rest.slice() }; }
+      if (x.sets !== x.full) cfg.base[id] = { n: x.sets, t: now, x: 1 };
+      return id;
+    });
+    if (ids.join() !== PLAN[w].ex.map((e) => e.id).join()) cfg.order[w] = ids;
+  });
+  saveCfg();
+}
+/* what the plan will be, before it is made: how many exercises a workout has, the sets they get, and how long it runs.
+   A plan that was already trained stays as it is, so there the numbers are its own */
+function planPreview() {
+  const fresh = meNow().T.sets === 0, span = (a) => { const lo = Math.min.apply(null, a), hi = Math.max.apply(null, a); return lo === hi ? '' + lo : Ltr(lo + '–' + hi); };
+  const lists = fresh ? fitPlanData(fitAns(OB)).map((l) => l.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t }))) : PLAN.map((x, w) => exList(w));
+  return { ex: span(lists.map((l) => l.length)), sets: span([].concat.apply([], lists.map((l) => l.map((e) => e.sets)))), mins: span(lists.map(workMins)) };
+}
+
+async function pinHash(pin) {
+  const text = 'gymi:' + pin;
+  try {
+    const h = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(h)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    /* no subtle crypto here: a plain mix of the digits, as long as the real one */
+    let x = 2166136261; for (const c of text) x = Math.imul(x ^ c.charCodeAt(0), 16777619) >>> 0;
+    return (x.toString(16).padStart(8, '0')).repeat(8);
+  }
+}
+
+/* what the plan is fitted to, one line for each, in the lifter's own answers */
+const buildSteps = () => [
+  OB.eq === 1 ? say('בוחר תרגילים בלי מכונות', 'Choosing exercises that need no machines') : say('בוחר תרגילים לחדר כושר מלא', 'Choosing exercises for a full gym'),
+  [say('קובע סטים למתחיל', 'Setting the sets for a beginner'), say('קובע סטים למתאמן קבוע', 'Setting the sets for a regular lifter'), say('קובע סטים למנוסה', 'Setting the sets for an experienced lifter')][OB.exp == null ? 1 : OB.exp],
+  say('מכוון חזרות ומנוחות למטרות שלך', 'Tuning reps and rests to your goals'),
+  OB.time ? say('מתאים כל אימון ל-', 'Fitting each workout into ') + Ltr(OB.time) + say(' דקות', ' minutes') : say('משאיר כל אימון באורך מלא', 'Keeping each workout at full length'),
+];
 function obHTML() {
-  const st = OB.step, me = S.cfg.me, lvl = S.lvl || 1;
-  const ask = (t, sub) => '<div class="ob-q"><span class="ava" aria-hidden="true">' + coachFace() + '</span><div class="ob-bub"><h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
-  const opts = (key, list, cur) => '<div class="ob-opts" role="radiogroup" aria-labelledby="obTitle">' + list.map((o, i) => '<button type="button" class="ob-opt" role="radio" aria-checked="' + (cur === i) + '" data-ob="' + key + '" data-v="' + i + '">' + OB_ICON[key][i] + '<span><b>' + o[0] + '</b>' + (o[1] ? '<small>' + o[1] + '</small>' : '') + '</span><i class="ob-chk" aria-hidden="true">' + ICON.check + '</i></button>').join('') + '</div>';
-  /* under a question the player's own character stands and waits, and cheers when an answer is chosen */
-  const buddy = '<div class="ob-buddy" id="obBuddy" aria-hidden="true">' + avatarSVG(me.look, lvl) + '</div>';
-  let body, cta = say('המשך', 'Continue'), can = true;
-  if (st === 0) {
+  const st = OB_STEPS[OB.step], nm = String(OB.name || '').trim();
+  /* Eilon, all of him, beside what he asks. On the first question he stands larger, above it */
+  const ask = (t, sub, big) => '<div class="ob-q' + (big ? ' big' : '') + '"><span class="ob-eilon" aria-hidden="true">' + avatarSVG(COACH, 16, {}) + '</span><div class="ob-bub"><h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
+  const card = (key, i, ic, t, sub, on, multi) => '<button type="button" class="ob-opt" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '" data-ob="' + key + '" data-v="' + i + '"><i class="ob-ic" aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span><i class="ob-chk" aria-hidden="true">' + ICON.check + '</i></button>';
+  const group = (multi, inner) => '<div class="ob-opts" role="' + (multi ? 'group' : 'radiogroup') + '" aria-labelledby="obTitle">' + inner + '</div>';
+  let body, cta = say('המשך', 'Continue'), can = true, quiet = false;
+  if (st === 'film') {
     cta = say('בואו נתחיל', "Let's start");
-    body = '<div class="ob-stage"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
-      '<button class="ob-me" id="obMe" type="button" aria-label="' + say('הדמות שלך. כל הקשה מעלה אותה רמה', 'Your character. Every tap takes it up a level') + '"><span class="ob-rings" aria-hidden="true"><i></i><i></i></span><span class="ob-av" id="obAv">' + avatar(lvl) + '</span>' +
-      '<span class="lv-badge ob-lv" id="obLv" aria-hidden="true">' + say('רמה ', 'Level ') + lvl + '</span><span class="ob-tap" aria-hidden="true">' + say('הקישו עליי', 'Tap me') + '</span></button>' +
-      '<div class="ob-q ob-hi"><span class="ava" aria-hidden="true">' + coachFace() + '</span><div class="ob-bub"><h1 id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1><p>' + say('אני אילון, המאמן שלך. נבנה לך תוכנית?', 'I am Eilon, your coach. Shall we build your plan?') + '</p></div></div></div>';
-  } else if (st === 1) {
-    body = ask(say('איך קוראים לך?', 'What is your name?')) + '<input class="ob-in-name" id="obName" type="text" dir="auto" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '">' + buddy;
-  } else if (st === 2) {
-    body = ask(say('כמה ניסיון יש לך בחדר כושר?', 'How much gym experience do you have?')) + opts('exp', EXP(), OB.exp) + buddy; can = OB.exp != null;
-  } else if (st === 3) {
-    body = ask(say('מה המטרה שלך?', 'What is your goal?')) + opts('goal', GOALS(), OB.goal) + buddy; can = OB.goal != null;
-  } else if (st === 4) {
-    body = ask(say('זו הדמות שלך', 'This is your character'), say('היא מתחזקת עם כל רמה, והיא שתדגים לך את התרגילים.', 'It grows with every level, and it shows you the exercises.')) + '<div class="lk-stage" id="lkStage">' + avatar(lvl) + '</div><div id="lkRows">' + lookRows() + '</div>';
-  } else if (st === 5) {
-    /* the coach offers the plan, one line after the other. Each line says what the app really does */
-    /* the cut for a beginner is made only before the first logged set (applyExp): after that the plan stays as it is, and the line says so */
-    const cut = meNow().T.sets === 0, plan = (id) => { const b = S.cfg.base[id]; return b && b.n && !(cut && b.x) ? b.n : SLOT[id].sets; };
-    const sets = Object.keys(SLOT).map((id) => (cut ? (OB.exp === 0 && SLOT[id].sets >= 3 ? SLOT[id].sets - 1 : SLOT[id].sets) : plan(id))), lo = Math.min.apply(null, sets), hi = Math.max.apply(null, sets), wks = S.cfg.weeks;
-    const line = (k, ic, b, sm) => '<li>' + tile(ic, k) + '<span><b>' + b + '</b><small>' + sm + '</small></span></li>';
+    body = '<div class="ob-head"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
+      '<h1 class="sr" id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1></div><div class="ob-tap" id="obTap"></div><p class="ob-cap in" id="obCap">' + FILM()[OB.beat] + '</p>';
+  } else if (st === 'name') {
+    body = ask(say('איך קוראים לך?', 'What is your name?'), '', true) +
+      '<div class="ob-name"><input class="ob-in-name" id="obName" type="text" dir="auto" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '"><p class="ob-hint">' + say('ככה אילון יפנה אליך', 'So Eilon knows what to call you') + '</p></div>';
+  } else if (st === 'exp') {
+    body = ask(say('כמה ניסיון יש לך בחדר כושר?', 'How much gym experience do you have?')) +
+      group(false, EXP().map((o, i) => card('exp', i, platesIcon(i + 1), o[0], o[1], OB.exp === i)).join('')) +
+      '<div class="ob-pre" id="obPre" aria-hidden="true">' + avatar(1) + '</div>';
+    can = OB.exp != null;
+  } else if (st === 'goals') {
+    body = ask(say('מה המטרות שלך?', 'What are your goals?'), say('אפשר לבחור כמה', 'Pick as many as you like')) +
+      group(true, GOALS().map((o, i) => card('goals', i, [OBI.body, OBI.bell, OBI.heart][i], o[0], o[1], OB.goals.includes(i), true)).join(''));
+    can = OB.goals.length > 0;
+  } else if (st === 'time') {
+    body = ask(say('כמה זמן יש לך לאימון?', 'How long can a workout take?'), say('אתאים לזה את מספר התרגילים', 'I will fit the number of exercises to it')) +
+      '<div class="ob-times" role="radiogroup" aria-labelledby="obTitle">' + TIMES().map((t) => '<button type="button" class="ob-time" role="radio" aria-checked="' + (OB.time === t[0]) + '" data-ob="time" data-v="' + t[0] + '"><b>' + Ltr(t[0] === 75 ? '75+' : '' + t[0]) + '</b><span>' + say('דקות', 'minutes') + '</span><small>' + t[1] + '</small></button>').join('') +
+      '<button type="button" class="ob-time any" role="radio" aria-checked="' + (OB.time === 0) + '" data-ob="time" data-v="0">' + OBI.clock + '<span>' + say('לא משנה לי', 'Any length') + '</span></button></div>';
+    can = OB.time != null;
+  } else if (st === 'eq') {
+    body = ask(say('איפה תתאמן?', 'Where will you train?'), say('אבחר תרגילים שיש להם ציוד אצלך', 'I will pick exercises you have the equipment for')) +
+      group(false, EQS().map((o, i) => card('eq', i, [OBI.gym, OBI.bell, OBI.unsure][i], o[0], o[1], OB.eq === i)).join(''));
+    can = OB.eq != null;
+  } else if (st === 'look') {
+    body = ask(say('וזה אתה באפליקציה', 'And this is you in the app'), say('הדמות מתחזקת איתך, מרמה לרמה', 'It gets stronger with you, level by level')) +
+      '<div class="ob-stage"><div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div><div class="lk-photo-box" id="lkPhotoBox">' + lookPhoto() + '</div></div>' +
+      '<div class="ob-look lk-ed" id="lkRows">' + lookRows() + '</div>';
+  } else if (st === 'plan' && OB.building) {
+    can = false;
+    body = ask(say('רגע, בונה לך תוכנית', 'One moment, building your plan'), say('לפי כל מה שסיפרת לי', 'From everything you told me')) +
+      '<div class="ob-build" id="obBuild"><div class="ob-ring" role="img" aria-label="' + say('בונה את התוכנית', 'Building the plan') + '"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="t" cx="60" cy="60" r="52"/><circle class="f" id="obRing" cx="60" cy="60" r="52" pathLength="100"/></svg><b id="obPct" aria-hidden="true">' + Ltr('0%') + '</b></div>' +
+      '<ul class="ob-steps">' + buildSteps().map((t) => '<li><i aria-hidden="true">' + ICON.check + '</i><span>' + t + '</span></li>').join('') + '</ul></div>';
+  } else if (st === 'plan') {
+    const P = planPreview(), stat = (v, t) => '<li><b>' + v + '</b><span>' + t + '</span></li>';
     cta = say('נשמע טוב', 'Sounds good');
-    body = ask(say('אני חושב שהתוכנית הזאת תתאים לך', 'I think this plan will suit you')) + '<ol class="ob-lines">' +
-      line(0, ICON.bell, say('ארבעה אימונים בסבב', 'Four workouts in a cycle'), say('עליון, תחתון, עליון, תחתון', 'Upper, lower, upper, lower')) +
-      line(1, barsIcon((OB.exp == null ? 1 : OB.exp) + 1), lo === hi ? cnt(lo, 'סטים לתרגיל', 'סט לתרגיל', 'sets an exercise', 'set an exercise') : say(Ltr(lo + '–' + hi) + ' סטים לתרגיל', lo + '–' + hi + ' sets an exercise'), cut ? say('לפי הניסיון שלך', 'By your experience') + (EXP()[OB.exp] ? ': ' + EXP()[OB.exp][0] : '') : say('כמו בתוכנית שלך', 'As in your plan')) +
-      line(2, glyph('bolt'), say('כל שבוע קצת יותר', 'A little more every week'), say('סבב של ' + wks + ' שבועות, והאחרון קל', 'A round of ' + wks + ' weeks, and the last one is easy')) +
-      line(3, ICON.swap, say('לא מתחבר לתרגיל?', 'Not into an exercise?'), say('מחליפים אותו בלחיצה', 'Swap it with one tap')) + '</ol>' + buddy;
+    body = ask(say('התוכנית שלך מוכנה', 'Your plan is ready'), say('בניתי אותה לפי מה שסיפרת לי', 'I built it from what you told me')) +
+      '<section class="card next w0 ob-plan' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '"><p class="k">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + say('4 אימונים בסבב', '4 workouts a cycle') + '</h2>' +
+      '<ul class="ob-stats">' + stat(P.ex, say('תרגילים באימון', 'exercises a workout')) + stat(P.sets, say('סטים לתרגיל', 'sets each')) + stat(P.mins, say('דקות לאימון', 'minutes a workout')) + '</ul>' +
+      '<ol class="ob-wks">' + PLAN.map((x, i) => '<li><span class="w-dot w' + i + '"></span>' + wkName(i) + '</li>').join('') + '</ol><i class="ob-shine" aria-hidden="true"></i></section>' +
+      '<div class="ob-fb"><span><b>' + say('אילון ישאל איך היה', 'Eilon asks how it went') + '</b><small>' + say('שאלה קצרה אחרי כל תרגיל, כדי לכוון את המשקל', 'A quick question after each exercise, to tune the weight') + '</small></span><button type="button" class="tog" role="switch" id="obFb" aria-checked="' + (OB.fb > 0) + '" aria-label="' + say('אילון ישאל איך היה', 'Eilon asks how it went') + '"><i></i></button></div>';
+  } else if (st === 'pin') {
+    cta = OB.pin ? say('המשך', 'Continue') : say('דלג בינתיים', 'Skip for now'); quiet = !OB.pin;
+    body = ask(say('קוד אישי', 'A personal code'), OB.pin ? say('הקוד נשמר.', 'The code is saved.') : OB.pin1 ? say('עוד פעם, לאישור', 'Once more, to confirm') : say('4 ספרות. הקוד יידרש לפתיחת האפליקציה ולמחיקת החשבון.', '4 digits. It is asked when the app opens, and to delete the account.')) +
+      '<div class="ob-pin"><div class="pin-dots' + (OB.pin ? ' ok' : '') + '" id="pinDots" role="img" aria-label="' + say('ספרות שהוקלדו: ', 'Digits typed: ') + (OB.pin ? 4 : OB.pinBuf.length) + '">' + [0, 1, 2, 3].map((i) => '<i class="' + (OB.pin || i < OB.pinBuf.length ? 'on' : '') + '"></i>').join('') + '</div>' +
+      '<p class="pin-err" id="pinErr" aria-live="polite">' + (OB.pinErr || '') + '</p>' +
+      '<div class="pin-pad">' + ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((k) => (k === '' ? '<span></span>' : '<button type="button" class="pin-k" data-pin="' + k + '"' + (OB.pin ? ' disabled' : '') + (k === 'del' ? ' aria-label="' + say('מחק ספרה', 'Delete a digit') + '">' + OBI.del : '>' + k) + '</button>')).join('') + '</div></div>';
   } else {
-    const old = meNow().T.wk > 0, nm = String(OB.name || '').trim();
+    const old = meNow().T.wk > 0, cap = (a, b) => '<figcaption>' + a + '<b>' + b + '</b></figcaption>';
     cta = old ? say('קדימה', "Let's go") : say('לאימון הראשון', 'To the first workout');
-    body = '<div class="ob-hero done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><div class="ob-av">' + avatar(lvl, { flex: true }) + '</div><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi>' + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
+    body = '<div class="ob-done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi>' + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
+      '<p class="ob-sub">' + say('כל אימון מקרב אותך לרמה 100', 'Every workout takes you closer to level 100') + '</p>' +
+      '<div class="ob-ladder" aria-hidden="true"><figure class="now"><span class="ob-fig">' + avatar(1) + '</span>' + cap(say('היום', 'Today'), say('רמה 1', 'Level 1')) + '</figure>' +
+      '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span>' +
+      '<figure class="max"><span class="ob-fig">' + avatar(100) + '</span>' + cap(say('המטרה', 'The goal'), say('רמה 100', 'Level 100')) + '</figure></div>' +
       '<p class="ob-note">' + say('לא תחליף לייעוץ רפואי. יש כאב או מגבלה? קודם מתייעצים עם איש מקצוע.', 'Not medical advice. Pain or a condition? Talk to a professional first.') + '</p></div>';
   }
   const langs = '<div class="seg ob-lang" role="group" aria-labelledby="obLangL"><span class="sr" id="obLangL">' + LANG_LABEL + '</span>' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div>';
-  /* the first screen arrives with its whole entrance once; drawn again (a change of language) it is simply there */
-  const quiet = st === 0 && OB.seen0; if (st === 0) OB.seen0 = true;
-  return '<div class="ob-bg" aria-hidden="true">' + '<i></i>'.repeat(10) + '</div><div class="ob-in' + (quiet ? ' quiet' : '') + '" data-step="' + st + '"><div class="ob-top' + (st === 0 ? ' first' : '') + '">' + (st > 0 ? '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : langs) +
-    (st > 0 ? '<div class="ob-prog" role="img" aria-label="' + say('שלב ' + st + ' מתוך ' + OB_LAST, 'Step ' + st + ' of ' + OB_LAST) + '"><i style="width:' + Math.round((st / OB_LAST) * 100) + '%"></i></div>' : '<span></span>') +
-    (st === 0 ? '<button class="link" id="obSkip" type="button">' + say('דלג', 'Skip') + '</button>' : '<span class="ob-sp"></span>') + '</div>' +
-    '<div class="ob-body' + (OB.dir > 0 ? ' in-next' : OB.dir < 0 ? ' in-prev' : '') + '">' + body + '</div>' +
-    '<div class="ob-foot"><button class="btn primary big" id="obNext" type="button"' + (can ? '' : ' disabled') + '>' + cta + '</button></div></div>';
+  const first = st === 'film', fin = st === 'done', last = OB_LAST - 1;
+  return (first ? filmHTML() : fin ? '<div class="ob-film fin" aria-hidden="true"></div>' : '') +
+    '<div class="ob-in' + (first ? ' film' : '') + (fin ? ' fin' : '') + (OB.stay ? ' stay' : '') + '" data-step="' + OB.step + '" data-k="' + st + '"><div class="ob-top' + (first ? ' first' : '') + '">' +
+    (first ? langs : '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>') +
+    (first ? '<div class="ob-story" id="obStory" aria-hidden="true">' + storyHTML() + '</div>' : fin ? '<span></span>' : '<div class="ob-prog" role="img" aria-label="' + say('שלב ' + OB.step + ' מתוך ' + last, 'Step ' + OB.step + ' of ' + last) + '"><i style="width:' + Math.round((Math.min(OB.step, last) / last) * 100) + '%"></i></div>') +
+    (first ? '<button class="link" id="obSkip" type="button">' + say('דלג', 'Skip') + '</button>' : '<span class="ob-sp"></span>') + '</div>' +
+    '<div class="ob-body' + (OB.dir ? ' in' : '') + '">' + body + '</div>' +
+    '<div class="ob-foot"><button class="btn big' + (quiet ? '' : ' primary') + '" id="obNext" type="button"' + (can ? '' : ' disabled') + '>' + cta + '</button></div></div>';
 }
-function cheer() {
-  const av = $('#obBuddy .av'); if (!av) return;
-  av.classList.add('flex'); clearTimeout(OB.flexT); OB.flexT = setTimeout(() => { if (av.isConnected) av.classList.remove('flex'); }, 1100);
+/* the character under the experience question takes on the build of the answer */
+function obPre() {
+  const box = $('#obPre'); if (!box) return;
+  box.innerHTML = avatar(1); const av = $('.av', box);
+  box.classList.remove('pump'); void box.offsetWidth; box.classList.add('pump');
+  requestAnimationFrame(() => requestAnimationFrame(() => { if (av && av.isConnected) av.classList.add('flex'); }));
+  clearTimeout(OB.flexT); OB.flexT = setTimeout(() => { if (av && av.isConnected) av.classList.remove('flex'); }, 1200);
+}
+/* the timers of a screen's own show (the plan being built, the last screen) end with the screen */
+function obClear() { for (const t of OB.ts || []) clearTimeout(t); OB.ts = []; cancelAnimationFrame(OB.buildRaf); }
+/* the plan is built in front of the lifter: each thing it is fitted to is ticked in turn, the ring fills, and then the plan arrives */
+const BUILD_MS = 640;
+function obBuilt() { if (!OB.on || !obIs('plan') || !OB.building) return; OB.building = false; OB.reveal = true; renderOb(); }
+function obBuild() {
+  const lis = $$('#obBuild li'), ring = $('#obRing'), pct = $('#obPct'), t0 = performance.now(), all = lis.length * BUILD_MS;
+  lis.forEach((li, i) => {
+    OB.ts.push(setTimeout(() => { li.classList.add('on'); haptic('step'); }, i * BUILD_MS));
+    OB.ts.push(setTimeout(() => li.classList.add('done'), (i + 1) * BUILD_MS - 110));
+  });
+  const step = (now) => { const k = Math.min(1, (now - t0) / all); if (ring) ring.style.strokeDashoffset = String(100 - k * 100); if (pct) pct.textContent = Math.round(k * 100) + '%'; if (k < 1 && pct && pct.isConnected) OB.buildRaf = requestAnimationFrame(step); };
+  OB.buildRaf = requestAnimationFrame(step);
+  OB.ts.push(setTimeout(obBuilt, all + 280));
+}
+/* the last screen: today's character cheers, and the one at level 100 arrives, flexes, and the paper flies */
+function obFinale() {
+  const now = $('.ob-ladder .now .av'), max = $('.ob-ladder .max .av');
+  feel('done');
+  if (reduced) { if (max) max.classList.add('flex'); return; }
+  if (now) now.classList.add('cheer');
+  OB.ts.push(setTimeout(() => { if (now && now.isConnected) now.classList.remove('cheer'); }, 2700));
+  OB.ts.push(setTimeout(() => { if (max && max.isConnected) { max.classList.add('flex'); confetti($('#obConfetti'), 90); haptic('success'); } }, 1500));
 }
 function renderOb() {
-  const el = $('#ob'); el.innerHTML = obHTML(); OB.dir = 0; el.dataset.step = OB.step;
-  if (OB.step === 1) { const inp = $('#obName'); try { inp.focus({ preventScroll: true }); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* not focusable here */ } }
-  if (OB.step === OB_LAST) { confetti($('#obConfetti'), 70); feel('done'); }
-  el.scrollTop = 0; obShow(); obPlay();
+  const el = $('#ob'); clearTimeout(OB.beatT); obClear();
+  el.innerHTML = obHTML(); OB.dir = 0; OB.stay = false; el.dataset.step = OB.step; el.dataset.k = OB_STEPS[OB.step];
+  if (obIs('name')) { const inp = $('#obName'); try { inp.focus({ preventScroll: true }); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* not focusable here */ } }
+  if (obIs('plan')) { if (OB.building) obBuild(); else if (OB.reveal) { OB.reveal = false; feel('glory', 'success'); } }
+  if (obIs('done')) obFinale();
+  el.scrollTop = 0; obPlay();
+}
+/* the language changes under a short fade, never with a jump */
+function obFade(fn) {
+  const el = $('#ob'), box = $('.ob-in', el);
+  if (!box || reduced) { fn(); return; }
+  box.classList.add('out'); el.classList.add('swap');
+  setTimeout(() => { fn(); el.classList.remove('swap'); el.classList.add('swapin'); clearTimeout(OB.swapT); OB.swapT = setTimeout(() => el.classList.remove('swapin'), 360); }, 170);
 }
 function openOb() {
   const me = S.cfg.me;
-  Object.assign(OB, { on: true, step: 0, dir: 0, seen0: false, tapT: 0, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goal: me.goal });
+  LK.tab = 'skin'; LK.note = '';
+  Object.assign(OB, { on: true, step: 0, dir: 0, beat: 0, stay: false, building: false, reveal: false, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goals: (me.goals || []).slice(), time: me.time, eq: me.eq, fb: me.fb == null ? 2 : me.fb, pin: me.pin || '', pin1: '', pinBuf: '', pinErr: '' });
   /* the language shown is the one kept: a look chosen on the way must not turn an English page Hebrew on the next visit */
   if (!S.cfg.lang) S.cfg.lang = LANG;
   $('#ob').hidden = false; document.body.style.overflow = 'hidden'; renderOb();
 }
-function closeOb() { OB.on = false; clearInterval(OB.showT); const el = $('#ob'); el.hidden = true; el.classList.remove('play'); el.innerHTML = ''; if (!(chat.modal && $('#chat').classList.contains('open'))) document.body.style.overflow = ''; }
+function closeOb() { OB.on = false; clearTimeout(OB.beatT); cancelAnimationFrame(OB.lvRaf); obClear(); OB.building = false; OB.reveal = false; const el = $('#ob'); el.hidden = true; el.classList.remove('play', 'swap', 'swapin'); el.innerHTML = ''; if (!(chat.modal && $('#chat').classList.contains('open'))) document.body.style.overflow = ''; }
 /* the answers are kept when the last screen is passed. skip: only remember that the screens were seen */
 function obFinish(skip) {
   const me = S.cfg.me;
-  if (!skip) { me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goal = OB.goal; me.made = me.made || Date.now(); applyExp(); }
+  if (!skip) {
+    me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goals = OB.goals.slice(); me.goal = OB.goals.length ? OB.goals[0] : null;
+    me.time = OB.time; me.eq = OB.eq; me.fb = OB.fb; if (OB.pin) me.pin = OB.pin; me.made = me.made || Date.now();
+    fitPlan();
+  }
   me.ob = Date.now(); S.cfg.lang = LANG; saveCfg();
   closeOb(); setView('home'); renderAll();
 }
-function obStep(d) { const n = OB.step + d; if (n < 0) return; OB.stepAt = Date.now(); if (n > OB_LAST) { obFinish(false); return; } if (d > 0 && n < OB_LAST) sfx('set'); OB.step = n; OB.dir = d; renderOb(); }
+function obStep(d) {
+  const n = OB.step + d; if (n < 0) return;
+  OB.stepAt = Date.now();
+  if (n > OB_LAST) { obFinish(false); return; }
+  if (d > 0 && n < OB_LAST) sfx('set');
+  /* Eilon stays where he stands from one question to the next: only the words and the answers arrive. (On the name he
+     stands larger, in the middle, and the last screen has none of him, so there he arrives) */
+  const side = (i) => i >= 2 && i < OB_LAST;
+  OB.stay = side(OB.step) && side(n); OB.step = n; OB.dir = d; OB.pinErr = ''; OB.pin1 = ''; OB.pinBuf = '';
+  /* the plan is built on the way forward only; on the way back it is simply there */
+  const made = d > 0 && OB_STEPS[n] === 'plan'; OB.building = made && !reduced; OB.reveal = made && reduced;
+  renderOb();
+}
+/* a digit of the code; the fourth asks for the code again, and the same code twice is kept */
+function obPin(k) {
+  if (OB.pin) return;
+  if (k === 'del') OB.pinBuf = OB.pinBuf.slice(0, -1);
+  else if (OB.pinBuf.length < 4) { OB.pinBuf += k; haptic('select'); }
+  OB.pinErr = '';
+  const dots = $$('#pinDots i'); dots.forEach((d, i) => d.classList.toggle('on', i < OB.pinBuf.length));
+  const err = $('#pinErr'); if (err) err.textContent = '';
+  if (OB.pinBuf.length < 4) return;
+  const typed = OB.pinBuf;
+  setTimeout(() => {
+    if (!OB.on || !obIs('pin')) return;
+    if (!OB.pin1) { OB.pin1 = typed; OB.pinBuf = ''; renderOb(); return; }
+    if (typed !== OB.pin1) { OB.pin1 = ''; OB.pinBuf = ''; OB.pinErr = say('הקודים לא תואמים. מתחילים מחדש.', 'The codes did not match. Let us start again.'); renderOb(); haptic('warn'); return; }
+    pinHash(typed).then((h) => { if (!OB.on || !obIs('pin')) return; OB.pin = h; OB.pin1 = ''; OB.pinBuf = ''; renderOb(); feel('set', 'success'); });
+  }, 180);
+}
 /* show the opening screens when they are due: the settings are known, they were never passed, and no workout is in the middle */
 function maybeOb() {
   /* passed on another device while open here: they close. Opened again from the profile, they were passed before, and stay */
@@ -5020,18 +5523,33 @@ function maybeOb() {
 function wireOb() {
   const el = $('#ob');
   el.addEventListener('click', (ev) => {
-    const b = ev.target.closest('button'); if (!b) return;
+    const b = ev.target.closest('button');
+    /* a touch on the film moves it on to its next beat */
+    if (!b) { if (OB.step === 0 && ev.target.closest('#obTap,.ob-film,.ob-cap')) filmBeat(OB.beat + 1); else if (ev.target.closest('#obBuild')) obBuilt(); return; }
     if (b.id === 'obNext') { if (ev.detail !== 0 && Date.now() - (OB.stepAt || 0) < 300) return; obStep(1); }
     else if (b.id === 'obBack') obStep(-1);
     else if (b.id === 'obSkip') obFinish(true);
-    else if (b.id === 'obMe') obLevel(true);
-    else if (b.dataset.lang) { setLang(b.dataset.lang, true); renderOb(); }
+    else if (b.id === 'obFb') { OB.fb = OB.fb > 0 ? 0 : 2; b.setAttribute('aria-checked', String(OB.fb > 0)); haptic('select'); }
+    else if (b.dataset.pin) obPin(b.dataset.pin);
+    else if (b.dataset.lang) { if (b.getAttribute('aria-pressed') === 'true') return; obFade(() => { setLang(b.dataset.lang, true); renderOb(); }); }
     /* an answer is marked where it stands: the screen does not arrive a second time */
-    else if (b.dataset.ob) { OB[b.dataset.ob] = +b.dataset.v; for (const o of $$('.ob-opt', el)) o.setAttribute('aria-checked', String(o === b)); $('#obNext').disabled = false; cheer(); }
+    else if (b.dataset.ob) {
+      const k = b.dataset.ob, v = +b.dataset.v;
+      if (k === 'goals') { const i = OB.goals.indexOf(v); if (i >= 0) OB.goals.splice(i, 1); else OB.goals.push(v); b.setAttribute('aria-checked', String(i < 0)); $('#obNext').disabled = !OB.goals.length; }
+      else { OB[k] = v; for (const o of $$('[data-ob="' + k + '"]', el)) o.setAttribute('aria-checked', String(o === b)); $('#obNext').disabled = false; }
+      haptic('select');
+      if (k === 'exp') obPre();
+    }
     else if (b.dataset.look) setLook(b.dataset.look, +b.dataset.v);
+    else if (b.dataset.lktab) lookTab(b.dataset.lktab);
+    else if (b.id === 'lkPhoto') $('#lkFile').click();
   });
   el.addEventListener('input', (ev) => { if (ev.target.id === 'obName') OB.name = ev.target.value; });
-  el.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.id === 'obName') { ev.preventDefault(); obStep(1); } });
+  el.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter' && ev.target.id === 'obName') { ev.preventDefault(); obStep(1); }
+    else if (obIs('pin') && /^[0-9]$/.test(ev.key)) obPin(ev.key);
+    else if (obIs('pin') && ev.key === 'Backspace') obPin('del');
+  });
 }
 
 /* ================================================================== boot */

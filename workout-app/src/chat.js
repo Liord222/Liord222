@@ -20,11 +20,13 @@ function planText() {
 }
 /* what the opening screens learned about the lifter, for the coach */
 function aboutUser() {
-  const me = S.cfg.me, bits = [], exp = EXP()[me.exp], goal = GOALS()[me.goal];
+  const me = S.cfg.me, bits = [], exp = EXP()[me.exp], goals = (me.goals || []).map((i) => GOALS()[i]).filter(Boolean), eq = EQS()[me.eq];
   if (me.name) bits.push(say('שם: ', 'Name: ') + me.name);
   if (exp) bits.push(say('ניסיון בחדר כושר: ', 'Gym experience: ') + exp[0] + ' (' + exp[1] + ')');
-  if (goal) bits.push(say('מטרה: ', 'Goal: ') + goal[0]);
-  return bits.length ? say('על המשתמש: ', 'About the user: ') + bits.join(' · ') + say('. התאם את הטון ואת העצות לניסיון ולמטרה.', '. Fit your tone and your advice to the experience and the goal.') + '\n\n' : '';
+  if (goals.length) bits.push((goals.length > 1 ? say('מטרות: ', 'Goals: ') : say('מטרה: ', 'Goal: ')) + goals.map((o) => o[0]).join(', '));
+  if (me.time) bits.push(say('זמן לאימון: עד ', 'Time for a workout: up to ') + me.time + say(' דקות', ' minutes'));
+  if (eq && me.eq !== 2) bits.push(say('ציוד: ', 'Equipment: ') + eq[0] + ' (' + eq[1] + ')');
+  return bits.length ? say('על המשתמש: ', 'About the user: ') + bits.join(' · ') + say('. התאם את הטון ואת העצות לניסיון, למטרות, לזמן ולציוד.', '. Fit your tone and your advice to the experience, the goals, the time and the equipment.') + '\n\n' : '';
 }
 /* a mark that is written only in the rules: an answer that carries it is quoting them */
 const MARK = 'gymi-K7Q2';
@@ -193,19 +195,21 @@ function setAttach(blob) {
   chat.img = blob || null; chat.imgUrl = blob ? URL.createObjectURL(blob) : '';
   $('#attach').hidden = !blob; if (blob) $('#attachImg').src = chat.imgUrl;
 }
+/* a photo as it is sent: upright, no longer than max on its long side, as a JPEG */
+async function shrinkImage(file, max) {
+  let src = null;
+  if (window.createImageBitmap) { try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { src = null; } }
+  if (!src) src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); });
+  const w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, k = Math.min(1, max / Math.max(w, h)), cv = document.createElement('canvas');
+  cv.width = Math.round(w * k); cv.height = Math.round(h * k); cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
+  const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
+  if (!blob) throw new Error('encode');
+  return blob;
+}
 async function pickImage(file) {
   if (!file) return;
   compNote('');
-  try {
-    let src = null;
-    if (window.createImageBitmap) { try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { src = null; } }
-    if (!src) src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); });
-    const w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, k = Math.min(1, 1600 / Math.max(w, h)), cv = document.createElement('canvas');
-    cv.width = Math.round(w * k); cv.height = Math.round(h * k); cv.getContext('2d').drawImage(src, 0, 0, cv.width, cv.height);
-    const blob = await new Promise((res) => cv.toBlob(res, 'image/jpeg', 0.86));
-    if (!blob) throw new Error('encode');
-    setAttach(blob); $('#chatInput').focus();
-  } catch (e) { compNote(errText('no_image')); }
+  try { setAttach(await shrinkImage(file, 1600)); $('#chatInput').focus(); } catch (e) { compNote(errText('no_image')); }
 }
 /* what the page knows, sent with each question: the open workout, the exercise in question and its recent log */
 function ctxLine() {

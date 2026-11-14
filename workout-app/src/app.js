@@ -46,16 +46,8 @@ function openWorkout(w, picked) {
   if (w !== S.tab) leaveWorkout();
   S.tab = w; setView('workout'); renderAll();
 }
-/* how long a workout really takes: each set (setting up, then the reps), the rest after every set but the last of an exercise,
-   the move to the next one, and a warm-up. To the nearest five minutes */
-const minsOf = (list) => {
-  const sec = list.reduce((n, e) => {
-    if (!e.sets) return n;
-    const r = String(e.reps || '').match(/\d+/g) || [10], reps = (+r[0] + +(r[1] || r[0])) / 2, rest = (e.rest[0] + e.rest[1]) / 2;
-    return n + e.sets * (15 + reps * 3.5) + (e.sets - 1) * rest + 90;
-  }, 300);
-  return Math.max(10, Math.round(sec / 300) * 5);
-};
+/* how long a workout really takes (see workMins) */
+const minsOf = (list) => workMins(list);
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
 /* today: the player, the workout that is next (or running), and the week as a path of four stops */
 function renderHome() {
@@ -691,9 +683,11 @@ function onRemoteChange() {
   const a = document.activeElement;
   if (a && a.closest && (a.closest('#dock') || a.closest('#sheet') || a.closest('.note')) && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT')) return;
   sweep(); meSync(); if (!S.touched) S.tab = nextUp().next;
-  if ((S.cfg.lang || autoLang()) !== LANG) applyLang();
-  maybeOb();
-  if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap' && S.sheet !== 'look' && S.sheet !== 'sum') renderAll();
+  const draw = () => { maybeOb(); if (S.sheet === 'meso') renderMeso(); else if (S.sheet !== 'ed' && S.sheet !== 'swap' && S.sheet !== 'look' && S.sheet !== 'sum') renderAll(); };
+  /* the account speaks another language than the page does: the page changes to it under a fade, the opening too */
+  if ((S.cfg.lang || autoLang()) === LANG) draw();
+  else if (OB.on) obFade(() => { applyLang(); renderOb(); draw(); });
+  else langFade(() => { applyLang(); draw(); });
 }
 function startTab() { S.open = null; renderList(); renderDock(); }
 

@@ -30,14 +30,21 @@ const ICON = {
      fb: { slotId: { pain, pump, load } }, cut: { slotId: slot whose pain report cancelled it }, ft (time of the last change to these) }
    S.cfg: settings and the running mesocycle, one document shared by the viewer's devices */
 /* S.cfg.me: the player. name and look (the character's choices, see avatar.js), made (when the character was set up),
-   ob (when the opening screens were passed), exp (gym experience: 0 beginner, 1 regular, 2 experienced), goal (0 muscle, 1 strength, 2 fitness),
+   ob (when the opening screens were passed), exp (gym experience: 0 beginner, 1 regular, 2 experienced), goals (any of 0 physique, 1 strength,
+   2 fitness; goal is the first of them, for what read it before), time (minutes a workout may take: 30, 45, 60, 75, or 0 for any),
+   eq (0 a full gym, 1 a basic gym, 2 not sure yet), fb (how often Eilon asks how an exercise went: 0 never, 1 now and then, 2 always),
+   pin (the SHA-256 of the 4-digit code, or ''),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, fb: 2, pin: '', arch: archZero(), badges: {} });
+const TIME_OK = [30, 45, 60, 75, 0];
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), fb: pick(v.fb, 3, 2), pin: typeof v.pin === 'string' && /^[0-9a-f]{64}$/.test(v.pin) ? v.pin : '', arch: {}, badges: {} };
+  /* the goals: a list of different ones; a profile from before the list has its one goal in it */
+  out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
+  if (out.goals.length) out.goal = out.goals[0];
   /* an archive from a file is held to real sizes: a total no lifter reaches, or an end in the future, would hide the log or stall the page */
   for (const k of Object.keys(d.arch)) out.arch[k] = Math.min(pos(a[k]), k === 'until' ? Date.now() + 864e5 : k === 'kg' ? 1e10 : 1e7);
   for (const x of BADGES) if (pos(b[x.id])) out.badges[x.id] = b[x.id];
@@ -196,7 +203,8 @@ function view(pe, s, plan) {
   const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id] != null ? plan[pe.id] : pe.sets;
   let n = n0;
   if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
-  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: pe.reps, rest: pe.rest, int: planNote(pe.int), lvl: pe.lvl, suf: planNote(pe.suf), cut, swapped: mv !== pe.a };
+  const rx = goalRx(pe.reps, pe.rest, S.cfg.me.goals, S.cfg.me.exp) || pe;
+  return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: rx.reps, rest: rx.rest, int: planNote(pe.int), lvl: pe.lvl, suf: planNote(pe.suf), cut, swapped: mv !== pe.a };
 }
 function exList(w, s) { if (s === undefined) s = live(w); const plan = s ? null : planned(w, preOf(w)); return (s ? sessSlots(s) : planSlots(w)).map((pe) => view(pe, s, plan)); }
 function findEx(id, s) { const pe = planEx(id); if (!pe) return null; const w = wkOf(id); if (s === undefined) s = live(w); return view(pe, s, s ? null : planned(w, preOf(w))); }
@@ -284,10 +292,7 @@ function fatigued() {
   return l.length === 2 && l.every((x) => missedMuscles(x).size >= 2);
 }
 /* swap options for a slot: the same movement pattern only, joint-friendly ones first */
-function swapOptions(e) {
-  const L = LIB[e.mv];
-  return Object.keys(LIB).filter((k) => k !== e.mv && LIB[k].pat === L.pat && LIB[k].p === L.p).sort((a, b) => (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0));
-}
+function swapOptions(e) { return sameKind(e.mv); }
 /* after a pain report: a movement of the same pattern that is not already in this workout, a joint-friendly one if there is one */
 function gentleAlt(e) { const used = exList(wkOf(e.id)).map((x) => x.mv), o = swapOptions(e); return o.find((k) => LIB[k].jf && !used.includes(k)) || o.find((k) => !used.includes(k)) || o[0] || null; }
 /* returns true when today's workout switched, false when the change waits for the next one */
@@ -496,7 +501,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'fb', 'pin']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;
@@ -577,6 +582,9 @@ function restoreData(text) {
     me.arch = theirs.arch.until > mine.arch.until ? theirs.arch : mine.arch; me.badges = Object.assign({}, theirs.badges, mine.badges);
     if (made) { me.name = made.name; me.look = made.look; me.made = made.made; }
     me.ob = me.ob || mine.ob || theirs.ob; if (me.exp == null) me.exp = mine.exp != null ? mine.exp : theirs.exp; if (me.goal == null) me.goal = mine.goal != null ? mine.goal : theirs.goal;
+    for (const k of ['time', 'eq']) if (me[k] == null) me[k] = mine[k] != null ? mine[k] : theirs[k];
+    if (!me.goals.length) me.goals = (mine.goals && mine.goals.length ? mine.goals : theirs.goals || []).slice();
+    if (!me.pin) me.pin = mine.pin || theirs.pin || '';
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }
   saveLocal();

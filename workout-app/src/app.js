@@ -624,11 +624,23 @@ function openEditor(id, all) {
     '<div class="ed-act" id="edAct">' + editorActions(s) + '</div></div>';
   $('.sheet-in', sh).scrollTop = top; sh.hidden = false;
 }
+/* the sheet that has just closed slides away: a picture of it, with nothing in it that can be pressed or found, while the page goes on at once */
+function sheetGhost(sh) {
+  const box = $('.sheet-in', sh); if (!box || reduced || !sh.parentNode) return;
+  const g = document.createElement('div'), c = box.cloneNode(true);
+  g.className = 'sheet ghost'; g.setAttribute('aria-hidden', 'true'); g.inert = true;
+  for (const n of c.querySelectorAll('[id]')) n.removeAttribute('id');
+  c.removeAttribute('role'); c.classList.remove('back'); c.style.setProperty('--from', box.style.transform || 'none'); c.style.transform = '';
+  g.appendChild(c); sh.parentNode.insertBefore(g, sh); c.scrollTop = box.scrollTop;
+  const end = () => g.remove();
+  g.addEventListener('animationend', (e) => { if (e.target === c) end(); }); setTimeout(end, 450);
+}
 function closeSheet() {
   const sh = $('#sheet'); if (sh.hidden) return;
   const kind = S.sheet;
   /* the picker for adding an exercise was opened from the plan: closing it goes back there */
   if (kind === 'swap' && S.pick && S.pick.mode === 'add') { S.pick = null; S.sheet = 'meso'; renderMeso(); return; }
+  sheetGhost(sh);
   sh.hidden = true; sh.innerHTML = ''; S.sheet = null; S.edSid = null; S.edDel = false; S.msAsk = null; S.pick = null; S.blEdit = null; S.msPage = null;
   if (kind && kind !== 'sum' && kind !== 'list') renderAll();
 }
@@ -748,6 +760,9 @@ function wireApp() {
     hold = setTimeout(() => { rep = setInterval(() => { go(d); haptic('step'); }, st.classList.contains('rstep') ? 140 : 90); }, 380);
   });
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);
+  /* a finger lifted anywhere, or the app put away, ends the repeat: the button under it may have been drawn again meanwhile */
+  for (const t of ['pointerup', 'pointercancel']) window.addEventListener(t, endHold);
+  window.addEventListener('blur', endHold); document.addEventListener('visibilitychange', endHold);
   dock.addEventListener('click', (ev) => {
     const t = ev.target, id = (t.closest('button,[role="button"]') || {}).id;
     /* the second tap of a double tap lands on the controls that have just appeared in place of the first: on the timer's buttons after
@@ -786,6 +801,36 @@ function wireApp() {
   for (const box of ['#history', '#gains']) $(box).addEventListener('click', logClick);
   $('#hero').addEventListener('click', (ev) => { if (ev.target.closest('.banner-x')) { S.banner = ''; S.bannerKind = ''; renderHome(); renderHero(); } });
   const sheet = $('#sheet');
+  /* the sheet slides up when it opens (not when what is in it is drawn again) */
+  new MutationObserver(() => {
+    if (sheet.hidden || reduced) return;
+    sheet.classList.remove('rise'); void sheet.offsetWidth; sheet.classList.add('rise');
+    clearTimeout(sheet.riseT); sheet.riseT = setTimeout(() => sheet.classList.remove('rise'), 380);
+  }).observe(sheet, { attributes: true, attributeFilter: ['hidden'] });
+  /* and a finger can pull it back down from the top: far enough, or fast enough, and it closes; short of that it springs back */
+  let pull = null;
+  sheet.addEventListener('touchstart', (ev) => {
+    const box = ev.target.closest('.sheet-in'), t = ev.touches[0];
+    pull = box && ev.touches.length === 1 && box.scrollTop <= 0 && !ev.target.closest('input,textarea,select,.mu-row') ? { box, x: t.clientX, y: t.clientY, t: Date.now(), dy: 0, on: false } : null;
+  }, { passive: true });
+  sheet.addEventListener('touchmove', (ev) => {
+    if (!pull) return;
+    const t = ev.touches[0], dy = t.clientY - pull.y, dx = t.clientX - pull.x;
+    if (!pull.on) {
+      if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return;
+      if (dy <= 0 || Math.abs(dx) > dy || pull.box.scrollTop > 0) { pull = null; return; }
+      pull.on = true; pull.box.classList.remove('back'); sheet.classList.remove('rise');
+    }
+    if (ev.cancelable) ev.preventDefault();
+    pull.dy = Math.max(0, dy - 8); pull.box.style.transform = 'translateY(' + pull.dy + 'px)';
+  }, { passive: false });
+  const letGo = () => {
+    const p = pull; pull = null; if (!p || !p.on) return;
+    const fast = p.dy / Math.max(1, Date.now() - p.t) > 0.5;
+    if (p.box.isConnected && (p.dy > Math.min(140, p.box.offsetHeight * 0.3) || (fast && p.dy > 40))) { closeSheet(); return; }
+    p.box.classList.add('back'); p.box.style.transform = ''; setTimeout(() => p.box.classList.remove('back'), 320);
+  };
+  sheet.addEventListener('touchend', letGo); sheet.addEventListener('touchcancel', letGo);
   sheet.addEventListener('click', (ev) => {
     const id = (ev.target.closest('button') || {}).id;
     /* a double tap on Finish: the second tap lands on the summary that has just opened, which must be seen */

@@ -12,8 +12,15 @@ import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import * as SplashScreen from 'expo-splash-screen';
 import Shell from './src/Shell';
 import { buildDocument } from './src/document';
+
+/* the phone's own curtain stays up until the page has drawn its first screen, so the app never opens on an empty one */
+SplashScreen.preventAutoHideAsync().catch(() => {});
+try { if (typeof SplashScreen.setOptions === 'function') SplashScreen.setOptions({ fade: true, duration: 280 }); } catch (e) { /* older splash module */ }
+let lifted = false;
+const liftSplash = () => { if (lifted) return; lifted = true; SplashScreen.hideAsync().catch(() => {}); };
 
 const STORE = 'gymi:log:v1';
 /* the touch the page asks for, played by the phone's own engine */
@@ -123,6 +130,9 @@ export default function App() {
     return () => { on = false; };
   }, []);
 
+  /* the page says its language as soon as it starts; if it never does, the curtain still lifts */
+  useEffect(() => { const t = setTimeout(liftSplash, 6000); return () => clearTimeout(t); }, []);
+
   /* light and dark follow the phone while the app is open */
   useEffect(() => {
     if (html && shell.current) shell.current.run("document.documentElement.setAttribute('data-theme'," + JSON.stringify(scheme) + ')');
@@ -153,6 +163,8 @@ export default function App() {
     else if (m.type === 'key-get' && typeof m.id === 'string') keyStore.get().catch(() => null).then((key) => { if (shell.current) shell.current.run('window.__gymiReply(' + JSON.stringify(m.id) + ',' + JSON.stringify(key || null) + ')'); });
     else if (m.type === 'key-edit') setKeyOpen(true);
     else if (m.type === 'lang') {
+      /* the page has started and drawn: a frame later the curtain lifts onto it */
+      setTimeout(liftSplash, 60);
       setLang(m.lang === 'en' ? 'en' : 'he');
       /* the page says its language every time it starts, also after the system reloaded it: tell it whether a key is saved now */
       if (shell.current) shell.current.run('if(window.gymiCoach&&window.GYMI_COACH!==' + keyNow.current + ')window.gymiCoach(' + keyNow.current + ')');

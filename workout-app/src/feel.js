@@ -90,6 +90,8 @@ function touchOf(b) {
 /* saying yes sounds like a set that is done: starting a workout, choosing, saving */
 const YES = '#homeGo,#preAll,#preDone,#dlYes,#edDone,.sw-b button,[data-add],#moreSame';
 function wireFeel() {
+  /* an iPhone shows a control as pressed (:active) only on a page that listens for touches */
+  document.addEventListener('touchstart', () => {}, { passive: true });
   wireDress();
   /* first thing in every press, before the control does its work, so that the hand is answered at once */
   document.addEventListener('click', (ev) => {

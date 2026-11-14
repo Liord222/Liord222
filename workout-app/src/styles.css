@@ -60,7 +60,7 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -919,6 +919,20 @@ p.xp-l{display:block;text-align:center;font-weight:500;text-wrap:balance}
   .chat{display:flex;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);height:calc(100vh - 112px);min-height:420px;margin-top:14px;border-radius:var(--r);overflow:hidden}
   .dock{left:auto;right:auto;inset-inline-start:max(20px,calc((100vw - 1180px)/2 + 20px));bottom:16px;width:min(620px,calc(100vw - 452px));border-radius:28px;padding:16px}
 }
+/* touch that feels like an app: a long press on a control does not select its words or open the system's menu */
+button,[role="button"],.tabbar,.dock,.splash,.ob-bg,.stage-wrap,canvas,.hx{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* a place opens with a short rise; a sheet slides up from the bottom, can be pulled back down by a finger, and slides away when it closes */
+.view{animation:view-in .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes view-in{from{opacity:0;transform:translateY(8px)}}
+.sheet.rise{animation:sheet-fade .22s ease-out}
+.sheet.rise>.sheet-in{animation:sheet-up .34s cubic-bezier(.2,.9,.25,1)}
+.sheet-in.back{transition:transform .3s cubic-bezier(.2,.9,.25,1)}
+.sheet.ghost{z-index:69;pointer-events:none;animation:sheet-fade-out .24s ease-in forwards}
+.sheet.ghost>.sheet-in{animation:sheet-down .24s ease-in forwards}
+@keyframes sheet-fade{from{background:rgb(8 10 14 / 0)}}
+@keyframes sheet-fade-out{to{background:rgb(8 10 14 / 0)}}
+@keyframes sheet-up{from{transform:translateY(100%)}}
+@keyframes sheet-down{from{transform:var(--from,none)}to{transform:translateY(100%)}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 
 /* read by a screen reader, not shown */

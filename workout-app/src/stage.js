@@ -39,7 +39,6 @@ function paintStage(t) {
   wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
 }
 function frame(now) {
-  /* out of sight (another tab of the app, scrolled away): no more frames are asked for until it is seen again */
   /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
   if (!player.cv || !player.playing || !player.visible || chat.modal) { player.raf = 0; return; }
   player.raf = requestAnimationFrame(frame);

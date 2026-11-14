@@ -24,6 +24,8 @@ export default forwardRef(function Shell({ html, onMessage, background }, ref) {
       allowsInlineMediaPlayback
       mediaPlaybackRequiresUserAction={false}
       bounces={false}
+      // the glide of a native list after a flick (a web view's own is the short one)
+      decelerationRate="normal"
       overScrollMode="never"
       contentInsetAdjustmentBehavior="never"
       automaticallyAdjustContentInsets={false}

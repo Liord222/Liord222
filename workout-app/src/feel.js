@@ -90,13 +90,6 @@ function popGain(n, pr) {
   f.innerHTML = '<span class="pts-pill">' + sparks + glyph('bolt') + '<b>' + Ltr('+' + nf(n)) + '</b></span>' + (pr ? '<span class="pts-tag">' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : '');
   document.body.appendChild(f); setTimeout(() => f.remove(), pr ? 2400 : 1700);
 }
-function flyPoints(el, n) {
-  if (!el || !(n > 0) || reduced) return;
-  const r = el.getBoundingClientRect(), f = document.createElement('span');
-  f.className = 'fly'; f.setAttribute('aria-hidden', 'true'); f.textContent = '+' + n;
-  f.style.left = r.left + r.width / 2 + 'px'; f.style.top = r.top + 4 + 'px';
-  document.body.appendChild(f); setTimeout(() => f.remove(), 950);
-}
 /* the touch each press gets, by what the control is */
 function touchOf(b) {
   if (b.id === 'dkHit' || b.id === 'homeGo' || b.id === 'obNext' || b.id === 'finishBtn' || b.id === 'dkFinish' || b.id === 'obMe') return 'success';

@@ -522,7 +522,6 @@ const rirText = (r) => (r == null ? '' : r >= 4 ? say('רחוק מכשל', 'Far 
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }
 function volume(s) { let v = 0; for (const [id, a] of Object.entries(s.sets || {})) { if (helpOf(s, id)) continue; for (const r of a || []) if (isDone(r) && r.kg != null && r.reps != null) v += r.kg * r.reps; } return Math.round(v); }
 function setsDone(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r)) n++; return n; }
-function prCount(s) { let n = 0; for (const a of Object.values(s.sets || {})) for (const r of a || []) if (isDone(r) && r.pr) n++; return n; }
 function ago(ts) { const d = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(ts).setHours(0, 0, 0, 0)) / 864e5); return d <= 0 ? say('היום', 'today') : d === 1 ? say('אתמול', 'yesterday') : d === 2 ? say('לפני יומיים', '2 days ago') : say('לפני ' + d + ' ימים', d + ' days ago'); }
 const fmtKg = (kg) => (kg == null ? '' : String(Math.round(kg * 100) / 100));
 /* a set in words, as it is shown: "35 ק״ג · 7 חזרות" (fmtRow, short, is for Eilon's context) */

@@ -1,6 +1,5 @@
 /* ================================================================== workout UI */
 const repWord = (mv) => (LIB[mv] && LIB[mv].hold ? say('שניות', 'seconds') : say('חזרות', 'reps'));
-const valHTML = (r) => (r.kg != null ? Ltr(fmtKg(r.kg)) + '<small>' + say(' ק״ג', ' kg') + '</small> · ' : '') + Ltr(r.reps != null ? r.reps : '–') + '<small>' + say(' חזרות', ' reps') + '</small>';
 /* what today's set is trying to beat */
 const MODE = () => ({ reps: [say('יותר חזרות', 'More reps'), 'g-reps'], weight: [say('יותר משקל', 'More weight'), 'g-wt'], hold: [say('כמו בפעם הקודמת', 'Same as last time'), ''], base: [say('התחלה חדשה', 'Fresh start'), ''], deload: [say('שבוע קל', 'Easy week'), ''], down: [say('פחות משקל', 'Less weight'), 'g-down'], cal: [say('משקל מעודכן', 'New weight'), 'g-cal'], start: [say('משקל התחלתי', 'Starting weight'), 'g-start'] });
 function badge(T, e) {
@@ -224,8 +223,6 @@ function focusHTML(e, i, n) {
     '<button class="fx-nav" id="exNext" type="button" aria-label="' + say('התרגיל הבא', 'Next exercise') + '"' + (i < n - 1 ? '' : ' disabled') + '>' + ICON.fwd + '</button></div>' +
     '<div class="ex-body" id="body-' + e.id + '">' + bodyHTML(e) + '</div></li>';
 }
-/* ---- one tap away: the details of the exercise. What is asked, the muscles it works, and how it is done ---- */
-function openHow(id) { openMore(id); }
 /* ---- the details of an exercise, one tap away: what it asks, how it is done, what was done last time, the lifter's own note,
    and two actions (ask Eilon, skip it today) ---- */
 function renderMore() {
@@ -273,7 +270,7 @@ function renderHistory() {
   const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = dateFmt();
   renderGains(); renderBackup();
   /* each finished workout is one row; a tap opens it for fixing, moving to another day or deleting */
-  $('#history').innerHTML = '<h2 class="sec">' + say('אימונים אחרונים', 'Recent workouts') + '</h2>' + (list.length ? '<ul class="rows hist">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)), prs = tally(x).prs; return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + say(', עריכה', ', edit') + '"><span class="h-t">' + wkName(x.w) + '</span><span class="h-d">' + df.format(new Date(x.ts)).replace(',', '') + '</span><span class="h-s"><span>' + cnt(setsDone(x), 'סטים', 'סט אחד', 'sets', 'set') + '</span>' + (mn < 300 ? '<span>' + mn + say(' דק׳', ' min') + '</span>' : '') + (prs ? '<span class="pr">' + glyph('star') + cnt(prs, 'שיאים', 'שיא אחד', 'bests', 'best') + '</span>' : '') + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">' + say('עוד אימונים', 'More workouts') + '</button>' : '')
+  $('#history').innerHTML = '<h2 class="sec">' + say('אימונים אחרונים', 'Recent workouts') + '</h2>' + (list.length ? '<ul class="rows hist">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)), prs = tally(x).prs; return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + say(', עריכה', ', edit') + '"><span class="h-ok" aria-hidden="true">' + ICON.check + '</span><span class="h-t">' + wkName(x.w) + '</span><span class="h-d">' + df.format(new Date(x.ts)).replace(',', '') + '</span><span class="h-s"><span>' + cnt(setsDone(x), 'סטים', 'סט אחד', 'sets', 'set') + '</span>' + (mn < 300 ? '<span>' + mn + say(' דק׳', ' min') + '</span>' : '') + (prs ? '<span class="pr">' + glyph('star') + cnt(prs, 'שיאים', 'שיא אחד', 'bests', 'best') + '</span>' : '') + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">' + say('עוד אימונים', 'More workouts') + '</button>' : '')
     : '<p class="empty-note">' + say('האימונים שתסיים יופיעו כאן', 'Workouts you finish will show up here.') + '</p>');
 }
 /* one file with every workout and the settings: saved from here, or read back in */
@@ -886,7 +883,6 @@ function onRemoteChange() {
   else if (OB.on) obFade(() => { applyLang(); renderOb(); draw(); });
   else langFade(() => { applyLang(); draw(); });
 }
-function startTab() { S.open = null; renderList(); renderDock(); }
 
 /* ================================================================== wiring */
 /* a click that redraws what it is in puts the keyboard back where it was: on the same control in the new drawing, or on the first one

@@ -3,15 +3,9 @@ const GLYPH = {
   flag: '<path d="M6 21V4M6 5h11l-2.5 4 2.5 4H6"/>',
   cal: '<rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4M8.6 14.6l2.2 2.2 4.6-4.6"/>',
   bolt: '<path d="M13 3L5.5 13.5H11L10 21l8-11h-5.5z"/>',
-  bolt2: '<path d="M6 12l6-6 6 6M6 19l6-6 6 6"/>',
-  bell: '<path d="M9 8.5a3.5 3.5 0 1 1 6 0M7.5 9h9l1.6 7.2a3 3 0 0 1-3 3.8H8.9a3 3 0 0 1-3-3.8z"/>',
-  bell2: '<path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/>',
-  flame: '<path d="M12 3.5c.5 3 4.5 5 4.5 9.3a4.5 4.5 0 0 1-9 0c0-1.6.7-2.9 1.7-3.8.3 1.4 1 2.2 1.9 2.6-.3-2.9.1-5.6.9-8.1z"/>',
   loop: '<path d="M4.5 11a7.6 7.6 0 0 1 13.4-4.4L19.5 8.5M19.5 4v4.5H15M19.5 13a7.6 7.6 0 0 1-13.4 4.4L4.5 15.5M4.5 20v-4.5H9"/>',
-  plate: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.4"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/>',
   cup: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 3.6M16 6h3a3 3 0 0 1-3 3.6M12 13v4M8.5 20h7"/>',
   star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/>',
-  crown: '<path d="M4.5 17.5l-1-9 5 4L12 5.5l3.5 7 5-4-1 9zM5 20.5h14"/>',
   gift: '<path d="M4 10h16v10H4zM3 6.5h18V10H3zM12 6.5V20M12 6.5C10 3 6.5 3.5 7.5 5.5S12 6.5 12 6.5zM12 6.5c2-3.5 5.5-3 4.5-1S12 6.5 12 6.5z"/>',
   pen: '<path d="M4 20l1-4.5L16 4.5a2.1 2.1 0 0 1 3 3L8.5 19zM14 6.5l3 3"/>',
   gear: '<circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.6v-3.2l-2.2-.5-.7-1.6 1.2-1.900-2.300-2.300-1.900 1.200-1.600-.700-.500-2.200H8.200l-.500 2.200-1.600.700-1.900-1.200-2.300 2.300 1.200 1.900-.700 1.600-2.200.500v3.200l2.200.500.700 1.600-1.200 1.900 2.300 2.300 1.900-1.200 1.600.700.500 2.200h3.200l.500-2.200 1.600-.700 1.900 1.200 2.300-2.300-1.200-1.900.700-1.600z" transform="translate(2.4 0) scale(.8) translate(1.200 3)"/>',
@@ -23,7 +17,6 @@ const glyph = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox=
 const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
 const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '') + ' style="width:' + p + '%"></i></span>';
-const tons = (kg) => { const t = kg / 1000; return t >= 100 ? nf(t) : (Math.round(t * 10) / 10).toLocaleString('en-US'); };
 /* the player's character: built at least as far as the experience they came with (see EXP_BASE) */
 const avatar = (lvl, o) => avatarSVG(Object.assign({}, S.cfg.me.look, { wear: S.cfg.me.shop.on }), lvl, Object.assign({ base: EXP_BASE[expNow()] || 0 }, o));
 
@@ -211,7 +204,7 @@ const scaleSVG = (t) => '<svg class="scale" viewBox="0 0 96 96" aria-hidden="tru
   [20, 54].map((x) => '<rect x="' + x + '" y="50" width="22" height="34" rx="11" fill="#383642"/><path d="M' + (x + 6) + ' 60h10M' + (x + 6) + ' 67h10M' + (x + 6) + ' 74h10" stroke="#565462" stroke-width="2" stroke-linecap="round"/>').join('') + '</svg>';
 const bodyGirl = () => S.cfg.me.look.body === 1;
 /* a day in words, in the language of the page: its date, and with long its day of the week before it */
-const bodyFmt = (d, o) => new Intl.DateTimeFormat(LANG === 'he' ? 'he-IL' : 'en-GB', o).format(new Date(d + 'T12:00:00'));
+const bodyFmt = (d, o) => new Intl.DateTimeFormat(LANG === 'he' ? 'he-IL' : 'en-GB', o).format(new Date(d + 'T12:00:00')).replace(/,/g, '');
 const bodyDay = (d, long) => bodyFmt(d, long ? { weekday: 'long', day: 'numeric', month: 'long' } : { day: 'numeric', month: 'long' });
 /* the card of the weigh-ins in the profile: a scale that shows the last weight */
 function bodyCardHTML() {
@@ -569,13 +562,6 @@ function confetti(cv, n) {
     for (const p of ps) { p.vy += 0.26; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.w / 4, p.w, p.w / 2); g.restore(); }
     requestAnimationFrame(step);
   };
-  requestAnimationFrame(step);
-}
-/* a number that counts up to its value */
-function countUp(el, to) {
-  if (!el) return;
-  if (reduced || !(to > 0)) { el.textContent = '+' + nf(to); return; }
-  const t0 = performance.now(), step = (now) => { const k = Math.min(1, (now - t0) / 700); el.textContent = '+' + nf(to * (1 - Math.pow(1 - k, 3))); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
   requestAnimationFrame(step);
 }
 function wireMe() {

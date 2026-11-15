@@ -205,14 +205,14 @@ const OLD_COST = { towel: 30, sweat: 35, towelP: 45, kicksW: 50, cap: 60, capR: 
 /* a wardrobe read from a file or from the account. own: the things, each once · on: the worn ones, one to a slot · sp: the coins
    spent so far · inv: boxes that wait to be opened, by rarity (bx: 2 marks that; boxes kept from the days when a box was a kind
    of thing become common ones) · got: what boxes were already given for (workouts by their id, full weeks by theirs) · lv: the
-   level up to which the boxes of the road were given · n: boxes opened in all · sd: the seed of this lifter's luck ·
+   level up to which the boxes of the road were given (1 at the start, where the road has none) · n: boxes opened in all · sd: the seed of this lifter's luck ·
    sh: shields held · shw: the weeks a shield stood in for */
 function cleanShop(v) {
   v = v && typeof v === 'object' ? v : {};
   const ok = (a) => (Array.isArray(a) ? a.filter((id, i) => !!shopItem(id) && a.indexOf(id) === i) : []), num = (x, top) => (Number.isFinite(x) && x > 0 ? Math.min(Math.floor(x), top) : 0);
   const own = ok(v.own), slots = {};
   const on = ok(v.on).filter((id) => { const s = shopItem(id).slot; if (!own.includes(id) || slots[s]) return false; slots[s] = 1; return true; });
-  return { own, on, sp: Number.isFinite(v.sp) && v.sp >= 0 ? Math.floor(v.sp) : own.reduce((n, id) => n + (OLD_COST[id] || 0), 0), inv: BOXES.map((b, i) => (!Array.isArray(v.inv) ? 0 : v.bx === 2 ? num(v.inv[i], 99) : i ? 0 : num(v.inv.reduce((n, x) => n + num(x, 99), 0), 99))), bx: 2, lv: num(v.lv, 100),
+  return { own, on, sp: Number.isFinite(v.sp) && v.sp >= 0 ? Math.floor(v.sp) : own.reduce((n, id) => n + (OLD_COST[id] || 0), 0), inv: BOXES.map((b, i) => (!Array.isArray(v.inv) ? 0 : v.bx === 2 ? num(v.inv[i], 99) : i ? 0 : num(v.inv.reduce((n, x) => n + num(x, 99), 0), 99))), bx: 2, lv: num(v.lv, 100) || 1,
     got: Array.isArray(v.got) ? v.got.filter((k, i, a) => typeof k === 'string' && k.length < 60 && a.indexOf(k) === i).slice(-200) : [], n: num(v.n, 1e6), sd: num(v.sd, 4294967295),
     sh: num(v.sh, SHIELD_TOP), shw: Array.isArray(v.shw) ? v.shw.filter((w, i, a) => Number.isInteger(w) && a.indexOf(w) === i).slice(-40) : [] };
 }
@@ -380,13 +380,13 @@ function fullWeeks(list, need) {
    one for every full week (once, by the week), and the boxes of the road for the levels reached since the last time.
    Returns the wardrobe with them, or null when there is nothing new */
 function boxClaim(shop, list, need, lvl) {
-  const got = new Set(shop.got), inv = shop.inv.slice(), add = []; let lv = shop.lv || 0, n = 0;
+  const got = new Set(shop.got), inv = shop.inv.slice(), add = []; let lv = shop.lv || 1, n = 0;
   const put = (kind) => { inv[kind] = Math.min(99, inv[kind] + 1); n++; };
   const give = (key, kind) => { if (got.has(key)) return; got.add(key); add.push(key); put(kind); };
   for (const s of list) { const k = boxOf(s); if (k >= 0) give(s.id, k); }
   for (const k of fullWeeks(list, need)) give('f' + k, 1);
   if (lvl > lv) { for (const st of STATIONS) if (st.box >= 0 && st.at > lv && st.at <= lvl) put(st.box); lv = Math.min(100, Math.floor(lvl)); }
-  return n || lv !== (shop.lv || 0) ? Object.assign({}, shop, { inv, lv, got: shop.got.concat(add).slice(-200) }) : null;
+  return n || lv !== (shop.lv || 1) ? Object.assign({}, shop, { inv, lv, got: shop.got.concat(add).slice(-200) }) : null;
 }
 /* the shield of the streak does its work by itself: when last week went by without a workout and the week before it was part of
    a run, a shield that is held stands in for that week. Returns the wardrobe after it, or null when there is nothing to do */
@@ -401,13 +401,6 @@ function shieldStep(shop, list, arch, now) {
 }
 /* almost there: the next level in sets, the unit the lifter actually does */
 const setsToNext = (L) => Math.max(1, Math.ceil((L.need - L.into) / XP.set));
-/* what the weight lifted in a workout weighs as much as: the heaviest thing it passes */
-const LIKE = [
-  { kg: 300, he: 'דוב גריזלי', en: 'a grizzly bear' }, { kg: 500, he: 'פסנתר כנף', en: 'a grand piano' }, { kg: 1000, he: 'מכונית קטנה', en: 'a small car' },
-  { kg: 2000, he: 'טנדר', en: 'a pickup truck' }, { kg: 3000, he: 'היפופוטם', en: 'a hippo' }, { kg: 5000, he: 'פיל', en: 'an elephant' },
-  { kg: 12000, he: 'אוטובוס', en: 'a bus' }, { kg: 24000, he: 'שני אוטובוסים', en: 'two buses' },
-];
-const liftedLike = (kg) => { let o = null; for (const x of LIKE) if (kg >= x.kg) o = x; return o; };
 /* a run of weeks that this week has not kept yet: the length of the run, when it is two weeks or more and this week has no workout */
 function streakOpen(list, arch, now) {
   const cur = weekIdx(now);

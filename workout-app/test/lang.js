@@ -4,6 +4,7 @@
 // reaches what is already on screen.
 const { chromium } = require('playwright'), path = require('path');
 const PREVIEW = 'file://' + require('./wrap.js'), SHOTS = process.env.SHOTS;
+const { fillAll } = require('./help');
 const snap = (pg, name, full) => (SHOTS ? pg.screenshot({ path: path.join(SHOTS, name + '.png'), fullPage: !!full }) : null);
 const ok = [], bad = [], errs = [];
 const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : ' -> ' + JSON.stringify(info)));
@@ -80,7 +81,7 @@ const tourWalk = async (pg, each) => {
     if (st.own) await pg.click('#tourNext');
     else if (!st.here) { await pg.waitForTimeout(250); continue; }
     else if (st.tap) await pg.click(st.at);
-    else if (st.at === '#pre .tq') await pg.click('#tqGo');
+    else if (st.at === '#pre .tq') await pg.click('#tqSkip');
     else if (st.at === '#pre .eqq') await pg.click('#eqGo');
     await pg.waitForTimeout(500);
   }
@@ -119,7 +120,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   // ---- the workout: the recovery question, the exercise, the bar at the bottom
   await p.click('#homeGo'); await p.waitForTimeout(450);
   const tg = await txt('#pre');
-  check('the question about today\'s length is in English', tg.includes('How much time do you have today') && tg.includes('minutes') && tg.includes('The whole workout takes') && tg.includes('Continue') && (await p.getAttribute('.tq-st[data-tq="5"]', 'aria-label')) === '5 minutes more' && (await p.getAttribute('#tqMin', 'aria-label')) === 'Minutes', tg);
+  check('the question about a shorter day is in English', tg.includes('Less time today') && tg.includes('minutes') && tg.includes('No rush') && (await p.$$('#pre .tq-c')).length >= 2 && !(await p.$('#tqMin')), tg);
   await clean('the question about today\'s length'); await snap(p, 'en5a-time');
   await gate(p);
   check('the recovery question is in English', (await txt('#pre')).includes('Have your muscles recovered') && (await txt('#preAll')) === 'Yes, all good' && (await txt('#preEdit')) === 'Not quite' && (await txt('#preSkip')) === 'Skip', await txt('#pre'));
@@ -136,17 +137,17 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('the exercise screen holds only what a set needs', (await p.$$('#exList .ex.open button')).length === 7 && (await p.$$('#exList .ex.open .setp')).length === 3 && (await p.$$('#exList .ex.open .stage-wrap *:not(.hx):not(.hx *)')).length <= 4 && !(await p.$('#exList .chip, #exList .chipx, #exList .tagx, #exList .seg, #exList textarea')), (await p.$$('#exList .ex.open button')).length);
   check('the header says where in the workout the screen stands', (await txt('#wkTitle')).replace(/\s+/g, ' ').includes('Workout 1 Exercise 1 of 8') && (await p.getAttribute('#backBtn', 'aria-label')) === 'Back to the main screen' && (await p.getAttribute('#listBtn', 'aria-label')) === 'All exercises' && (await p.getAttribute('#wkBar .bar', 'aria-label')) === '0 of 21 sets', [await txt('#wkTitle'), await p.getAttribute('#wkBar .bar', 'aria-label')]);
   const dock = await txt('#dock');
-  check('the bar at the bottom is in English, and says each thing once', dock.includes('Set 1 of 3') && dock.includes('More reps') && dock.includes('kg') && dock.includes('reps') && dock.includes('Set done') && !dock.includes('target') && (await p.$$('#dock button')).length === 6 && (await p.getAttribute('#dkKg', 'aria-label')) === 'Weight: 47.5 kg, tap to type' && (await p.getAttribute('#dkReps', 'aria-label')) === 'Reps: 10, tap to type' && (await p.getAttribute('#dock', 'aria-label')) === 'Set log and rest timer' && (await p.evaluate(() => [...document.querySelectorAll('#dock .step')].map((x) => x.textContent + '/' + x.getAttribute('aria-label')).join('|'))) === '−2.5/Take off 2.5 kg|+5/Add 5 kg' && !(await p.$('#dock .xp-tag')), dock);
+  check('the bar at the bottom is in English, and says each thing once', dock.includes('Set 1 of 3') && dock.includes('More reps') && dock.includes('kg') && dock.includes('reps') && dock.includes('Set done') && !dock.includes('target') && (await p.$$('#dock button')).length === 6 && (await p.getAttribute('#dkKg', 'aria-label')) === 'Weight: 47.5 kg, tap to type' && (await p.getAttribute('#dkReps', 'aria-label')) === 'Reps: 10, tap to type' && (await p.getAttribute('#dock', 'aria-label')) === 'Set log and rest timer' && (await p.evaluate(() => [...document.querySelectorAll('#dock .step')].map((x) => x.textContent + '/' + x.getAttribute('aria-label')).join('|'))) === '−2.5/Take off 2.5 kg|+2.5/Add 2.5 kg' && !(await p.$('#dock .xp-tag')), dock);
   await clean('the exercise'); await snap(p, 'en3-exercise', true);
   await p.click('#dkWhy'); await p.waitForTimeout(150);
   check('a tap on the goal says why, in English', (await txt('.dk-why')).startsWith('Last time you did ') && (await txt('.dk-why')).endsWith('Today, more reps.') && (await p.getAttribute('#dkWhy', 'aria-expanded')) === 'true', await txt('.dk-why'));
   await clean('why this target'); await p.click('#dkWhy'); await p.waitForTimeout(100);
   await p.click('.ex.open .how'); await p.waitForTimeout(250);
-  check('the details of the exercise hold what is asked, the muscles and the three cues, with no second name under them', (await txt('#sheet .kicker')) === 'Exercise details' && (await txt('#sheet .hw-facts')).replace(/\s+/g, ' ').trim() === '3 sets 6–10 reps 2–3 min rest' && (await txt('#sheet')).includes('Front delts') && (await txt('#sheet .hw-rir')) === 'To failure' && (await txt('#sheet .hw-h')) === 'How to do it' && (await p.$$eval('#sheet .cues li', (l) => l.length)) === 3 && (await txt('#sheet')).includes('Bench at 30–45°') && !(await p.$('#sheet .en-name')), await txt('#sheet'));
+  check('the details of the exercise hold what is asked, the muscles and the three cues, with no second name under them', (await p.getAttribute('#sheet .sheet-in', 'aria-label')) === 'Exercise details' && (await txt('#sheet .hw-facts')).replace(/\s+/g, ' ').trim() === '3 sets 6–10 reps 2–3 min rest' && (await txt('#sheet')).includes('Front delts') && (await txt('#sheet .hw-rir')) === 'To failure' && (await txt('#sheet .hw-h')) === 'How to do it' && (await p.$$eval('#sheet .cues li', (l) => l.length)) === 3 && (await txt('#sheet')).includes('Bench at 30–45°') && !(await p.$('#sheet .en-name')), await txt('#sheet'));
   await clean('how to do it'); await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('.ex.open .how'); await p.waitForTimeout(250);
   const more = await txt('#sheet');
-  check('"more" holds the note, the history and the rarer actions', more.includes('A note that stays with this exercise') && (await p.getAttribute('.note-in', 'placeholder')) === 'Seat height, tempo, a cue' && more.includes('History') && more.includes('Last time (') && more.includes('days ago') && more.includes('Your strength · 3 workouts') && more.includes('Log every set at its target') && more.includes('Ask Eilon') && more.includes('Skip it today') && more.includes('The plan stays as it is') && more.includes('Sets in this exercise') && (await p.getAttribute('#sheet .mr .stp button', 'aria-label')) === 'One set less', more);
+  check('the details hold the note, what was done last time and two actions, and nothing else', more.includes('My note') && (await p.getAttribute('.note-in', 'placeholder')) === 'Seat height, tempo, a cue' && more.includes('Last time (') && more.includes('days ago') && more.includes('Ask Eilon') && more.includes('Skip it today') && !more.includes('Sets in this exercise') && !more.includes('Log every set') && !more.includes('Your strength') && !(await p.$('#sheet .mr .stp')), more);
   await clean('more'); await snap(p, 'en3b-more'); await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#dkHit'); await p.waitForTimeout(600);
   const rt = await txt('#dock');
@@ -159,7 +160,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.evaluate(() => setLang('en')); await p.waitForTimeout(350);
   check('and back', (await txt('#dock')).includes('Continue') && (await txt('#exList .ex-name')) === 'Incline Smith Machine Press', await txt('#dock'));
   await p.click('#rtSkip'); await p.waitForTimeout(250);
-  await p.click('.ex.open .how'); await p.waitForTimeout(250); await p.click('#moreSame'); await p.waitForTimeout(500);
+  await fillAll(p); await p.waitForTimeout(500);
   const fb = await txt('#dock');
   check('an exercise that is done asks nothing: the next one comes up by itself', !fb.includes('How was it') && (await p.$$('#dock [data-fb]')).length === 0 && (await txt('#exList .ex-name')) === 'Assisted Pull-ups', fb);
   await clean('the next exercise'); await snap(p, 'en5-next');
@@ -190,13 +191,13 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('the swap sheet is in English', sw.includes('Assisted Pull-ups') && sw.includes('Swap it for what?') && sw.includes('Same muscle, same movement. History is kept.') && sw.includes('Lat Pulldown') && sw.includes('Cable') && sw.includes('easy on the joints') && sw.includes('Other exercises') && sw.includes('Another machine? Ask Eilon') && !sw.includes('Today only'), sw.slice(0, 400));
   await clean('the swap sheet'); await snap(p, 'en7-swap', true);
   await p.click('#sheet .sw-row'); await p.waitForTimeout(250);
-  check('the one question of a swap is in English', (await txt('#sheet .sw-b')).replace(/\s+/g, ' ').trim() === 'Today only For good', await txt('#sheet .sw-b'));
+  check('the one question of a swap is in English', (await txt('#sheet .sw-b')).replace(/\s+/g, ' ').trim() === 'Today only Always', await txt('#sheet .sw-b'));
   await clean('the swap sheet, an exercise chosen'); await snap(p, 'en7b-swap-chosen', true);
   await p.click('#sheet .sw-more [data-pick]'); await p.waitForTimeout(250);
   check('the muscles of the picker are in English', (await txt('#sheet .mu-row')).includes('Suggested') && (await txt('#sheet .mu-row')).includes('Chest') && (await txt('#sheet')).includes('A different kind of exercise gets sets and reps that suit it.'), await txt('#sheet .mu-row'));
   await p.click('#sheet [data-pick="quads"]'); await p.waitForTimeout(250); await clean('the swap sheet, another muscle');
   await p.click('#sheet .sw-row'); await p.waitForTimeout(200);
-  check('an exercise of another kind is swapped with one word', (await txt('#sheet .sw-b')).trim() === 'Swap', await txt('#sheet .sw-b'));
+  check('an exercise of another kind asks the same question', (await txt('#sheet .sw-b')).replace(/\s+/g, ' ').trim() === 'Today only Always', await txt('#sheet .sw-b'));
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#listBtn'); await p.waitForTimeout(250); await p.click('#editWk'); await p.waitForTimeout(350);
   const wkp = await txt('#sheet');
@@ -283,45 +284,51 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   // ---- the profile and the character
   await tab('profile');
   const pf = await txt('#profile');
-  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('days in a row') && pf.includes('PRs') && !pf.includes('tons') && /At level \d+: [A-Z]/.test(pf) && pf.includes('Achievements') && pf.includes('All of them') && pf.includes('The kiosk') && pf.includes('Your collection') && / of 180 things/.test(pf) && pf.includes('To the kiosk') && (await p.getAttribute('#setBtn', 'aria-label')) === 'Settings' && (await p.getAttribute('#lookBtn', 'aria-label')) === 'Edit the character' && /^[\d,]+ coins$/.test(await p.getAttribute('#profile .coin-tag', 'aria-label')) && !pf.includes('A set +10') && !pf.includes('Language'), pf.slice(0, 600));
-  check('an achievement is read out in English', /^[A-Za-z0-9, ]+, (earned|not yet|[\d,]+ of [\d,]+)$/.test(await p.getAttribute('#profile .bdg', 'aria-label')), await p.getAttribute('#profile .bdg', 'aria-label'));
+  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('days in a row') && pf.includes('PRs') && !pf.includes('tons') && !pf.includes('At level') && !pf.includes('Achievements') && pf.includes('The kiosk') && pf.includes('Weigh-ins') && / of 180 things/.test(pf) && pf.includes('To the kiosk') && (await p.getAttribute('#setBtn', 'aria-label')) === 'Settings' && (await p.getAttribute('#lookBtn', 'aria-label')) === 'Edit the character' && /^[\d,]+ coins$/.test(await p.getAttribute('#profile .coin-tag', 'aria-label')) && !pf.includes('A set +10') && !pf.includes('Language'), pf.slice(0, 600));
   await clean('the profile'); await snap(p, 'en15-profile', true);
-  await p.click('#bdgAll'); await p.waitForTimeout(200);
-  check('every achievement has an English name', (await p.$$('#profile .bdg')).length === 12 && (await txt('#bdgAll')) === 'Fewer' && (await txt('#profile .badges')).includes('First workout'), await txt('#profile .badges'));
-  await clean('the profile, all achievements'); await p.click('#bdgAll'); await p.waitForTimeout(200);
   /* the kiosk: its things, a thing tried on, and what it says about the coins */
   await p.click('#shopBtn'); await p.waitForTimeout(350);
   const ksE = await txt('#sheet');
-  check('the kiosk is in English', ksE.includes('The kiosk') && ksE.includes('Your collection') && ksE.includes('Open a box and find a thing') && ksE.includes('Boxes') && ksE.includes('Hats') && ksE.includes('Accessories') && ksE.includes('This week only') && ksE.includes('Weekly edition') && ksE.includes('Streak shield') && ksE.includes('The collection') && ksE.includes('The odds of every box') && ksE.includes('Legendary') && ksE.includes('Every 10 points in a workout are a coin.') && /^(Hat|Glasses|Shirt|Shoe|Accessory) box, (\d+ coins|all yours)$/.test(await p.getAttribute('#sheet [data-box]', 'aria-label')) && /^(Winter|Spring|Summer|Autumn) \d{4} [a-z\- ]+$/.test(await txt('#sheet .ks-week b')), ksE.slice(0, 300));
+  check('the kiosk is in English', ksE.includes('The kiosk') && ksE.includes('Boxes') && ksE.includes('Common') && ksE.includes('Super rare') && ksE.includes('Legendary') && ksE.includes('Limited time') && /Gone (today|in \d days)/.test(ksE) && ksE.includes('Weekly edition') && ksE.includes('Streak shield') && ksE.includes('Your collection') && ksE.includes('All') && ksE.includes('Mine') && ksE.includes('The odds of every box') && ksE.includes('Every 100 points in a workout are a coin') && /^(Common|Rare|Super rare|Epic|Mythic|Legendary) box, (\d+ coins|all yours)$/.test(await p.getAttribute('#sheet [data-box]', 'aria-label')) && /^(Winter|Spring|Summer|Autumn) \d{4} [a-z\- ]+$/.test(await txt('#sheet .ks-week b')), ksE.slice(0, 300));
   await clean('the kiosk');
   /* a box that waits is opened in English */
   await p.evaluate(() => { S.cfg.me.shop.inv[1] = 1; S.cfg.me.shop.sd = 5; saveCfg(); renderShop(); });
   await p.click('#sheet [data-open="1"]'); await p.waitForTimeout(350);
-  check('a box waits to be tapped, in English', (await p.getAttribute('#boxUp', 'aria-label')) === 'Glasses box' && (await txt('#buHint')) === 'Tap the box' && (await p.getAttribute('#buBox', 'aria-label')) === 'Open the box', await txt('#boxUp'));
+  check('a box waits to be tapped, in English', (await p.getAttribute('#boxUp', 'aria-label')) === 'Rare box' && (await txt('#buHint')) === 'Tap the box' && (await p.getAttribute('#buBox', 'aria-label')) === 'Open the box', await txt('#boxUp'));
   await p.click('#buBox'); await p.waitForTimeout(1250);
   const gotE = (await txt('#buGot')).replace(/\s+/g, ' ').trim();
   check('what a box holds is told in English: how rare it is, its name, and that it can be put on', /^(Common|Rare|Super rare|Epic|Mythic|Legendary) [A-Z0-9][A-Za-z0-9\- ]+ Put it on Continue$/.test(gotE) && (await p.getAttribute('#boxUp', 'aria-label')).startsWith('In the box: '), gotE);
   await clean('a box that was opened');
   await p.click('#buWear'); await p.waitForTimeout(450);
-  check('and what is worn says so in English', (await txt('#sheet .ks-say')).includes('On you now') && (await txt('#sheet .ks-it.on .ks-st')) === 'On' && /^[A-Z0-9][A-Za-z0-9\- ]+, (Common|Rare|Super rare|Epic|Mythic|Legendary), on$/.test(await p.getAttribute('#sheet .ks-it.on', 'aria-label')), await txt('#sheet .ks-say'));
+  await p.click('#sheet [data-shelf="me"]'); await p.waitForTimeout(250);
+  check('and what is worn says so in English', (await txt('#sheet .ks-it.on .ks-st')) === 'On' && /^[A-Z0-9][A-Za-z0-9\- ]+, (Common|Rare|Super rare|Epic|Mythic|Legendary), on$/.test(await p.getAttribute('#sheet .ks-it.on', 'aria-label')), await p.getAttribute('#sheet .ks-it.on', 'aria-label'));
   await p.click('#sheet .ks-it.on'); await p.waitForTimeout(300);
-  check('and what is taken off stays in the wardrobe', (await txt('#sheet .ks-say')).includes('In your wardrobe') && !(await p.$('#sheet .ks-it.on')), await txt('#sheet .ks-say'));
+  check('and what is taken off stays in the wardrobe', !(await p.$('#sheet .ks-it.on')) && /, owned$/.test(await p.getAttribute('#sheet .ks-it.own', 'aria-label')), await p.getAttribute('#sheet .ks-it.own', 'aria-label'));
   await clean('the kiosk, a thing tried on'); await snap(p, 'en15a-kiosk', true);
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
-  /* the body log in English */
-  check('the card of the body log is in English', (await txt('#bodyBtn .bd-t')).includes('Body log') && (await txt('#bodyBtn .bd-t')).includes('What you weigh, day by day') && (await p.getAttribute('#bodyBtn', 'aria-label')) === 'Body log', await txt('#bodyBtn'));
+  /* the weigh-ins in English */
+  check('the card of the weigh-ins is in English', (await txt('#bodyBtn .bd-t')) === 'Weigh-ins' && (await p.getAttribute('#bodyBtn', 'aria-label')) === 'Weigh-ins', await txt('#bodyBtn'));
   await p.click('#bodyBtn'); await p.waitForTimeout(300);
+  const bdL = await txt('#sheet');
+  check('the days of the weigh-ins are in English, each with its day of the week and its date', bdL.includes('Weigh-ins') && bdL.includes('New weigh-in') && bdL.includes('Today') && /(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day,? \d{1,2} [A-Z][a-z]+/.test(bdL) && (await p.$$('#sheet .bd-day')).length === 14 && /, add a weigh-in$/.test(await p.getAttribute('#sheet .bd-day', 'aria-label')), bdL.slice(0, 300));
+  await clean('the weigh-ins');
+  await p.click('#bdNow'); await p.waitForTimeout(250);
   const bdE = await txt('#sheet');
-  check('the body log is in English', bdE.includes('Body log') && bdE.includes('What do you weigh today') && bdE.includes('kg') && bdE.includes('Date') && bdE.includes('More details') && bdE.includes('Save') && bdE.includes('Nothing in the log yet') && (await p.getAttribute('#bd_kg', 'aria-label')) === 'Weight in kg', bdE.slice(0, 300));
+  check('a day of the weigh-ins is in English', bdE.includes('What do you weigh today') && bdE.includes('kg') && bdE.includes('More details') && bdE.includes('Save') && (await p.getAttribute('#bd_kg', 'aria-label')) === 'Weight in kg' && (await p.getAttribute('#bdBack', 'aria-label')) === 'Back', bdE.slice(0, 300));
   await p.click('#bdMore'); await p.waitForTimeout(150);
+  const bdM = await txt('#sheet');
+  check('and so are its details, which open and close', bdM.includes('Fewer details') && bdM.includes('Body fat') && bdM.includes('Waist') && bdM.includes('Height') && bdM.includes('Note'), bdM.slice(0, 300));
+  await clean('a day of the weigh-ins');
   await p.fill('#bd_kg', '80.5'); await p.fill('#bd_fat', '18'); await p.click('#bdSave'); await p.waitForTimeout(400);
   const bdE2 = await txt('#sheet');
-  check('a day that is written is told in English', (await txt('#toast')).includes('Saved to the log') && bdE2.includes('What you logged') && bdE2.includes('1 day') && bdE2.includes('Today') && bdE2.includes('18% fat') && bdE2.includes('Delete this day') && bdE2.includes('Body fat') && bdE2.includes('Waist') && bdE2.includes('Height') && bdE2.includes('Note') && (await p.getAttribute('#bodyBtn', 'aria-label')) === 'Body log, 80.5 kg', bdE2.slice(0, 400));
-  await clean('the body log');
+  check('a day that is written is told in English', (await txt('#toast')).includes('Saved') && bdE2.includes("Today's weigh-in") && bdE2.includes('80.5') && (await p.getAttribute('#bodyBtn', 'aria-label')) === 'Weigh-ins, 80.5 kg' && /, 80\.5 kg$/.test(await p.getAttribute('#sheet .bd-day.has', 'aria-label')), bdE2.slice(0, 400));
+  await p.click('#sheet .bd-day.has'); await p.waitForTimeout(250);
+  check('and a day that has a weight can be deleted, in English', (await txt('#bdDel')) === 'Delete' && (await p.inputValue('#bd_fat')) === '18', await txt('#sheet'));
+  await p.click('#bdBack'); await p.waitForTimeout(200);
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#setBtn'); await p.waitForTimeout(300);
   const st = await txt('#sheet');
-  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Muscle') && st.includes('Getting lean') && st.includes('Fitness and endurance') && st.includes('Running') && st.includes('Veteran') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && st.includes('Character and name') && st.includes('My training') && st.includes('Goals') && st.includes('Where you train') && st.includes('Park') && st.includes('Home, dumbbells') && !st.includes('Time for a workout') && st.includes('Sound and touch') && st.includes('Workouts a week') && !st.includes('Privacy') && !st.includes('Entry code') && st.includes('A tour of the app') && st.includes('Delete the account') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
+  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Muscle') && st.includes('Getting lean') && st.includes('Fitness and endurance') && st.includes('Running') && st.includes('Veteran') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && st.includes('Character and name') && st.includes('My training') && st.includes('Goals') && st.includes('Where you train') && st.includes('Calisthenics') && !st.includes('Park') && st.includes('Home, dumbbells') && !st.includes('Time for a workout') && st.includes('Sound and touch') && st.includes('Workouts a week') && !st.includes('Privacy') && !st.includes('Entry code') && st.includes('A tour of the app') && st.includes('Delete the account') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
   await clean('the settings'); await snap(p, 'en15b-settings', true);
   /* the page that deletes the account: no code any more, the name typed is the confirmation */
   check('there is no entry code in the settings', !(await p.$('#pinSet')) && !(await p.$('#lock')) && !(await txt('#sheet')).includes('code'), await txt('#sheet'));
@@ -342,15 +349,15 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   // ---- what is shown only now and then: drawn directly, each in turn
   await p.evaluate(() => { const s = sorted().find((x) => x.end), R = { y: tally(s), from: levelOf(100), to: levelOf(900), got: [] }; showDeloadOffer(s, R); });
   await p.waitForTimeout(200);
-  check('the offer of an easy week is in English', (await txt('#sheet')).includes('Signs of fatigue') && (await txt('#sheet')).includes('Twice in a row you missed the target. That is usually fatigue') && (await txt('#sheet')).includes('Start an easy week') && (await txt('#sheet')).includes('Not now') && (await txt('#sheet .xp-line')).includes('level up'), await txt('#sheet'));
+  check('the offer of an easy week is in English', (await txt('#sheet')).includes('Signs of fatigue') && (await txt('#sheet')).includes('Twice in a row you missed the target. That is usually fatigue') && (await txt('#sheet')).includes('Start an easy week') && (await txt('#sheet')).includes('Not now') && /^\+[\d,]+ Level \d+/.test((await txt('#sheet .xp-line')).trim()), await txt('#sheet'));
   await clean('the offer of an easy week');
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
-  await p.evaluate(() => { window.__rank = true; const s = sorted().find((x) => x.end); showSummary(s, { y: tally(s), from: levelOf(100), to: levelOf(5000), got: ['first', 'week'] }); window.__rank = false; });
+  await p.evaluate(() => { window.__rank = true; const s = sorted().find((x) => x.end); showSummary(s, { y: tally(s), from: levelOf(1000), to: levelOf(50000), got: [] }); window.__rank = false; });
   await p.waitForTimeout(300);
   const ru = await p.evaluate(() => { const el = document.querySelector('#rankUp'); return el ? { label: el.getAttribute('aria-label'), text: el.innerText.replace(/\s+/g, ' ').trim(), medal: !!el.querySelector('svg.medal'), heb: /[\u0590-\u05FF]/.test(el.innerText + el.getAttribute('aria-label')) } : null; });
   check('a new rank is told in English on the whole screen, with its medal', !!ru && ru.label === 'A new rank: Warrior' && ru.text === 'A new rank Warrior Yes' && ru.medal && !ru.heb, ru);
   await p.click('#rankOk'); await p.waitForTimeout(350);
-  check('a level-up and its rewards are told in English', (await txt('#sheet')).includes('You reached level ') && (await txt('#sheet')).includes('Unlocked Headband') && (await txt('#sheet')).includes('Achievement First workout') && (await txt('#sheet')).includes('Achievement Full week'), await txt('#sheet'));
+  check('a level-up and its rewards are told in English', (await txt('#sheet')).includes('You reached level ') && (await txt('#sheet')).includes('Unlocked Headband') && (await txt('#sheet')).includes('Unlocked Common box') && (await txt('#sheet')).includes('Unlocked Warrior') && !(await txt('#sheet')).includes('Achievement') && (await txt('#sheet')).includes('Well done'), await txt('#sheet'));
   await clean('a level-up'); await snap(p, 'en17-levelup');
   await p.click('#sheetClose'); await p.waitForTimeout(250);
   await p.evaluate(() => { levelUp(7); });
@@ -368,10 +375,10 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   // ---- the language setting itself
   await tab('profile'); await p.click('#setBtn'); await p.waitForTimeout(300);
   await p.click('#sheet [data-set="lang"][data-v="he"]'); await p.waitForTimeout(350);
-  check('the setting turns the whole page to Hebrew, the open sheet included', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'he,rtl,he' && (await txt('#sheet h2')) === 'הגדרות' && (await txt('#sheet')).includes('גיבוי') && (await txt('#profile')).includes('הישגים') && (await txt('#tabbar')).includes('פרופיל') && (await p.getAttribute('#sheet [data-set="lang"][data-v="he"]', 'aria-pressed')) === 'true', await txt('#tabbar'));
+  check('the setting turns the whole page to Hebrew, the open sheet included', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'he,rtl,he' && (await txt('#sheet h2')) === 'הגדרות' && (await txt('#sheet')).includes('גיבוי') && (await txt('#profile')).includes('הקיוסק') && (await txt('#profile')).includes('שקילות') && (await txt('#tabbar')).includes('פרופיל') && (await p.getAttribute('#sheet [data-set="lang"][data-v="he"]', 'aria-pressed')) === 'true', await txt('#tabbar'));
   check('and it is kept', JSON.parse(await p.evaluate(() => localStorage.getItem('ul4:v1'))).cfg.lang === 'he', 'ls');
   await p.click('#sheet [data-set="lang"][data-v="en"]'); await p.waitForTimeout(350);
-  check('and back to English', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'en,ltr,en' && (await txt('#sheet h2')) === 'Settings' && (await txt('#profile')).includes('Achievements'), await txt('#tabbar'));
+  check('and back to English', (await p.evaluate(() => [LANG, document.documentElement.dir, S.cfg.lang].join())) === 'en,ltr,en' && (await txt('#sheet h2')) === 'Settings' && (await txt('#profile')).includes('The kiosk') && (await txt('#profile')).includes('Weigh-ins'), await txt('#tabbar'));
   await clean('the settings, after two changes of language');
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await clean('the profile, after two changes of language');
@@ -398,7 +405,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.waitForSelector('#tour:not([hidden])'); await p.waitForTimeout(900); await snap(p, 'en19-tour');
   const tourLabel = await p.getAttribute('#tour', 'aria-label'), tourSkip = !!(await p.$('#tourSkip'));
   const tourSaid = (await tourWalk(p, async (st) => { const h = await hebOn(p); if (h.length) bad.push('Hebrew in the tour, step ' + st.i + ' -> ' + JSON.stringify(h)); })).filter(Boolean);
-  check('the tour is in English: a short sample of the first workout, then the body log and the coach, with no way to skip', tourSaid.length === 6 && new Set(tourSaid).size === 6 && tourSaid[0].includes('This is your first workout') && tourSaid.some((t) => t.includes('Set done')) && tourSaid.some((t) => t.includes('The clock counts your rest')) && tourSaid[4].includes('This is the body log') && tourSaid[5].includes('I am always here') && !tourSkip && tourLabel === 'A short tour of the app' && (await p.evaluate(() => !TR.on && S.view === 'home' && !Object.keys(S.sessions).length)), tourSaid);
+  check('the tour is in English: a short sample of the first workout, then the weigh-ins and the coach, with no way to skip', tourSaid.length === 6 && new Set(tourSaid).size === 6 && tourSaid[0].includes('This is your first workout') && tourSaid.some((t) => t.includes('Set done')) && tourSaid.some((t) => t.includes('The clock counts your rest')) && tourSaid[4].includes('Your weigh-ins') && tourSaid[5].includes('I am always here') && !tourSkip && tourLabel === 'A short tour of the app' && (await p.evaluate(() => !TR.on && S.view === 'home' && !Object.keys(S.sessions).length)), tourSaid);
   await p.waitForTimeout(300);
   check('after the opening screens the app is in English', (await p.isHidden('#ob')) && (await p.evaluate(() => (document.querySelector('#home').innerText || '').includes('Hi, Ann'))) && (await hebOn(p)).length === 0, await hebOn(p));
   await p.context().close();

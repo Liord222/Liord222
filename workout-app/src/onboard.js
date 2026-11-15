@@ -88,16 +88,8 @@ const platesIcon = (n) => {
   return '<svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><rect x=".4" y="11" width="23.2" height="2" rx="1"/>' + hs.map((h, i) => r(xs[i], h) + r(+(21.6 - xs[i]).toFixed(1), h)).join('') + '</svg>';
 };
 const OBI = {
-  body: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.8" r="2.1"/><path d="M5 9.4c2.4 1 4.6 1.5 7 1.5s4.6-.5 7-1.5M12 10.9v4.6M12 15.5l-3 5.4M12 15.5l3 5.4"/></svg>',
   bell: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5v9M17.5 7.5v9M3.8 10v4M20.2 10v4M6.5 12h11"/></svg>',
-  heart: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.3-7-9.6A4 4 0 0 1 12 8a4 4 0 0 1 7 2.4C19 15.7 12 20 12 20z"/></svg>',
   gym: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17M5 20.5V9.2L12 4.6l7 4.6v11.3M9.2 20.5v-5.2h5.6v5.2"/></svg>',
-  unsure: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M9.7 9.5a2.4 2.4 0 1 1 3.5 2.2c-.8.4-1.2 1-1.2 1.8M12 16.6h.01"/></svg>',
-  clock: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3 2"/></svg>',
-  del: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 5.5h9.3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9.2L3.5 12z"/><path d="M12 9.6l4.6 4.8M16.6 9.6L12 14.4"/></svg>',
-  flame: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.4c.6 3-1.2 4.4-2.6 6.2C8 11.300 7 12.800 7 14.800a5 5 0 0 0 10 0c0-1.7-.7-3-1.600-4.200-.5 1-1.200 1.600-2 1.900.5-2.800-.1-6.300-1.400-9.100z"/></svg>',
-  bolt: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.4 3.4 6 13.200h5.200l-1 7.400 7.800-10h-5.400z"/></svg>',
-  run: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="14.6" cy="4.6" r="2"/><path d="M6.200 11.200 9.400 8.600l3.400.6 2.200 3.200 3.200 1M12.800 9.200l-2 5 3.200 2.400.6 4.200M10.800 14.200l-2.400 2.400-3.600.2"/></svg>',
   park: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20.500V5.200M19 20.500V5.200M3.500 7.200h17M9.200 7.200v5.200M14.800 7.200v5.200M3.500 20.500h17"/></svg>',
   home: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.200 12 4.600l8 6.600M6.200 9.800v9.700h11.600V9.800M10 19.500v-5h4v5"/></svg>',
   crown: '<svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.500 8.200l4 3.600L12 5.400l4.500 6.400 4-3.600-1.600 10.200H5.100z"/></svg>',
@@ -384,7 +376,7 @@ function tourSteps() {
     { at: '#rtSkip', tap: 1, t: say('השעון סופר לך מנוחה וכשמוכנים לוחצים המשך', 'The clock counts your rest. When you are ready, tap Continue'), done: () => !rest.on, leave: tourUndo }
   );
   A.push(
-    { at: '#bodyBtn', enter: () => { if (S.view !== 'profile') setView('profile'); }, t: girl ? say('כאן השקילות שלך מתעדים כמה שוקלים בכל יום', 'Your weigh-ins: what you weigh, day by day') : say('זה יומן הגוף כאן אתה מתעד כמה אתה שוקל בכל יום', 'This is the body log. Write down here what you weigh, day by day') },
+    { at: '#bodyBtn', enter: () => { if (S.view !== 'profile') setView('profile'); }, t: say('כאן השקילות שלך מתעדים כמה שוקלים בכל יום', 'Your weigh-ins: what you weigh, day by day') },
     { at: '#chatOpen', alt: '.chat-h', enter: () => { if (S.view !== 'home') setView('home'); window.scrollTo(0, 0); }, t: say('ואני תמיד כאן לכל שאלה', 'And I am always here for any question') }
   );
   return A;
@@ -469,7 +461,6 @@ function tourGo() {
   if (TR.i >= TR.steps.length - 1) { tourEnd(); return; }
   TR.i++; TR.gone = 0; if (TR.steps[TR.i].enter) TR.steps[TR.i].enter(); tourShow(); haptic('select');
 }
-const tourStep = tourGo;
 function tourEnd() {
   if (!TR.on) return;
   /* left in the middle of the sample workout (the Escape key): what it logged is taken back all the same */

@@ -1,16 +1,16 @@
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
-    <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><svg class="i dir" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><span class="ib">חזרה</span></button>
     <div class="logo" role="img" aria-label="gymi by Lior Dahan">
       <span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span>
       <small aria-hidden="true">by Lior Dahan</small>
     </div>
     <div class="wk-title" id="wkTitle"></div>
     <span class="sync" id="syncNote"></span>
-    <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
+    <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><span class="ib">רשימה</span></button>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
-      <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/><rect x="5.6" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="10.2" y="12.2" width="7.6" height="3.6" rx="1.2" fill="#BBA5F7"/><rect x="17.8" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="22.9" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/></svg></span><span class="tb-l">אימונים</span></button>
-      <button type="button" data-view="journey"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="2.5" y="18" width="7" height="7.5" rx="1.8" fill="#BBA5F7"/><rect x="10.5" y="13" width="7" height="12.5" rx="1.8" fill="#6D3FE0"/><rect x="18.5" y="8.2" width="7" height="17.3" rx="1.8" fill="#5229C4"/><rect x="20.3" y="1.8" width="1.5" height="7.4" rx=".7" fill="#5229C4"/><path d="M21.8 2.2h4.7l-1.4 1.9 1.4 1.9h-4.7z" fill="#F2B02E"/></svg></span><span class="tb-l">מסע</span></button>
+      <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="7" y="12.3" width="14" height="3.4" rx="1.2" fill="#C9CEDA" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="2" y="9" width="4" height="10" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="5.2" y="6.5" width="4" height="15" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="18.8" y="6.5" width="4" height="15" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="22" y="9" width="4" height="10" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><path d="M6.4 8.6V12" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></svg></span><span class="tb-l">אימונים</span></button>
+      <button type="button" data-view="journey"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M3 25L11 11L15 17L18.5 12.5L25 25Z" fill="#6FD8FF" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 11L13.2 14.6L11.6 15.6L9.6 13.4Z" fill="#fff"/><path d="M11 11V2.5" stroke="#1B1035" stroke-width="1.8" stroke-linecap="round"/><path d="M11 3H18L16.2 5.3L18 7.6H11Z" fill="#FFC83D" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="tb-l">מסע</span></button>
       <button type="button" data-view="profile"><span class="tb-ic tb-face" id="tbMe" aria-hidden="true"></span><span class="tb-l">פרופיל</span></button>
       <button type="button" id="chatOpen"><span class="tb-ic tb-face" id="tbCoach" aria-hidden="true"></span><span class="tb-l">אילון</span></button>
     </nav>
@@ -42,20 +42,20 @@
       <div class="chat-h">
         <span class="ava" aria-hidden="true"></span>
         <div><h2>אילון</h2><p>המאמן שלך</p></div>
-        <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M19 4l1.5 1.5"/></svg></button>
-        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
-        <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><span class="ib">חיבור</span></button>
+        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה" hidden><span class="ib">חדשה</span></button>
+        <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><span class="ib">סגור</span></button>
       </div>
       <div class="msgs" id="msgs"></div>
       <div class="composer">
-        <label class="chat-ctx" for="chatCtx"><span>על</span><select id="chatCtx"></select><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></label>
-        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <label class="chat-ctx" for="chatCtx"><span>על</span><select id="chatCtx"></select></label>
+        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><span class="ib">הסר</span></button></div>
         <p class="comp-note" id="compNote" hidden></p>
         <div class="comp-row">
-          <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg></button>
-          <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M5 17l5-5 4 4 2-2 3 3"/></svg></button>
+          <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><span class="ib">מצלמה</span></button>
+          <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><span class="ib">תמונה</span></button>
           <textarea id="chatInput" rows="1" maxlength="500" placeholder="שאל את אילון" enterkeyhint="send" aria-label="הודעה לאילון"></textarea>
-          <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+          <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><span class="ib">שלח</span></button>
         </div>
         <input type="file" id="camFile" accept="image/*" capture="environment" hidden>
         <input type="file" id="galFile" accept="image/*" hidden>

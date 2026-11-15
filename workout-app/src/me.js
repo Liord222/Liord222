@@ -13,7 +13,8 @@ const GLYPH = {
 /* the streak's flame: drawn in two tones, not a line icon */
 const flameSVG = () => '<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.4 1.6c.5 3.6 6 6 6 12a6.4 6.4 0 0 1-12.8 0c0-2.5 1.1-4.4 2.6-5.7.3 1.8 1 2.9 2.1 3.5-.4-3.6.4-7 2.1-9.8z" fill="var(--flame)"/><path d="M12.1 11.6c.5 1.7 2.7 2.7 2.7 5.2a2.8 2.8 0 0 1-5.6 0c0-2.1 1.9-3 2.9-5.2z" fill="var(--flame-2)"/></svg>';
 /* the colours a medal can have: fill and darker edge */
-const glyph = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + GLYPH[k] + '</svg>';
+/* no pictograms (round 6): a glyph is gone wherever it stood beside words; the two buttons that were only a glyph say their word */
+const glyph = (k) => (k === 'pen' ? '<span class="ib">' + say('עריכה', 'Edit') + '</span>' : k === 'gear' ? '<span class="ib">' + say('הגדרות', 'Settings') + '</span>' : '');
 const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
 const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '') + ' style="width:' + p + '%"></i></span>';
@@ -146,17 +147,21 @@ function shieldBuyNow() {
 /* what came out of a box, on the whole screen: the box waits for a tap, shakes, and opens on the thing in the colour of its rarity */
 function boxReveal(it, kind) {
   const old = $('#boxUp'); if (old) old.remove();
-  const r = rareOf(it), lvl = meNow().L.lvl, el = document.createElement('div');
+  const r = rareOf(it), lvl = meNow().L.lvl, el = document.createElement('div'), have = ownedOf(S.cfg.me.shop);
   el.id = 'boxUp'; el.className = 'box-up'; el.style.setProperty('--rc', r.c); el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', nm(BOXES[kind]));
   el.innerHTML = '<canvas class="confetti" id="buConf" aria-hidden="true"></canvas><div class="bu-in"><span class="bu-rays" aria-hidden="true"></span>' +
     '<button class="bu-box" id="buBox" type="button" aria-label="' + say('לפתוח את הקופסה', 'Open the box') + '">' + boxSVG(kind) + '</button><p class="bu-hint" id="buHint">' + say('לחץ על הקופסה', 'Tap the box') + '</p>' +
-    '<div class="bu-got" id="buGot" hidden><span class="bu-pic">' + cropFig(it, lvl) + '</span>' + rareTag(it) + '<h2>' + nm(it) + '</h2>' +
-    '<div class="bu-act"><button class="btn big" id="buWear" type="button">' + say('ללבוש', 'Put it on') + '</button><button class="btn big ghost" id="buOk" type="button">' + say('המשך', 'Continue') + '</button></div></div></div>';
+    '<div class="bu-got" id="buGot" hidden><div class="bu-card"><span class="bu-pic">' + cropFig(it, lvl) + '</span>' + rareTag(it) + '<h2>' + nm(it) + '</h2></div>' +
+    /* the collection, counted up by the one that came: its words are drawn by the style, so the text of the box stays the thing's own */
+    '<span class="bu-col" id="buCol" aria-hidden="true" data-a="' + say('האוסף שלך', 'Your collection') + '" data-n="' + Math.max(0, have - 1) + '" data-of="' + say(' מתוך ', ' of ') + SHOP.length + '" style="--f:' + (Math.max(0, have - 1) / SHOP.length).toFixed(3) + '"><i></i></span>' +
+    '<div class="bu-act"><button class="btn big" id="buWear" type="button">' + say('ללבוש', 'Put it on') + '</button><button class="btn big ghost" id="buOk" type="button">' + say('המשך', 'Continue') + '</button></div></div>' +
+    '<span class="bu-chest" aria-hidden="true">' + boxSVG(kind) + '</span></div>';
   $('#app').appendChild(el);
   let step = 0;
   const show = () => {
     if (step > 1 || !el.isConnected) return; step = 2;
     el.classList.remove('shake'); el.classList.add('open'); $('#buBox').hidden = true; $('#buHint').hidden = true; $('#buGot').hidden = false;
+    setTimeout(() => { const c = $('#buCol'); if (c) { c.dataset.n = have; c.style.setProperty('--f', (have / SHOP.length).toFixed(3)); c.classList.add('up'); } }, reduced ? 0 : 1100);
     el.setAttribute('aria-label', say('בקופסה ', 'In the box: ') + nm(it) + ', ' + nm(r));
     if (it.wk == null && it.r >= 3) { feel('glory', 'heavy'); confetti($('#buConf'), it.r >= 4 ? 110 : 70); } else if (it.r === 2) { sfx('pr'); haptic('success'); } else feel('coin', 'success');
     setTimeout(() => { const b = $('#buWear'); if (b) b.focus({ preventScroll: true }); }, 60);
@@ -165,7 +170,7 @@ function boxReveal(it, kind) {
     if (step) return; step = 1; el.classList.add('shake'); haptic('select');
     /* four rising ticks while the box shakes, then it opens */
     if (!reduced) [0, 1, 2, 3].forEach((k) => setTimeout(() => { if (step === 1) sfx('set', k * 3); }, k * 210));
-    setTimeout(show, reduced ? 0 : 900);
+    setTimeout(show, reduced ? 0 : 750);
   };
   const done = (wear) => {
     if (wear) { const me = S.cfg.me, next = shopWear(me.shop, it.id, true); if (next) { me.shop = next; saveCfg(); } }
@@ -572,4 +577,22 @@ function wireMe() {
     else if (b.id === 'bodyBtn') openBody();
   });
   $('#journey').addEventListener('click', (ev) => { const b = ev.target.closest('button[data-lv]'); if (b) openLevel(+b.dataset.lv); });
+}
+/* ---- the weeks in a row, on the whole screen: the first workout of a week lights the flame. The number counts up from last week's,
+   the weeks of the run light one by one, and a tap goes on to the summary ---- */
+function streakShow(n, then) {
+  if (window.__streak === false || !(n > 0)) { if (then) then(); return; }
+  const old = $('#stk'); if (old) old.remove();
+  const el = document.createElement('div'); el.id = 'stk'; el.className = 'stk'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+  const word = n === 1 ? say('שבוע ברצף', 'week streak') : say('שבועות ברצף', 'week streak'), k = Math.min(6, Math.max(n, 3));
+  el.setAttribute('aria-label', n + ' ' + word);
+  let wk = ''; for (let i = 0; i < k; i++) wk += '<i class="' + (i >= k - n ? 'on' : '') + '" style="--d:' + (900 + i * 110) + 'ms"></i>';
+  el.innerHTML = '<span class="stk-glow" aria-hidden="true"></span><div class="stk-in"><span class="stk-fig">' + FLAME_SVG + '</span>' +
+    '<p class="stk-n" aria-hidden="true"><b class="stk-was">' + (n - 1) + '</b><b class="stk-now">' + n + '</b></p><p class="stk-w">' + word + '</p>' +
+    '<span class="stk-wk" aria-hidden="true">' + wk + '</span><button class="btn big stk-go" id="stkGo" type="button">' + say('המשך', 'Continue') + '</button></div>';
+  $('#app').appendChild(el); feel('glory', 'heavy');
+  const done = () => { el.classList.add('out'); setTimeout(() => { el.remove(); if (then) then(); }, reduced ? 0 : 220); };
+  el.addEventListener('click', (ev) => { if (ev.target.closest('#stkGo')) done(); });
+  overlayKeys(el, done);
+  setTimeout(() => { const b = $('#stkGo'); if (b) b.focus({ preventScroll: true }); }, 60);
 }

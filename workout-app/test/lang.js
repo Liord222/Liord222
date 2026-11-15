@@ -114,7 +114,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('today is in English', home.includes('Hi, Sam') && home.includes('Level ') && home.includes('Up next') && home.includes('Workout 1') && home.includes('Chest · back · arms') && home.includes('8 exercises') && home.includes('Start workout') && home.includes('This week') && !home.includes(' of 5') && home.includes('Plan'), home);
   check('the tabs are in English', (await txt('#tabbar')).replace(/\s+/g, ' ').trim() === 'Workouts Journey Profile Eilon', await txt('#tabbar'));
   check('the week uses the English names of the workouts, with what each trains', (await txt('#tabs')).replace(/\s+/g, ' ').includes('Workout 1') && (await txt('#tabs')).includes('Workout 4') && (await txt('#tabs')).includes('Chest · back · arms') && (await p.getAttribute('#tabs .tab[data-tab="0"]', 'aria-label')) === 'Workout 1, next', await txt('#tabs'));
-  check('arrows that mean "onward" point right', (await p.evaluate(() => getComputedStyle(document.querySelector('#planBtn .i.dir')).transform)) === 'matrix(-1, 0, 0, 1, 0, 0)', 'transform');
+  check('no pictograms: the plan button is its word alone', !(await p.$('#planBtn svg')) && (await txt('#planBtn')).trim() === 'Plan', await txt('#planBtn'));
   await clean('today'); await snap(p, 'en1-home', true);
 
   // ---- the workout: the recovery question, the exercise, the bar at the bottom

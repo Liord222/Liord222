@@ -7,25 +7,31 @@ const artSvg = (cls, body, vb) => '<svg class="' + cls + '" viewBox="' + (vb || 
 const shine = (x, y, k, c) => '<path transform="translate(' + x + ' ' + y + ') scale(' + k + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="' + (c || '#FFF3B0') + '"/>';
 const ART_STAR = (x, y, R, r) => { let q = ''; for (let k = 0; k < 10; k++) { const a = ((-90 + k * 36) * Math.PI) / 180, v = k % 2 ? r : R; q += (k ? 'L' : 'M') + (x + Math.cos(a) * v).toFixed(1) + ' ' + (y + Math.sin(a) * v).toFixed(1); } return q + 'Z'; };
 
-/* ---- a box of the collection: a chest in the colour of its rarity, with metal bands and a lock. The rarer, the richer:
-   gold bands from rare on, sparkles from epic on, and a glow behind the mythic and the legendary ---- */
-const BOX_TRIM = [['#E9ECF2', '#8E95A3'], ['#FFD15C', '#B07A0C'], ['#FFD15C', '#B07A0C'], ['#FFD15C', '#B07A0C'], ['#FFE07A', '#B07A0C'], ['#FFFFFF', '#B9912E']];
+/* ---- a box of the collection: a chunky toy chest in one colour, the colour of its rarity. A thick dark outline, a lighter lid
+   with a shine, rubber bumpers on the corners, a handle on top and a round plate in front with a dumbbell on it. The rarer, the
+   richer: sparkles from epic on, a gem on the handle and a glow behind the mythic and the legendary ---- */
+const BOX_OL = '#1B1035';
 function boxSVG(kind) {
   kind = BOXES[kind] ? kind : 0;
-  const c = BOXES[kind].c, dk = tone(c, -0.38), lt = tone(c, 0.34), t = BOX_TRIM[kind], ol = ' stroke="' + dk + '" stroke-width="1.8"' + ART_OL;
-  const band = (x, y, h) => '<rect x="' + x + '" y="' + y + '" width="6.5" height="' + h + '" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.3"/>';
-  return artSvg('bx r' + kind,
-    (kind >= 4 ? '<circle cx="32" cy="33" r="30" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".2"/><circle cx="32" cy="33" r="22" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".18"/>' : '') +
-    '<ellipse cx="32" cy="58.4" rx="25" ry="3.6" fill="rgb(0 0 0 / .2)"/>' +
-    '<g class="bx-body"><path d="M8.5 31.5H55.5V52Q55.5 56.5 51 56.5H13Q8.5 56.5 8.5 52Z" fill="' + c + '"' + ol + '/>' +
-    '<path d="M10 48.5H54V52Q54 55 51 55H13Q10 55 10 52Z" fill="' + dk + '" opacity=".28"/>' + band(13.5, 31.5, 25) + band(44, 31.5, 25) + '</g>' +
-    '<g class="bx-lid"><path d="M6.5 32V22.5Q6.5 12 17 12H47Q57.5 12 57.5 22.5V32Z" fill="' + c + '"' + ol + '/>' +
-    '<path d="M11.5 21.5Q12 16.2 17.5 16.2H46.5Q52 16.2 52.5 21.5" stroke="' + lt + '" stroke-width="3.2" fill="none"' + ART_OL + '/>' +
-    band(13.5, 12, 19) + band(44, 12, 19) + '<rect x="5.5" y="29" width="53" height="5.5" rx="2.6" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.3"/></g>' +
-    '<path d="M26 27H38V37Q38 41.8 32 43.6Q26 41.8 26 37Z" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.5"' + ART_OL + '/>' +
-    (kind >= 4 ? '<path d="M32 29.6L35.4 33.4L32 38.6L28.6 33.4Z" fill="' + (kind === 5 ? '#8B4DF0' : '#FF5A7A') + '" stroke="' + t[1] + '" stroke-width="1"/><path d="M32 29.6L33.6 33.4H30.4Z" fill="#fff" opacity=".55"/>'
-      : '<circle cx="32" cy="32.8" r="2.4" fill="' + dk + '"/><path d="M30.8 34.2H33.2L33.8 38.6H30.2Z" fill="' + dk + '"/>') +
-    (kind >= 3 ? shine(7, 9, 0.9) + shine(57.5, 6.5, 0.7) : '') + (kind >= 5 ? shine(60, 41, 0.6) + shine(3.5, 44, 0.55) : ''));
+  const c = kind === 0 ? '#9AA1B2' : BOXES[kind].c, lt = tone(c, 0.32), lt2 = tone(c, 0.6), dk = tone(c, -0.3), dk2 = tone(c, -0.5), ol = ' stroke="' + BOX_OL + '" stroke-width="2.6"' + ART_OL;
+  const bump = (x, y) => '<rect x="' + (x - 4.6) + '" y="' + (y - 4.6) + '" width="9.2" height="9.2" rx="3.4" fill="' + dk + '"' + ol + ' stroke-width="2.2"/><circle cx="' + (x - 1.2) + '" cy="' + (y - 1.4) + '" r="1.3" fill="' + lt + '"/>';
+  const glow = kind >= 4 ? '<circle cx="32" cy="35" r="31" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".22"/><circle cx="32" cy="35" r="23" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".2"/>' : '';
+  return artSvg('bx r' + kind, glow +
+    '<ellipse cx="32" cy="59.5" rx="25" ry="3.4" fill="rgb(0 0 0 / .22)"/>' +
+    '<g class="bx-body"><path d="M7 33H57V50Q57 57.5 49.5 57.5H14.5Q7 57.5 7 50Z" fill="' + c + '"' + ol + '/>' +
+    '<path d="M51 34.5H55.5V50Q55.5 55 51 56Z" fill="' + dk + '" opacity=".55"/><path d="M9 51Q10 55.5 15 56H49Q54 55.5 55 51" stroke="' + dk2 + '" stroke-width="2.4" fill="none" opacity=".45"' + ART_OL + '/>' +
+    bump(9, 54.5) + bump(55, 54.5) + '</g>' +
+    '<g class="bx-lid"><path d="M23 13V8.5Q23 5.5 26 5.5H38Q41 5.5 41 8.5V13" stroke="' + BOX_OL + '" stroke-width="6.4" fill="none"' + ART_OL + '/><path d="M23 13V8.5Q23 5.5 26 5.5H38Q41 5.5 41 8.5V13" stroke="' + dk + '" stroke-width="3" fill="none"' + ART_OL + '/>' +
+    (kind >= 4 ? '<path d="M32 3L35 6.5L32 10L29 6.5Z" fill="' + (kind === 5 ? '#5BE0FF' : '#FFE27A') + '" stroke="' + BOX_OL + '" stroke-width="1.6"/>' : '') +
+    '<path d="M6 34V21Q6 12.5 14.5 12.5H49.5Q58 12.5 58 21V34Z" fill="' + lt + '"' + ol + '/>' +
+    '<path d="M11 19.5Q11.5 16.3 15.5 16.3H35" stroke="' + lt2 + '" stroke-width="3.6" fill="none"' + ART_OL + '/><circle cx="40" cy="16.4" r="1.7" fill="' + lt2 + '"/>' +
+    '<path d="M52 14.5Q56.5 15.5 56.5 21V32.5H52Z" fill="' + c + '" opacity=".6"/>' +
+    '<rect x="4.5" y="30.5" width="55" height="6" rx="3" fill="' + dk + '"' + ol + ' stroke-width="2.2"/>' +
+    bump(8.5, 15.5) + bump(55.5, 15.5) + '</g>' +
+    '<circle cx="30" cy="35" r="10" fill="' + lt2 + '"' + ol + '/><circle cx="30" cy="35" r="6.6" fill="none" stroke="' + lt + '" stroke-width="1.6"/>' +
+    '<path d="M24.6 35H35.4" stroke="' + BOX_OL + '" stroke-width="2.2" stroke-linecap="round"/><rect x="23" y="31" width="3.4" height="8" rx="1.2" fill="' + BOX_OL + '"/><rect x="33.6" y="31" width="3.4" height="8" rx="1.2" fill="' + BOX_OL + '"/>' +
+    '<path d="M57.5 36.5H61Q62.5 36.5 62.5 38V43Q62.5 44.5 61 44.5H57.5Z" fill="' + dk + '"' + ol + ' stroke-width="2"/>' +
+    (kind >= 3 ? shine(6, 7, 0.95) + shine(60, 5, 0.75) : '') + (kind >= 5 ? shine(62, 52, 0.6) + shine(2.5, 48, 0.55) : ''));
 }
 
 /* ---- the gear of the road, each drawn as the thing itself (see REWARDS) ---- */
@@ -96,3 +102,15 @@ const SKY_ART = [
     '<ellipse cx="32" cy="34" rx="29" ry="8" fill="none" stroke="#FFD76A" stroke-width="3" transform="rotate(-14 32 34)"/>' + shine(8, 10, 0.6, '#fff') + shine(56, 54, 0.5, '#fff'),
 ];
 const skyArt = (k) => artSvg('sky-art a' + k, SKY_ART[k % SKY_ART.length]());
+
+/* ---- the flame of the streak: a living fire with a face and a purple headband, the friend of the weeks in a row ---- */
+const FLAME_SVG = '<svg class="flm" viewBox="0 0 120 140" aria-hidden="true">' +
+  '<ellipse cx="60" cy="132" rx="34" ry="6" fill="rgb(120 40 0 / .25)"/>' +
+  '<g class="flm-b"><path d="M60 6Q72 26 86 30Q84 18 92 12Q108 40 106 74Q104 112 60 128Q16 112 14 74Q13 50 26 36Q30 50 38 52Q34 26 60 6Z" fill="#FF6A00" stroke="#1B1035" stroke-width="4" stroke-linejoin="round"/>' +
+  '<path d="M60 38Q70 54 80 56Q86 70 84 86Q82 112 60 118Q38 112 36 86Q35 70 44 60Q48 68 54 66Q52 52 60 38Z" fill="#FFC21F"/>' +
+  '<path d="M60 70Q68 82 72 92Q72 108 60 110Q48 108 48 94Q50 82 60 70Z" fill="#FFF1A8"/>' +
+  '<path d="M20 60Q60 44 100 60L99 70Q60 54 21 70Z" fill="#8B4DF0" stroke="#1B1035" stroke-width="3" stroke-linejoin="round"/><path d="M98 62L112 54L110 68Z" fill="#8B4DF0" stroke="#1B1035" stroke-width="3" stroke-linejoin="round"/>' +
+  '<g class="flm-eyes"><ellipse cx="46" cy="82" rx="6" ry="8" fill="#1B1035"/><ellipse cx="74" cy="82" rx="6" ry="8" fill="#1B1035"/><circle cx="48" cy="79" r="2.2" fill="#fff"/><circle cx="76" cy="79" r="2.2" fill="#fff"/></g>' +
+  '<path d="M37 72L53 76M83 72L67 76" stroke="#1B1035" stroke-width="3.6" stroke-linecap="round"/>' +
+  '<path d="M50 96Q60 106 70 96" fill="#B3261E" stroke="#1B1035" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g>' +
+  shine(16, 26, 1.1, '#FFF3B0') + shine(104, 22, 0.9, '#FFF3B0') + '</svg>';

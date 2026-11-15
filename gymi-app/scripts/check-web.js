@@ -78,7 +78,7 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   const kept = JSON.parse(await p.evaluate(() => localStorage.getItem('gymi:log:v1')) || '{}');
   check('the character is kept in the phone\'s copy', (await txt('.pf-name')) === 'ליאור' && !!kept.cfg && kept.cfg.me.name === 'ליאור' && kept.cfg.me.look.shirt === 1, kept.cfg && kept.cfg.me);
   await f.evaluate(() => { setView('workout', true); });
-  await f.click('#listBtn'); await f.waitForTimeout(300); await f.click('#finishBtn'); await f.waitForTimeout(500); await f.click('#sheetClose'); await f.waitForTimeout(300);
+  await f.click('#listBtn'); await f.waitForTimeout(300); await f.click('#finishBtn'); await f.waitForTimeout(500); if (await f.$('#stkGo')) { await f.click('#stkGo'); await f.waitForTimeout(400); } await f.click('#sheetClose'); await f.waitForTimeout(300);
   /* the backup and the export wait in the settings, behind the profile */
   await f.click('#tabbar [data-view="profile"]'); await f.waitForTimeout(300); await f.click('#setBtn'); await f.waitForTimeout(300);
   const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 8000 }).catch(() => null), f.click('#exportBtn')]);

@@ -2523,20 +2523,161 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .xi.xo,.xi.xo.on,.xi.xo.out{opacity:1;transition:none}
 .xi.xo.out{transform:translateY(-100%);transition:transform .28s cubic-bezier(.5,0,.8,.4);pointer-events:none}
 @media (prefers-reduced-motion:reduce){.xi.xo.out{transition:none}}
+/* ================= round 6: the look of a game (the owner's references): chunky shapes, thick dark outlines, glossy colour */
+:root{--ol:#1B1035}
+/* ---- the screen of a new exercise: a stage at night, the exercise on a lit podium, nothing like the set screen under it ---- */
+.xi.xo{background:radial-gradient(120% 70% at 50% 18%,#5B33D6 0%,#3A1D96 42%,#1A0C45 100%);color:#fff}
+.xi.xo::before{content:"";position:absolute;inset:-30%;background:repeating-conic-gradient(from 0deg at 50% 32%,rgb(255 255 255 / .07) 0 9deg,transparent 9deg 22deg);animation:ru-spin 40s linear infinite;pointer-events:none}
+.xo-in{position:relative}
+.xo-hero{background:none;border-radius:0;overflow:visible}
+.xo-spot{position:absolute;left:50%;top:calc(52% + 20px);width:min(96vw,470px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,#F4EFFF 0%,#E3D9FF 52%,rgb(227 217 255 / .55) 70%,rgb(227 217 255 / 0) 100%);animation:xo-spot .6s cubic-bezier(.2,.9,.3,1.2) both}
+.xo-pod{position:absolute;left:50%;bottom:4%;width:74%;height:13%;transform:translateX(-50%);border-radius:50%;background:linear-gradient(#FFD75E,#F2A91C);box-shadow:0 0 0 3px var(--ol),0 7px 0 0 #A86A07,0 7px 0 3px var(--ol);animation:xo-pod .5s cubic-bezier(.2,.9,.3,1.3) .1s both}
+.xo-cv{z-index:1}
+.xo-k{z-index:2;top:calc(14px + env(safe-area-inset-top,0px));padding:8px 18px;border-radius:12px;background:#FFD23F;color:var(--ol);font-size:16px;font-weight:900;box-shadow:0 0 0 3px var(--ol),0 5px 0 0 var(--ol);transform:translateX(-50%) rotate(-3deg);animation:xo-k .45s cubic-bezier(.2,.9,.3,1.4) both}
+@keyframes xo-k{from{opacity:0;transform:translate(-50%,-30px) rotate(-12deg)}}
+@keyframes xo-spot{from{opacity:0;transform:translate(-50%,-50%) scale(.4)}}
+@keyframes xo-pod{from{opacity:0;transform:translateX(-50%) scale(.3)}}
+.xo-t{color:#fff;font-size:clamp(28px,8vw,38px);text-shadow:0 3px 0 var(--ol),0 0 2px var(--ol);-webkit-text-stroke:1px var(--ol);paint-order:stroke fill;animation:xo-t .5s cubic-bezier(.2,.9,.3,1.35) .12s both}
+@keyframes xo-t{from{opacity:0;transform:scale(.55)}}
+.xi.xo .mus-chips span{background:rgb(255 255 255 / .16);color:#fff;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .3)}
+.xo-rx{gap:10px;animation:none}
+.xo-rx li{padding:10px 4px 9px;border-radius:16px;background:#fff;color:var(--ol);box-shadow:0 0 0 3px var(--ol),0 5px 0 0 var(--ol);animation:xo-tile .45s cubic-bezier(.2,.9,.3,1.4) both}
+.xo-rx li:nth-child(2){animation-delay:.08s}.xo-rx li:nth-child(3){animation-delay:.16s}
+.xo-rx li+li{border:0}
+.xo-rx b{color:#5B2EE0}
+.xo-rx span{color:#4A4060}
+@keyframes xo-tile{from{opacity:0;transform:translateY(24px) scale(.7)}}
+.xi.xo #xiGo{background:linear-gradient(#FFDD55,#FFC21F);color:var(--ol);font-weight:900;font-size:21px;border:0;box-shadow:0 0 0 3px var(--ol),0 6px 0 0 #B57A00,0 6px 0 3px var(--ol);text-shadow:none}
+.xi.xo #xiGo:active{transform:scale(.96)}
+.xi-back{width:auto;padding:0 14px;font-size:15px;font-weight:800;color:var(--ol);background:#fff;box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
+@media (prefers-reduced-motion:reduce){.xi.xo::before,.xo-spot,.xo-pod,.xo-rx li{animation:none}}
+/* ---- the points of a set: a gold sun bursts, the number pops on it in thick outlined letters, then all of it flies up ---- */
+.pts{gap:0}
+.pg{position:relative;display:grid;place-items:center;width:150px;height:150px;animation:pg-pop .42s cubic-bezier(.2,.9,.3,1.5) both}
+.pg-burst{position:absolute;inset:0;width:100%;height:100%;animation:ru-spin 6s linear infinite;filter:drop-shadow(0 6px 0 rgb(27 16 53 / .35))}
+.pg-n{position:relative;margin-top:-10px;font-size:46px;font-weight:900;line-height:1;letter-spacing:-.03em;color:#fff;-webkit-text-stroke:3px #1B1035;paint-order:stroke fill;text-shadow:0 4px 0 #1B1035;direction:ltr;font-variant-numeric:tabular-nums}
+.pts.pr .pg-n{font-size:52px}
+.pg-l{position:absolute;bottom:22px;padding:3px 12px;border-radius:9px;background:#5B2EE0;color:#fff;font-size:14px;font-weight:900;box-shadow:0 0 0 2.5px #1B1035;transform:rotate(-4deg)}
+.pg>i{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;background:#FFD23F;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:pts-spark .7s cubic-bezier(.2,.8,.3,1) var(--sd,0ms) both}
+.pg-pr{margin-top:-6px;padding:6px 16px;border-radius:12px;background:#FF4D6A;color:#fff;font-size:18px;font-weight:900;box-shadow:0 0 0 3px #1B1035,0 4px 0 0 #1B1035;transform:rotate(3deg);animation:pg-pop .4s cubic-bezier(.2,.9,.3,1.6) .25s both}
+@keyframes pg-pop{0%{opacity:0;transform:scale(.2) rotate(-20deg)}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.pg,.pg-burst,.pg-pr{animation:none}}
+/* ---- a box is opened: it drops onto a checkered floor, shakes, its lid flies off, light shoots up and the card flies out of it,
+   then the collection counts up by one ---- */
+.box-up{background:radial-gradient(80% 55% at 50% 45%,rgb(120 80 255 / .45),transparent 70%),repeating-conic-gradient(from 45deg,#2A1A66 0 25%,#22145A 0 50%) 50% 0/64px 64px,#22145A}
+.box-up.open{background:radial-gradient(80% 55% at 50% 45%,color-mix(in srgb,var(--rc) 55%,transparent),transparent 72%),repeating-conic-gradient(from 45deg,#2A1A66 0 25%,#22145A 0 50%) 50% 0/64px 64px,#22145A}
+.bu-box{width:210px;animation:bu-drop .7s cubic-bezier(.3,1.4,.5,1) both,bx-hop 1.5s ease-in-out .9s infinite}
+.bu-box .bx{filter:drop-shadow(0 16px 0 rgb(0 0 0 / .28))}
+@keyframes bu-drop{0%{opacity:0;transform:translateY(-110vh) scale(.8)}62%{opacity:1;transform:translateY(0) scale(1.1,.86)}80%{transform:translateY(-14px) scale(.96,1.06)}100%{transform:none}}
+.bu-hint{color:#fff;font-size:19px;font-weight:900;-webkit-text-stroke:2px #1B1035;paint-order:stroke fill;text-shadow:0 3px 0 #1B1035}
+.bu-chest{display:none}
+.box-up.open .bu-chest{position:relative;display:block;width:150px;margin-top:-6px;animation:bu-chest .5s cubic-bezier(.3,1.4,.5,1) both}
+.box-up.open .bu-chest .bx-lid{transform-box:fill-box;transform-origin:50% 100%;animation:bu-lid .7s cubic-bezier(.2,.8,.3,1) both}
+.box-up.open .bu-chest::before{content:"";position:absolute;left:50%;bottom:40%;width:120px;height:70vh;margin-left:-60px;background:linear-gradient(to top,color-mix(in srgb,var(--rc) 70%,#fff) 0%,color-mix(in srgb,var(--rc) 40%,transparent) 40%,transparent 100%);clip-path:polygon(28% 100%,72% 100%,100% 0,0 0);opacity:.7;animation:bu-beam .8s ease-out both;pointer-events:none}
+@keyframes bu-chest{from{transform:scale(1.35)}}
+@keyframes bu-lid{0%{transform:none}100%{transform:translate(-18px,-60px) rotate(-38deg);opacity:0}}
+@keyframes bu-beam{from{opacity:0;transform:scaleY(.2);transform-origin:bottom}}
+.bu-got{order:-1;gap:12px;z-index:1}
+.bu-card{position:relative;display:grid;justify-items:center;gap:8px;width:230px;padding:14px 14px 16px;border-radius:22px;background:var(--rc);box-shadow:0 0 0 4px #1B1035,0 8px 0 0 #1B1035,0 0 60px 10px color-mix(in srgb,var(--rc) 70%,transparent);animation:bu-fly .75s cubic-bezier(.2,.9,.3,1.25) both}
+.bu-card::after{content:"+1";position:absolute;top:-14px;inset-inline-end:-14px;display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#FF3B5C;color:#fff;font-size:22px;font-weight:900;box-shadow:0 0 0 3px #1B1035,0 4px 0 0 #1B1035;transform:rotate(8deg);animation:pg-pop .4s cubic-bezier(.2,.9,.3,1.6) .7s both}
+@keyframes bu-fly{0%{opacity:0;transform:translateY(46vh) scale(.15) rotate(-14deg)}55%{opacity:1;transform:translateY(-18px) scale(1.08) rotate(4deg)}100%{transform:none}}
+.bu-pic{width:190px;border-radius:16px;box-shadow:0 0 0 3px #1B1035;animation:none}
+.bu-got .rr{background:#1B1035;color:#fff;animation:none}
+.bu-got h2{color:#fff;font-weight:900;-webkit-text-stroke:2.5px #1B1035;paint-order:stroke fill;text-shadow:0 3px 0 #1B1035;animation:none}
+.bu-col{position:relative;display:grid;gap:6px;width:230px;padding-top:20px;animation:ob-rise .4s .8s both}
+.bu-col::before{content:attr(data-a) "  " attr(data-n) attr(data-of);position:absolute;top:0;left:0;right:0;text-align:center;font-size:15px;font-weight:900;color:#fff}
+.bu-col.up::before{animation:pg-pop .4s cubic-bezier(.2,.9,.3,1.8)}
+.bu-col i{display:block;height:14px;border-radius:8px;background:linear-gradient(90deg,#FFD23F calc(var(--f) * 100%),#140B3A 0);box-shadow:0 0 0 3px #1B1035;transition:background 0s}
+.bu-act .btn{font-weight:900;box-shadow:0 0 0 3px #1B1035,0 5px 0 0 #1B1035}
+.bu-act #buWear{background:linear-gradient(#FFDD55,#FFC21F);color:#1B1035}
+.bu-act{animation-delay:.9s}
+@media (prefers-reduced-motion:reduce){.bu-card,.bu-card::after,.box-up.open .bu-chest,.box-up.open .bu-chest .bx-lid,.box-up.open .bu-chest::before,.bu-col{animation:none!important}}
+/* the badges of the ranks are square */
+.medal,.pf-rank .medal,.jr-ranks .medal,.stop .dot.rk .medal,.ru-medal .medal,.jr-now .medal,.st .dot>.medal,.st.rk .dot>.medal,.lvs-art .medal{height:auto!important;aspect-ratio:1}
+.ru-medal .medal{width:190px}.jr-now .medal{width:120px}.jr-ranks .medal{width:30px}.pf-rank .medal{width:32px}.st .dot>.medal{width:62px}.st.rk .dot>.medal{width:70px}.lvs-art .medal{width:72px}
+.bu-card::after{direction:ltr}
+/* ---- the kiosk as a game shop: a bold blue room, chunky outlined cards, a dark price bar under each, tags set at a slant ---- */
+.sheet-in.ks{--ol:#1B1035;background:radial-gradient(120% 60% at 50% 0%,#3D8BFF 0%,#1F5FE0 45%,#1747B8 100%);color:#fff}
+.sheet-in.ks > .ks-awn{display:none}
+.sheet-in.ks .ks-h{padding-top:14px}
+.ks-title{color:#fff;font-size:38px;-webkit-text-stroke:3px var(--ol);paint-order:stroke fill;text-shadow:0 4px 0 var(--ol);transform:rotate(-2deg)}
+.sheet-in.ks .icon-btn{background:#fff;color:var(--ol);box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
+.sheet-in.ks .coin-tag{background:#0E2A6B;color:#fff;font-weight:900;box-shadow:0 0 0 3px var(--ol)}
+.ks-sec{padding:12px;border-radius:20px;background:rgb(10 30 90 / .28);box-shadow:inset 0 0 0 2px rgb(255 255 255 / .12)}
+.ks-sec h3{color:#fff;font-size:21px;font-weight:900;-webkit-text-stroke:2px var(--ol);paint-order:stroke fill;text-shadow:0 3px 0 var(--ol);margin:0 0 4px}
+.ks-sec h3 small{padding:4px 10px;border-radius:8px;background:var(--ol);color:#fff;font-size:12.5px;font-weight:800;-webkit-text-stroke:0;text-shadow:none;transform:rotate(-3deg)}
+.ks-bx{gap:6px;padding:0 0 0;overflow:hidden;border-radius:16px;background:linear-gradient(#7FC2FF,#3E8DF5);color:#fff;box-shadow:0 0 0 3px var(--ol),0 5px 0 0 var(--ol)}
+.ks-bx:active{transform:scale(.96);box-shadow:0 0 0 3px var(--ol),0 5px 0 0 var(--ol)}
+.ks-bx b{order:-1;width:100%;padding:6px 4px 2px;font-size:14px;font-weight:900;-webkit-text-stroke:2px var(--ol);paint-order:stroke fill;text-shadow:0 2px 0 var(--ol)}
+.ks-bx .bx{width:72px;filter:drop-shadow(0 5px 0 rgb(0 0 0 / .25))}
+.ks-bx .ks-pr,.ks-bx .ks-st{width:100%;justify-content:center;min-height:34px;margin:0;border-radius:0;background:#123A8C;color:#fff;font-size:17px;font-weight:900;box-shadow:inset 0 3px 0 var(--ol)}
+.ks-bx.far .ks-pr{background:#123A8C;color:#9DB4E6}
+.ks-boxes.wait .ks-bx{background:linear-gradient(#FFE27A,#FFB21F);color:#fff;box-shadow:0 0 0 3px var(--ol),0 5px 0 0 var(--ol)}
+.ks-boxes.wait .ks-st{background:#2FC25A;color:#fff;-webkit-text-stroke:1.5px var(--ol);paint-order:stroke fill;text-shadow:0 2px 0 var(--ol)}
+.ks-n{top:30px;inset-inline-end:6px;background:#FF3B5C;box-shadow:0 0 0 2.5px var(--ol);transform:rotate(8deg)}
+.ks-week{background:linear-gradient(#FFFFFF,#E3EEFF);color:var(--ol);box-shadow:0 0 0 3px var(--ol),0 5px 0 0 var(--ol)}
+.ks-week p{color:#3B4A6B}
+.ks-week .btn{background:linear-gradient(#5FE07F,#25B04C);color:#fff;-webkit-text-stroke:1.5px var(--ol);paint-order:stroke fill;text-shadow:0 2px 0 var(--ol);box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
+.ks-week .btn.far{background:#9DB4E6;box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
+.ks-shelf button{box-shadow:0 0 0 2.5px var(--ol)}
+.ks-shelf button[aria-checked="true"]{background:#FFD23F;color:var(--ol)}
+.ks-rar h4{color:#fff}
+.ks-rar h4 small,.sheet-in.ks .ms-sub,.sheet-in.ks .ks-none{color:#D6E4FF}
+.ks-q{border:2.5px solid var(--ol);background:color-mix(in srgb,var(--rc) 60%,#1747B8);color:#fff;font-weight:900;box-shadow:0 3px 0 0 var(--ol)}
+.ks-q.got{background:#fff}
+.ks-chance li{background:rgb(255 255 255 / .1);border-radius:12px}
+.ks-chance b,.ks-chance span{color:#fff}
+.ks-it{box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
+.ks-week .btn .ks-pr{background:none;color:inherit;box-shadow:none;padding:0;min-height:0}
+/* ---- the streak: an orange screen, the flame bouncing in its glow, the number of weeks rolling up, the weeks lighting one by one ---- */
+.stk{position:fixed;inset:0;z-index:99;display:grid;place-items:center;padding:24px;background:#FF8A00;color:#fff;text-align:center;overflow:hidden;animation:tour-fade .2s ease-out}
+.stk.out{opacity:0;transition:opacity .2s}
+.stk-glow{position:absolute;left:50%;top:34%;width:640px;height:640px;margin:-320px;border-radius:50%;background:radial-gradient(closest-side,#FFD23F 0%,rgb(255 190 40 / .6) 30%,transparent 70%),repeating-conic-gradient(rgb(255 255 255 / .12) 0 10deg,transparent 10deg 22deg);animation:ru-spin 22s linear infinite}
+.stk-in{position:relative;display:grid;justify-items:center;gap:6px;width:min(100%,360px)}
+.stk-fig{width:190px;animation:stk-in .7s cubic-bezier(.2,.9,.3,1.4) both}
+.flm{display:block;width:100%;overflow:visible}
+.flm-b{transform-origin:60px 128px;animation:stk-bob 1.1s ease-in-out .7s infinite}
+.flm-eyes{transform-origin:60px 82px;animation:av-blink 3.6s infinite}
+@keyframes stk-in{0%{opacity:0;transform:scale(.2) translateY(80px)}100%{opacity:1}}
+@keyframes stk-bob{0%,100%{transform:scale(1,1)}50%{transform:scale(1.06,.94) rotate(-2deg)}}
+.stk-n{position:relative;height:150px;width:100%;margin:6px 0 0;overflow:hidden}
+.stk-n b{position:absolute;inset:0;font-size:150px;font-weight:900;line-height:150px;letter-spacing:-.04em;-webkit-text-stroke:6px #1B1035;paint-order:stroke fill;text-shadow:0 7px 0 #1B1035}
+.stk-was{animation:stk-out .45s cubic-bezier(.5,0,.8,.4) .7s both}
+.stk-now{animation:stk-up .55s cubic-bezier(.2,.9,.3,1.5) .95s both}
+@keyframes stk-out{to{transform:translateY(-110%);opacity:0}}
+@keyframes stk-up{from{transform:translateY(110%) scale(.6);opacity:0}}
+.stk-w{margin:0;font-size:30px;font-weight:900;-webkit-text-stroke:3px #1B1035;paint-order:stroke fill;text-shadow:0 4px 0 #1B1035;animation:ob-rise .4s .9s both}
+.stk-wk{display:flex;gap:10px;margin:14px 0 18px}
+.stk-wk i{width:30px;height:30px;border-radius:50%;background:#C25E00;box-shadow:0 0 0 3px #1B1035}
+.stk-wk i.on{background:#FFD23F;animation:pg-pop .4s cubic-bezier(.2,.9,.3,1.8) var(--d) both}
+.stk-go{width:100%;border:0;background:#fff;color:#E36A00;font-weight:900;font-size:21px;box-shadow:0 0 0 3px #1B1035,0 6px 0 0 #1B1035;animation:ob-rise .4s 1.3s both}
+@media (prefers-reduced-motion:reduce){.stk-glow,.stk-fig,.flm-b,.stk-was,.stk-now,.stk-w,.stk-wk i.on,.stk-go{animation:none}.stk-was{display:none}}
+/* ---- no pictograms: a control that only had one says its word on a chunky pill; places that held one beside words are empty ---- */
+.ib{display:inline-block;font-size:14px;font-weight:800;line-height:1;white-space:nowrap;letter-spacing:0}
+button:has(> .ib),label:has(> .ib){width:auto!important;min-width:0;height:auto;min-height:38px;padding:0 13px!important;border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:0 0 0 2px var(--ink),0 3px 0 0 var(--ink);gap:0;aspect-ratio:auto}
+button:has(> .ib):disabled,button:has(> .ib)[aria-disabled="true"]{opacity:.35}
+button:has(> .ib):active{transform:scale(.95)}
+.dock.rest button:has(> .ib),.xi button:has(> .ib),.box-up button:has(> .ib),.sheet-in.ks button:has(> .ib){background:#fff;color:#1B1035;box-shadow:0 0 0 2.5px #1B1035,0 3px 0 0 #1B1035}
+.send:has(> .ib),#sendBtn{background:var(--accent)!important;color:#fff!important}
+.wr-go:empty,.h-ok:empty,.sug-i:empty,.st .ok:empty,.ob-go:empty{display:none}
+.ob-chk svg,.ob-steps li i svg{display:none}
+.tb-ic svg{width:28px;height:28px}
+.top-list:has(.ib),.back:has(.ib){margin-inline:0;min-height:36px}
+.ob-skip{min-width:64px;justify-content:center}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
-    <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><svg class="i dir" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><span class="ib">חזרה</span></button>
     <div class="logo" role="img" aria-label="gymi by Lior Dahan">
       <span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span>
       <small aria-hidden="true">by Lior Dahan</small>
     </div>
     <div class="wk-title" id="wkTitle"></div>
     <span class="sync" id="syncNote"></span>
-    <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
+    <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><span class="ib">רשימה</span></button>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
-      <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/><rect x="5.6" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="10.2" y="12.2" width="7.6" height="3.6" rx="1.2" fill="#BBA5F7"/><rect x="17.8" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="22.9" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/></svg></span><span class="tb-l">אימונים</span></button>
-      <button type="button" data-view="journey"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="2.5" y="18" width="7" height="7.5" rx="1.8" fill="#BBA5F7"/><rect x="10.5" y="13" width="7" height="12.5" rx="1.8" fill="#6D3FE0"/><rect x="18.5" y="8.2" width="7" height="17.3" rx="1.8" fill="#5229C4"/><rect x="20.3" y="1.8" width="1.5" height="7.4" rx=".7" fill="#5229C4"/><path d="M21.8 2.2h4.7l-1.4 1.9 1.4 1.9h-4.7z" fill="#F2B02E"/></svg></span><span class="tb-l">מסע</span></button>
+      <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="7" y="12.3" width="14" height="3.4" rx="1.2" fill="#C9CEDA" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="2" y="9" width="4" height="10" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="5.2" y="6.5" width="4" height="15" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="18.8" y="6.5" width="4" height="15" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="22" y="9" width="4" height="10" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><path d="M6.4 8.6V12" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></svg></span><span class="tb-l">אימונים</span></button>
+      <button type="button" data-view="journey"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M3 25L11 11L15 17L18.5 12.5L25 25Z" fill="#6FD8FF" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 11L13.2 14.6L11.6 15.6L9.6 13.4Z" fill="#fff"/><path d="M11 11V2.5" stroke="#1B1035" stroke-width="1.8" stroke-linecap="round"/><path d="M11 3H18L16.2 5.3L18 7.6H11Z" fill="#FFC83D" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="tb-l">מסע</span></button>
       <button type="button" data-view="profile"><span class="tb-ic tb-face" id="tbMe" aria-hidden="true"></span><span class="tb-l">פרופיל</span></button>
       <button type="button" id="chatOpen"><span class="tb-ic tb-face" id="tbCoach" aria-hidden="true"></span><span class="tb-l">אילון</span></button>
     </nav>
@@ -2568,20 +2709,20 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
       <div class="chat-h">
         <span class="ava" aria-hidden="true"></span>
         <div><h2>אילון</h2><p>המאמן שלך</p></div>
-        <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M19 4l1.5 1.5"/></svg></button>
-        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
-        <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><span class="ib">חיבור</span></button>
+        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה" hidden><span class="ib">חדשה</span></button>
+        <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><span class="ib">סגור</span></button>
       </div>
       <div class="msgs" id="msgs"></div>
       <div class="composer">
-        <label class="chat-ctx" for="chatCtx"><span>על</span><select id="chatCtx"></select><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></label>
-        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <label class="chat-ctx" for="chatCtx"><span>על</span><select id="chatCtx"></select></label>
+        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><span class="ib">הסר</span></button></div>
         <p class="comp-note" id="compNote" hidden></p>
         <div class="comp-row">
-          <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg></button>
-          <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M5 17l5-5 4 4 2-2 3 3"/></svg></button>
+          <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><span class="ib">מצלמה</span></button>
+          <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><span class="ib">תמונה</span></button>
           <textarea id="chatInput" rows="1" maxlength="500" placeholder="שאל את אילון" enterkeyhint="send" aria-label="הודעה לאילון"></textarea>
-          <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+          <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><span class="ib">שלח</span></button>
         </div>
         <input type="file" id="camFile" accept="image/*" capture="environment" hidden>
         <input type="file" id="galFile" accept="image/*" hidden>
@@ -3434,14 +3575,28 @@ function levelOf(xp) {
   return { lvl: n + 1, into: t - xpTo(n), need: xpStep(n + 1) };
 }
 const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 10, he: 'לוחם', en: 'Warrior' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 40, he: 'מכונה', en: 'Machine' }, { at: 70, he: 'אגדה', en: 'Legend' }, { at: 100, he: 'טיטאן', en: 'Titan' }];
-/* the medal of a rank: bronze, silver, gold, then jade, amethyst and a ruby set in gold; a star for each rank it stands for */
-const MEDAL_C = [['#D9A06B', '#93603A'], ['#D5D9E1', '#7C8492'], ['#F5C04A', '#C98F1C'], ['#7FD6C2', '#2E8F7B'], ['#B79CFF', '#6D3FE0'], ['#FFD76A', '#D7263D']];
+/* the badge of a rank, richer at every rank: a shield on a belt with a stripe for each step. Bronze; silver with wings; gold with
+   spikes; diamond; amethyst in purple flames; and the titan, red and gold in fire under a crown. Thick dark outlines, like the boxes */
+const MEDAL_C = [['#E39A55', '#9A5420', '#FFC48C'], ['#CBD3E2', '#6B7487', '#F4F7FC'], ['#FFC83D', '#A86A07', '#FFE79A'], ['#6FD8FF', '#1F7FB0', '#D2F5FF'], ['#B97BFF', '#5A1FA8', '#E4CCFF'], ['#FF5A3C', '#8F1D10', '#FFD27A']];
 function medalSVG(i) {
-  const c = MEDAL_C[i] || MEDAL_C[0], star = 'M0 -6.4l1.9 3.9 4.3.6-3.1 3 .7 4.300-3.800-2-3.800 2 .7-4.300-3.100-3 4.300-.600z';
-  const spots = [[[20, 29, 1.25]], [[14.6, 29, 0.82], [25.4, 29, 0.82]], [[20, 24.6, 0.8], [14.4, 32.6, 0.8], [25.6, 32.6, 0.8]], [[15, 25, 0.7], [25, 25, 0.7], [15, 33.4, 0.7], [25, 33.4, 0.7]], [[20, 22.6, 0.66], [13.4, 27.6, 0.66], [26.6, 27.6, 0.66], [15.8, 35, 0.66], [24.2, 35, 0.66]], [[20, 29, 1.5]]][i] || [[20, 29, 1.25]];
-  return '<svg class="medal m' + i + '" viewBox="0 0 40 48" aria-hidden="true"><path d="M10.5 1.5h7.2l2.3 13.5h-6.4zM22.300 1.5h7.200l-3.100 13.500h-6.400z" fill="' + c[1] + '"/><path d="M13.200 1.500h2.400l2 12h-2.400zM24.400 1.500h2.400l-2.600 12h-2.400z" fill="#fff" opacity=".35"/>' +
-    '<circle cx="20" cy="29" r="15" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="2.4"/><circle cx="20" cy="29" r="10.800" fill="none" stroke="' + c[1] + '" stroke-width="1.100" opacity=".55"/><path d="M9.500 22.500a12.500 12.500 0 0 1 12-6" stroke="#fff" stroke-width="1.800" stroke-linecap="round" fill="none" opacity=".55"/>' +
-    spots.map((p) => '<path transform="translate(' + p[0] + ' ' + p[1] + ') scale(' + p[2] + ')" d="' + star + '" fill="' + (i === 5 ? '#D7263D' : c[1]) + '"/>').join('') + '</svg>';
+  i = Math.max(0, Math.min(5, i | 0));
+  const c = MEDAL_C[i], O = '#1B1035', ol = ' stroke="' + O + '" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"';
+  const fire = (a, b) => '<path d="M32 2Q37 9 41 6Q41 13 47 13Q45 19 52 22L12 22Q19 19 17 13Q23 13 23 6Q27 9 32 2Z" fill="' + a + '"' + ol + '/><path d="M32 9Q35 13 38 12Q37 17 42 19H22Q27 17 26 12Q29 13 32 9Z" fill="' + b + '"/>';
+  const wing = (k) => '<path transform="translate(32 0) scale(' + k + ' 1) translate(-32 0)" d="M14 22Q4 20 2 28Q6 28 7 31Q3 33 4 38Q9 36 11 38L14 36Z" fill="' + c[2] + '"' + ol + '/>';
+  let chev = ''; const n = Math.min(3, i + 1);
+  for (let k = 0; k < n; k++) { const y = 41 - k * 6.5 + (n - 1) * 3; chev += '<path d="M23.5 ' + (y - 4) + 'L32 ' + y + 'L40.5 ' + (y - 4) + '" stroke="' + O + '" stroke-width="5.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M23.5 ' + (y - 4) + 'L32 ' + y + 'L40.5 ' + (y - 4) + '" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'; }
+  const star = i >= 3 ? '<path d="' + 'M32 16.5L33.8 20.6L38.2 21L34.9 23.9L35.9 28.3L32 26L28.1 28.3L29.1 23.9L25.8 21L30.2 20.6Z' + '" fill="#fff"' + ol + ' stroke-width="1.8"/>' : '';
+  return '<svg class="medal m' + i + '" viewBox="0 0 64 64" aria-hidden="true">' +
+    (i >= 4 ? fire(i === 5 ? '#FF7A1A' : '#9B4DFF', i === 5 ? '#FFD23F' : '#E2C2FF') : '') +
+    (i >= 1 ? wing(1) + wing(-1) : '') +
+    '<rect x="5" y="29" width="54" height="14" rx="6" fill="' + c[1] + '"' + ol + '/>' +
+    (i >= 2 ? '<path d="M18 16L20.5 6L25.5 13ZM46 16L43.5 6L38.5 13ZM28.5 11L32 1.5L35.5 11Z" fill="' + c[0] + '"' + ol + ' stroke-width="2.2"/>' : '') +
+    '<path d="M32 9L50 15.5V31Q50 47.5 32 58Q14 47.5 14 31V15.5Z" fill="' + c[0] + '"' + ol + '/>' +
+    '<path d="M32 14.5L45.5 19.5V31Q45.5 44 32 52.5Q18.5 44 18.5 31V19.5Z" fill="' + c[1] + '" opacity=".35"/>' +
+    '<path d="M19 21L32 16" stroke="' + c[2] + '" stroke-width="2.6" stroke-linecap="round"/>' +
+    (i === 3 ? '<path d="M32 9L50 15.5L32 30ZM14 31Q14 47.5 32 58L32 30Z" fill="#fff" opacity=".28"/>' : '') +
+    (i === 5 ? '<path d="M21 11L23 3L28 8L32 1L36 8L41 3L43 11Z" fill="#FFD23F"' + ol + ' stroke-width="2"/>' : '') +
+    chev + star + '</svg>';
 }
 function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
 /* the name of a rank, a reward or an achievement in the language of the page */
@@ -4134,7 +4289,7 @@ const K = {
     for (let i = 0; i < n; i++) { const y = top + i * 6.2 - (i < 4 ? lift || 0 : 0); box(g, x, y + 2.4, 18, 4.8, 0, i < 4 ? C.plate : C.eq2, 1.4); }
     ring(g, [x + 5, top + 3 * 6.2 + 2.4 - (lift || 0)], 1.5, C.accent);
   },
-  pulley(g, C, c, r) { r = r || 6; ring(g, c, r, C.eq2); ring(g, c, r - 2.3, C.bg || C.stage); ring(g, c, 1.7, C.eq2); },
+  pulley(g, C, c, r) { r = r || 6; ring(g, c, r, C.eq2); ring(g, c, r - 2.3, C.bg && C.bg !== 'none' ? C.bg : C.halo); ring(g, c, 1.7, C.eq2); },
   cable(g, C, pts) { g.strokeStyle = C.cable; g.lineWidth = 1.5; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]))); g.stroke(); },
   /* cable column with a weight stack; the pulley sits on an arm */
   tower(g, C, x, o) {
@@ -4202,9 +4357,10 @@ function def(key, o) {
 /* one frame. t: 0 = lengthened position, 1 = contracted; C.fx > 0 turns on the muscle glow */
 function renderAnim(g, key, t, C, thumb, vh) {
   const ex = ANIM[key], f = C.raw ? null : frameOf(key, C, vh), fx = C.fx;
-  g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, Math.max(SH, vh || 0));
+  /* bg 'none': the canvas is cleared and what is behind it on the page shows (the spotlight of a new exercise) */
+  if (C.bg === 'none') g.clearRect(0, 0, SW, Math.max(SH, vh || 0)); else { g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, Math.max(SH, vh || 0)); }
   if (!f) { paintAnim(g, ex, t, C, thumb); return; }
-  if (!thumb && ex.view !== 'top') { const gy = f.y + G * f.z; g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(20, gy); g.lineTo(SW - 20, gy); g.stroke(); g.lineCap = 'butt'; }
+  if (!thumb && ex.view !== 'top' && C.bg !== 'none') { const gy = f.y + G * f.z; g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(20, gy); g.lineTo(SW - 20, gy); g.stroke(); g.lineCap = 'butt'; }
   g.save(); g.translate(f.x, f.y); g.scale(f.z, f.z); C.fx = fx * f.z;
   try { paintAnim(g, ex, t, C, thumb); } finally { C.fx = fx; g.restore(); }
 }
@@ -5186,25 +5342,31 @@ const artSvg = (cls, body, vb) => '<svg class="' + cls + '" viewBox="' + (vb || 
 const shine = (x, y, k, c) => '<path transform="translate(' + x + ' ' + y + ') scale(' + k + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="' + (c || '#FFF3B0') + '"/>';
 const ART_STAR = (x, y, R, r) => { let q = ''; for (let k = 0; k < 10; k++) { const a = ((-90 + k * 36) * Math.PI) / 180, v = k % 2 ? r : R; q += (k ? 'L' : 'M') + (x + Math.cos(a) * v).toFixed(1) + ' ' + (y + Math.sin(a) * v).toFixed(1); } return q + 'Z'; };
 
-/* ---- a box of the collection: a chest in the colour of its rarity, with metal bands and a lock. The rarer, the richer:
-   gold bands from rare on, sparkles from epic on, and a glow behind the mythic and the legendary ---- */
-const BOX_TRIM = [['#E9ECF2', '#8E95A3'], ['#FFD15C', '#B07A0C'], ['#FFD15C', '#B07A0C'], ['#FFD15C', '#B07A0C'], ['#FFE07A', '#B07A0C'], ['#FFFFFF', '#B9912E']];
+/* ---- a box of the collection: a chunky toy chest in one colour, the colour of its rarity. A thick dark outline, a lighter lid
+   with a shine, rubber bumpers on the corners, a handle on top and a round plate in front with a dumbbell on it. The rarer, the
+   richer: sparkles from epic on, a gem on the handle and a glow behind the mythic and the legendary ---- */
+const BOX_OL = '#1B1035';
 function boxSVG(kind) {
   kind = BOXES[kind] ? kind : 0;
-  const c = BOXES[kind].c, dk = tone(c, -0.38), lt = tone(c, 0.34), t = BOX_TRIM[kind], ol = ' stroke="' + dk + '" stroke-width="1.8"' + ART_OL;
-  const band = (x, y, h) => '<rect x="' + x + '" y="' + y + '" width="6.5" height="' + h + '" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.3"/>';
-  return artSvg('bx r' + kind,
-    (kind >= 4 ? '<circle cx="32" cy="33" r="30" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".2"/><circle cx="32" cy="33" r="22" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".18"/>' : '') +
-    '<ellipse cx="32" cy="58.4" rx="25" ry="3.6" fill="rgb(0 0 0 / .2)"/>' +
-    '<g class="bx-body"><path d="M8.5 31.5H55.5V52Q55.5 56.5 51 56.5H13Q8.5 56.5 8.5 52Z" fill="' + c + '"' + ol + '/>' +
-    '<path d="M10 48.5H54V52Q54 55 51 55H13Q10 55 10 52Z" fill="' + dk + '" opacity=".28"/>' + band(13.5, 31.5, 25) + band(44, 31.5, 25) + '</g>' +
-    '<g class="bx-lid"><path d="M6.5 32V22.5Q6.5 12 17 12H47Q57.5 12 57.5 22.5V32Z" fill="' + c + '"' + ol + '/>' +
-    '<path d="M11.5 21.5Q12 16.2 17.5 16.2H46.5Q52 16.2 52.5 21.5" stroke="' + lt + '" stroke-width="3.2" fill="none"' + ART_OL + '/>' +
-    band(13.5, 12, 19) + band(44, 12, 19) + '<rect x="5.5" y="29" width="53" height="5.5" rx="2.6" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.3"/></g>' +
-    '<path d="M26 27H38V37Q38 41.8 32 43.6Q26 41.8 26 37Z" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.5"' + ART_OL + '/>' +
-    (kind >= 4 ? '<path d="M32 29.6L35.4 33.4L32 38.6L28.6 33.4Z" fill="' + (kind === 5 ? '#8B4DF0' : '#FF5A7A') + '" stroke="' + t[1] + '" stroke-width="1"/><path d="M32 29.6L33.6 33.4H30.4Z" fill="#fff" opacity=".55"/>'
-      : '<circle cx="32" cy="32.8" r="2.4" fill="' + dk + '"/><path d="M30.8 34.2H33.2L33.8 38.6H30.2Z" fill="' + dk + '"/>') +
-    (kind >= 3 ? shine(7, 9, 0.9) + shine(57.5, 6.5, 0.7) : '') + (kind >= 5 ? shine(60, 41, 0.6) + shine(3.5, 44, 0.55) : ''));
+  const c = kind === 0 ? '#9AA1B2' : BOXES[kind].c, lt = tone(c, 0.32), lt2 = tone(c, 0.6), dk = tone(c, -0.3), dk2 = tone(c, -0.5), ol = ' stroke="' + BOX_OL + '" stroke-width="2.6"' + ART_OL;
+  const bump = (x, y) => '<rect x="' + (x - 4.6) + '" y="' + (y - 4.6) + '" width="9.2" height="9.2" rx="3.4" fill="' + dk + '"' + ol + ' stroke-width="2.2"/><circle cx="' + (x - 1.2) + '" cy="' + (y - 1.4) + '" r="1.3" fill="' + lt + '"/>';
+  const glow = kind >= 4 ? '<circle cx="32" cy="35" r="31" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".22"/><circle cx="32" cy="35" r="23" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".2"/>' : '';
+  return artSvg('bx r' + kind, glow +
+    '<ellipse cx="32" cy="59.5" rx="25" ry="3.4" fill="rgb(0 0 0 / .22)"/>' +
+    '<g class="bx-body"><path d="M7 33H57V50Q57 57.5 49.5 57.5H14.5Q7 57.5 7 50Z" fill="' + c + '"' + ol + '/>' +
+    '<path d="M51 34.5H55.5V50Q55.5 55 51 56Z" fill="' + dk + '" opacity=".55"/><path d="M9 51Q10 55.5 15 56H49Q54 55.5 55 51" stroke="' + dk2 + '" stroke-width="2.4" fill="none" opacity=".45"' + ART_OL + '/>' +
+    bump(9, 54.5) + bump(55, 54.5) + '</g>' +
+    '<g class="bx-lid"><path d="M23 13V8.5Q23 5.5 26 5.5H38Q41 5.5 41 8.5V13" stroke="' + BOX_OL + '" stroke-width="6.4" fill="none"' + ART_OL + '/><path d="M23 13V8.5Q23 5.5 26 5.5H38Q41 5.5 41 8.5V13" stroke="' + dk + '" stroke-width="3" fill="none"' + ART_OL + '/>' +
+    (kind >= 4 ? '<path d="M32 3L35 6.5L32 10L29 6.5Z" fill="' + (kind === 5 ? '#5BE0FF' : '#FFE27A') + '" stroke="' + BOX_OL + '" stroke-width="1.6"/>' : '') +
+    '<path d="M6 34V21Q6 12.5 14.5 12.5H49.5Q58 12.5 58 21V34Z" fill="' + lt + '"' + ol + '/>' +
+    '<path d="M11 19.5Q11.5 16.3 15.5 16.3H35" stroke="' + lt2 + '" stroke-width="3.6" fill="none"' + ART_OL + '/><circle cx="40" cy="16.4" r="1.7" fill="' + lt2 + '"/>' +
+    '<path d="M52 14.5Q56.5 15.5 56.5 21V32.5H52Z" fill="' + c + '" opacity=".6"/>' +
+    '<rect x="4.5" y="30.5" width="55" height="6" rx="3" fill="' + dk + '"' + ol + ' stroke-width="2.2"/>' +
+    bump(8.5, 15.5) + bump(55.5, 15.5) + '</g>' +
+    '<circle cx="30" cy="35" r="10" fill="' + lt2 + '"' + ol + '/><circle cx="30" cy="35" r="6.6" fill="none" stroke="' + lt + '" stroke-width="1.6"/>' +
+    '<path d="M24.6 35H35.4" stroke="' + BOX_OL + '" stroke-width="2.2" stroke-linecap="round"/><rect x="23" y="31" width="3.4" height="8" rx="1.2" fill="' + BOX_OL + '"/><rect x="33.6" y="31" width="3.4" height="8" rx="1.2" fill="' + BOX_OL + '"/>' +
+    '<path d="M57.5 36.5H61Q62.5 36.5 62.5 38V43Q62.5 44.5 61 44.5H57.5Z" fill="' + dk + '"' + ol + ' stroke-width="2"/>' +
+    (kind >= 3 ? shine(6, 7, 0.95) + shine(60, 5, 0.75) : '') + (kind >= 5 ? shine(62, 52, 0.6) + shine(2.5, 48, 0.55) : ''));
 }
 
 /* ---- the gear of the road, each drawn as the thing itself (see REWARDS) ---- */
@@ -5276,6 +5438,18 @@ const SKY_ART = [
 ];
 const skyArt = (k) => artSvg('sky-art a' + k, SKY_ART[k % SKY_ART.length]());
 
+/* ---- the flame of the streak: a living fire with a face and a purple headband, the friend of the weeks in a row ---- */
+const FLAME_SVG = '<svg class="flm" viewBox="0 0 120 140" aria-hidden="true">' +
+  '<ellipse cx="60" cy="132" rx="34" ry="6" fill="rgb(120 40 0 / .25)"/>' +
+  '<g class="flm-b"><path d="M60 6Q72 26 86 30Q84 18 92 12Q108 40 106 74Q104 112 60 128Q16 112 14 74Q13 50 26 36Q30 50 38 52Q34 26 60 6Z" fill="#FF6A00" stroke="#1B1035" stroke-width="4" stroke-linejoin="round"/>' +
+  '<path d="M60 38Q70 54 80 56Q86 70 84 86Q82 112 60 118Q38 112 36 86Q35 70 44 60Q48 68 54 66Q52 52 60 38Z" fill="#FFC21F"/>' +
+  '<path d="M60 70Q68 82 72 92Q72 108 60 110Q48 108 48 94Q50 82 60 70Z" fill="#FFF1A8"/>' +
+  '<path d="M20 60Q60 44 100 60L99 70Q60 54 21 70Z" fill="#8B4DF0" stroke="#1B1035" stroke-width="3" stroke-linejoin="round"/><path d="M98 62L112 54L110 68Z" fill="#8B4DF0" stroke="#1B1035" stroke-width="3" stroke-linejoin="round"/>' +
+  '<g class="flm-eyes"><ellipse cx="46" cy="82" rx="6" ry="8" fill="#1B1035"/><ellipse cx="74" cy="82" rx="6" ry="8" fill="#1B1035"/><circle cx="48" cy="79" r="2.2" fill="#fff"/><circle cx="76" cy="79" r="2.2" fill="#fff"/></g>' +
+  '<path d="M37 72L53 76M83 72L67 76" stroke="#1B1035" stroke-width="3.6" stroke-linecap="round"/>' +
+  '<path d="M50 96Q60 106 70 96" fill="#B3261E" stroke="#1B1035" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g>' +
+  shine(16, 26, 1.1, '#FFF3B0') + shine(104, 22, 0.9, '#FFF3B0') + '</svg>';
+
 /* ================================================================== helpers + data layer */
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -5286,23 +5460,14 @@ const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR, MAX_SETS = 8, MAX_KG =
 /* a weight and a rep count as they may be kept: no weight is null, and nothing beyond what a set can be */
 const capKg = (kg) => (typeof kg !== 'number' || !(kg > 0) ? null : Math.min(MAX_KG, Math.round(kg * 100) / 100));
 const capReps = (r) => (typeof r !== 'number' || !(r >= 0.5) ? null : Math.min(MAX_REPS, Math.max(1, Math.round(r))));
+/* no pictograms anywhere (the owner, round 6): a control that had only a picture says in a word what it does, on a chunky button.
+   Words and states that had a picture beside them stand on their own */
+const ibw = (t) => '<span class="ib">' + t + '</span>';
 const ICON = {
-  check: '<svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-  x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-  send: '<svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
-  stop: '<svg class="i" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>',
-  down: '<svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
-  up: '<svg class="i" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
-  go: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
-  pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
-  fwd: '<svg class="i dir" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
-  back: '<svg class="i dir" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
-  bell: '<svg class="i" viewBox="0 0 24 24"><path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/></svg>',
-  swap: '<svg class="i" viewBox="0 0 24 24"><path d="M5 8.5h13l-3.5-3.5M19 15.5H6l3.5 3.5"/></svg>',
-  undo: '<svg class="i dir" viewBox="0 0 24 24"><path d="M15 5l5 5-5 5"/><path d="M20 10H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>',
-  info: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.5M12 7.6h.01"/></svg>',
-  clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3 2"/></svg>',
-  dots: '<svg class="i" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg>',
+  get check() { return ''; }, get x() { return ibw(say('סגור', 'Close')); }, get send() { return ibw(say('שלח', 'Send')); }, get stop() { return ibw(say('עצור', 'Stop')); },
+  get down() { return ibw(say('פתח', 'Open')); }, get up() { return ibw(say('למעלה', 'Up')); }, get go() { return ''; }, get pin() { return ''; },
+  get fwd() { return ''; }, get back() { return ibw(say('חזרה', 'Back')); }, get bell() { return ''; }, get swap() { return ''; },
+  get undo() { return ibw(say('בטל', 'Undo')); }, get info() { return ''; }, get clock() { return ''; }, get dots() { return ''; },
 };
 /* S.sessions: id -> one workout:
    { id, v, w (workout 0-3), ts (start), end, mt, upd, sets: { slotId: [ { kg, reps, done, t, pr, tk, tr } ] },
@@ -6141,7 +6306,7 @@ function fitCanvas(cv) {
 function paintStage(t) {
   if (!player.cv) return;
   const g = player.g, k = player.cv.width / SW;
-  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = player.bg || C.surface; renderAnim(g, player.key, t, C, false, player.vh); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
+  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = player.bg || C.surface; C.halo = player.bg === 'none' ? '#E9E1FF' : C.bg; renderAnim(g, player.key, t, C, false, player.vh); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
 }
 function frame(now) {
   /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
@@ -6305,7 +6470,7 @@ function weekHTML(Wm, easy) {
     const sub = x.st === 'done' ? say('הושלם ', 'Done ') + dayWord(x.when) : x.st === 'live' ? x.dn + say(' מתוך ', ' of ') + x.total + say(' סטים', ' sets') : wkMus(x.i) + ' · ' + x.mins + say(' דק׳', ' min');
     const end = x.st === 'live' ? '<span class="wr-tag">' + say('באמצע', 'In progress') + '</span>' : x.st === 'next' ? '<span class="wr-tag">' + say('הבא', 'Next') + '</span>' : x.st === 'done' ? '' : '<span class="wr-go">' + ICON.fwd + '</span>';
     return '<li style="--i:' + x.k + '"><button class="tab ' + wkTone(x.i) + ' ' + x.st + '" type="button" data-tab="' + x.i + '" aria-label="' + x.label + '"' + (x.cur ? ' aria-current="true"' : '') + '>' +
-      '<span class="dot" aria-hidden="true">' + (x.st === 'done' ? ICON.check : x.k + 1) + '</span><span class="wr-txt"><b>' + wkName(x.i) + '</b><span>' + sub + '</span>' +
+      '<span class="dot" aria-hidden="true">' + (x.k + 1) + '</span><span class="wr-txt"><b>' + wkName(x.i) + '</b><span>' + sub + '</span>' +
       (x.st === 'live' ? '<span class="wr-bar" aria-hidden="true"><i style="width:' + Math.round((x.dn / Math.max(1, x.total)) * 100) + '%"></i></span>' : '') + '</span>' + end + '</button></li>';
   };
   const n = Wm.items.length;
@@ -6350,7 +6515,7 @@ function rowHTML(e, i, s) {
   const dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets, part = dn > 0 && !full && !off;
   return '<li class="ex' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
     '<button class="ex-head" type="button">' +
-    '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span>' +
+    '<span class="ex-n">' + (off ? '–' : i + 1) + '</span>' +
     '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (e.cut ? '<span class="ex-sub">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + '</span>' +
     '<span class="ex-rx' + (part ? ' part' : '') + '">' + (part ? dn + say(' מתוך ', ' of ') + e.sets : cnt(off ? e.n0 : e.sets, 'סטים', 'סט אחד', 'sets', 'set') + ' · ' + Ltr(e.reps) + say(' חז׳', ' reps')) + '</span>' +
     '</button></li>';
@@ -6366,7 +6531,7 @@ function setsHTML(e) {
     const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + rowWords(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + rowWords(T) : '');
     const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
-      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row, e.mv) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
+      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + say('שיא', 'Best') + '</span>' : '') + '<span class="v">' + setVal(row, e.mv) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
   }
   if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב', 'Off today because of pain.')) + '</p>';
   return h;
@@ -6412,9 +6577,9 @@ function bodyHTML(e) {
 function focusHTML(e, i, n) {
   const off = e.cut && e.sets === 0, s = live(S.tab), full = !off && doneCount(s, e) >= e.sets;
   return '<li class="ex open' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
-    '<div class="fx-head"><button class="fx-nav" id="exPrev" type="button" aria-label="' + say('התרגיל הקודם', 'Previous exercise') + '"' + (i > 0 ? '' : ' disabled') + '>' + ICON.back + '</button>' +
+    '<div class="fx-head"><button class="fx-nav" id="exPrev" type="button" aria-label="' + say('התרגיל הקודם', 'Previous exercise') + '"' + (i > 0 ? '' : ' disabled') + '>' + ibw(say('הקודם', 'Prev')) + '</button>' +
     '<div class="fx-t"><h1 class="ex-name">' + e.nm + '</h1><p class="fx-rx">' + rxLine(e, s) + '</p></div>' +
-    '<button class="fx-nav" id="exNext" type="button" aria-label="' + say('התרגיל הבא', 'Next exercise') + '"' + (i < n - 1 ? '' : ' disabled') + '>' + ICON.fwd + '</button></div>' +
+    '<button class="fx-nav" id="exNext" type="button" aria-label="' + say('התרגיל הבא', 'Next exercise') + '"' + (i < n - 1 ? '' : ' disabled') + '>' + ibw(say('הבא', 'Next')) + '</button></div>' +
     '<div class="ex-body" id="body-' + e.id + '">' + bodyHTML(e) + '</div></li>';
 }
 /* ---- the details of an exercise, one tap away: what it asks, how it is done, what was done last time, the lifter's own note,
@@ -6833,13 +6998,13 @@ function exIntro(e, first) {
   const rm = restMins(e);
   box.className = 'xi xo';
   box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
-    (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
-    '<div class="xo-hero"><canvas class="xo-cv" aria-hidden="true"></canvas><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p></div>' +
+    (back ? '<button class="xi-back" id="xiBack" type="button">' + say('חזרה', 'Back') + '</button>' : '') +
+    '<div class="xo-hero"><span class="xo-spot" aria-hidden="true"></span><span class="xo-pod" aria-hidden="true"></span><canvas class="xo-cv" aria-hidden="true"></canvas><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p></div>' +
     '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
     '<button class="btn primary big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
   box.classList.remove('out'); box.hidden = false; box.classList.add('on');
-  startPlayer($('.xo-cv', box), e.a, box, cssVar('--xo-bg'));
+  startPlayer($('.xo-cv', box), e.a, box, 'none');
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
 }
@@ -6980,7 +7145,11 @@ function finishWorkout() {
   const M = S.cfg.meso;
   if (s.m === M.id && mesoDone(M)) showMesoSummary(M.id, s, R);
   else if (s.m === M.id && !s.dl && !M.early && M.asked !== s.id && fatigued()) { M.asked = s.id; saveCfg(); showDeloadOffer(s, R); }
-  else showSummary(s, R);
+  else {
+    /* the first workout of a week lights the flame of the weeks in a row first, then the summary */
+    const first = !was && Object.values(S.sessions).filter((x) => x.end && x.id !== s.id && weekIdx(x.ts) === weekIdx(s.ts) && tally(x).sets).length === 0;
+    if (first) streakShow(P.X.streak, () => showSummary(s, R)); else showSummary(s, R);
+  }
   window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
 }
 /* ---- fix the record afterwards: edit any set of a finished workout, move it to another day, reopen or delete it ---- */
@@ -7005,7 +7174,7 @@ function openEditor(id, all) {
       list += '<div class="ed-row' + (on ? ' on' : '') + '" data-ex="' + e.id + '" data-i="' + i + '"><span>' + say('סט ', 'Set ') + (i + 1) + '</span>' +
         '<label class="ed-f"><input type="text" inputmode="decimal" autocomplete="off" data-k="kg" aria-label="' + say('משקל בסט ', 'Weight in set ') + (i + 1) + '" value="' + (on && row.kg != null ? fmtKg(row.kg) : '') + '"><span>' + say('ק״ג', 'kg') + '</span></label><span aria-hidden="true">×</span>' +
         '<label class="ed-f"><input type="text" inputmode="numeric" autocomplete="off" data-k="reps" aria-label="' + say('חזרות בסט ', 'Reps in set ') + (i + 1) + '" value="' + (on && row.reps != null ? row.reps : '') + '"><span>' + say('חז׳', 'reps') + '</span></label>' +
-        '<button class="ed-clr" type="button" aria-label="' + say('נקה את סט ', 'Clear set ') + (i + 1) + '">' + ICON.x + '</button></div>';
+        '<button class="ed-clr" type="button" aria-label="' + say('נקה את סט ', 'Clear set ') + (i + 1) + '">' + ibw(say('נקה', 'Clear')) + '</button></div>';
     }
     list += '</section>';
   }
@@ -7389,13 +7558,16 @@ function haptic(kind) {
 /* sound and touch together, for the moments that earn both */
 function feel(kind, touch) { sfx(kind); haptic(touch || (kind === 'set' ? 'success' : kind === 'pr' ? 'pr' : 'heavy')); }
 /* points that fly up from where they were earned */
+/* the burst behind the points of a set: a sun of sixteen rays, gold with a dark outline, turning slowly */
+const PG_BURST = (() => { let d = ''; for (let k = 0; k < 32; k++) { const a = (k / 32) * Math.PI * 2, v = k % 2 ? 34 : 48; d += (k ? 'L' : 'M') + (50 + Math.cos(a) * v).toFixed(1) + ' ' + (50 + Math.sin(a) * v).toFixed(1); }
+  return '<svg class="pg-burst" viewBox="0 0 100 100" aria-hidden="true"><path d="' + d + 'Z" fill="#FFC928" stroke="#1B1035" stroke-width="3" stroke-linejoin="round"/><circle cx="50" cy="50" r="28" fill="#FFE27A"/></svg>'; })();
 function popGain(n, pr) {
   if (!(n > 0) || reduced) return;
   for (const o of $$('.pts')) o.remove();
   const f = document.createElement('div'); f.className = 'pts' + (pr ? ' pr' : ''); f.setAttribute('aria-hidden', 'true');
   let sparks = ''; const cnt = pr ? 10 : 6;
   for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + 0.4, d = pr ? 92 : 74; sparks += '<i style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d * 0.55).toFixed(0) + 'px;--sd:' + (i * 18) + 'ms"></i>'; }
-  f.innerHTML = '<span class="pts-pill">' + sparks + glyph('bolt') + '<b>' + Ltr('+' + nf(n)) + '</b></span>' + (pr ? '<span class="pts-tag">' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : '');
+  f.innerHTML = '<span class="pg">' + sparks + PG_BURST + '<b class="pg-n">' + Ltr('+' + nf(n)) + '</b><span class="pg-l">' + say('נקודות', 'points') + '</span></span>' + (pr ? '<span class="pg-pr">' + say('שיא חדש', 'New best') + '</span>' : '');
   document.body.appendChild(f); setTimeout(() => f.remove(), pr ? 2400 : 1700);
   requestAnimationFrame(() => { f.style.top = laneTop(); });
 }
@@ -7585,7 +7757,7 @@ function builderHTML(w) {
     const k = ids.indexOf(e.id);
     return '<div class="bl-row"><span class="bl-n"><b>' + e.nm + '</b><small>' + muName(LIB[e.mv].p) + ' · ' + Ltr(e.reps) + '</small></span>' +
       (k < 0 ? '<small class="bl-once">' + say('רק היום', 'Today only') + '</small>'
-        : ed ? '<div class="bl-ed"><button type="button" data-mvs="' + e.id + '" data-d="-1" aria-label="' + say('הזז למעלה', 'Move up') + '"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.up + '</button><button type="button" data-mvs="' + e.id + '" data-d="1" aria-label="' + say('הזז למטה', 'Move down') + '"' + (k >= ids.length - 1 ? ' disabled' : '') + '>' + ICON.down + '</button><button class="rm" type="button" data-rm="' + e.id + '" aria-label="' + say('הסר את ', 'Remove ') + e.nm + '"' + (ids.length <= 1 ? ' disabled' : '') + '>' + ICON.x + '</button></div>'
+        : ed ? '<div class="bl-ed"><button type="button" data-mvs="' + e.id + '" data-d="-1" aria-label="' + say('הזז למעלה', 'Move up') + '"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.up + '</button><button type="button" data-mvs="' + e.id + '" data-d="1" aria-label="' + say('הזז למטה', 'Move down') + '"' + (k >= ids.length - 1 ? ' disabled' : '') + '>' + ibw(say('למטה', 'Down')) + '</button><button class="rm" type="button" data-rm="' + e.id + '" aria-label="' + say('הסר את ', 'Remove ') + e.nm + '"' + (ids.length <= 1 ? ' disabled' : '') + '>' + ibw(say('הסר', 'Remove')) + '</button></div>'
         : '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (dl || e.n0 <= Math.max(1, rowsOf(s, e.id).filter(isDone).length) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div>') + '</div>';
   }).join('') + '</div><div class="bl-act"><button class="link" type="button" data-addw="' + w + '">' + say('+ הוסף תרגיל', '+ Add exercise') + '</button><button class="link" type="button" data-bled="' + w + '">' + (ed ? say('סיום', 'Done') : say('סידור והסרה', 'Reorder and remove')) + '</button></div>';
 }
@@ -7746,7 +7918,8 @@ const GLYPH = {
 /* the streak's flame: drawn in two tones, not a line icon */
 const flameSVG = () => '<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.4 1.6c.5 3.6 6 6 6 12a6.4 6.4 0 0 1-12.8 0c0-2.5 1.1-4.4 2.6-5.7.3 1.8 1 2.9 2.1 3.5-.4-3.6.4-7 2.1-9.8z" fill="var(--flame)"/><path d="M12.1 11.6c.5 1.7 2.7 2.7 2.7 5.2a2.8 2.8 0 0 1-5.6 0c0-2.1 1.9-3 2.9-5.2z" fill="var(--flame-2)"/></svg>';
 /* the colours a medal can have: fill and darker edge */
-const glyph = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + GLYPH[k] + '</svg>';
+/* no pictograms (round 6): a glyph is gone wherever it stood beside words; the two buttons that were only a glyph say their word */
+const glyph = (k) => (k === 'pen' ? '<span class="ib">' + say('עריכה', 'Edit') + '</span>' : k === 'gear' ? '<span class="ib">' + say('הגדרות', 'Settings') + '</span>' : '');
 const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
 const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '') + ' style="width:' + p + '%"></i></span>';
@@ -7879,17 +8052,21 @@ function shieldBuyNow() {
 /* what came out of a box, on the whole screen: the box waits for a tap, shakes, and opens on the thing in the colour of its rarity */
 function boxReveal(it, kind) {
   const old = $('#boxUp'); if (old) old.remove();
-  const r = rareOf(it), lvl = meNow().L.lvl, el = document.createElement('div');
+  const r = rareOf(it), lvl = meNow().L.lvl, el = document.createElement('div'), have = ownedOf(S.cfg.me.shop);
   el.id = 'boxUp'; el.className = 'box-up'; el.style.setProperty('--rc', r.c); el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', nm(BOXES[kind]));
   el.innerHTML = '<canvas class="confetti" id="buConf" aria-hidden="true"></canvas><div class="bu-in"><span class="bu-rays" aria-hidden="true"></span>' +
     '<button class="bu-box" id="buBox" type="button" aria-label="' + say('לפתוח את הקופסה', 'Open the box') + '">' + boxSVG(kind) + '</button><p class="bu-hint" id="buHint">' + say('לחץ על הקופסה', 'Tap the box') + '</p>' +
-    '<div class="bu-got" id="buGot" hidden><span class="bu-pic">' + cropFig(it, lvl) + '</span>' + rareTag(it) + '<h2>' + nm(it) + '</h2>' +
-    '<div class="bu-act"><button class="btn big" id="buWear" type="button">' + say('ללבוש', 'Put it on') + '</button><button class="btn big ghost" id="buOk" type="button">' + say('המשך', 'Continue') + '</button></div></div></div>';
+    '<div class="bu-got" id="buGot" hidden><div class="bu-card"><span class="bu-pic">' + cropFig(it, lvl) + '</span>' + rareTag(it) + '<h2>' + nm(it) + '</h2></div>' +
+    /* the collection, counted up by the one that came: its words are drawn by the style, so the text of the box stays the thing's own */
+    '<span class="bu-col" id="buCol" aria-hidden="true" data-a="' + say('האוסף שלך', 'Your collection') + '" data-n="' + Math.max(0, have - 1) + '" data-of="' + say(' מתוך ', ' of ') + SHOP.length + '" style="--f:' + (Math.max(0, have - 1) / SHOP.length).toFixed(3) + '"><i></i></span>' +
+    '<div class="bu-act"><button class="btn big" id="buWear" type="button">' + say('ללבוש', 'Put it on') + '</button><button class="btn big ghost" id="buOk" type="button">' + say('המשך', 'Continue') + '</button></div></div>' +
+    '<span class="bu-chest" aria-hidden="true">' + boxSVG(kind) + '</span></div>';
   $('#app').appendChild(el);
   let step = 0;
   const show = () => {
     if (step > 1 || !el.isConnected) return; step = 2;
     el.classList.remove('shake'); el.classList.add('open'); $('#buBox').hidden = true; $('#buHint').hidden = true; $('#buGot').hidden = false;
+    setTimeout(() => { const c = $('#buCol'); if (c) { c.dataset.n = have; c.style.setProperty('--f', (have / SHOP.length).toFixed(3)); c.classList.add('up'); } }, reduced ? 0 : 1100);
     el.setAttribute('aria-label', say('בקופסה ', 'In the box: ') + nm(it) + ', ' + nm(r));
     if (it.wk == null && it.r >= 3) { feel('glory', 'heavy'); confetti($('#buConf'), it.r >= 4 ? 110 : 70); } else if (it.r === 2) { sfx('pr'); haptic('success'); } else feel('coin', 'success');
     setTimeout(() => { const b = $('#buWear'); if (b) b.focus({ preventScroll: true }); }, 60);
@@ -7898,7 +8075,7 @@ function boxReveal(it, kind) {
     if (step) return; step = 1; el.classList.add('shake'); haptic('select');
     /* four rising ticks while the box shakes, then it opens */
     if (!reduced) [0, 1, 2, 3].forEach((k) => setTimeout(() => { if (step === 1) sfx('set', k * 3); }, k * 210));
-    setTimeout(show, reduced ? 0 : 900);
+    setTimeout(show, reduced ? 0 : 750);
   };
   const done = (wear) => {
     if (wear) { const me = S.cfg.me, next = shopWear(me.shop, it.id, true); if (next) { me.shop = next; saveCfg(); } }
@@ -8306,6 +8483,24 @@ function wireMe() {
   });
   $('#journey').addEventListener('click', (ev) => { const b = ev.target.closest('button[data-lv]'); if (b) openLevel(+b.dataset.lv); });
 }
+/* ---- the weeks in a row, on the whole screen: the first workout of a week lights the flame. The number counts up from last week's,
+   the weeks of the run light one by one, and a tap goes on to the summary ---- */
+function streakShow(n, then) {
+  if (window.__streak === false || !(n > 0)) { if (then) then(); return; }
+  const old = $('#stk'); if (old) old.remove();
+  const el = document.createElement('div'); el.id = 'stk'; el.className = 'stk'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+  const word = n === 1 ? say('שבוע ברצף', 'week streak') : say('שבועות ברצף', 'week streak'), k = Math.min(6, Math.max(n, 3));
+  el.setAttribute('aria-label', n + ' ' + word);
+  let wk = ''; for (let i = 0; i < k; i++) wk += '<i class="' + (i >= k - n ? 'on' : '') + '" style="--d:' + (900 + i * 110) + 'ms"></i>';
+  el.innerHTML = '<span class="stk-glow" aria-hidden="true"></span><div class="stk-in"><span class="stk-fig">' + FLAME_SVG + '</span>' +
+    '<p class="stk-n" aria-hidden="true"><b class="stk-was">' + (n - 1) + '</b><b class="stk-now">' + n + '</b></p><p class="stk-w">' + word + '</p>' +
+    '<span class="stk-wk" aria-hidden="true">' + wk + '</span><button class="btn big stk-go" id="stkGo" type="button">' + say('המשך', 'Continue') + '</button></div>';
+  $('#app').appendChild(el); feel('glory', 'heavy');
+  const done = () => { el.classList.add('out'); setTimeout(() => { el.remove(); if (then) then(); }, reduced ? 0 : 220); };
+  el.addEventListener('click', (ev) => { if (ev.target.closest('#stkGo')) done(); });
+  overlayKeys(el, done);
+  setTimeout(() => { const b = $('#stkGo'); if (b) b.focus({ preventScroll: true }); }, 60);
+}
 
 /* ================================================================== chat with the coach, Eilon
    He answers in a line or two, about training only. Three things keep him there, one behind the other:
@@ -8499,7 +8694,7 @@ function loggedHTML(m, idx) {
   return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span>' + (canUnlog(m) ? '<button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button>' : '') + '</div>';
 }
 /* first things to ask, each with its sign */
-const SUG_I = () => [ICON.swap, '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>', ICON.info, ICON.bell, '<svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.300-7-9.600A4 4 0 0 1 12 8a4 4 0 0 1 7 2.400C19 15.700 12 20 12 20z"/></svg>'];
+const SUG_I = () => ['', '', '', '', '', '', '', ''];
 const SUGS = () => [say('המכשיר תפוס מה במקום', 'The machine is taken. What instead?'), say('צילמתי מכשיר הוא מתאים', 'I took a photo of a machine. Does it fit?'), say('איך עושים את התרגיל הזה', 'How do I do this exercise?'), say('כמה משקל לשים היום', 'How much weight today?'), say('משהו כואב לי מה לעשות', 'Something hurts. What do I do?')];
 /* the four that open the chat, in the order they are asked most */
 const SUG_SHOW = [0, 3, 2, 4];
@@ -8725,6 +8920,8 @@ const autoLang = () => (Object.keys(S.sessions).length || S.cfg.me.made || /^(he
 const STATIC = () => [
   ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
   ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
+  ['#backBtn .ib', '', say('חזרה', 'Back')], ['#listBtn .ib', '', say('רשימה', 'List')], ['#chatKey .ib', '', say('חיבור', 'Key')], ['#chatNew .ib', '', say('חדשה', 'New')],
+  ['#chatClose .ib', '', say('סגור', 'Close')], ['#camBtn .ib', '', say('מצלמה', 'Camera')], ['#galBtn .ib', '', say('תמונה', 'Photo')], ['#attachX .ib', '', say('הסר', 'Remove')], ['#sendBtn .ib', '', say('שלח', 'Send')],
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
   ['#tabbar [data-view="home"] .tb-l', '', say('אימונים', 'Workouts')],
   ['#tabbar [data-view="profile"] .tb-l', '', say('פרופיל', 'Profile')],
@@ -8992,7 +9189,7 @@ function obHTML() {
     body = '<div class="ob-done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi> ' + say('הכול מוכן', 'you are all set') : say('הכול מוכן', 'You are all set')) + '</h1>' +
       '<p class="ob-sub">' + say('כל אימון מקרב אותך לרמה 100', 'Every workout takes you closer to level 100') + '</p>' +
       '<div class="ob-ladder" aria-hidden="true"><figure class="now"><span class="ob-fig">' + avatar(1) + '</span>' + cap(say('היום', 'Today'), say('רמה 1', 'Level 1')) + '</figure>' +
-      '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span>' +
+      '' +
       '<figure class="max"><span class="ob-fig">' + avatar(100) + '</span>' + cap(say('המטרה', 'The goal'), say('רמה 100', 'Level 100')) + '</figure></div>' +
       '<p class="ob-note">' + say('האפליקציה לא מחליפה ייעוץ רפואי', 'The app does not replace medical advice') + '</p></div>';
   }

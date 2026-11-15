@@ -322,7 +322,7 @@ const K = {
     for (let i = 0; i < n; i++) { const y = top + i * 6.2 - (i < 4 ? lift || 0 : 0); box(g, x, y + 2.4, 18, 4.8, 0, i < 4 ? C.plate : C.eq2, 1.4); }
     ring(g, [x + 5, top + 3 * 6.2 + 2.4 - (lift || 0)], 1.5, C.accent);
   },
-  pulley(g, C, c, r) { r = r || 6; ring(g, c, r, C.eq2); ring(g, c, r - 2.3, C.bg || C.stage); ring(g, c, 1.7, C.eq2); },
+  pulley(g, C, c, r) { r = r || 6; ring(g, c, r, C.eq2); ring(g, c, r - 2.3, C.bg && C.bg !== 'none' ? C.bg : C.halo); ring(g, c, 1.7, C.eq2); },
   cable(g, C, pts) { g.strokeStyle = C.cable; g.lineWidth = 1.5; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]))); g.stroke(); },
   /* cable column with a weight stack; the pulley sits on an arm */
   tower(g, C, x, o) {
@@ -390,9 +390,10 @@ function def(key, o) {
 /* one frame. t: 0 = lengthened position, 1 = contracted; C.fx > 0 turns on the muscle glow */
 function renderAnim(g, key, t, C, thumb, vh) {
   const ex = ANIM[key], f = C.raw ? null : frameOf(key, C, vh), fx = C.fx;
-  g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, Math.max(SH, vh || 0));
+  /* bg 'none': the canvas is cleared and what is behind it on the page shows (the spotlight of a new exercise) */
+  if (C.bg === 'none') g.clearRect(0, 0, SW, Math.max(SH, vh || 0)); else { g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, Math.max(SH, vh || 0)); }
   if (!f) { paintAnim(g, ex, t, C, thumb); return; }
-  if (!thumb && ex.view !== 'top') { const gy = f.y + G * f.z; g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(20, gy); g.lineTo(SW - 20, gy); g.stroke(); g.lineCap = 'butt'; }
+  if (!thumb && ex.view !== 'top' && C.bg !== 'none') { const gy = f.y + G * f.z; g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(20, gy); g.lineTo(SW - 20, gy); g.stroke(); g.lineCap = 'butt'; }
   g.save(); g.translate(f.x, f.y); g.scale(f.z, f.z); C.fx = fx * f.z;
   try { paintAnim(g, ex, t, C, thumb); } finally { C.fx = fx; g.restore(); }
 }

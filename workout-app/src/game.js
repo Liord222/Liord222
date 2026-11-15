@@ -33,14 +33,28 @@ function levelOf(xp) {
   return { lvl: n + 1, into: t - xpTo(n), need: xpStep(n + 1) };
 }
 const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 10, he: 'לוחם', en: 'Warrior' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 40, he: 'מכונה', en: 'Machine' }, { at: 70, he: 'אגדה', en: 'Legend' }, { at: 100, he: 'טיטאן', en: 'Titan' }];
-/* the medal of a rank: bronze, silver, gold, then jade, amethyst and a ruby set in gold; a star for each rank it stands for */
-const MEDAL_C = [['#D9A06B', '#93603A'], ['#D5D9E1', '#7C8492'], ['#F5C04A', '#C98F1C'], ['#7FD6C2', '#2E8F7B'], ['#B79CFF', '#6D3FE0'], ['#FFD76A', '#D7263D']];
+/* the badge of a rank, richer at every rank: a shield on a belt with a stripe for each step. Bronze; silver with wings; gold with
+   spikes; diamond; amethyst in purple flames; and the titan, red and gold in fire under a crown. Thick dark outlines, like the boxes */
+const MEDAL_C = [['#E39A55', '#9A5420', '#FFC48C'], ['#CBD3E2', '#6B7487', '#F4F7FC'], ['#FFC83D', '#A86A07', '#FFE79A'], ['#6FD8FF', '#1F7FB0', '#D2F5FF'], ['#B97BFF', '#5A1FA8', '#E4CCFF'], ['#FF5A3C', '#8F1D10', '#FFD27A']];
 function medalSVG(i) {
-  const c = MEDAL_C[i] || MEDAL_C[0], star = 'M0 -6.4l1.9 3.9 4.3.6-3.1 3 .7 4.300-3.800-2-3.800 2 .7-4.300-3.100-3 4.300-.600z';
-  const spots = [[[20, 29, 1.25]], [[14.6, 29, 0.82], [25.4, 29, 0.82]], [[20, 24.6, 0.8], [14.4, 32.6, 0.8], [25.6, 32.6, 0.8]], [[15, 25, 0.7], [25, 25, 0.7], [15, 33.4, 0.7], [25, 33.4, 0.7]], [[20, 22.6, 0.66], [13.4, 27.6, 0.66], [26.6, 27.6, 0.66], [15.8, 35, 0.66], [24.2, 35, 0.66]], [[20, 29, 1.5]]][i] || [[20, 29, 1.25]];
-  return '<svg class="medal m' + i + '" viewBox="0 0 40 48" aria-hidden="true"><path d="M10.5 1.5h7.2l2.3 13.5h-6.4zM22.300 1.5h7.200l-3.100 13.500h-6.400z" fill="' + c[1] + '"/><path d="M13.200 1.500h2.400l2 12h-2.400zM24.400 1.500h2.400l-2.600 12h-2.400z" fill="#fff" opacity=".35"/>' +
-    '<circle cx="20" cy="29" r="15" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="2.4"/><circle cx="20" cy="29" r="10.800" fill="none" stroke="' + c[1] + '" stroke-width="1.100" opacity=".55"/><path d="M9.500 22.500a12.500 12.500 0 0 1 12-6" stroke="#fff" stroke-width="1.800" stroke-linecap="round" fill="none" opacity=".55"/>' +
-    spots.map((p) => '<path transform="translate(' + p[0] + ' ' + p[1] + ') scale(' + p[2] + ')" d="' + star + '" fill="' + (i === 5 ? '#D7263D' : c[1]) + '"/>').join('') + '</svg>';
+  i = Math.max(0, Math.min(5, i | 0));
+  const c = MEDAL_C[i], O = '#1B1035', ol = ' stroke="' + O + '" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"';
+  const fire = (a, b) => '<path d="M32 2Q37 9 41 6Q41 13 47 13Q45 19 52 22L12 22Q19 19 17 13Q23 13 23 6Q27 9 32 2Z" fill="' + a + '"' + ol + '/><path d="M32 9Q35 13 38 12Q37 17 42 19H22Q27 17 26 12Q29 13 32 9Z" fill="' + b + '"/>';
+  const wing = (k) => '<path transform="translate(32 0) scale(' + k + ' 1) translate(-32 0)" d="M14 22Q4 20 2 28Q6 28 7 31Q3 33 4 38Q9 36 11 38L14 36Z" fill="' + c[2] + '"' + ol + '/>';
+  let chev = ''; const n = Math.min(3, i + 1);
+  for (let k = 0; k < n; k++) { const y = 41 - k * 6.5 + (n - 1) * 3; chev += '<path d="M23.5 ' + (y - 4) + 'L32 ' + y + 'L40.5 ' + (y - 4) + '" stroke="' + O + '" stroke-width="5.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M23.5 ' + (y - 4) + 'L32 ' + y + 'L40.5 ' + (y - 4) + '" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'; }
+  const star = i >= 3 ? '<path d="' + 'M32 16.5L33.8 20.6L38.2 21L34.9 23.9L35.9 28.3L32 26L28.1 28.3L29.1 23.9L25.8 21L30.2 20.6Z' + '" fill="#fff"' + ol + ' stroke-width="1.8"/>' : '';
+  return '<svg class="medal m' + i + '" viewBox="0 0 64 64" aria-hidden="true">' +
+    (i >= 4 ? fire(i === 5 ? '#FF7A1A' : '#9B4DFF', i === 5 ? '#FFD23F' : '#E2C2FF') : '') +
+    (i >= 1 ? wing(1) + wing(-1) : '') +
+    '<rect x="5" y="29" width="54" height="14" rx="6" fill="' + c[1] + '"' + ol + '/>' +
+    (i >= 2 ? '<path d="M18 16L20.5 6L25.5 13ZM46 16L43.5 6L38.5 13ZM28.5 11L32 1.5L35.5 11Z" fill="' + c[0] + '"' + ol + ' stroke-width="2.2"/>' : '') +
+    '<path d="M32 9L50 15.5V31Q50 47.5 32 58Q14 47.5 14 31V15.5Z" fill="' + c[0] + '"' + ol + '/>' +
+    '<path d="M32 14.5L45.5 19.5V31Q45.5 44 32 52.5Q18.5 44 18.5 31V19.5Z" fill="' + c[1] + '" opacity=".35"/>' +
+    '<path d="M19 21L32 16" stroke="' + c[2] + '" stroke-width="2.6" stroke-linecap="round"/>' +
+    (i === 3 ? '<path d="M32 9L50 15.5L32 30ZM14 31Q14 47.5 32 58L32 30Z" fill="#fff" opacity=".28"/>' : '') +
+    (i === 5 ? '<path d="M21 11L23 3L28 8L32 1L36 8L41 3L43 11Z" fill="#FFD23F"' + ol + ' stroke-width="2"/>' : '') +
+    chev + star + '</svg>';
 }
 function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
 /* the name of a rank, a reward or an achievement in the language of the page */

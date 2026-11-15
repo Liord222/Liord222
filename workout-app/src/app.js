@@ -62,16 +62,9 @@ function openWorkout(w, picked) {
   const s = live(w); if (!demo && !(s && hasDone(s)) && !$('#app').classList.contains('pre-on')) exIntro(shown(), true);
 }
 /* how long a workout really takes (see workMins) */
-const minsOf = (list) => workMins(list);
+/* w: the workout the list belongs to, when today it may have been cut to a time the lifter chose */
+const minsOf = (list, w) => (w != null && dayOf(w) ? workMins(list) : fullMins(list));
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
-/* the shape the journey's road is drawn in: where a stop stands across it, and how far to a side (see me.js) */
-const STOP_X = [0, 1, 0, -1], AMP = 21;
-/* friends of every look, for the screens where the lifter is not alone */
-const PALS = [{ skin: 2, hair: 4, hc: 1, beard: 0, shirt: 6, gear: false }, { skin: 4, hair: 6, hc: 0, beard: 1, shirt: 4, gear: false }, { skin: 0, hair: 8, hc: 5, beard: 0, shirt: 1, gear: false }, { skin: 3, hair: 3, hc: 0, beard: 2, shirt: 5, gear: false }];
-/* a figure beside a stop of the journey, on the side that is free: side is 'l' or 'r' on the screen, whatever the language */
-function palHTML(side, fig, words, cls) {
-  return '<span class="pal ' + side + (cls ? ' ' + cls : '') + '" dir="ltr"><span class="pal-fig" aria-hidden="true">' + fig + '</span>' + (words ? '<span class="pal-say" dir="' + (LANG === 'he' ? 'rtl' : 'ltr') + '">' + words + '</span>' : '') + '</span>';
-}
 /* the line of the road between two stops: (x in hundredths of the width, y in pixels), a curve that leaves and arrives straight down */
 const trailSeg = (x1, y1, x2, y2, on) => '<path' + (on ? ' class="on"' : '') + ' d="M' + x1 + ' ' + y1 + 'C' + x1 + ' ' + (y1 + (y2 - y1) / 2) + ' ' + x2 + ' ' + (y2 - (y2 - y1) / 2) + ' ' + x2 + ' ' + y2 + '"/>';
 /* when a workout of this week was finished, in a word: today, yesterday, the day of the week, a date once a week has passed */
@@ -93,7 +86,7 @@ function weekModel(nu) {
     const o = { i, k, st, label: wkFull(i) + ', ' + SAY[st] };
     if (st === 'done') { const x = fin[i][r0 - 1]; o.when = x.end || x.ts; }
     else {
-      const list = exList(i, on ? L : undefined); o.n = list.length; o.mins = workMins(list);
+      const list = exList(i, on ? L : undefined); o.n = list.length; o.mins = minsOf(list, i);
       if (on) { o.total = list.reduce((n, e) => n + e.sets, 0); o.dn = list.reduce((n, e) => n + doneCount(L, e), 0); }
     }
     return o;
@@ -123,8 +116,8 @@ function weekHTML(Wm, easy) {
   };
   const n = Wm.items.length;
   return '<section class="week' + (easy ? ' easy' : '') + '" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="week-h"><h2>' + (easy ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2>' +
-    '<span class="wk-meter" role="img" aria-label="' + Wm.dn + say(' מתוך ', ' of ') + n + say(' אימונים הושלמו', ' workouts done') + '">' + Wm.items.map((x) => '<i class="' + x.st + '"></i>').join('') + '<b>' + Wm.dn + say(' מתוך ', ' of ') + n + '</b></span>' +
     '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית שלי', 'My plan') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div>' +
+    '<p class="wk-meter" role="img" aria-label="' + Wm.dn + say(' מתוך ', ' of ') + n + say(' אימונים הושלמו', ' workouts done') + '"><span class="wk-segs">' + Wm.items.map((x) => '<i class="' + x.st + '"></i>').join('') + '</span><b>' + Wm.dn + say(' מתוך ', ' of ') + n + '</b></p>' +
     '<ol class="wk-list" id="tabs">' + Wm.items.map(row).join('') + '</ol>' +
     '<p class="wk-coach"><span class="ava" aria-hidden="true">' + coachFace() + '</span><span><b>' + say('אילון', 'Eilon') + '</b>' + coachSays(Wm, easy) + '</span></p></section>';
 }
@@ -134,9 +127,9 @@ function renderHome() {
   const total = list.reduce((n, e) => n + e.sets, 0), dn = s ? list.reduce((n, e) => n + doneCount(s, e), 0) : 0, Wm = weekModel(nu);
   for (const x of Wm.items) x.cur = x.i === w;
   $('#home').innerHTML = playerHTML(me) + bannerHTML() +
-    '<section class="card next ' + wkTone(w) + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + (ownName(w) ? wkOrd(w) : s ? say('באמצע', 'In progress') : say('האימון הבא', 'Up next')) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + xpPlan(list)) + '</span></div><h2>' + wkName(w) + '</h2>' +
+    '<section class="card next ' + wkTone(w) + '" aria-label="' + (s ? say('האימון שבאמצע', 'The workout in progress') : say('האימון הבא', 'The next workout')) + '"><div class="next-top"><p class="k">' + (ownName(w) ? wkOrd(w) : s ? say('באמצע', 'In progress') : say('האימון הבא', 'Up next')) + '</p><span class="xp-tag" title="' + say('נקודות על אימון מלא', 'Points for the full workout') + '">' + Ltr('+' + nf(xpPlan(list))) + '</span></div><h2>' + wkName(w) + '</h2>' +
     '<p class="mus">' + wkMus(w) + '</p>' +
-    '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list) + say(' דק׳', ' min')) + '</p>' +
+    '<p class="meta">' + (s ? dn + say(' מתוך ', ' of ') + total + say(' סטים', ' sets') : cnt(list.length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(list, w) + say(' דק׳', ' min')) + '</p>' +
     '<button class="btn primary big" id="homeGo" type="button" data-w="' + w + '">' + (s ? say('המשך אימון', 'Continue workout') : say('התחל אימון', 'Start workout')) + '</button></section>' +
     weekHTML(Wm, !!(P.m && P.dl));
 }
@@ -184,24 +177,6 @@ function setsHTML(e) {
   if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב', 'Off today because of pain.')) + '</p>';
   return h;
 }
-/* strength trend for one movement in its slot: the best set of each past workout */
-function trendHTML(e) {
-  const w = wkOf(e.id), pe = planEx(e.id), L = LIB[e.mv], pts = [];
-  for (const s of sorted().reverse()) {
-    if (s.w !== w || moveOf(pe, s) !== e.mv) continue;
-    const rows = rowsOf(s, e.id).filter((x) => isDone(x) && x.reps != null); if (!rows.length) continue;
-    const top = rows.reduce((a, b) => (score(L, b.kg, b.reps) > score(L, a.kg, a.reps) ? b : a));
-    pts.push({ v: score(L, top.kg, top.reps), row: top, ts: s.ts });
-  }
-  const P = pts.slice(-12);
-  if (P.length < 2) return '';
-  const lo = Math.min.apply(null, P.map((p) => p.v)), hi = Math.max.apply(null, P.map((p) => p.v)), X = (i) => 6 + (i * 106) / (P.length - 1), Y = (v) => 38 - ((v - lo) / (hi - lo || 1)) * 32;
-  const line = P.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.v).toFixed(1)).join(' '), last = P[P.length - 1], prevP = P[P.length - 2];
-  const d = prevP.v ? ((last.v - prevP.v) / prevP.v) * 100 : 0, cls = d > 0.4 ? 'up' : d < -0.4 ? 'dn' : '';
-  return '<div class="trend"><span class="k">' + say('הכוח שלך · ' + P.length + ' אימונים', 'Your strength · ' + P.length + ' workouts') + '</span><span class="val">' + valHTML(last.row) + '</span>' +
-    '<span class="d ' + cls + '">' + (cls === 'up' ? '▲ ' : cls === 'dn' ? '▼ ' : say('בלי שינוי', 'No change')) + (cls ? Ltr(Math.abs(d).toFixed(1) + '%') : '') + '</span>' +
-    '<svg viewBox="0 0 118 44" role="img" aria-label="' + say('מגמת הכוח ב-' + P.length + ' האימונים האחרונים', 'Strength over the last ' + P.length + ' workouts') + '"><path d="' + line + ' L112 44 L6 44 Z" fill="var(--ink-3)" opacity=".12"/><path d="' + line + '" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + X(P.length - 1).toFixed(1) + '" cy="' + Y(last.v).toFixed(1) + '" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/></svg></div>';
-}
 /* one question about the exercise that was just finished: three answers to tap. Pain is a quiet chip under them, which opens two more */
 const LOAD = () => [say('קל מדי', 'Too easy'), say('בדיוק', 'Just right'), say('כבד מדי', 'Too heavy')];
 function fbHTML(e, s, painOnly) {
@@ -236,7 +211,7 @@ const musChips = (mv) => '<p class="mus-chips tn-' + toneOf(LIB[mv].p) + '">' + 
 function bodyHTML(e) {
   return '<div class="stage-box"><div class="stage-wrap"><canvas class="stage" aria-hidden="true"></canvas></div>' +
     '<button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט', 'Details') + '</span></button>' +
-    '<button class="st-btn swp" type="button">' + ICON.swap + '<span>' + say('החלף תרגיל', 'Swap') + '</span></button></div>' +
+    '<button class="st-btn swp" type="button"' + (rowsOf(live(S.tab), e.id).some(isDone) ? ' aria-disabled="true"' : '') + '>' + ICON.swap + '<span>' + say('החלף תרגיל', 'Swap') + '</span></button></div>' +
     musChips(e.mv) +
     '<div class="sets">' + setsHTML(e) + '</div>';
 }
@@ -251,27 +226,23 @@ function focusHTML(e, i, n) {
 }
 /* ---- one tap away: the details of the exercise. What is asked, the muscles it works, and how it is done ---- */
 function openHow(id) { openMore(id); }
-/* ---- one tap away: the lifter's note, what happened before, and the less common actions ---- */
+/* ---- the details of an exercise, one tap away: what it asks, how it is done, what was done last time, the lifter's own note,
+   and two actions (ask Eilon, skip it today) ---- */
 function renderMore() {
   const e = S.open && findEx(S.open), sh = $('#sheet'); if (!e) { closeSheet(); return; }
-  const s = live(S.tab), ref = refRow(e, 0, s), tr = trendHTML(e), fu = firstUndone(s, e), T = fu >= 0 ? targetOf(e, fu, s) : null, fill = fu >= 0 && e.sets - fu > 0 && !!T && T.mode !== 'start', rated = !!s && rowsOf(s, e.id).some(isDone);
-  const dl = phase(S.tab, s).dl, inPlan = planIds(S.tab).includes(e.id), started = rowsOf(s, e.id).some(isDone), alone = exList(S.tab, s).length < 2;
-  const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => '<bdi>' + rowWords(x) + '</bdi>').join(' · ') + '</p>' : '') + tr;
-  const row = (id, ic, t, sub) => '<button class="mr-row" id="' + id + '" type="button"><i aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + ICON.fwd + '</button>';
+  const s = live(S.tab), ref = refRow(e, 0, s), rated = !!s && rowsOf(s, e.id).some(isDone), alone = exList(S.tab, s).length < 2, rm = restMins(e), r = rirOf(e, s);
   const fact = (v, t) => '<li><b>' + v + '</b><span>' + t + '</span></li>';
-  sh.innerHTML = '<div class="sheet-in mr hw" role="dialog" aria-modal="true" aria-label="' + say('פירוט התרגיל', 'Exercise details') + '"><div class="ed-h"><div><p class="kicker">' + say('פירוט התרגיל', 'Exercise details') + '</p><h2>' + e.nm + '</h2>' + (LANG === 'he' ? '<p class="en-name" lang="en">' + Ltr(esc(e.name)) + '</p>' : '') + '</div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<ul class="hw-facts">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(restText(e), say('מנוחה', 'rest')) + '</ul>' + (function () { const r = rirOf(e, s); return '<p class="hw-rir">' + (r == null ? e.int : rirText(r)) + '</p>'; })() + musChips(e.mv) +
+  sh.innerHTML = '<div class="sheet-in mr hw" role="dialog" aria-modal="true" aria-label="' + say('פירוט התרגיל', 'Exercise details') + '"><div class="ed-h"><div><h2>' + e.nm + '</h2>' + (LANG === 'he' ? '<p class="en-name" lang="en">' + Ltr(esc(e.name)) + '</p>' : '') + '</div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    musChips(e.mv) +
+    '<ul class="hw-facts">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul>' +
+    '<p class="hw-rir">' + (r == null ? e.int : rirText(r)) + '</p>' +
     '<h3 class="hw-h">' + say('איך עושים', 'How to do it') + '</h3>' +
     '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c.replace(/\d+(?:[.,]\d+)?(?:\s?[–\-×]\s?\d+(?:[.,]\d+)?)+°?/g, (m) => Ltr(m)) + '</li>').join('') + '</ul>' +
     (e.a !== e.mv || LIB[e.mv].near ? '<p class="fine">' + say('ההדמיה מראה תנועה דומה', 'The demo shows a similar movement.') + '</p>' : '') +
-    '<div class="mr-rows">' +
-    (started || alone ? '' : row('moreSkip', ICON.x, say('דלג עליו היום', 'Skip it today'), say('התוכנית לא משתנה', 'The plan stays as it is'))) +
-    row('moreAsk', ICON.info, say('שאל את אילון', 'Ask Eilon'), say('על התרגיל הזה', 'About this exercise')) + '</div>' +
-    '<label class="note"><span>' + say('הערה שנשארת עם התרגיל', 'A note that stays with this exercise') + '</span><textarea class="note-in" rows="2" maxlength="200" placeholder="' + say('גובה מושב או דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>' +
-    (e.cut || dl || !inPlan ? '' : '<div class="m-row"><span>' + say('סטים בתרגיל', 'Sets in this exercise') + '</span><div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (e.n0 <= Math.max(1, doneTop(s, e.id)) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>') +
-    '<section><h3>' + say('היסטוריה', 'History') + '</h3>' + (hist || '<p class="empty-note">' + say('עוד אין היסטוריה לתרגיל הזה', 'No history for this exercise yet.') + '</p>') + '</section>' +
-    (rated ? '<section><h3>' + say('משהו כואב', 'Something hurts') + '</h3>' + fbHTML(e, s, true) + painNote(e, s) + '</section>' : '') +
-    (fill ? '<div class="mr-acts"><button class="btn" id="moreSame" type="button">' + say('רשום את כל הסטים לפי היעד', 'Log every set at its target') + '</button></div>' : '') + '</div>';
+    (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => '<bdi>' + rowWords(x) + '</bdi>').join(' · ') + '</p>' : '') +
+    '<label class="note"><span>' + say('הערה שלי', 'My note') + '</span><textarea class="note-in" rows="1" maxlength="200" placeholder="' + say('גובה מושב או דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>' +
+    '<div class="hw-acts"><button class="btn" id="moreAsk" type="button">' + say('שאל את אילון', 'Ask Eilon') + '</button>' + (rated || alone ? '' : '<button class="btn" id="moreSkip" type="button">' + say('דלג עליו היום', 'Skip it today') + '</button>') + '</div>' +
+    (rated ? '<section><h3>' + say('משהו כואב', 'Something hurts') + '</h3>' + fbHTML(e, s, true) + painNote(e, s) + '</section>' : '') + '</div>';
 }
 function openMore(id) { if (!findEx(id)) return; S.sheet = 'more'; renderMore(); $('#sheet').hidden = false; }
 function saveNote(mv, text) {
@@ -287,9 +258,6 @@ function exSheetClick(ev, id) {
   if (fb) { onFb(fb.closest('.fbk').dataset.ex, fb.dataset.fb, +fb.dataset.v); if (S.sheet === 'more') renderMore(); return true; }
   if (ask) { S.fbPain = ask.dataset.painask; renderMore(); return true; }
   if (sn) { const q = sn.dataset.swapto.split(':'); swapNext(q[0], q[1]); renderMore(); return true; }
-  const st = S.sheet === 'more' && ev.target.closest('[data-base]');
-  if (st) { const e = findEx(st.dataset.base); if (e) { S.touched = true; delete S.drafts[e.id]; setBase(e.id, +st.dataset.n); refreshEx(e); renderDock(); renderMore(); const again = $('#sheet [data-base][data-n="' + (+st.dataset.n > e.n0 ? e.n0 + 2 : e.n0 - 2) + '"]') || $('#sheet .stp button:not(:disabled)'); if (again) again.focus({ preventScroll: true }); } return true; }
-  if (id === 'moreSame') { const e = findEx(S.open); closeSheet(); if (e) { S.touched = true; fillTargets(e); } return true; }
   if (id === 'moreAsk') { const x = S.open; closeSheet(); openChat(x); return true; }
   if (id === 'moreSwap') { const x = S.open; closeSheet(); if (x) openSwap(x); return true; }
   if (id === 'moreSkip') {
@@ -387,7 +355,7 @@ function renderListSheet() {
   const sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, s = live(S.tab), list = exList(S.tab, s), t = totals(), P = phase(S.tab, s);
   sh.innerHTML = '<div class="sheet-in ls" role="dialog" aria-modal="true" aria-label="' + say('כל התרגילים', 'All exercises') + '"><div class="ed-h"><div><p class="kicker">' + (P.dl ? say('שבוע קל', 'Easy week') : wkOrd(S.tab)) + ' · ' + t.dn + say(' מתוך ', ' of ') + t.total + say(' סטים', ' sets') + '</p><h2>' + wkName(S.tab) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<ol class="ex-list" id="allList">' + list.map((e, i) => rowHTML(e, i, s)).join('') + '</ol>' +
-    '<div class="ls-links"><button class="link" id="editWk" type="button">' + say('עריכת האימון', 'Edit this workout') + '</button>' + ((!s || !hasDone(s)) && timeChoices(S.tab) ? '<button class="link" id="timeAgain" type="button">' + say('אורך האימון היום', 'Today\'s length') + '</button>' : '') + ((!s || !hasDone(s)) && !P.dl && preMuscles(S.tab).length ? '<button class="link" id="preAgain" type="button">' + say('שאלת ההתאוששות', 'Recovery check') + '</button>' : '') + '</div>' +
+    '<div class="ls-links"><button class="link" id="editWk" type="button">' + say('עריכת האימון', 'Edit this workout') + '</button>' + ((!s || !hasDone(s)) && timeInfo(S.tab).opts.length ? '<button class="link" id="timeAgain" type="button">' + say('פחות זמן היום', 'Less time today') + '</button>' : '') + ((!s || !hasDone(s)) && !P.dl && preMuscles(S.tab).length ? '<button class="link" id="preAgain" type="button">' + say('שאלת ההתאוששות', 'Recovery check') + '</button>' : '') + '</div>' +
     (s ? '<div class="ls-act"><button class="btn big" id="finishBtn" type="button"' + (hasDone(s) ? '' : ' disabled') + '>' + say('סיים אימון', 'Finish workout') + '</button>' +
       (S.resetAsk ? '<span class="confirm"><span>' + say('למחוק את הרישום של האימון', 'Clear what was logged in this workout?') + '</span><button class="btn danger" id="resetYes" type="button">' + say('כן נקה', 'Yes, clear') + '</button><button class="btn" id="resetNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>' : '<button class="link" id="resetBtn" type="button">' + say('נקה רישום', 'Clear the log') + '</button>') + '</div>' : '') + '</div>';
   $('.sheet-in', sh).scrollTop = top; markCur();
@@ -424,7 +392,7 @@ function beep(n) {
     for (let i = 0; i < n; i++) {
       const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime + i * 0.3;
       o.type = 'sine'; o.frequency.value = n === 1 ? 587 : 784;
-      gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(0.11, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+      gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(0.06, t + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
       o.connect(gn); gn.connect(actx.destination); o.start(t); o.stop(t + 0.32);
     }
   } catch (e) { /* no audio here */ }
@@ -458,14 +426,14 @@ const kgSay = (kg) => say('משקל: ', 'Weight: ') + (kg == null ? say('בלי 
 const repsSay = (r) => say('חזרות: ', 'Reps: ') + (r == null ? '—' : r) + say(', לחיצה להקלדה', ', tap to type');
 /* a value changed by the − and + buttons is said aloud */
 function srSay(t) { const el = $('#srSay'); if (!el) return; el.textContent = ''; setTimeout(() => { el.textContent = t; }, 30); }
-const kgHTML = (kg, bw) => (kg == null ? '<b class="word">' + (bw ? say('גוף', 'Body') : '0') + '</b><small>' + (bw ? say('משקל גוף', 'bodyweight') : say('ק״ג', 'kg')) + '</small>' : '<b>' + fmtKg(kg) + '</b><small>' + say('ק״ג', 'kg') + '</small>');
+const kgHTML = (kg, bw, help) => (kg == null ? '<b class="word">' + (bw ? say('גוף', 'Body') : '0') + '</b><small>' + (bw ? say('משקל גוף', 'bodyweight') : say('ק״ג', 'kg')) + '</small>' : '<b>' + fmtKg(kg) + '</b><small>' + (help ? say('ק״ג סיוע', 'kg of help') : say('ק״ג', 'kg')) + '</small>');
 const isBw = (mv) => !!(LIB[mv] && (LIB[mv].bw || LIB[mv].eq === 'bw'));
 /* weight and reps, each with its own stepper. The weight's + and − say how far they go: up fast, down fine (see stepUp).
    A target is shown a shade lighter until it is confirmed or changed; a tap on a number opens typing */
 function numsHTML(kg, reps, ghostKg, ghostReps, mv) {
-  const inc = incOf(mv), up = stepUp(inc), unit = say(' ק״ג', ' kg');
+  const inc = incOf(mv), up = inc, unit = say(' ק״ג', ' kg'), help = !!LIB[mv].inv;
   return '<div class="dk-nums"><div class="num" role="group" aria-label="' + say('משקל', 'Weight') + '"><button class="step" type="button" data-d="-1" aria-label="' + say('הפחת ', 'Take off ') + fmtKg(inc) + unit + '">' + Ltr('−' + fmtKg(inc)) + '</button>' +
-    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="' + kgSay(kg) + '">' + kgHTML(kg, isBw(mv)) + '</div>' +
+    '<div class="dk-kg' + (ghostKg ? ' ghost' : '') + '" id="dkKg" role="button" tabindex="0" aria-label="' + kgSay(kg) + '">' + kgHTML(kg, isBw(mv), help) + '</div>' +
     '<button class="step" type="button" data-d="1" aria-label="' + say('הוסף ', 'Add ') + fmtKg(up) + unit + '">' + Ltr('+' + fmtKg(up)) + '</button></div>' +
     '<div class="num" role="group" aria-label="' + say('חזרות', 'Reps') + '"><button class="rstep" type="button" data-d="-1" aria-label="' + say('הפחת חזרה', 'One rep less') + '">−</button>' +
     '<div class="dk-reps' + (ghostReps ? ' ghost' : '') + '" id="dkReps" role="button" tabindex="0" aria-label="' + repsSay(reps) + '">' + repsHTML(reps) + '</div>' +
@@ -539,13 +507,13 @@ function setKg(kg) {
   kg = capKg(kg);
   if (t.edit) { const s = live(S.tab), row = rowsOf(s, t.e.id)[t.i]; if (!row) return; row.kg = kg; row.t = Date.now(); delete row.pr; if (isPr(s, t.e.id, t.e.mv, t.i, row.kg, row.reps)) row.pr = true; touch(s); refreshEx(t.e); renderMe(); }
   else draftOf(t).kg = kg;
-  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); box.setAttribute('aria-label', kgSay(kg)); if (!$('input:not([switch])', box)) box.innerHTML = kgHTML(kg, isBw(t.e.mv)); }
+  const box = $('#dkKg'); if (box) { box.classList.remove('ghost'); box.setAttribute('aria-label', kgSay(kg)); if (!$('input:not([switch])', box)) box.innerHTML = kgHTML(kg, isBw(t.e.mv), !!LIB[t.e.mv].inv); }
 }
 function stepKg(d) {
   const t = dockTarget(); if (!t) return;
   const s = live(S.tab), cur = t.edit ? (rowsOf(s, t.e.id)[t.i] || {}).kg : curKg(t.e, t.i, s);
   const inc = incOf(t.e.mv);
-  setKg((cur == null ? 0 : cur) + (d > 0 ? stepUp(inc) : -inc));
+  setKg((cur == null ? 0 : cur) + (d > 0 ? inc : -inc));
   const k = dockTarget() && $('#dkKg'); if (k) srSay(k.getAttribute('aria-label').split(',')[0]);
 }
 function setReps(r) {
@@ -602,10 +570,11 @@ function commitSet(e, i, kg, reps) {
   e = list.find((x) => x.id === e.id);
   S.combo = good || pr ? (S.combo || 0) + 1 : 0;
   /* each good set in a row lifts the coin one step of a scale, up to an octave */
-  sfx(pr ? 'pr' : 'set', pr ? 0 : [0, 2, 4, 5, 7, 9, 11, 12][Math.min(7, Math.max(0, (S.combo || 1) - 1))]); if (pr) haptic('pr'); popGain(XP.set + (pr ? XP.pr : 0), pr, S.combo);
+  sfx(pr ? 'pr' : 'set', pr ? 0 : [0, 2, 4, 5, 7, 9, 11, 12][Math.min(7, Math.max(0, (S.combo || 1) - 1))]); if (pr) haptic('pr'); popGain(XP.set + (pr ? XP.pr : 0), pr);
   S.justDone = { ex: e.id, i, t: Date.now() };
   delete S.drafts[e.id]; refreshEx(e); renderTabs(); renderHistory(); renderPre(); markLive();
-  renderMe(); bump(lv0);
+  /* a new level is told once the points of the set have had their moment */
+  renderMe(); setTimeout(() => bump(lv0), reduced ? 0 : 1700);
   S.why = false;
   if (!left(e)) askFb(e, s);
   if (!list.some(left)) { stopRest(); return; }
@@ -621,17 +590,6 @@ function commitSet(e, i, kg, reps) {
 }
 function clearRow(e, i) { const s = live(wkOf(e.id)); if (!s) return; const arr = s.sets[e.id] || (s.sets[e.id] = []); arr[i] = { kg: null, reps: null, done: false, t: Date.now() }; touch(s); }
 function afterEdit(e) { refreshEx(e); renderMe(); renderTabs(); renderHistory(); renderDock(); markLive(); }
-/* log every remaining set of an exercise exactly at its target */
-function fillTargets(e) {
-  const s = ensure(S.tab), lv0 = S.lvl;
-  /* a first guess (see startKg) is where the numbers start, not something that was done: it is never logged in bulk */
-  for (let i = firstUndone(s, e), n = 0; i >= 0 && n < MAX_SETS; i = firstUndone(s, e), n++) { const T = targetOf(e, i, s); if (!T || T.mode === 'start') break; writeRow(e, i, T.kg, T.reps); }
-  delete S.drafts[e.id]; keepAwake(); e = findEx(e.id);
-  if (firstUndone(s, e) < 0) askFb(e, s);
-  afterEdit(e); renderPre(); bump(lv0);
-  const list = exList(S.tab, s), nxt = list.slice(list.findIndex((x) => x.id === e.id) + 1).find((x) => firstUndone(s, x) >= 0);
-  if (firstUndone(s, e) < 0 && nxt && !S.fbFor) setTimeout(() => { if (S.open === e.id) openEx(nxt.id, true, 1), renderDock(); }, 500);
-}
 /* a rest is never longer than three minutes, on the clock or by adding to it */
 const REST_TOP = 180;
 function startRest(min, max, label, last) {
@@ -676,14 +634,14 @@ function exIntro(e, first) {
   const list = exList(S.tab), i = list.findIndex((x) => x.id === e.id); if (i < 0) return;
   const fact = (b, t) => '<li><b>' + b + '</b><span>' + t + '</span></li>';
   const s0 = live(S.tab), back = !!first && !(s0 && hasDone(s0));
-  box.className = 'xi';
-  box.innerHTML = '<div class="xi-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
+  const rm = restMins(e);
+  box.className = 'xi xo';
+  box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
     (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
-    '<span class="xi-num" aria-hidden="true">' + (i + 1) + '</span>' +
-    '<p class="xi-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p>' +
-    '<h2 class="xi-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
-    '<ul class="xi-rx">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(restPlain(e)), say('מנוחה', 'rest')) + '</ul>' +
-    '<button class="btn big xi-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div>';
+    '<p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p>' +
+    '<h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
+    '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul>' +
+    '<button class="btn big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div>';
   box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
@@ -747,7 +705,7 @@ function betterPct(s) {
 /* a number that runs up to its value */
 function runUp(el, to, pre, suf, ms) {
   if (!el) return;
-  const fmt = (v) => (pre || '') + (to % 1 ? v.toFixed(1) : Math.round(v)) + (suf || '');
+  const fmt = (v) => (pre || '') + (to % 1 ? v.toFixed(1) : nf(Math.round(v))) + (suf || '');
   if (reduced) { el.textContent = fmt(to); return; }
   const t0 = performance.now(), step = (now) => { const k = Math.min(1, (now - t0) / (ms || 800)); el.textContent = fmt(to * (1 - Math.pow(1 - k, 3))); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
   el.textContent = fmt(0); requestAnimationFrame(step);
@@ -774,24 +732,27 @@ function showSummary(s, R) {
   const prs = exList(s.w, s).filter((e) => rowsOf(s, e.id).some((r) => isDone(r) && r.pr)).map((e) => e.nm);
   const chip = (cls, ic, t) => '<li class="' + cls + '">' + ic + '<b>' + t + '</b></li>';
   const chips = prs.slice(0, 3).map((n) => chip('gold', glyph('star'), say('שיא חדש ב', 'New best · ') + n))
-    .concat(opened.map((r) => chip('', glyph('gift'), say('נפתח ', 'Unlocked ') + nm(r))), R.got.map((id) => { const b = BADGES.find((x) => x.id === id); return chip('', glyph(b.ic), say('הישג ', 'Achievement ') + nm(b)); }));
+    .concat(opened.map((r) => chip('', glyph('gift'), say('נפתח ', 'Unlocked ') + nm(r))));
   const tile = (id, v, t, cls) => '<li' + (cls ? ' class="' + cls + '"' : '') + '><b id="' + id + '" dir="ltr">' + v + '</b><span>' + t + '</span></li>';
   const sh = $('#sheet'); S.sheet = 'sum';
-  sh.innerHTML = '<div class="sheet-in sum w' + s.w + '" role="dialog" aria-modal="true" aria-label="' + say('סיכום אימון', 'Workout summary') + '"><canvas class="confetti" id="confetti" aria-hidden="true"></canvas>' +
+  const who = S.cfg.me.name;
+  sh.innerHTML = '<div class="sheet-in sum fin w' + s.w + '" role="dialog" aria-modal="true" aria-label="' + say('סיכום אימון', 'Workout summary') + '"><canvas class="confetti" id="confetti" aria-hidden="true"></canvas><span class="fin-rays" aria-hidden="true"></span>' +
     '<p class="sum-k">' + wkName(s.w) + say(' הושלם', ' complete') + (s.dl ? say(' · שבוע קל', ' · easy week') : '') + '</p>' +
+    '<h2 class="fin-h">' + say('כל הכבוד', 'Well done') + (who ? ' <bdi>' + esc(who) + '</bdi>' : '') + '</h2>' +
     '<div class="sum-av" id="sumAv">' + avatar(up ? R.from.lvl : R.to.lvl, {}) + '</div>' +
-    '<ul class="sum-st">' + tile('stSets', y.sets, y.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + tile('stMin', mins, mins === 1 ? say('דקה', 'minute') : say('דקות', 'minutes')) +
-      (better ? tile('stPct', '+' + pct + '%', say('מהפעם הקודמת', 'on last time'), 'up') : tile('stXp', '+' + y.xp, say('נקודות', 'points'), 'xp')) + '</ul>' +
+    '<p class="fin-xp"><b id="stXp" dir="ltr">+' + nf(y.xp) + '</b><span>' + say('נקודות', 'points') + '</span></p>' +
     '<p class="sum-up" id="sumUp"' + (up ? '' : ' hidden') + '>' + glyph('star') + '<span>' + say('עלית לרמה ', 'You reached level ') + R.to.lvl + '</span></p>' +
     '<div class="sum-lv"><b class="lv-badge" id="sumLv">' + say('רמה ', 'Level ') + (up ? R.from.lvl : R.to.lvl) + '</b><span class="xpbar"><i id="sumBar" style="width:' + pctOf(R.from) + '%"></i></span><b class="sum-nx" id="sumNx">' + ((up ? R.from.lvl : R.to.lvl) + 1) + '</b></div>' +
     '<p class="sum-to" id="sumTo">' + say('עוד ' + cnt(setsToNext(R.to), 'סטים', 'סט אחד', 'sets', 'set') + ' לרמה ', cnt(setsToNext(R.to), 'סטים', 'סט אחד', 'sets', 'set') + ' to level ') + (R.to.lvl + 1) + '</p>' +
+    '<ul class="sum-st">' + tile('stSets', y.sets, y.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + tile('stMin', mins, mins === 1 ? say('דקה', 'minute') : say('דקות', 'minutes')) +
+      (better ? tile('stPct', '+' + pct + '%', say('מהפעם הקודמת', 'on last time'), 'up') : y.prs ? tile('stPrs', y.prs, y.prs === 1 ? say('שיא', 'best') : say('שיאים', 'bests'), 'xp') : '') + '</ul>' +
     (chips.length ? '<ul class="sum-new">' + chips.join('') + '</ul>' : '') +
     '<div id="sumBox">' + sumBoxHTML(bk) + '</div>' +
     '<button class="btn primary big" id="sheetClose" type="button">' + say('המשך', 'Continue') + '</button></div>';
-  sh.hidden = false; $('#sheetClose').focus();
+  sh.hidden = false; $('.sheet-in', sh).scrollTop = 0; $('#sheetClose').focus({ preventScroll: true });
   const av = () => $('#sumAv .av'), bar = () => $('#sumBar'), later = (ms, fn) => setTimeout(() => { if (S.sheet === 'sum' && $('#sumBar')) fn(); }, reduced ? 0 : ms);
   runUp($('#stSets'), y.sets, '', '', 700); runUp($('#stMin'), mins, '', '', 800);
-  if (better) runUp($('#stPct'), pct, '+', '%', 1000); else runUp($('#stXp'), y.xp, '+', '', 1000);
+  runUp($('#stXp'), y.xp, '+', '', 1200); if (better) runUp($('#stPct'), pct, '+', '%', 1000); else if (y.prs) runUp($('#stPrs'), y.prs, '', '', 700);
   /* a new rank is shown on the whole screen, with its medal, before anything else of the summary */
   if (up && window.__rank !== false && rankOf(R.to.lvl).i > rankOf(R.from.lvl).i) rankReveal(rankOf(R.to.lvl));
   if (av()) av().classList.add('cheer');
@@ -973,7 +934,7 @@ function wireApp() {
     const e = findEx(li.dataset.id), nav = ev.target.closest('.fx-nav');
     if (nav) { stepEx(nav.id === 'exNext' ? 1 : -1); return; }
     if (ev.target.closest('.how')) { openMore(e.id); return; }
-    if (ev.target.closest('.swp')) { openSwap(e.id); return; }
+    if (ev.target.closest('.swp')) { if (rowsOf(live(S.tab), e.id).some(isDone)) { haptic('warn'); toast('<b>' + say('התרגיל כבר התחיל', 'This exercise is under way') + '</b>'); } else openSwap(e.id); return; }
     const p = ev.target.closest('.setp');
     if (p) {
       /* a done set opens for editing; the others only bring the bar back to the next set */
@@ -1018,7 +979,8 @@ function wireApp() {
   const endHold = () => { clearTimeout(hold); clearInterval(rep); };
   dock.addEventListener('pointerdown', (ev) => {
     const st = ev.target.closest('.step,.rstep'); if (!st) return;
-    ev.preventDefault(); const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); endHold();
+    /* the press is left to go on to the control (an iPhone ticks only then), and the hand feels each step */
+    const d = +st.dataset.d, go = st.classList.contains('rstep') ? stepReps : stepKg; go(d); haptic('select'); endHold();
     hold = setTimeout(() => { rep = setInterval(() => { go(d); haptic('step'); }, st.classList.contains('rstep') ? 140 : 90); }, 380);
   });
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) dock.addEventListener(t, endHold);

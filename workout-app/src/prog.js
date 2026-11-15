@@ -167,7 +167,6 @@ function startKg(mv, exp, inc) {
 }
 /* the − and + beside the weight do not step alike: + goes up fast (two of the equipment's steps, where a step is under 5 kg),
    − comes down one step at a time. So any weight is a few taps away: up past it, then down onto it */
-const stepUp = (inc) => (inc < 5 ? inc * 2 : inc);
 /* ---- how long a list of exercises really takes: each set (setting up, then the reps), the rest after every set but the last of
    an exercise, the move to the next one, and a warm-up. To the nearest five minutes ---- */
 function workMins(list) {
@@ -178,6 +177,9 @@ function workMins(list) {
   }, 300);
   return Math.max(10, Math.round(sec / 300) * 5);
 }
+/* what a whole workout takes on a real gym floor: twenty minutes more than its sets and rests add up to (the walk between
+   machines, a wait, water), and never less than an hour. A day that the lifter cut to a time of their own is counted bare */
+const fullMins = (list) => Math.max(60, workMins(list) + 20);
 /* the movements that can stand in for one: the same pattern and the same main muscle, joint-friendly ones first */
 const sameKind = (mv) => { const L = LIB[mv]; return Object.keys(LIB).filter((k) => k !== mv && LIB[k].pat === L.pat && LIB[k].p === L.p).sort((a, b) => (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0)); };
 /* ---- the plan fitted to its lifter, as data. ans: { exp (0 for a beginner), goals, time (minutes a workout may take, 0 or null
@@ -210,7 +212,7 @@ const hurts = (mv, pain) => { const L = LIB[mv]; return !L.jf && (pain || []).so
 const FOCUS = [['chest'], ['back'], ['delts', 'fdelt'], ['biceps', 'triceps'], ['quads', 'hams'], ['glutes'], ['abs']];
 function fitPlanData(ans) {
   const mins = (list) => workMins(list.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t }))), goals = Array.isArray(ans.goals) ? ans.goals : [], pain = ans.pain || [];
-  const want = ans.exp === 0 ? 1 : ans.exp === 1 ? 2 : 3, old = (ans.age | 0) >= 50, more = FOCUS[ans.focus] || [];
+  const want = ans.exp === 0 ? 1 : ans.exp === 1 ? 2 : 3, old = (ans.age | 0) >= 50, more = [].concat.apply([], (Array.isArray(ans.focus) ? ans.focus : ans.focus == null ? [] : [ans.focus]).map((i) => FOCUS[i] || []));
   /* among movements that can stand in, the nearest in difficulty to this lifter comes first, and from fifty the ones easy on the joints */
   const rank = (a, b) => (old ? (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0) : 0) || Math.abs((LIB[a].lv || 2) - want) - Math.abs((LIB[b].lv || 2) - want);
   return PLAN.map((wk) => {

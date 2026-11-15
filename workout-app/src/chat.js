@@ -31,7 +31,7 @@ function aboutUser() {
   if (me.age) bits.push(say('גיל: ', 'Age: ') + me.age);
   if (me.body.h) bits.push(say('גובה: ', 'Height: ') + me.body.h + say(' ס״מ', ' cm'));
   if (me.body.log.length) bits.push(say('משקל גוף: ', 'Body weight: ') + fmtKg(me.body.log[me.body.log.length - 1].kg) + say(' ק״ג', ' kg'));
-  if (me.focus != null) bits.push(say('אזור מועדף: ', 'Favourite area: ') + AREAS()[me.focus]);
+  if (me.focus && me.focus.length) bits.push(say('אזורים מועדפים: ', 'Favourite areas: ') + me.focus.map((i) => AREAS()[i]).join(', '));
   if ((me.pain || []).length) bits.push(say('כואב או רגיש: ', 'Sore or sensitive: ') + me.pain.map((i) => OUCH()[i]).join(', '));
   return bits.length ? say('על המשתמש: ', 'About the user: ') + bits.join(' · ') + say('. התאם את הטון ואת העצות לניסיון, למטרות, לזמן ולציוד.', '. Fit your tone and your advice to the experience, the goals, the time and the equipment.') + '\n\n' : '';
 }

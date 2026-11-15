@@ -66,7 +66,7 @@ function langFade(fn) {
    A short film first: the camera finds Eilon, pulls back onto the player's character beside him, and pushes in on it as it
    grows. Then the questions, one a screen, each asked by Eilon from the same place, so that only what is asked changes. The
    answers build the plan: experience sets the sets, the time sets how many exercises, and the gym sets the machines */
-const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goals: [], days: null, place: null, age: null, focus: null, pain: [], q: 0, time: null, eq: null, fb: 2, beat: 0 };
+const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goals: [], days: null, place: null, age: null, focus: [], pain: [], q: 0, time: null, eq: null, fb: 2, beat: 0 };
 const OB_STEPS = ['film', 'name', 'exp', 'goals', 'days', 'place', 'quick', 'look', 'plan', 'done'];
 const OB_LAST = OB_STEPS.length - 1;
 const obIs = (k) => OB_STEPS[OB.step] === k;
@@ -75,9 +75,9 @@ const EXP = () => [[say('מתחיל', 'Beginner'), say('פחות מחצי שנה
 const EXP_BASE = [0, 0.35, 0.62, 0.8];
 /* the goals by their number (0 mass, 1 strength, 2 fitness and endurance, 3 getting lean, 4 health, 5 running), and the order they are offered in */
 const GOALS = () => [[say('מסה', 'Muscle')], [say('כוח', 'Strength')], [say('כושר וסיבולת', 'Fitness and endurance')], [say('חיטוב', 'Getting lean')], [say('בריאות', 'Health')], [say('ריצות', 'Running')]];
-const GOAL_ORDER = [3, 0, 1, 4, 2, 5];
+const GOAL_ORDER = [3, 1, 2, 0, 4, 5];
 /* where the lifter trains (see PLACES in prog.js), the body areas to ask more of (FOCUS), and what can hurt (PAIN) */
-const WHERE = () => [say('חדר כושר', 'A gym'), say('גינת כושר', 'An outdoor gym'), say('בבית עם משקולות', 'Home with dumbbells'), say('בבית בלי ציוד', 'Home with no equipment')];
+const WHERE = () => [say('חדר כושר', 'A gym'), say('קליסטניקס', 'Calisthenics'), say('בבית עם משקולות', 'Home with dumbbells'), say('בבית בלי ציוד', 'Home with no equipment')];
 const AREAS = () => [say('חזה', 'Chest'), say('גב', 'Back'), say('כתפיים', 'Shoulders'), say('ידיים', 'Arms'), say('רגליים', 'Legs'), say('ישבן', 'Glutes'), say('בטן', 'Abs')];
 const OUCH = () => [say('ברכיים', 'Knees'), say('גב תחתון', 'Lower back'), say('כתפיים', 'Shoulders'), say('מרפקים', 'Elbows'), say('פרקי ידיים', 'Wrists')];
 /* the equipment an older answer about the gym left: null for all of it */
@@ -102,6 +102,16 @@ const OBI = {
   home: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.200 12 4.600l8 6.600M6.200 9.800v9.700h11.600V9.800M10 19.500v-5h4v5"/></svg>',
   crown: '<svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.500 8.200l4 3.600L12 5.400l4.500 6.400 4-3.600-1.600 10.200H5.100z"/></svg>',
 };
+/* the goals, each with a drawing of its own (by the goal's number): an arm, a dumbbell, a bolt, a flame, a heart, a running shoe */
+const gi = (d) => '<svg class="gi-s" viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>';
+const GOAL_IC = [
+  gi('<path d="M4 20h9.200c3.500 0 6.300-2.600 6.300-5.900 0-2.600-1.800-4.800-4.300-5.600-1.400-.5-2.900-.3-4.100.300L9.800 4.600c-.3-.9-1.200-1.400-2.100-1.100l-2 .6c-.9.3-1.400 1.200-1.100 2.100l1.600 4.600C5 12.800 4 15.800 4 20z"/><path d="M11.200 8.900c-1.500.9-2.300 2.300-2.300 3.900" fill="none" stroke="rgb(0 0 0 / .22)" stroke-width="1.400" stroke-linecap="round"/>'),
+  gi('<rect x="1.800" y="9.200" width="3" height="5.600" rx="1.200"/><rect x="5.400" y="6.400" width="3.800" height="11.200" rx="1.500"/><rect x="9.200" y="10.600" width="5.600" height="2.800" rx=".8"/><rect x="14.800" y="6.400" width="3.800" height="11.200" rx="1.500"/><rect x="19.200" y="9.200" width="3" height="5.600" rx="1.200"/>'),
+  gi('<path d="M13.800 2.400 5.400 13.500h5.400l-1.200 8.100 9-11.300h-5.700z"/>'),
+  gi('<path d="M12.300 2.300c.9 3.500-1.400 5.200-3.100 7.400-1.500 1.900-2.700 3.700-2.700 6a5.500 5.500 0 0 0 11 0c0-2-.8-3.500-1.900-4.900-.5 1.200-1.300 1.900-2.300 2.200.7-3.300 0-7.400-1-10.700z"/>'),
+  gi('<path d="M12 20.600s-7.600-4.600-7.600-10.300A4.300 4.300 0 0 1 12 7.600a4.300 4.300 0 0 1 7.600 2.700c0 5.700-7.600 10.300-7.600 10.300z"/>'),
+  gi('<path d="M2.800 17.300v-1.100c0-1.200.7-2.100 1.700-2.400l3.600-1.200 2.300-4.900c.3-.7 1.100-1 1.800-.7l.9.400 1 3.100 3.400 1.900c2.300.7 3.700 1.800 3.700 3.500v1.400c0 .6-.4 1-1 1H3.800c-.6 0-1-.400-1-1z"/><path d="M11.200 10.800l-1.400 1M12.600 12.600l-1.400 1" fill="none" stroke="rgb(0 0 0 / .25)" stroke-width="1.200" stroke-linecap="round"/>'),
+];
 /* the experience the character is drawn with: the answer being given, while the opening is open */
 const expNow = () => (OB.on && OB.exp != null ? OB.exp : S.cfg.me.exp);
 
@@ -115,7 +125,7 @@ function filmHTML() {
 function filmBeat() {
   const f = $('#obFilm'); clearTimeout(OB.beatT);
   if (!f || !OB.on || OB.step !== 0) return;
-  const co = $('.ob-coach .av', f); if (co) { co.classList.add('wave', 'grin'); }
+  const co = $('.ob-coach .av', f); if (co) { co.classList.add('grin'); OB.beatT = setTimeout(() => { if (co.isConnected) co.classList.add('wave'); }, reduced ? 0 : 950); }
 }
 
 /* the curtain: a black screen with the name, as when a phone wakes up. It lifts once the account has said which language
@@ -185,16 +195,16 @@ const obWeek = () => WEEKS[OB.days] || week();
 function planPreview() {
   const fresh = meNow().T.sets === 0, span = (a) => { const lo = Math.min.apply(null, a), hi = Math.max.apply(null, a); return lo === hi ? '' + lo : Ltr(lo + '–' + hi); };
   const all = fresh ? fitPlanData(fitAns(OB)) : null, lists = obWeek().map((w) => (fresh ? all[w].map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })) : exList(w, undefined, true)));
-  return { ex: span(lists.map((l) => l.length)), sets: span([].concat.apply([], lists.map((l) => l.map((e) => e.sets)))), mins: span(lists.map(workMins)) };
+  return { ex: span(lists.map((l) => l.length)), sets: span([].concat.apply([], lists.map((l) => l.map((e) => e.sets)))), mins: span(lists.map(fullMins)) };
 }
 
 /* what the plan is fitted to, one line for each, in the lifter's own answers */
 const buildSteps = () => [
-  [say('בוחר תרגילים לחדר כושר', 'Choosing exercises for a gym'), say('בוחר תרגילים לגינת כושר', 'Choosing exercises for an outdoor gym'), say('בוחר תרגילים לבית עם משקולות', 'Choosing exercises for home with dumbbells'), say('בוחר תרגילים לבית בלי ציוד', 'Choosing exercises that need no equipment')][OB.place | 0],
+  [say('בוחר תרגילים לחדר כושר', 'Choosing exercises for a gym'), say('בוחר תרגילי קליסטניקס', 'Choosing calisthenics exercises'), say('בוחר תרגילים לבית עם משקולות', 'Choosing exercises for home with dumbbells'), say('בוחר תרגילים לבית בלי ציוד', 'Choosing exercises that need no equipment')][OB.place | 0],
   OB.days === 1 ? say('בונה שבוע של אימון אחד', 'Building a week of one workout') : say('בונה שבוע של ', 'Building a week of ') + (OB.days || 3) + say(' אימונים', ' workouts'),
   [say('קובע סטים למתחיל', 'Setting the sets for a beginner'), say('קובע סטים למתאמן קבוע', 'Setting the sets for a regular lifter'), say('קובע סטים למנוסה', 'Setting the sets for an experienced lifter'), say('קובע סטים לותיק', 'Setting the sets for a veteran')][OB.exp == null ? 1 : OB.exp],
   say('מכוון חזרות ומנוחות למטרות שלך', 'Tuning reps and rests to your goals'),
-  OB.pain.length ? say('מחליף תרגילים שמעמיסים על מה שכואב', 'Swapping out what loads the sore spots') : OB.focus != null ? say('מוסיף סטים ל', 'Adding sets for the ') + AREAS()[OB.focus] : say('מאזן בין כל השרירים', 'Balancing every muscle'),
+  OB.pain.length ? say('מחליף תרגילים שמעמיסים על מה שכואב', 'Swapping out what loads the sore spots') : OB.focus.length ? say('מוסיף סטים למה שחשוב לך', 'Adding sets where it matters to you') : say('מאזן בין כל השרירים', 'Balancing every muscle'),
   say('מחשב כמה זמן כל אימון לוקח', 'Working out how long each workout takes'),
 ];
 /* a number in a big square, with a minus and a plus: the days of the week, the age */
@@ -203,9 +213,7 @@ const numBox = (id, v, unit, less, more) => '<div class="ob-num" role="group" ar
   '<button type="button" class="ob-st" data-obn="1" aria-label="' + more + '">+</button></div>';
 function obHTML() {
   const st = OB_STEPS[OB.step], nm = String(OB.name || '').trim();
-  /* over each question, a small line that says what it is about */
-  const KICK = { exp: say('הניסיון שלך', 'Your experience'), goals: say('המטרות', 'Your goals'), days: say('השבוע שלך', 'Your week'), place: say('המקום', 'The place'), quick: say('שאלה ' + ((OB.q | 0) + 1) + ' מתוך 4', 'Question ' + ((OB.q | 0) + 1) + ' of 4'), look: say('הדמות שלך', 'Your character'), plan: say('אילון בנה', 'Built by Eilon') };
-  const ask = (t, sub, big) => '<div class="ob-q' + (big ? ' big' : '') + '"><span class="ob-eilon" aria-hidden="true">' + avatarSVG(COACH, COACH_LVL, big ? {} : { bust: true }) + '</span><div class="ob-bub">' + (!big && KICK[st] ? '<p class="ob-k">' + KICK[st] + '</p>' : '') + '<h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
+  const ask = (t, sub, big) => '<div class="ob-q' + (big ? ' big' : '') + '"><span class="ob-eilon" aria-hidden="true">' + avatarSVG(COACH, COACH_LVL, big ? {} : { bust: true }) + '</span><div class="ob-bub"><h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
   const card = (key, i, ic, t, sub, on, multi) => '<button type="button" class="ob-opt" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '" data-ob="' + key + '" data-v="' + i + '"><i class="ob-ic" aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span><i class="ob-chk" aria-hidden="true">' + ICON.check + '</i></button>';
   const group = (multi, inner, cls) => '<div class="ob-opts' + (cls || '') + '" role="' + (multi ? 'group' : 'radiogroup') + '" aria-labelledby="obTitle">' + inner + '</div>';
   const chip = (key, i, t, on, multi) => '<button type="button" class="ob-chip" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '" data-ob="' + key + '" data-v="' + i + '">' + t + '</button>';
@@ -222,9 +230,8 @@ function obHTML() {
       '<div class="ob-pre" id="obPre" aria-hidden="true">' + avatar(1) + '</div>';
     can = OB.exp != null;
   } else if (st === 'goals') {
-    const ic = [OBI.body, OBI.bell, OBI.bolt, OBI.flame, OBI.heart, OBI.run];
     body = ask(say('מה חשוב לך', 'What matters to you')) +
-      group(true, GOAL_ORDER.map((i) => card('goals', i, ic[i], GOALS()[i][0], '', OB.goals.includes(i), true)).join(''), ' g2');
+      group(true, GOAL_ORDER.map((i) => card('goals', i, GOAL_IC[i], GOALS()[i][0], '', OB.goals.includes(i), true).replace('class="ob-ic"', 'class="ob-ic gi g' + i + '"')).join(''), ' g2');
     can = OB.goals.length > 0;
   } else if (st === 'days') {
     body = ask(say('כמה ימים בשבוע תתאמן', 'How many days a week will you train')) +
@@ -241,19 +248,18 @@ function obHTML() {
       /* height and weight: not a must. What is written here is the first day of the body log */
       const box = (id, v, ph, unit, lab, mode, max) => '<label class="ob-nbox"><input id="' + id + '" type="text" inputmode="' + mode + '" maxlength="' + max + '" autocomplete="off" placeholder="' + ph + '" value="' + (v == null ? '' : v) + '" aria-label="' + lab + '"><span>' + unit + '</span></label>';
       body = ask(say('מה הגובה והמשקל שלך', 'Your height and weight')) + '<div class="ob-hw" role="group" aria-labelledby="obTitle">' + box('obH', OB.h, '170', say('סנטימטר', 'cm'), say('גובה בסנטימטר', 'Height in cm'), 'numeric', 3) + box('obKg', OB.kg, '70', say('קילו', 'kg'), say('משקל בקילו', 'Weight in kg'), 'decimal', 5) + '</div>' +
-        '<p class="ob-may">' + say('לא חובה אפשר למלא אחר כך ביומן הגוף', 'Not a must. You can fill it in later in the body log') + '</p>';
+        '<button class="link ob-may" id="obHwSkip" type="button">' + say('דלג', 'Skip') + '</button>';
     } else if (q === 2) {
       body = ask(say('איזה אזור הכי חשוב לך', 'Which area matters most to you')) +
-        '<div class="ob-chips" role="radiogroup" aria-labelledby="obTitle">' + AREAS().map((t, i) => chip('focus', i, t, OB.focus === i)).join('') + chip('focus', -1, say('הכול', 'All of it'), OB.focus == null) + '</div>';
+        '<div class="ob-chips" role="group" aria-labelledby="obTitle">' + chip('focus', -1, say('הכול', 'All of it'), !OB.focus.length, true).replace('class="ob-chip"', 'class="ob-chip all"') + AREAS().map((t, i) => chip('focus', i, t, OB.focus.includes(i), true)).join('') + '</div>';
     } else {
       body = ask(say('משהו כואב או רגיש', 'Does anything hurt')) +
-        '<div class="ob-chips" role="group" aria-labelledby="obTitle">' + OUCH().map((t, i) => chip('pain', i, t, OB.pain.includes(i), true)).join('') + chip('pain', -1, say('הכול בסדר', 'All good'), !OB.pain.length, true) + '</div>';
+        '<div class="ob-chips" role="group" aria-labelledby="obTitle">' + chip('pain', -1, say('הכול בסדר', 'All good'), !OB.pain.length, true).replace('class="ob-chip"', 'class="ob-chip all"') + OUCH().map((t, i) => chip('pain', i, t, OB.pain.includes(i), true)).join('') + '</div>';
     }
   } else if (st === 'look') {
-    body = ask(say('הדמות שלך באפליקציה', 'Your character in the app')) +
-      '<div class="ob-lk2"><div class="ob-lk-fig"><span class="ob-lk-tag">' + (nm ? '<bdi>' + esc(nm) + '</bdi>' : say('זה אתה', 'This is you')) + '</span><b class="lv-badge">' + say('רמה 1', 'Level 1') + '</b>' +
-      '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div><div class="lk-photo-box" id="lkPhotoBox">' + lookPhoto() + '</div></div>' +
-      '<div class="ob-look lk-ed" id="lkRows">' + lookRows() + '</div></div>';
+    body = ask(say('האווטאר שלך', 'Your avatar')) +
+      '<div class="ob-av"><div class="ob-av-fig"><div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div><div class="lk-photo-box" id="lkPhotoBox">' + lookPhoto() + '</div></div>' +
+      '<div class="ob-av-ed lk-ed" id="lkRows">' + lookRows() + '</div></div>';
   } else if (st === 'plan' && OB.building) {
     can = false;
     body = ask(say('רגע אני בונה לך תוכנית', 'One moment, I am building your plan')) +
@@ -262,12 +268,12 @@ function obHTML() {
   } else if (st === 'plan') {
     const fresh = meNow().T.sets === 0, all = fresh ? fitPlanData(fitAns(OB)) : null, wk = obWeek();
     const lists = wk.map((w) => (fresh ? all[w].map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })) : exList(w, undefined, true)));
-    const tag = (t) => '<li>' + t + '</li>', goals = GOAL_ORDER.filter((i) => OB.goals.includes(i)).map((i) => GOALS()[i][0]);
+    const pv = planPreview(), stat = (v, t) => '<li><b>' + v + '</b><span>' + t + '</span></li>';
     cta = say('נראה טוב', 'Looks good');
     body = ask(say('התוכנית שלך', 'Your plan')) +
       '<section class="ob-plan2' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '">' +
-      '<ul class="ob-tags">' + tag(cnt(wk.length, 'ימים', 'יום אחד', 'days', 'day')) + goals.slice(0, 2).map(tag).join('') + (OB.place != null ? tag(WHERE()[OB.place]) : '') + '</ul>' +
-      '<ol class="ob-wks2">' + wk.map((w, k) => '<li><i aria-hidden="true">' + (k + 1) + '</i><span><b>' + say('אימון ', 'Workout ') + (k + 1) + '</b><small>' + wkMus(w) + '</small></span><em><span><b>' + workMins(lists[k]) + '</b>' + say(' דק׳', ' min') + '</span><small>' + cnt(lists[k].length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + '</small></em></li>').join('') + '</ol>' +
+      '<ul class="pl-stats">' + stat(wk.length, wk.length === 1 ? say('אימון בשבוע', 'workout a week') : say('אימונים בשבוע', 'workouts a week')) + stat(pv.mins, say('דקות לאימון', 'minutes each')) + stat(pv.ex, say('תרגילים באימון', 'exercises each')) + '</ul>' +
+      '<ol class="ob-wks2">' + wk.map((w, k) => '<li style="--i:' + k + '"><i aria-hidden="true">' + (k + 1) + '</i><span><b>' + say('אימון ', 'Workout ') + (k + 1) + '</b><small>' + wkMus(w) + '</small></span><em><span><b>' + fullMins(lists[k]) + '</b>' + say(' דק׳', ' min') + '</span><small>' + cnt(lists[k].length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + '</small></em></li>').join('') + '</ol>' +
       '<p class="ob-wk-tip">' + glyph('pen') + '<span>' + say('אפשר לתת לכל אימון שם משלך אחר כך', 'You can give each workout a name of your own later') + '</span></p></section>';
   } else {
     const old = meNow().T.wk > 0, cap = (a, b) => '<figcaption>' + a + '<b>' + b + '</b></figcaption>';
@@ -283,7 +289,7 @@ function obHTML() {
   const first = st === 'film', fin = st === 'done', last = OB_LAST - 1;
   return (first ? filmHTML() : fin ? '<div class="ob-film fin" aria-hidden="true"></div>' : '') +
     '<div class="ob-in' + (first ? ' film' : '') + (fin ? ' fin' : '') + (OB.stay ? ' stay' : '') + '" data-step="' + OB.step + '" data-k="' + st + '"><div class="ob-top' + (first ? ' first' : '') + '">' +
-    (first ? '<button class="btn ob-skip" id="obSkip" type="button">' + say('דלג', 'Skip') + '</button>' : '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>') +
+    (first ? '<button class="ob-skip" id="obSkip" type="button">' + say('דלג', 'Skip') + ICON.fwd + '</button>' : '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>') +
     (first ? '<span class="ob-sp"></span>' : fin ? '<span></span>' : '<div class="ob-prog" role="img" aria-label="' + say('שלב ' + OB.step + ' מתוך ' + last, 'Step ' + OB.step + ' of ' + last) + '"><i style="width:' + Math.round((Math.min(OB.step, last) / last) * 100) + '%"></i></div>') +
     (first ? '<div class="logo ob-logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' : '<span class="ob-sp"></span>') + '</div>' +
     '<div class="ob-body' + (OB.dir ? ' in' : '') + '">' + body + '</div>' +
@@ -341,7 +347,7 @@ function obFade(fn) {
 function openOb() {
   const me = S.cfg.me;
   LK.tab = 'body'; LK.note = '';
-  Object.assign(OB, { on: true, step: 0, dir: 0, beat: 0, q: 0, stay: false, building: false, reveal: false, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goals: (me.goals || []).slice(), time: me.time, eq: me.eq, days: me.days, place: me.place, age: me.age, focus: me.focus, pain: (me.pain || []).slice(), fb: me.fb == null ? 2 : me.fb });
+  Object.assign(OB, { on: true, step: 0, dir: 0, beat: 0, q: 0, stay: false, building: false, reveal: false, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goals: (me.goals || []).slice(), time: me.time, eq: me.eq, days: me.days, place: me.place, age: me.age, focus: (me.focus || []).slice(), pain: (me.pain || []).slice(), fb: me.fb == null ? 2 : me.fb });
   /* the language shown is the one kept: a look chosen on the way must not turn an English page Hebrew on the next visit */
   if (!S.cfg.lang) S.cfg.lang = LANG;
   $('#ob').hidden = false; document.body.style.overflow = 'hidden'; renderOb();
@@ -352,7 +358,7 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) {
     me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goals = OB.goals.slice(); me.goal = OB.goals.length ? OB.goals[0] : null;
-    me.place = OB.place == null ? 0 : OB.place; me.age = OB.age; if (OB.h || OB.kg) me.body = OB.kg ? bodyPut({ h: OB.h || me.body.h, log: me.body.log }, { d: isoDay(new Date()), kg: OB.kg }) : cleanBody({ h: OB.h, log: me.body.log }); me.focus = OB.focus; me.pain = OB.pain.slice(); me.time = null; me.fb = OB.fb; me.made = me.made || Date.now();
+    me.place = OB.place == null ? 0 : OB.place; me.age = OB.age; if (OB.h || OB.kg) me.body = OB.kg ? bodyPut({ h: OB.h || me.body.h, log: me.body.log }, { d: isoDay(new Date()), kg: OB.kg }) : cleanBody({ h: OB.h, log: me.body.log }); me.focus = OB.focus.slice(); me.pain = OB.pain.slice(); me.time = null; me.fb = OB.fb; me.made = me.made || Date.now();
     if (OB.days != null && OB.days !== me.days) { me.days = OB.days; if (!live(S.tab)) S.tab = nextUp().next; }
     fitPlan();
   }
@@ -378,7 +384,7 @@ function tourSteps() {
     { at: '#rtSkip', tap: 1, t: say('השעון סופר לך מנוחה וכשמוכנים לוחצים המשך', 'The clock counts your rest. When you are ready, tap Continue'), done: () => !rest.on, leave: tourUndo }
   );
   A.push(
-    { at: '#bodyBtn', enter: () => { if (S.view !== 'profile') setView('profile'); }, t: girl ? say('זה יומן הגוף כאן את מתעדת כמה את שוקלת בכל יום', 'This is the body log. Write down here what you weigh, day by day') : say('זה יומן הגוף כאן אתה מתעד כמה אתה שוקל בכל יום', 'This is the body log. Write down here what you weigh, day by day') },
+    { at: '#bodyBtn', enter: () => { if (S.view !== 'profile') setView('profile'); }, t: girl ? say('כאן השקילות שלך מתעדים כמה שוקלים בכל יום', 'Your weigh-ins: what you weigh, day by day') : say('זה יומן הגוף כאן אתה מתעד כמה אתה שוקל בכל יום', 'This is the body log. Write down here what you weigh, day by day') },
     { at: '#chatOpen', alt: '.chat-h', enter: () => { if (S.view !== 'home') setView('home'); window.scrollTo(0, 0); }, t: say('ואני תמיד כאן לכל שאלה', 'And I am always here for any question') }
   );
   return A;
@@ -487,12 +493,12 @@ function tourGuard(ev) {
 }
 function obStep(d) {
   /* the three quick questions are one step of the opening: forward and back walk through them first */
-  if (obIs('quick')) { const q = (OB.q | 0) + d; if (q >= 0 && q <= 3) { OB.q = q; OB.stepAt = Date.now(); OB.dir = d; OB.stay = true; if (d > 0) sfx('set'); renderOb(); return; } }
+  if (obIs('quick')) { const q = (OB.q | 0) + d; if (q >= 0 && q <= 3) { OB.q = q; OB.stepAt = Date.now(); OB.dir = d; OB.stay = true; if (d > 0) sfx('step'); renderOb(); return; } }
   const n = OB.step + d; if (n < 0) return;
   OB.stepAt = Date.now();
   if (OB_STEPS[n] === 'quick') OB.q = d > 0 ? 0 : 3;
   if (n > OB_LAST) { obFinish(false); return; }
-  if (d > 0 && n < OB_LAST) sfx('set');
+  if (d > 0 && n < OB_LAST) sfx('step');
   /* Eilon stays where he stands from one question to the next: only the words and the answers arrive. (On the name he
      stands larger, in the middle, and the last screen has none of him, so there he arrives) */
   const side = (i) => i >= 2 && i < OB_LAST;
@@ -520,6 +526,7 @@ function wireOb() {
     if (b.id === 'obNext') { if (ev.detail !== 0 && Date.now() - (OB.stepAt || 0) < 300) return; obStep(1); }
     else if (b.id === 'obBack') obStep(-1);
     else if (b.id === 'obSkip') obFinish(true);
+    else if (b.id === 'obHwSkip') { OB.h = null; OB.kg = null; obStep(1); }
     /* the minus and the plus beside a number: the days of the week, the age */
     else if (b.dataset.obn) {
       const days = obIs('days'), inp = $(days ? '#obDays' : '#obAge'); if (!inp) return;
@@ -531,10 +538,10 @@ function wireOb() {
     else if (b.dataset.ob) {
       const k = b.dataset.ob, v = +b.dataset.v;
       if (k === 'goals') { const i = OB.goals.indexOf(v); if (i >= 0) OB.goals.splice(i, 1); else OB.goals.push(v); b.setAttribute('aria-checked', String(i < 0)); $('#obNext').disabled = !OB.goals.length; }
-      else if (k === 'focus') { OB.focus = v < 0 ? null : v; for (const o of $$('[data-ob="focus"]', el)) o.setAttribute('aria-checked', String(o === b)); }
-      else if (k === 'pain') {
-        if (v < 0) OB.pain = []; else { const i = OB.pain.indexOf(v); if (i >= 0) OB.pain.splice(i, 1); else OB.pain.push(v); }
-        for (const o of $$('[data-ob="pain"]', el)) o.setAttribute('aria-checked', String(+o.dataset.v < 0 ? !OB.pain.length : OB.pain.includes(+o.dataset.v)));
+      /* as many as wanted; "all" stands alone, and takes the others off */
+      else if (k === 'focus' || k === 'pain') {
+        if (v < 0) OB[k] = []; else { const i = OB[k].indexOf(v); if (i >= 0) OB[k].splice(i, 1); else OB[k].push(v); }
+        for (const o of $$('[data-ob="' + k + '"]', el)) o.setAttribute('aria-checked', String(+o.dataset.v < 0 ? !OB[k].length : OB[k].includes(+o.dataset.v)));
       }
       else { OB[k] = v; for (const o of $$('[data-ob="' + k + '"]', el)) o.setAttribute('aria-checked', String(o === b)); $('#obNext').disabled = false; }
       haptic('select');

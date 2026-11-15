@@ -6,16 +6,18 @@
    browser through the one control Safari answers with a tick: a switch, and only when a finger itself lands on it or
    on its label (see dress() below). Sound and vibration each have a switch in the settings. */
 const SFX = {
-  /* a logged set: a bright coin, a quick step up to a note that rings, with a shimmer an octave above it */
-  set: [[988, 0, 0.06, 0.055, 'triangle'], [1319, 0.065, 0.24, 0.07, 'sine'], [2637, 0.065, 0.18, 0.02, 'sine'], [1976, 0.125, 0.22, 0.028, 'sine']],
-  /* a personal best: the same coin run up a whole chord, landing on a long high note */
-  pr: [[1047, 0, 0.07, 0.055, 'triangle'], [1319, 0.065, 0.07, 0.055, 'triangle'], [1568, 0.13, 0.09, 0.06, 'triangle'], [2093, 0.2, 0.55, 0.07, 'sine'], [3136, 0.22, 0.42, 0.02, 'sine'], [1568, 0.2, 0.5, 0.03, 'sine']],
-  coin: [[880, 0, 0.08, 0.05, 'sine'], [1175, 0.07, 0.16, 0.05, 'sine']],
+  /* a step of the opening: two soft notes, barely there */
+  step: [[523, 0, 0.07, 0.018, 'sine'], [784, 0.05, 0.14, 0.02, 'sine']],
+  /* a logged set: a round drop that rises a fifth and rings, with a breath of the octave above it */
+  set: [[659, 0, 0.08, 0.03, 'sine'], [988, 0.07, 0.24, 0.036, 'sine'], [1976, 0.07, 0.16, 0.008, 'sine']],
+  /* a personal best: the same drop run up a chord, landing on a long note */
+  pr: [[523, 0, 0.08, 0.03, 'sine'], [659, 0.07, 0.08, 0.03, 'sine'], [784, 0.14, 0.09, 0.032, 'sine'], [1047, 0.21, 0.5, 0.04, 'sine'], [2093, 0.23, 0.36, 0.008, 'sine']],
+  coin: [[784, 0, 0.07, 0.026, 'sine'], [1047, 0.06, 0.16, 0.028, 'sine']],
   /* a new exercise comes in: two soft notes that rise */
-  next: [[440, 0, 0.09, 0.045, 'sine'], [660, 0.08, 0.24, 0.05, 'sine']],
-  done: [[523, 0, 0.13, 0.07, 'sine'], [659, 0.12, 0.13, 0.07, 'sine'], [784, 0.24, 0.13, 0.07, 'sine'], [1047, 0.36, 0.5, 0.08, 'sine']],
+  next: [[392, 0, 0.09, 0.024, 'sine'], [587, 0.08, 0.22, 0.026, 'sine']],
+  done: [[523, 0, 0.12, 0.036, 'sine'], [659, 0.11, 0.12, 0.036, 'sine'], [784, 0.22, 0.12, 0.036, 'sine'], [1047, 0.33, 0.5, 0.044, 'sine'], [1568, 0.36, 0.4, 0.01, 'sine']],
   /* a small fanfare: a rising run that lands on an open chord and rings */
-  glory: [[392, 0, 0.12, 0.055, 'triangle'], [523, 0.1, 0.12, 0.055, 'triangle'], [659, 0.2, 0.12, 0.06, 'triangle'], [784, 0.3, 0.16, 0.065, 'triangle'], [1047, 0.46, 0.75, 0.075, 'sine'], [784, 0.46, 0.75, 0.04, 'sine'], [1319, 0.5, 0.8, 0.035, 'sine'], [1568, 0.56, 0.9, 0.022, 'sine']],
+  glory: [[392, 0, 0.11, 0.03, 'sine'], [523, 0.1, 0.11, 0.03, 'sine'], [659, 0.2, 0.11, 0.032, 'sine'], [784, 0.3, 0.15, 0.034, 'sine'], [1047, 0.46, 0.7, 0.042, 'sine'], [784, 0.46, 0.7, 0.022, 'sine'], [1319, 0.5, 0.7, 0.018, 'sine']],
 };
 /* one note: [frequency, start, length, volume, wave] with a soft start and a long tail, like a struck bar */
 /* up: semitones to lift the whole sound by (a run of good sets climbs a scale) */
@@ -79,20 +81,14 @@ function haptic(kind) {
 /* sound and touch together, for the moments that earn both */
 function feel(kind, touch) { sfx(kind); haptic(touch || (kind === 'set' ? 'success' : kind === 'pr' ? 'pr' : 'heavy')); }
 /* points that fly up from where they were earned */
-function popGain(n, pr, combo) {
+function popGain(n, pr) {
   if (!(n > 0) || reduced) return;
-  for (const o of $$('.gain')) o.remove();
-  const f = document.createElement('div'), run = !pr && combo >= 3 && combo % 3 === 0, big = pr || run;
-  /* it leaves from the button that logged the set, and rises to under the top of the screen */
-  const btn = $('#dkHit') || $('#dock .hit'), r = btn && btn.getBoundingClientRect(), ok = r && r.width > 0;
-  const x = ok ? r.left + r.width / 2 : innerWidth / 2, y = ok ? r.top + r.height * 0.2 : innerHeight * 0.78;
-  f.className = 'gain' + (pr ? ' pr' : run ? ' run' : ''); f.setAttribute('aria-hidden', 'true');
-  f.style.setProperty('--gx', x.toFixed(0) + 'px'); f.style.setProperty('--gy', y.toFixed(0) + 'px'); f.style.setProperty('--dy', Math.max(110, Math.min(190, y - 96)).toFixed(0) + 'px');
-  let sparks = ''; const cnt = big ? 14 : 9;
-  for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + Math.random() * 0.5, d = 46 + Math.random() * (big ? 64 : 42); sparks += '<i class="gain-s' + (i % 3 === 0 ? ' w' : '') + '" style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d - 18).toFixed(0) + 'px;--sd:' + (i * 14) + 'ms"></i>'; }
-  f.innerHTML = '<i class="gain-ring"></i>' + sparks + '<b>' + Ltr('+' + n) + '</b>' + (pr ? '<span>' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : run ? '<span>' + glyph('flame') + say(combo + ' סטים ברצף', combo + ' in a row') + '</span>' : '');
-  document.body.appendChild(f); setTimeout(() => f.remove(), big ? 2800 : 2000);
-  if (run) haptic('heavy');
+  for (const o of $$('.pts')) o.remove();
+  const f = document.createElement('div'); f.className = 'pts' + (pr ? ' pr' : ''); f.setAttribute('aria-hidden', 'true');
+  let sparks = ''; const cnt = pr ? 10 : 6;
+  for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + 0.4, d = pr ? 92 : 74; sparks += '<i style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d * 0.55).toFixed(0) + 'px;--sd:' + (i * 18) + 'ms"></i>'; }
+  f.innerHTML = '<span class="pts-pill">' + sparks + glyph('bolt') + '<b>' + Ltr('+' + nf(n)) + '</b></span>' + (pr ? '<span class="pts-tag">' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : '');
+  document.body.appendChild(f); setTimeout(() => f.remove(), pr ? 2400 : 1700);
 }
 function flyPoints(el, n) {
   if (!el || !(n > 0) || reduced) return;

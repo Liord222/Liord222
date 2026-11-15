@@ -2436,3 +2436,311 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 /* the two buttons on the demo sit in its top corners, where a scene is empty: at the bottom they covered the feet and the floor */
 .st-btn{top:8px;bottom:auto;min-height:34px;padding:0 10px}
 .st-btn span{font-size:13px}
+
+/* ---- round 4: the kiosk. Its name in red, a box for each rarity in the colour of that rarity, what is sold for a limited time,
+   and the collection: everything there is (a question mark until it is found), or only what is owned ---- */
+.ks-title{margin:0;font-size:36px;font-weight:900;letter-spacing:-.03em;line-height:1;color:var(--ks)}
+.sheet-in.ks .ks-h{align-items:center}
+.sheet-in.ks .ks-h .ks-title{flex:1}
+.ks-card-h{align-items:center}
+.card.kiosk .ks-title{font-size:30px}
+.ks-boxes:not(.wait) .ks-bx{gap:6px;padding:10px 6px 12px;background:linear-gradient(165deg,color-mix(in srgb,var(--rc) 30%,var(--surface)),color-mix(in srgb,var(--rc) 10%,var(--surface)));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--rc) 50%,var(--line)),0 4px 0 color-mix(in srgb,var(--rc) 60%,var(--lip))}
+.ks-boxes:not(.wait) .ks-bx:active{transform:translateY(3px);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--rc) 50%,var(--line)),0 1px 0 color-mix(in srgb,var(--rc) 60%,var(--lip))}
+.ks-boxes:not(.wait) .ks-bx b{font-size:15px;color:color-mix(in srgb,var(--rc) 58%,var(--ink))}
+.ks-boxes:not(.wait) .ks-bx .ks-pr{background:var(--rc);color:#fff}
+.ks-pr.far{background:var(--surface-3)!important;color:var(--ink-2)!important}
+.ks-pr.far .coin{filter:grayscale(1);opacity:.8}
+.ks-week .btn{padding:0 6px;background:none;box-shadow:none}
+.ks-week .btn .ks-pr{min-height:40px;padding:0 14px;font-size:16px;box-shadow:0 4px 0 color-mix(in srgb,var(--ks) 70%,#000)}
+.ks-week .btn .ks-pr.far{box-shadow:0 4px 0 var(--lip)}
+.ks-week .btn:active .ks-pr{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--ks) 70%,#000)}
+.ks-week+.ks-week{margin-top:10px}
+.ks-week b,.ks-it b,.ks-bx b{overflow-wrap:anywhere;text-wrap:balance}
+.ks-sec h3 small{font-weight:800}
+.ks-rar{display:grid;gap:8px;margin-top:14px}
+.ks-rar h4{margin:0;display:flex;align-items:center;gap:7px;font-size:15px;font-weight:800;color:color-mix(in srgb,var(--rc) 68%,var(--ink))}
+.ks-rar h4 i{width:10px;height:10px;border-radius:50%;background:var(--rc)}
+.ks-rar h4 small{margin-inline-start:auto;font-size:12.5px;font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.ks-q.got{padding:0;border-style:solid;background:color-mix(in srgb,var(--rc) 16%,var(--surface));overflow:hidden}
+.ks-q.got button{display:block;width:100%;height:100%;padding:0;border:0;background:none}
+.ks-q.got .ks-pic{display:block;width:100%}
+.ks-q.got.on{border-color:var(--rc);box-shadow:inset 0 0 0 2px var(--rc)}
+.ks-chance{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ks-chance li{display:grid;grid-template-columns:82px minmax(0,1fr);align-items:center;gap:8px;padding:9px 12px;border-radius:12px;background:color-mix(in srgb,var(--rc) 10%,var(--surface));font-size:12.5px;font-weight:700}
+.ks-chance b{font-size:14px;font-weight:800;color:color-mix(in srgb,var(--rc) 68%,var(--ink))}
+.ks-chance li>span{display:flex;flex-wrap:wrap;gap:3px 10px}
+.ks-chance i{font-style:normal;color:color-mix(in srgb,var(--rc) 72%,var(--ink))}
+.ks-chance i span{color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+/* ---- round 4: the weigh-ins. A big button for today, then the days as a schedule: a tap on a day opens it ---- */
+.body-card{grid-template-columns:56px minmax(0,1fr) auto}
+.body-card b{font-size:22px}
+.bd-now{display:grid;grid-template-columns:70px minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;padding:12px 16px 12px 14px;border:0;border-radius:18px;background:var(--accent);color:var(--on-accent);font:inherit;text-align:start;box-shadow:0 5px 0 var(--accent-lip)}
+.bd-now:active{transform:translateY(3px);box-shadow:0 2px 0 var(--accent-lip)}
+.bd-now>span{display:grid;gap:3px;min-width:0}
+.bd-now b{font-size:21px;font-weight:800;letter-spacing:-.01em}
+.bd-now small{font-size:14px;font-weight:600;opacity:.86}
+.bd-now .scale{width:70px}
+.bd-now>svg:last-child{width:22px;height:22px;stroke-width:2.6}
+.bd-days{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.bd-day{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;min-height:66px;padding:10px 16px;border:0;border-radius:16px;background:var(--surface);color:var(--ink);font:inherit;text-align:start;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+.bd-day:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.bd-day .bd-d{display:grid;gap:2px;min-width:0}
+.bd-day .bd-d b{font-size:17.5px;font-weight:800}
+.bd-day .bd-d small{font-size:13.5px;font-weight:600;color:var(--ink-3)}
+.bd-day .bd-v{display:inline-flex;align-items:baseline;gap:5px}
+.bd-day .bd-v b{font-size:25px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.bd-day .bd-v small{font-size:13px;font-weight:700;color:var(--ink-3)}
+.bd-day .bd-add{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface-2);color:var(--ink-3);font-size:25px;font-weight:700;line-height:1}
+.bd-day.has{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 30%,var(--line)),0 3px 0 color-mix(in srgb,var(--accent) 28%,var(--lip))}
+.bd-day.today:not(.has){box-shadow:inset 0 0 0 2px var(--accent),0 3px 0 var(--lip)}
+.bd-old{margin:8px 0 0;font-size:14.5px;font-weight:800;color:var(--ink-3)}
+.sheet-in.bd .ed-h{align-items:center}
+.sheet-in.bd .ed-h h2{flex:1;margin:0}
+.bd-top{grid-template-columns:96px minmax(0,1fr)}
+.bd-more-b{justify-self:center}
+
+/* ---- round 4: the journey. Its name, the rank in large with its medal, the six ranks, and then the road: it climbs through the sky
+   from edge to edge and down to the end of the screen. The level of a station stands at the edge of the screen ---- */
+.jr-top{justify-items:center;text-align:center;gap:6px;padding:4px 0 0;background:none;box-shadow:none;border-radius:0}
+.jr-title{margin:0;font-size:21px;font-weight:800;letter-spacing:-.01em;color:var(--ink-3)}
+.jr-top .jr-now{display:grid;justify-items:center;gap:0}
+.jr-now .medal{width:96px;height:115px;filter:drop-shadow(0 8px 12px rgb(0 0 0 / .2))}
+.jr-now b{font-size:52px;font-weight:900;letter-spacing:-.03em;line-height:1.05}
+.jr-top .jr-ranks{width:100%;margin-top:10px}
+.sky{position:relative;display:grid;gap:0;overflow:hidden;border-radius:26px;color:#fff;background:linear-gradient(180deg,#58B4F7 0%,#8CCEFB 10%,#FFC9B0 24%,#FF8FB8 36%,#9566EE 50%,#4530A3 66%,#1B1357 82%,#0B0828 100%)}
+.sky-h{position:relative;z-index:2;margin:0;padding:22px 16px 0;font-size:26px;font-weight:900;letter-spacing:-.02em;text-align:center;text-shadow:0 2px 0 rgb(0 0 0 / .14)}
+.sky-road{position:relative}
+.sky-road ol{list-style:none;margin:0;padding:0}
+.sky-stars{position:absolute;inset:46% 0 0 0;background-image:radial-gradient(circle at 12% 8%,#fff 0 1.2px,transparent 1.6px),radial-gradient(circle at 78% 22%,#fff 0 1px,transparent 1.4px),radial-gradient(circle at 42% 46%,#fff 0 1.4px,transparent 1.8px),radial-gradient(circle at 88% 64%,#fff 0 1px,transparent 1.4px),radial-gradient(circle at 24% 82%,#fff 0 1.2px,transparent 1.6px),radial-gradient(circle at 60% 92%,#FFE27A 0 1.4px,transparent 1.8px);background-size:210px 260px;opacity:.8;-webkit-mask-image:linear-gradient(180deg,transparent,#000 22%);mask-image:linear-gradient(180deg,transparent,#000 22%)}
+.cloud{position:absolute;width:132px;height:40px;border-radius:40px;background:#fff;opacity:.6}
+.cloud::before,.cloud::after{content:"";position:absolute;bottom:14px;border-radius:50%;background:#fff}
+.cloud::before{left:20px;width:52px;height:46px}
+.cloud::after{right:22px;width:44px;height:36px}
+.cloud.c1{transform:scale(.72);opacity:.45}
+.cloud.c2{transform:scale(1.25);opacity:.34}
+.sky .pw-trail path{stroke:rgb(255 255 255 / .55);stroke-width:8}
+.sky .pw-trail path.on{stroke:#FFD23F;stroke-width:7}
+.sky-sign{position:absolute;left:50%;transform:translateX(-50%);z-index:1;display:grid;justify-items:center;gap:2px;min-width:200px;padding:10px 20px 12px;border-radius:18px;background:rgb(255 255 255 / .2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .42);text-align:center}
+.sky-sign small{font-size:12.5px;font-weight:800;opacity:.9}
+.sky-sign b{font-size:20px;font-weight:900;letter-spacing:-.01em}
+.st{position:absolute;left:0;right:0;height:0}
+.st .lv{position:absolute;left:var(--x);top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:5px;width:132px;padding:0;border:0;background:none;color:#fff;font:inherit;text-align:center}
+.st .dot{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:#fff;color:#4530A3;box-shadow:0 5px 0 rgb(0 0 0 / .22);transition:transform .12s}
+.st .lv:active .dot{transform:translateY(3px);box-shadow:0 2px 0 rgb(0 0 0 / .22)}
+.st .dot svg{width:30px;height:30px}
+.st .dot .i{stroke-width:2.2}
+.st .dot .bx{width:42px;height:42px}
+.st .dot .medal{width:38px;height:46px}
+.st.rk .dot{width:72px;height:72px;margin-top:-6px;background:linear-gradient(160deg,#FFF6D6,#FFDF8A);box-shadow:0 5px 0 #C98A12}
+.st.done .dot{background:var(--gold);color:var(--gold-ink);box-shadow:0 5px 0 var(--gold-lip)}
+.st.done .dot svg{width:28px;height:28px;stroke-width:3.4}
+.st.later .dot{background:rgb(255 255 255 / .86)}
+.st.next .dot{animation:st-pulse 1.8s ease-in-out infinite}
+@keyframes st-pulse{0%,100%{box-shadow:0 5px 0 rgb(0 0 0 / .22),0 0 0 0 rgb(255 255 255 / .6)}50%{box-shadow:0 5px 0 rgb(0 0 0 / .22),0 0 0 12px rgb(255 255 255 / 0)}}
+.st .lv b{font-size:13.5px;font-weight:800;line-height:1.2;text-shadow:0 1px 2px rgb(0 0 0 / .3);text-wrap:balance}
+.st.later .lv b{opacity:.86}
+.st-n{position:absolute;top:14px;display:grid;place-items:center;min-width:44px;height:32px;padding:0 8px;font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:#fff;text-shadow:0 1px 2px rgb(0 0 0 / .28);opacity:.92}
+.st.r .st-n{right:6px}
+.st.l .st-n{left:6px}
+.st.done .st-n{color:#FFE27A}
+.st.top .st-n{right:6px}
+/* the lifter leans in from the far edge, at the station that comes next */
+.peek{position:absolute;top:-8px;display:flex;align-items:center;gap:6px;pointer-events:none}
+.st.r .peek{left:-16px;flex-direction:row}
+.st.l .peek{right:-16px;flex-direction:row-reverse}
+.peek-fig{display:block;width:74px;height:74px;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 0 0 3px #fff,0 6px 14px rgb(0 0 0 / .25)}
+.st.r .peek-fig{transform:rotate(16deg);animation:peek-l .7s cubic-bezier(.3,1.4,.5,1) .3s both}
+.st.l .peek-fig{transform:rotate(-16deg);animation:peek-r .7s cubic-bezier(.3,1.4,.5,1) .3s both}
+.peek-fig svg{display:block;width:100%;height:100%}
+.peek-say{padding:7px 11px;border-radius:13px;background:#fff;color:#2A1F66;font-size:13.5px;font-weight:800;white-space:nowrap;box-shadow:0 4px 0 rgb(0 0 0 / .16);animation:pop-in .3s ease-out .8s both}
+@keyframes peek-l{from{transform:translateX(-90px) rotate(0)}to{transform:translateX(0) rotate(16deg)}}
+@keyframes peek-r{from{transform:translateX(90px) rotate(0)}to{transform:translateX(0) rotate(-16deg)}}
+@keyframes pop-in{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.st.next .dot,.peek-fig,.peek-say{animation:none!important}}
+/* on a phone the sky has no frame: it runs from one edge of the screen to the other, and down under the tab bar */
+@media (max-width:699px){
+  .sky{margin:8px -20px calc(-1 * (var(--tabbar) + 44px + env(safe-area-inset-bottom,0px)));padding-bottom:calc(var(--tabbar) + 30px + env(safe-area-inset-bottom,0px));border-radius:30px 30px 0 0}
+}
+.lvs-t .bx{width:34px;height:34px}
+.lvs-t .medal{width:26px;height:32px}
+/* the words of the road are read on every colour of the sky: dark plates under the white letters */
+.sky-sign{background:#fff;color:#2A1F66;box-shadow:0 5px 0 rgb(0 0 0 / .14);-webkit-backdrop-filter:none;backdrop-filter:none}
+.sky-sign small{color:#6A5FA8;opacity:1}
+.st .lv b{padding:3px 9px;border-radius:99px;background:rgb(24 14 70 / .42);text-shadow:none}
+.st-n{border-radius:99px;background:rgb(24 14 70 / .34);text-shadow:none;font-size:18px}
+.st.done .st-n{background:rgb(24 14 70 / .5)}
+.peek{direction:ltr}
+.peek-say{direction:rtl}
+[dir="ltr"] .peek-say{direction:ltr}
+
+/* ---- round 4: before and during a workout ---- */
+/* less time today: a time is tapped, or "no rush" */
+.tq-ch{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:10px;width:100%}
+.tq-c{display:grid;justify-items:center;gap:0;min-height:76px;padding:10px 6px;border:0;border-radius:18px;background:var(--surface);color:var(--ink);font:inherit;box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.tq-c:active{transform:translateY(3px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.tq-c b{font-size:30px;font-weight:900;letter-spacing:-.02em;line-height:1.05;font-variant-numeric:tabular-nums}
+.tq-c span{font-size:13.5px;font-weight:700;color:var(--ink-3)}
+/* a new exercise takes the screen: calm purple, the name in large, and what it asks on one white card */
+.xi.xo{display:grid;place-items:center;align-items:center;padding:28px 22px calc(28px + env(safe-area-inset-bottom));color:#fff;background:linear-gradient(170deg,#7A4CEC 0%,#5A2FCC 55%,#40209F 100%)}
+.xi.xo::before{display:none}
+.xo-in{position:relative;display:grid;justify-items:center;gap:14px;width:100%;max-width:420px;text-align:center}
+.xo-k{margin:0;padding:6px 15px;border-radius:99px;background:rgb(255 255 255 / .16);font-size:14.5px;font-weight:800;animation:xi-up .35s ease .02s both}
+.xo-t{margin:0;font-size:clamp(30px,9vw,40px);font-weight:900;line-height:1.08;letter-spacing:-.025em;text-wrap:balance;animation:xi-up .35s ease .08s both}
+.xo .mus-chips{animation:xi-up .35s ease .12s both}
+.xo .mus-chips span{background:rgb(255 255 255 / .15);color:#fff}
+.xo .mus-chips span.p{background:#fff;color:#4A27B8}
+.xo-rx{list-style:none;margin:8px 0 0;padding:6px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;border-radius:20px;background:#fff;color:#1E1440;box-shadow:0 6px 0 rgb(0 0 0 / .2);animation:xi-up .35s ease .16s both}
+.xo-rx li{display:grid;gap:3px;padding:10px 4px}
+.xo-rx li+li{border-inline-start:1.5px solid #E7E2F6}
+.xo-rx b{font-size:28px;font-weight:900;letter-spacing:-.02em;line-height:1;direction:ltr;color:#4A27B8;font-variant-numeric:tabular-nums}
+.xo-rx span{font-size:13.5px;font-weight:700;color:#6B6485}
+.xo-go{width:100%;margin-top:8px;border:0;background:#fff;color:#4A27B8;font-weight:900;box-shadow:0 5px 0 rgb(0 0 0 / .24);animation:xi-up .35s ease .2s both}
+.xo-go:active{transform:translateY(3px);box-shadow:0 2px 0 rgb(0 0 0 / .24)}
+@media (prefers-reduced-motion:reduce){.xo-k,.xo-t,.xo .mus-chips,.xo-rx,.xo-go{animation:none}}
+/* the points of a logged set: a gold pill that pops in under the top of the screen, a few sparks, and it is gone */
+.pts{position:fixed;z-index:96;left:50%;top:calc(env(safe-area-inset-top,0px) + 58px);display:grid;justify-items:center;gap:8px;pointer-events:none;transform:translateX(-50%);animation:pts-in 1.6s cubic-bezier(.2,.9,.3,1) both}
+.pts.pr{animation-duration:2.3s}
+.pts-pill{position:relative;display:inline-flex;align-items:center;gap:6px;padding:9px 20px 9px 14px;border-radius:99px;background:linear-gradient(180deg,#FFE27A,#FFBF2E);color:#4A2C00;direction:ltr;box-shadow:0 5px 0 #C98A12,0 16px 30px -10px rgb(0 0 0 / .5)}
+.pts-pill b{font-size:32px;font-weight:900;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.pts-pill .i{width:26px;height:26px;fill:#4A2C00;stroke:none}
+.pts.pr .pts-pill b{font-size:38px}
+.pts-pill>i{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;background:#FFD23F;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:pts-spark .7s ease-out var(--sd,0ms) both}
+.pts-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;background:#fff;color:#4A27B8;font-size:15px;font-weight:900;box-shadow:0 3px 0 rgb(0 0 0 / .2)}
+.pts-tag .i{width:17px;height:17px;fill:currentColor;stroke:none}
+@keyframes pts-in{0%{opacity:0;transform:translate(-50%,22px) scale(.5) rotate(-7deg)}13%{opacity:1;transform:translate(-50%,0) scale(1.16) rotate(2deg)}22%{transform:translate(-50%,0) scale(1) rotate(0)}76%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-30px) scale(.94)}}
+@keyframes pts-spark{0%{opacity:0;transform:translate(0,0) scale(.3)}20%{opacity:1}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(1.1) rotate(120deg)}}
+/* the weight and the reps: steps that look like buttons */
+.dk-nums .step,.dk-nums .rstep{font-weight:900}
+.st-btn[aria-disabled="true"]{opacity:.45}
+
+/* ---- round 4: the details of an exercise, tidy: a small row of what it asks, how it is done, and two quiet actions ---- */
+.sheet-in.hw{gap:12px}
+.sheet-in.hw .ed-h h2{font-size:25px;line-height:1.12}
+.sheet-in.hw .mus-chips{justify-content:flex-start;margin:0}
+.hw-facts{gap:0;padding:4px 0;border-radius:16px;background:var(--surface-2)}
+.hw-facts li{padding:8px 4px;border-radius:0;background:none;color:var(--ink)}
+.hw-facts li+li{border-inline-start:1.5px solid var(--line)}
+.hw-facts b{font-size:21px;font-weight:900;direction:ltr}
+.hw-facts span{font-size:12.5px;font-weight:700;color:var(--ink-3);opacity:1}
+.sheet-in.hw .hw-rir{margin:0;font-size:14px;font-weight:700;color:var(--ink-3);text-align:start}
+.sheet-in.hw .hw-h{margin:4px 0 0;font-size:17px}
+.sheet-in.hw .note span{font-size:13.5px}
+.sheet-in.hw .note-in{min-height:46px}
+.hw-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.hw-acts .btn{min-height:48px;font-size:15.5px}
+
+/* ---- round 4: the end of a workout. Rays turn behind the lifter, the points land in large gold, and what was won comes in one
+   after another ---- */
+.sheet-in.sum.fin{overflow-x:hidden;gap:8px}
+.fin-rays{position:absolute!important;z-index:0!important;left:50%;top:26%;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgb(255 255 255 / .1) 0 8deg,transparent 8deg 20deg);-webkit-mask-image:radial-gradient(closest-side,#000 24%,transparent 74%);mask-image:radial-gradient(closest-side,#000 24%,transparent 74%);animation:fin-spin 22s linear infinite;pointer-events:none}
+.fin-h{margin:2px 0 0;font-size:clamp(34px,10vw,44px);font-weight:900;letter-spacing:-.03em;line-height:1.05;color:#fff;text-wrap:balance;animation:fin-pop .6s cubic-bezier(.3,1.5,.5,1) .05s both}
+.fin-xp{margin:0;display:grid;justify-items:center;gap:0;animation:fin-pop .6s cubic-bezier(.3,1.5,.5,1) .4s both}
+.fin-xp b{font-size:clamp(54px,17vw,72px);font-weight:900;letter-spacing:-.035em;line-height:1;background:linear-gradient(180deg,#FFF6C2 0%,#FFD24A 46%,#F59E0B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 0 rgb(0 0 0 / .28));font-variant-numeric:tabular-nums}
+.fin-xp span{font-size:16px;font-weight:800;color:rgb(255 255 255 / .86)}
+.sum.fin .sum-st{margin-top:6px}
+.sum.fin .sum-st li{animation:fin-pop .5s cubic-bezier(.3,1.5,.5,1) .85s both}
+.sum.fin .sum-st li:nth-child(2){animation-delay:.97s}.sum.fin .sum-st li:nth-child(3){animation-delay:1.09s}
+.sum.fin .sum-st{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
+.sum.fin .sum-new li{animation:fin-pop .5s cubic-bezier(.3,1.5,.5,1) 1.25s both}
+.sum.fin .sum-new li:nth-child(2){animation-delay:1.4s}.sum.fin .sum-new li:nth-child(3){animation-delay:1.55s}
+.sum.fin .sum-new li.gold{background:linear-gradient(180deg,#FFE27A,#FFBF2E);box-shadow:0 4px 0 #C98A12}
+.sum.fin #sumBox{animation:fin-pop .5s cubic-bezier(.3,1.5,.5,1) 1.6s both}
+.sheet-in.sum.fin .btn.primary{box-shadow:0 5px 0 rgb(0 0 0 / .28)}
+.sheet-in.sum.fin .btn.primary:active{transform:translateY(3px);box-shadow:0 2px 0 rgb(0 0 0 / .28)}
+@keyframes fin-pop{0%{opacity:0;transform:scale(.6) translateY(14px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes fin-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.fin-rays,.fin-h,.fin-xp,.sum.fin .sum-st li,.sum.fin .sum-new li,.sum.fin #sumBox{animation:none!important}}
+@media (max-height:700px){.fin-h{font-size:30px}.fin-xp b{font-size:50px}.sum.fin .sum-av{width:min(130px,34vw)}}
+
+/* ---- round 4: the week on the Workouts screen. Its name and the way to the plan on one line; under it one bar, a part for each
+   workout, with how many are done at its end ---- */
+.week-h{justify-content:space-between}
+.wk-meter{display:flex;align-items:center;gap:12px;margin:0;padding-inline:4px}
+.wk-segs{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:5px}
+.wk-meter i,.wk-segs i{display:block;width:auto;height:8px;border-radius:99px;background:var(--surface-3)}
+.wk-segs i.done{background:var(--gold)}
+.wk-segs i.live,.wk-segs i.next{background:var(--accent)}
+.wk-meter b{flex:none;font-size:14.5px;font-weight:800;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sum.fin .sum-av{width:min(150px,38vw)}
+
+/* ---- round 4: the opening ---- */
+/* the first screen: Eilon walks in from the side and stands higher; his words are under him, never on him */
+.ob-film .ob-set{margin-top:-24vh}
+.ob-film[data-beat="0"] .ob-set{transform:scale(1.04)}
+.ob.play .ob-film .ob-coach{animation:coach-in 1s cubic-bezier(.25,.8,.3,1) both}
+@keyframes coach-in{0%{opacity:0;transform:translate(86vw,0)}12%{opacity:1}25%{transform:translate(62vw,-9px)}38%{transform:translate(44vw,0)}52%{transform:translate(27vw,-9px)}66%{transform:translate(13vw,0)}80%{transform:translate(4vw,-6px)}100%{opacity:1;transform:translate(0,0)}}
+[dir="ltr"] .ob.play .ob-film .ob-coach{animation-name:coach-in-l}
+@keyframes coach-in-l{0%{opacity:0;transform:translate(-86vw,0)}12%{opacity:1}25%{transform:translate(-62vw,-9px)}38%{transform:translate(-44vw,0)}52%{transform:translate(-27vw,-9px)}66%{transform:translate(-13vw,0)}80%{transform:translate(-4vw,-6px)}100%{opacity:1;transform:translate(0,0)}}
+.ob-hello{animation-delay:.85s;padding-bottom:10px}
+.ob-hello h1{font-size:38px;font-weight:900;letter-spacing:-.03em}
+.ob-in.film .ob-top .ob-skip,.ob-skip{display:inline-flex;align-items:center;gap:2px;min-height:38px;padding:0 10px 0 14px;border:0;border-radius:99px;background:rgb(255 255 255 / .12);color:rgb(255 255 255 / .9);font:inherit;font-size:15px;font-weight:800;box-shadow:none}
+.ob-skip:active{transform:scale(.96);box-shadow:none;background:rgb(255 255 255 / .2)}
+.ob-skip svg{width:18px;height:18px;stroke-width:2.6}
+@media (prefers-reduced-motion:reduce){.ob.play .ob-film .ob-coach{animation:none}}
+/* the experience: the character stands at the foot of the screen */
+.ob-in[data-k="exp"] .ob-body{grid-template-rows:auto auto minmax(110px,1fr)}
+.ob-pre{align-self:end;max-height:300px}
+/* the goals: each drawing white on its own colour */
+.ob-opt .ob-ic.gi{color:#fff;background:var(--gc)}
+.ob-ic.g0{--gc:#2B78F0}.ob-ic.g1{--gc:#6D3FE0}.ob-ic.g2{--gc:#F2A30F}.ob-ic.g3{--gc:#FF6B2C}.ob-ic.g4{--gc:#E5484D}.ob-ic.g5{--gc:#0FA89A}
+.ob-opt .ob-ic.gi svg{width:25px;height:25px;fill:#fff;stroke:none}
+.ob-opt[aria-checked="true"] .ob-ic.gi{background:var(--gc);color:#fff}
+.ob-opts.g2 .ob-ic.gi{width:44px;height:44px;border-radius:14px;box-shadow:0 3px 0 color-mix(in srgb,var(--gc) 62%,#000)}
+/* height and weight: a way past */
+button.ob-may{display:block;margin:10px auto 0;min-height:44px;padding:0 22px;font-size:16px;font-weight:800;color:var(--ink-2)}
+/* an area, a sore spot: "all" stands on top, alone, and under it as many as wanted */
+.ob-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ob-chips .ob-chip{min-width:0;padding:0 8px;font-size:16.5px}
+.ob-chip.all{grid-column:1 / -1;min-height:58px;font-size:18px;font-weight:800}
+.ob-chip.all[aria-checked="true"]{background:var(--accent);color:var(--on-accent);box-shadow:0 3px 0 var(--accent-lip)}
+/* the avatar: the figure on top, on a soft stage; under it what can be changed, one row of tabs and a grid */
+.ob-in[data-k="look"] .ob-body{grid-template-rows:auto minmax(0,1fr);gap:12px}
+.ob-av{display:grid;grid-template-rows:minmax(130px,1fr) auto;gap:10px;min-height:0}
+.ob-body.in .ob-av{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .12s both}
+.ob-av-fig{position:relative;display:grid;place-items:center;min-height:0;padding:8px 0 0;border-radius:22px;overflow:hidden;background:radial-gradient(80% 70% at 50% 46%,var(--accent-soft),var(--surface) 80%);box-shadow:inset 0 0 0 1.5px var(--line)}
+.ob-av-fig .lk-stage{display:grid;place-items:end center;width:auto;height:100%;min-height:0;max-height:330px}
+.ob-av-fig .lk-stage .av{display:block;width:auto;height:100%;max-width:100%;overflow:visible}
+.ob-av-fig .lk-stage .av-aura{display:none}
+.ob-av-fig .lk-photo-box{position:absolute;top:10px;inset-inline-end:10px;justify-items:end}
+.ob-av-fig .lk-photo{min-height:38px;padding:0 12px;border-radius:12px;background:#fff;color:#5A2FCC;font-size:13.5px;font-weight:800}
+.ob-av-fig .lk-note{max-width:130px;text-align:end;font-size:12px}
+.ob-av-ed{gap:10px;padding:10px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.ob-av-ed .lk-tabs{flex-wrap:nowrap}
+.ob-av-ed .lk-tabs button{flex:1 0 auto;min-height:40px;padding:0 11px;font-size:14px;font-weight:700}
+.ob-av-ed .lk-pane{min-height:0;height:172px;overflow-y:auto;align-content:start;padding:2px}
+.ob-av-ed .lk-cuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ob-av-ed .lk-cuts.two{grid-template-columns:1fr 1fr;height:100%}
+.ob-av-ed .lk-cuts.two .lk-cut{height:164px}
+.ob-av-ed .lk-cuts.two .lk-face{height:128px;width:auto}
+.ob-av-ed .lk-cuts.two .lk-face svg{height:100%;width:auto}
+.ob-av-ed .lk-cuts.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ob-av-ed .lk-cut{min-width:0;overflow:hidden}
+.ob-av-ed .lk-face{display:block;width:100%;max-width:74px}
+.ob-av-ed .lk-face svg{display:block;width:100%;height:auto}
+.ob-av-ed .lk-cut small{font-size:12px}
+.ob-av-ed .lk-opts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 10px;justify-items:center;padding:8px 4px}
+.ob-av-ed .lk-opts .lk-sw{max-width:58px}
+.ob-av-ed .lk-tees{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ob-av-ed .lk-tee{height:76px;min-width:0}
+.ob-av-ed .lk-tee svg{width:46px;height:46px}
+@media (max-height:700px){.ob-av-ed .lk-pane{height:132px}.ob-av-ed .lk-cuts.two .lk-cut{height:124px}.ob-av-ed .lk-cuts.two .lk-face{height:92px}.ob-av-ed .lk-tee{height:60px}}
+/* the plan that was built: three numbers, then each workout on a row of its own */
+.pl-stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pl-stats li{display:grid;justify-items:center;gap:2px;padding:12px 4px 10px;border-radius:16px;background:var(--accent-soft);text-align:center}
+.pl-stats b{font-size:26px;font-weight:900;letter-spacing:-.02em;line-height:1;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.pl-stats span{font-size:12.5px;font-weight:700;color:var(--ink-2);line-height:1.2}
+.ob-plan2{gap:10px;padding:12px}
+.ob-wks2{gap:8px}
+.ob-wks2 li{padding:10px 12px;border-radius:16px;background:var(--surface-2)}
+.ob-wks2 li+li{border-top:0}
+.ob-wks2 i{width:40px;height:40px;border-radius:13px;background:linear-gradient(160deg,#8A5CFF,#5A2FCC);color:#fff;font-size:18px;font-weight:900;box-shadow:0 3px 0 #40209F}
+.ob-wks2 span b{font-size:17.5px}
+.ob-wks2 em b{font-size:21px;font-weight:900}
+.ob-plan2.reveal .ob-wks2 li{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) calc(.25s + var(--i,0) * .08s) both}
+.ob-pre{max-height:236px}
+button.ob-may{min-height:48px;padding:0 30px;border-radius:14px;background:var(--surface);color:var(--ink);text-decoration:none;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.ob-av-ed .lk-tabs button{flex:1 1 auto;padding:0 5px;font-size:13px}
+.sheet-in.sum.fin{align-content:safe center}
+@media (max-height:700px){.sheet-in.sum.fin{gap:6px;padding-top:calc(14px + env(safe-area-inset-top,0px))}.sum.fin .sum-av{width:min(104px,28vw)}.fin-h{font-size:27px}.fin-xp b{font-size:44px}.sum.fin .sum-st li{padding:8px 4px}.sum.fin .sum-st b{font-size:24px}}

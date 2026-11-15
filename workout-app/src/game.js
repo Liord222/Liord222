@@ -2,7 +2,7 @@
    Every logged set earns points, a personal best earns more, and finishing a workout adds a bonus. Points add up to
    levels; levels carry a rank and open gear for the player's character. Everything is counted from the workout log,
    so a restored backup or a second device shows the same level. */
-const XP = { set: 10, pr: 30, done: 100 };
+const XP = { set: 100, pr: 300, done: 1000 };
 /* what one workout is worth: sets, personal bests, kilograms moved and the points for them */
 /* an assisted movement's weight is help, not load: it is no kilogram lifted (less help would count as less work) */
 function helpOf(s, id) {
@@ -21,18 +21,18 @@ function tally(s) {
   }
   return { sets, prs, kg: Math.round(kg), xp: sets * XP.set + prs * XP.pr + (sets && s.end ? XP.done : 0) };
 }
-/* points needed to leave a level: 200 for the first, 40 more for each one after it. The first week of the plan is a level per workout */
-const xpStep = (lvl) => 200 + 40 * (lvl - 1);
-/* the points to reach level n+1 add up to 20n² + 180n, so the level comes straight from the points, without counting up one level at a time */
-const xpTo = (n) => 20 * n * n + 180 * n;
+/* points needed to leave a level: 2,000 for the first, 400 more for each one after it. The first week of the plan is a level per workout */
+const xpStep = (lvl) => 2000 + 400 * (lvl - 1);
+/* the points to reach level n+1 add up to 200n² + 1800n, so the level comes straight from the points, without counting up one level at a time */
+const xpTo = (n) => 200 * n * n + 1800 * n;
 function levelOf(xp) {
   const t = xp > 0 && isFinite(xp) ? Math.floor(xp) : 0;
-  let n = Math.max(0, Math.floor((Math.sqrt(32400 + 80 * t) - 180) / 40));
+  let n = Math.max(0, Math.floor((Math.sqrt(32400 + 8 * t) - 180) / 40));
   for (let i = 0; i < 3 && n > 0 && xpTo(n) > t; i++) n--;
   for (let i = 0; i < 3 && xpTo(n + 1) <= t; i++) n++;
   return { lvl: n + 1, into: t - xpTo(n), need: xpStep(n + 1) };
 }
-const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 10, he: 'לוחם', en: 'Warrior' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 40, he: 'מכונה', en: 'Machine' }, { at: 70, he: 'טיטאן', en: 'Titan' }, { at: 100, he: 'אגדה', en: 'Legend' }];
+const RANKS = [{ at: 1, he: 'טירון', en: 'Rookie' }, { at: 10, he: 'לוחם', en: 'Warrior' }, { at: 20, he: 'חיה', en: 'Beast' }, { at: 40, he: 'מכונה', en: 'Machine' }, { at: 70, he: 'אגדה', en: 'Legend' }, { at: 100, he: 'טיטאן', en: 'Titan' }];
 /* the medal of a rank: bronze, silver, gold, then jade, amethyst and a ruby set in gold; a star for each rank it stands for */
 const MEDAL_C = [['#D9A06B', '#93603A'], ['#D5D9E1', '#7C8492'], ['#F5C04A', '#C98F1C'], ['#7FD6C2', '#2E8F7B'], ['#B79CFF', '#6D3FE0'], ['#FFD76A', '#D7263D']];
 function medalSVG(i) {
@@ -45,35 +45,43 @@ function medalSVG(i) {
 function rankOf(lvl) { let i = 0; while (i + 1 < RANKS.length && RANKS[i + 1].at <= lvl) i++; return { i, at: RANKS[i].at, he: RANKS[i].he, en: RANKS[i].en }; }
 /* the name of a rank, a reward or an achievement in the language of the page */
 const nm = (x) => say(x.he, x.en || x.he);
-/* what a level opens: a new rank, or gear the character wears from then on (k names the gear) */
+/* the gear a level opens: the character wears it from then on (k names the gear) */
 const REWARDS = [
-  { at: 3, k: 'band', he: 'סרט ראש', en: 'Headband' }, { at: 8, k: 'wraps', he: 'רצועות יד', en: 'Wrist wraps' }, { at: 10, he: 'דרגת לוחם', en: 'Warrior rank' },
-  { at: 12, k: 'belt', he: 'חגורת הרמה', en: 'Lifting belt' }, { at: 20, k: 'tank', he: 'דרגת חיה וגופייה', en: 'Beast rank and a tank top' },
-  { at: 30, k: 'medal', he: 'מדליה', en: 'A medal' }, { at: 40, k: 'crown', he: 'דרגת מכונה וכתר', en: 'Machine rank and a crown' },
-  /* past the crown the road goes on to the hundredth level: the gear of a champion, and at the end the stars of a legend */
-  { at: 50, k: 'cape', he: 'גלימה', en: 'A cape' }, { at: 60, k: 'kicks', he: 'נעלי זהב', en: 'Gold shoes' }, { at: 70, k: 'champ', he: 'דרגת טיטאן וחגורת אליפות', en: 'Titan rank and a title belt' },
-  { at: 90, k: 'glow', he: 'הילת זהב', en: 'A golden glow' }, { at: 100, k: 'stars', he: 'דרגת אגדה', en: 'Legend rank' },
+  { at: 3, k: 'band', he: 'סרט ראש', en: 'Headband' }, { at: 8, k: 'wraps', he: 'רצועות יד', en: 'Wrist wraps' }, { at: 12, k: 'belt', he: 'חגורת הרמה', en: 'Lifting belt' },
+  { at: 20, k: 'tank', he: 'גופייה', en: 'Tank top' }, { at: 30, k: 'medal', he: 'מדליה', en: 'A medal' }, { at: 40, k: 'crown', he: 'כתר', en: 'A crown' },
+  { at: 50, k: 'cape', he: 'גלימה', en: 'A cape' }, { at: 60, k: 'kicks', he: 'נעלי זהב', en: 'Gold shoes' }, { at: 70, k: 'champ', he: 'חגורת אליפות', en: 'A title belt' },
+  { at: 90, k: 'glow', he: 'הילת זהב', en: 'A golden glow' }, { at: 100, k: 'stars', he: 'כוכבי טיטאן', en: 'Titan stars' },
 ];
-const nextReward = (lvl) => REWARDS.find((r) => r.at > lvl) || null;
-const rewardsBetween = (a, b) => REWARDS.filter((r) => r.at > a && r.at <= b);
+/* the stations of the road: every two or three levels something waits. A new rank (named by the rank alone), gear, or a box for the
+   collection: the further along the road, the rarer the box. rank: its index or -1 · gear: the gear of that level, if any · box: how
+   rare the box is, or -1 */
+const RARE_HE = ['רגיל', 'נדיר', 'סופר נדיר', 'אפיק', 'מיתי', 'אגדי'], RARE_EN = ['Common', 'Rare', 'Super rare', 'Epic', 'Mythic', 'Legendary'];
+const boxAt = (lvl) => (lvl < 12 ? 0 : lvl < 25 ? 1 : lvl < 45 ? 2 : lvl < 65 ? 3 : lvl < 90 ? 4 : 5);
+const STATIONS = [];
+for (let l = 2; l <= 100; l++) {
+  const rank = RANKS.findIndex((r) => r.at === l), gear = REWARDS.find((r) => r.at === l) || null;
+  if (rank < 0 && !gear && l % 5 !== 0 && l % 5 !== 3) continue;
+  const box = rank > 0 || gear ? -1 : boxAt(l), of = rank > 0 ? RANKS[rank] : gear || { he: 'קופסת ' + RARE_HE[box], en: RARE_EN[box] + ' box' };
+  STATIONS.push({ at: l, rank: rank > 0 ? rank : -1, gear, box, k: gear ? gear.k : undefined, he: of.he, en: of.en });
+}
+const nextReward = (lvl) => STATIONS.find((r) => r.at > lvl) || null;
+const rewardsBetween = (a, b) => STATIONS.filter((r) => r.at > a && r.at <= b);
 /* ---- the kiosk and the collection. What the character wears beyond what the levels open comes out of boxes: a box holds one
-   thing of its kind, and never one that is owned already. Every ten points earned are a coin, and coins buy boxes. The level
+   thing of its kind, and never one that is owned already. Every hundred points earned are a coin, and coins buy boxes. The level
    and its points are never spent: the coins are counted beside them.
    A thing: id, slot (one thing of a slot is worn at a time), m (the model it is drawn by, see avatar.js), c (its colours),
    r (how rare it is, 0 to 5), n (what a model writes or draws on it) */
 const RARE = [
-  { he: 'רגיל', en: 'Common', c: '#8A90A0', w: 500 }, { he: 'נדיר', en: 'Rare', c: '#27A35A', w: 280 }, { he: 'סופר נדיר', en: 'Super rare', c: '#2B78F0', w: 130 },
-  { he: 'אפיק', en: 'Epic', c: '#8B4DF0', w: 60 }, { he: 'מיתי', en: 'Mythic', c: '#E0364B', w: 27 }, { he: 'אגדי', en: 'Legendary', c: '#E8A317', w: 3 },
+  { he: RARE_HE[0], en: RARE_EN[0], c: '#8A90A0' }, { he: RARE_HE[1], en: RARE_EN[1], c: '#27A35A' }, { he: RARE_HE[2], en: RARE_EN[2], c: '#2B78F0' },
+  { he: RARE_HE[3], en: RARE_EN[3], c: '#8B4DF0' }, { he: RARE_HE[4], en: RARE_EN[4], c: '#E0364B' }, { he: RARE_HE[5], en: RARE_EN[5], c: '#E8A317' },
 ];
 /* a thing that was sold for one week only carries its own tag */
 const LIMITED = { he: 'מהדורה שבועית', en: 'Weekly edition', c: '#0FA89A' };
-/* the kinds of boxes, and the slots each holds */
-const BOXES = [
-  { he: 'קופסת כובעים', en: 'Hat box', of: ['כובעים', 'Hats'], slots: ['head'], c: '#E0364B' }, { he: 'קופסת משקפיים', en: 'Glasses box', of: ['משקפיים', 'Glasses'], slots: ['eyes'], c: '#2B78F0' },
-  { he: 'קופסת חולצות', en: 'Shirt box', of: ['חולצות', 'Shirts'], slots: ['shirt'], c: '#8B4DF0' }, { he: 'קופסת נעליים', en: 'Shoe box', of: ['נעליים', 'Shoes'], slots: ['feet'], c: '#27A35A' },
-  { he: 'קופסת אביזרים', en: 'Accessory box', of: ['אביזרים', 'Accessories'], slots: ['neck', 'wrist', 'hands', 'ears', 'hold', 'back'], c: '#E8A317' },
-];
-const BOX_COST = 80, WEEK_COST = 150, SHIELD_COST = 120, SHIELD_TOP = 1, PITY = 10;
+/* the boxes: one for each rarity. A box gives a thing of its own rarity, and now and then a rarer one (odds: out of 1,000, by
+   rarity). The rarer the box, the more coins it costs: a workout earns about 30 coins */
+const BOX_ODDS = [[780, 180, 40, 0, 0, 0], [0, 750, 200, 50, 0, 0], [0, 0, 750, 200, 50, 0], [0, 0, 0, 800, 170, 30], [0, 0, 0, 0, 850, 150], [0, 0, 0, 0, 0, 1000]];
+const BOXES = RARE.map((r, i) => ({ he: 'קופסת ' + r.he, en: r.en + ' box', c: r.c, cost: [40, 80, 150, 300, 600, 1200][i], odds: BOX_ODDS[i] }));
+const WEEK_COST = 200, SHIELD_COST = 300, SHIELD_TOP = 1;
 const SHOP = [];
 const stock = (slot, rows) => { for (const x of rows) SHOP.push({ id: x[0], slot, m: x[1], c: x[2], r: x[3], he: x[4], en: x[5], n: x[6] }); };
 stock('head', [
@@ -169,8 +177,6 @@ stock('hold', [
 ]);
 stock('back', [['wings', 'wings', ['#F4F4F6', '#D5D9E1'], 5, 'כנפיים', 'Wings']]);
 const SHOP_BY = {}; for (const x of SHOP) SHOP_BY[x.id] = x;
-/* the kind of box a thing comes out of */
-const kindOf = (it) => { const i = BOXES.findIndex((b) => b.slots.includes(it.slot)); return i < 0 ? BOXES.length - 1 : i; };
 /* the thing of the week: one each calendar week, sold for coins while the week lasts and never again. It is drawn by a model of
    the collection, in the colours of the season it was sold in: [dark, main, light, accent] */
 const WEEKLY = [
@@ -193,20 +199,21 @@ function weekItem(w) {
 const shopItem = (id) => (typeof id !== 'string' ? null : SHOP_BY[id] || (/^wk\d{1,5}$/.test(id) ? weekItem(+id.slice(2)) : null));
 /* the tag of a thing: how rare it is, or that it was a week's own */
 const rareOf = (it) => (it.wk != null ? LIMITED : RARE[it.r] || RARE[0]);
-const coinsOf = (xp) => Math.floor((xp > 0 && isFinite(xp) ? xp : 0) / 10);
+const coinsOf = (xp) => Math.floor((xp > 0 && isFinite(xp) ? xp : 0) / 100);
 /* what was paid, in the days when things were bought one by one, for the things of then */
 const OLD_COST = { towel: 30, sweat: 35, towelP: 45, kicksW: 50, cap: 60, capR: 60, glasses: 60, shaker: 65, gloves: 70, kicksK: 70, capK: 75, beanie: 80, glovesR: 85, shades: 90, kicksR: 95, tag: 100, watch: 110, buds: 110, kicksP: 120, phones: 150, chain: 200, watchG: 220 };
 /* a wardrobe read from a file or from the account. own: the things, each once · on: the worn ones, one to a slot · sp: the coins
-   spent so far · inv: boxes that wait to be opened, by kind · got: what boxes were already given for (workouts by their id, full
-   weeks by theirs) · n: boxes opened in all · pt: boxes since the last epic or better · sd: the seed of this lifter's luck ·
+   spent so far · inv: boxes that wait to be opened, by rarity (bx: 2 marks that; boxes kept from the days when a box was a kind
+   of thing become common ones) · got: what boxes were already given for (workouts by their id, full weeks by theirs) · lv: the
+   level up to which the boxes of the road were given · n: boxes opened in all · sd: the seed of this lifter's luck ·
    sh: shields held · shw: the weeks a shield stood in for */
 function cleanShop(v) {
   v = v && typeof v === 'object' ? v : {};
   const ok = (a) => (Array.isArray(a) ? a.filter((id, i) => !!shopItem(id) && a.indexOf(id) === i) : []), num = (x, top) => (Number.isFinite(x) && x > 0 ? Math.min(Math.floor(x), top) : 0);
   const own = ok(v.own), slots = {};
   const on = ok(v.on).filter((id) => { const s = shopItem(id).slot; if (!own.includes(id) || slots[s]) return false; slots[s] = 1; return true; });
-  return { own, on, sp: Number.isFinite(v.sp) && v.sp >= 0 ? Math.floor(v.sp) : own.reduce((n, id) => n + (OLD_COST[id] || 0), 0), inv: BOXES.map((b, i) => num(Array.isArray(v.inv) ? v.inv[i] : 0, 99)),
-    got: Array.isArray(v.got) ? v.got.filter((k, i, a) => typeof k === 'string' && k.length < 60 && a.indexOf(k) === i).slice(-200) : [], n: num(v.n, 1e6), pt: num(v.pt, PITY), sd: num(v.sd, 4294967295),
+  return { own, on, sp: Number.isFinite(v.sp) && v.sp >= 0 ? Math.floor(v.sp) : own.reduce((n, id) => n + (OLD_COST[id] || 0), 0), inv: BOXES.map((b, i) => (!Array.isArray(v.inv) ? 0 : v.bx === 2 ? num(v.inv[i], 99) : i ? 0 : num(v.inv.reduce((n, x) => n + num(x, 99), 0), 99))), bx: 2, lv: num(v.lv, 100),
+    got: Array.isArray(v.got) ? v.got.filter((k, i, a) => typeof k === 'string' && k.length < 60 && a.indexOf(k) === i).slice(-200) : [], n: num(v.n, 1e6), sd: num(v.sd, 4294967295),
     sh: num(v.sh, SHIELD_TOP), shw: Array.isArray(v.shw) ? v.shw.filter((w, i, a) => Number.isInteger(w) && a.indexOf(w) === i).slice(-40) : [] };
 }
 const spentOf = (shop) => shop.sp || 0;
@@ -218,31 +225,32 @@ function shopWear(shop, id, on) {
   const rest = shop.on.filter((k) => k !== id && shopItem(k).slot !== it.slot);
   return Object.assign({}, shop, { own: shop.own.slice(), on: on ? rest.concat(id) : rest });
 }
-/* how rare the thing of a box is, from a number between 0 and 999 */
-const rollRare = (r) => { let a = 0; for (let i = 0; i < RARE.length; i++) { a += RARE[i].w; if (r < a) return i; } return 0; };
-/* what a kind of box still holds for this lifter */
-const boxLeft = (shop, kind) => SHOP.filter((x) => kindOf(x) === kind && !shop.own.includes(x.id));
-/* a box of a kind is opened: one thing of that kind that is not owned yet. How rare it is comes from the lifter's own luck (the
-   seed and the number of boxes opened so far, so that opening again never gives another answer); after nine boxes with nothing
-   epic the tenth is epic at least. Returns { it, shop }, or null when the kind is all owned */
-function boxDraw(shop, kind) {
-  const left = boxLeft(shop, kind); if (!left.length) return null;
-  const sd = shop.sd || 1, h = hashId(sd + ':' + shop.n + ':' + kind), h2 = hashId(h + ':' + left.length);
-  let r = rollRare(h % 1000); const sure = shop.pt >= PITY - 1 && r < 3; if (sure) r = 3;
-  /* nothing left of that rarity: the nearest one under it, then the ones above. A box that owes an epic looks above first */
-  const order = [r]; if (sure) order.push(4, 5); for (let k = r - 1; k >= 0; k--) order.push(k); for (let k = r + 1; k < RARE.length; k++) if (!order.includes(k)) order.push(k);
-  let pool = []; for (const k of order) { pool = left.filter((x) => x.r === k); if (pool.length) break; }
-  const it = pool[h2 % pool.length];
-  return { it, shop: Object.assign({}, shop, { own: shop.own.concat(it.id), n: shop.n + 1, pt: it.r >= 3 ? 0 : Math.min(PITY, shop.pt + 1), sd }) };
+/* what is left to collect of one rarity */
+const rareLeft = (shop, r) => SHOP.filter((x) => x.r === r && !shop.own.includes(x.id));
+/* a box with nothing left to give: every thing of the rarities it holds is owned */
+const boxEmpty = (shop, kind) => !BOXES[kind] || !BOXES[kind].odds.some((w, r) => w > 0 && rareLeft(shop, r).length);
+/* a box is opened: one thing that is not owned yet, never a second of the same. How rare it is comes from the box's odds and the
+   lifter's own luck (the seed and the number of boxes opened so far, so that opening again never gives another answer). When
+   nothing is left of the rarity that came up, the box gives from the nearest rarity it holds; a box that was a gift (free) and
+   holds nothing any more gives from the nearest rarity there is. Returns { it, shop }, or null */
+function boxDraw(shop, kind, free) {
+  const B = BOXES[kind]; if (!B) return null;
+  const sd = shop.sd || 1, h = hashId(sd + ':' + shop.n + ':' + kind);
+  let r = kind, a = 0; for (let i = 0; i < RARE.length; i++) { a += B.odds[i]; if (h % 1000 < a) { r = i; break; } }
+  const order = [r]; for (let k = 0; k < RARE.length; k++) if (B.odds[k] > 0 && k !== r) order.push(k);
+  if (free) { for (let k = kind + 1; k < RARE.length; k++) if (!order.includes(k)) order.push(k); for (let k = kind - 1; k >= 0; k--) if (!order.includes(k)) order.push(k); }
+  let pool = []; for (const k of order) { pool = rareLeft(shop, k); if (pool.length) break; }
+  if (!pool.length) return null;
+  const it = pool[hashId(h + ':' + pool.length) % pool.length];
+  return { it, shop: Object.assign({}, shop, { own: shop.own.concat(it.id), n: shop.n + 1, sd }) };
 }
-/* opening a box: one that waits (paid: false) or one bought now with coins. A kind that is all owned gives from the next kind.
-   Returns { it, kind, shop }, or null when there is no box, not enough coins, or nothing left to collect */
+/* opening a box: one that waits (paid: false) or one bought now with coins.
+   Returns { it, kind, shop }, or null when there is no box, not enough coins, or nothing left in it */
 function boxOpen(shop, kind, paid, xp, ch) {
-  if (!BOXES[kind] || (paid ? coinsLeft(xp, shop, ch) < BOX_COST : !(shop.inv[kind] > 0))) return null;
-  let d = null, k = kind; for (let i = 0; i < BOXES.length && !d; i++) { k = (kind + i) % BOXES.length; d = boxDraw(shop, k); }
-  if (!d) return null;
+  const B = BOXES[kind]; if (!B || (paid ? coinsLeft(xp, shop, ch) < B.cost : !(shop.inv[kind] > 0))) return null;
+  const d = boxDraw(shop, kind, !paid); if (!d) return null;
   const inv = shop.inv.slice(); if (!paid) inv[kind]--;
-  return { it: d.it, kind: k, shop: Object.assign(d.shop, { inv, sp: spentOf(shop) + (paid ? BOX_COST : 0) }) };
+  return { it: d.it, kind, shop: Object.assign(d.shop, { inv, sp: spentOf(shop) + (paid ? B.cost : 0) }) };
 }
 /* the thing of the week is bought as it is: only in its own week, once, and it is put on at once. null when it cannot be */
 function weekBuy(shop, w, now, xp, ch) {
@@ -290,10 +298,11 @@ const buildOf = (lvl) => Math.max(0, Math.min(1, (lvl - 1) / 29));
 function weekIdx(ts) { const d = new Date(ts); return Math.floor((Math.floor((ts - d.getTimezoneOffset() * 60000) / 864e5) + 4) / 7); }
 
 /* The device keeps only the latest workouts, so the profile cannot be recounted from the log forever. Older workouts are
-   folded into an archive: their totals up to the moment `until`, and the run of consecutive weeks (sw) ending in week lw. */
+   folded into an archive: their totals up to the moment `until`, and the run of consecutive weeks (sw) ending in week lw.
+   The archive counts its points in tens (a set was once 10 points and is now 100): what was folded before keeps its worth */
 const archZero = () => ({ until: 0, xp: 0, wk: 0, sets: 0, prs: 0, kg: 0, sw: 0, lw: 0, ch: 0 });
 function totalsOf(list, arch) {
-  const t = { xp: arch.xp, wk: arch.wk, sets: arch.sets, prs: arch.prs, kg: arch.kg, ch: arch.ch || 0 };
+  const t = { xp: arch.xp * 10, wk: arch.wk, sets: arch.sets, prs: arch.prs, kg: arch.kg, ch: arch.ch || 0 };
   for (const s of list) {
     if (s.ts <= arch.until) continue;
     const y = tally(s); if (!y.sets) continue;
@@ -315,7 +324,7 @@ function archiveStep(list, arch, keep) {
     const y = tally(s), w = weekIdx(s.ts);
     a.until = s.ts;
     if (!y.sets) continue;
-    a.xp += y.xp; a.wk++; a.sets += y.sets; a.prs += y.prs; a.kg += y.kg; a.ch = (a.ch || 0) + chestOf(s);
+    a.xp += y.xp / 10; a.wk++; a.sets += y.sets; a.prs += y.prs; a.kg += y.kg; a.ch = (a.ch || 0) + chestOf(s);
     if (!a.sw || w > a.lw + 1) a.sw = 1; else if (w === a.lw + 1) a.sw++;
     a.lw = w;
   }
@@ -355,11 +364,11 @@ function chestOf(s) {
   const h = hashId(s.id);
   return h % 100 < 34 ? CHEST[(h >>> 8) % CHEST.length] : 0;
 }
-/* the kind of box a finished workout ends with, or -1: about one in three, the same on every device */
+/* the box a finished workout ends with (how rare it is), or -1: about one workout in three, the same on every device */
 function boxOf(s) {
   if (!s || !s.end || !s.id || !tally(s).sets || !(s.ts >= BOX_FROM)) return -1;
-  const h = hashId(s.id);
-  return h % 100 < 34 ? (h >>> 8) % BOXES.length : -1;
+  const h = hashId(s.id), r = (h >>> 8) % 100;
+  return h % 100 < 34 ? (r < 70 ? 0 : r < 95 ? 1 : 2) : -1;
 }
 /* the key of a full week: a week of the plan in which every one of its workouts was finished (need: how many it has) */
 function fullWeeks(list, need) {
@@ -367,14 +376,17 @@ function fullWeeks(list, need) {
   for (const s of list) if (s.end && s.m && s.wk && s.ts >= BOX_FROM && tally(s).sets) (seen[s.m + '/' + s.wk] || (seen[s.m + '/' + s.wk] = new Set())).add(s.w);
   return Object.keys(seen).filter((k) => seen[k].size >= Math.max(1, need));
 }
-/* the boxes a lifter has earned and was not given yet: one for a finished workout that ends with one (once, by its id), and one
-   for every full week (once, by the week). Returns the wardrobe with them, or null when there is nothing new */
-function boxClaim(shop, list, need) {
-  const got = new Set(shop.got), inv = shop.inv.slice(), add = [];
-  const give = (key, kind) => { if (got.has(key)) return; got.add(key); add.push(key); inv[kind] = Math.min(99, inv[kind] + 1); };
+/* the boxes a lifter has earned and was not given yet: one for a finished workout that ends with one (once, by its id), a rare
+   one for every full week (once, by the week), and the boxes of the road for the levels reached since the last time.
+   Returns the wardrobe with them, or null when there is nothing new */
+function boxClaim(shop, list, need, lvl) {
+  const got = new Set(shop.got), inv = shop.inv.slice(), add = []; let lv = shop.lv || 0, n = 0;
+  const put = (kind) => { inv[kind] = Math.min(99, inv[kind] + 1); n++; };
+  const give = (key, kind) => { if (got.has(key)) return; got.add(key); add.push(key); put(kind); };
   for (const s of list) { const k = boxOf(s); if (k >= 0) give(s.id, k); }
-  for (const k of fullWeeks(list, need)) give('f' + k, hashId('f' + k) % BOXES.length);
-  return add.length ? Object.assign({}, shop, { inv, got: shop.got.concat(add).slice(-200) }) : null;
+  for (const k of fullWeeks(list, need)) give('f' + k, 1);
+  if (lvl > lv) { for (const st of STATIONS) if (st.box >= 0 && st.at > lv && st.at <= lvl) put(st.box); lv = Math.min(100, Math.floor(lvl)); }
+  return n || lv !== (shop.lv || 0) ? Object.assign({}, shop, { inv, lv, got: shop.got.concat(add).slice(-200) }) : null;
 }
 /* the shield of the streak does its work by itself: when last week went by without a workout and the week before it was part of
    a run, a shield that is held stands in for that week. Returns the wardrobe after it, or null when there is nothing to do */
@@ -403,32 +415,3 @@ function streakOpen(list, arch, now) {
   const n = streakOf(list, arch, now);
   return n >= 2 ? n : 0;
 }
-/* every workout of one week of a round was finished (as many as the week has now, never fewer than two) */
-function fullWeek(list) {
-  const seen = {};
-  for (const s of list) if (s.end && s.m && s.wk) (seen[s.m + '/' + s.wk] || (seen[s.m + '/' + s.wk] = new Set())).add(s.w);
-  return Object.values(seen).some((x) => x.size >= Math.max(2, week().length));
-}
-/* rounds whose easy last week was finished in every workout of the week */
-function roundsDone(list) {
-  const seen = {};
-  for (const s of list) if (s.end && s.m && s.dl) (seen[s.m] || (seen[s.m] = new Set())).add(s.w);
-  return Object.values(seen).filter((x) => x.size >= Math.max(2, week().length)).length;
-}
-/* achievements. T: the totals, X: { lvl, streak, days, fullWeek, rounds }. ic names the drawing in the profile.
-   of: how far along it is, as [what there is, what it takes] */
-const BADGES = [
-  { id: 'first', he: 'אימון ראשון', en: 'First workout', ic: 'flag', ok: (T) => T.wk >= 1, of: (T) => [T.wk, 1] },
-  { id: 'week', he: 'שבוע מלא', en: 'Full week', ic: 'cal', ok: (T, X) => !!X.fullWeek, of: (T, X) => [X.fullWeek ? 1 : 0, 1] },
-  { id: 'pr1', he: 'שיא ראשון', en: 'First PR', ic: 'bolt', ok: (T) => T.prs >= 1, of: (T) => [T.prs, 1] },
-  { id: 'w10', he: '10 אימונים', en: '10 workouts', ic: 'bell', ok: (T) => T.wk >= 10, of: (T) => [T.wk, 10] },
-  { id: 'streak4', he: '28 ימים ברצף', en: '28 days in a row', ic: 'flame', ok: (T, X) => (X.days || 0) >= 28, of: (T, X) => [X.days || 0, 28] },
-  { id: 'pr25', he: '25 שיאים', en: '25 PRs', ic: 'bolt2', ok: (T) => T.prs >= 25, of: (T) => [T.prs, 25] },
-  { id: 'w25', he: '25 אימונים', en: '25 workouts', ic: 'bell2', ok: (T) => T.wk >= 25, of: (T) => [T.wk, 25] },
-  { id: 'round', he: 'סבב שלם', en: 'Full round', ic: 'loop', ok: (T, X) => X.rounds >= 1, of: (T, X) => [X.rounds, 1] },
-  { id: 'set1k', he: '1000 סטים', en: '1,000 sets', ic: 'plate', ok: (T) => T.sets >= 1000, of: (T) => [T.sets, 1000] },
-  { id: 'w50', he: '50 אימונים', en: '50 workouts', ic: 'cup', ok: (T) => T.wk >= 50, of: (T) => [T.wk, 50] },
-  { id: 'lvl20', he: 'רמה 20', en: 'Level 20', ic: 'star', ok: (T, X) => X.lvl >= 20, of: (T, X) => [X.lvl, 20] },
-  { id: 'w100', he: '100 אימונים', en: '100 workouts', ic: 'crown', ok: (T) => T.wk >= 100, of: (T) => [T.wk, 100] },
-];
-const earned = (T, X) => BADGES.filter((b) => b.ok(T, X)).map((b) => b.id);

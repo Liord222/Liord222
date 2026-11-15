@@ -39,7 +39,7 @@ const ICON = {
    days (how many workouts a week: 1 to 7, or null before it was asked, which keeps the four),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0, body: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, place: null, age: null, focus: null, pain: [], days: null, names: {}, fb: 2, tour: 0, shop: cleanShop(null), body: cleanBody(null), arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0, body: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, place: null, age: null, focus: [], pain: [], days: null, names: {}, fb: 2, tour: 0, shop: cleanShop(null), body: cleanBody(null), arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
 /* the lifter's own names for the workouts, by their place in PLAN: short, trimmed, and only for workouts that exist */
 function cleanNames(v) {
@@ -50,13 +50,12 @@ function cleanNames(v) {
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0), body: pick(l.body, 2, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 4, null), goal: pick(v.goal, 6, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), place: pick(v.place, 4, null), age: Number.isInteger(v.age) && v.age >= 10 && v.age <= 99 ? v.age : null, focus: pick(v.focus, 7, null), pain: Array.isArray(v.pain) ? v.pain.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 5 && a.indexOf(g) === i) : [], days: DAYS_OK.includes(v.days) ? v.days : null, names: cleanNames(v.names), fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), body: cleanBody(v.body), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0), body: pick(l.body, 2, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 4, null), goal: pick(v.goal, 6, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), place: pick(v.place, 4, null), age: Number.isInteger(v.age) && v.age >= 10 && v.age <= 99 ? v.age : null, focus: (Array.isArray(v.focus) ? v.focus : [v.focus]).filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 7 && a.indexOf(g) === i), pain: Array.isArray(v.pain) ? v.pain.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 5 && a.indexOf(g) === i) : [], days: DAYS_OK.includes(v.days) ? v.days : null, names: cleanNames(v.names), fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), body: cleanBody(v.body), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
   out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 6 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
   /* an archive from a file is held to real sizes: a total no lifter reaches, or an end in the future, would hide the log or stall the page */
   for (const k of Object.keys(d.arch)) out.arch[k] = Math.min(pos(a[k]), k === 'until' ? Date.now() + 864e5 : k === 'kg' ? 1e10 : 1e7);
-  for (const x of BADGES) if (pos(b[x.id])) out.badges[x.id] = b[x.id];
   return out;
 }
 /* S.cfg.slots: exercises the lifter added to the plan, { id: { w, a, sets, reps, rest } }. They are never removed, so old workouts stay readable.
@@ -405,14 +404,15 @@ function moveSlot(id, d) {
 }
 /* put another movement in a slot's place for good. The same kind of movement keeps the slot (and its numbers and history);
    a different kind gets a slot of its own with numbers that suit it. Returns the id of the slot that now holds it */
-function replaceSlot(exId, mv) {
+/* today: the other exercise takes the place in today's workout alone, and the plan stays as it is */
+function replaceSlot(exId, mv, today) {
   const pe = planEx(exId), w = wkOf(exId);
   if (!pe || !LIB[mv]) return null;
-  if (LIB[mv].pat === LIB[pe.a].pat && LIB[mv].p === LIB[pe.a].p) { swapTo(exId, mv, true); return exId; }
-  const ids = planIds(w).slice(), i = ids.indexOf(exId), s = live(w), started = !!s && rowsOf(s, exId).some(isDone), now = liveIds(w), id = newSlotId(), rx = rxOf(mv);
-  if (i < 0) return null;
+  if (LIB[mv].pat === LIB[pe.a].pat && LIB[mv].p === LIB[pe.a].p) { swapTo(exId, mv, !today); return exId; }
+  const ids = planIds(w).slice(), i = ids.indexOf(exId), s = today ? ensure(w) : live(w), started = !!s && rowsOf(s, exId).some(isDone), now = liveIds(w), id = newSlotId(), rx = rxOf(mv);
+  if (i < 0 || (today && started)) return null;
   S.cfg.slots[id] = { w, a: mv, sets: rx.sets, reps: rx.reps, rest: rx.rest };
-  ids[i] = id;
+  if (!today) ids[i] = id;
   if (now && !started) { const k = now.indexOf(exId); if (k >= 0) now[k] = id; else now.push(id); }
   setOrder(w, ids, started ? null : now);
   return id;
@@ -495,7 +495,7 @@ function mesoSummary(id) {
 const KEEP = 40;
 function meNow() {
   const A = S.cfg.me.arch, list = Object.values(S.sessions), T = totalsOf(list, A), L = levelOf(T.xp);
-  return { T, L, rank: rankOf(L.lvl), X: { lvl: L.lvl, streak: streakOf(list, A, Date.now(), S.cfg.me.shop.shw), days: streakDays(list, A, Date.now(), S.cfg.me.shop.shw), fullWeek: fullWeek(list), rounds: roundsDone(list) } };
+  return { T, L, rank: rankOf(L.lvl), X: { lvl: L.lvl, streak: streakOf(list, A, Date.now(), S.cfg.me.shop.shw), days: streakDays(list, A, Date.now(), S.cfg.me.shop.shw) } };
 }
 /* keep the stored side of the profile in step with the log: old workouts move into the archive, new achievements get their date.
    Waits until the settings arrived from the account, so a new device never writes over an archive it has not seen yet. Returns the new achievements */
@@ -503,19 +503,20 @@ function meSync() {
   if (!S.cfgReady) return [];
   const me = S.cfg.me, got = [], all = Object.values(S.sessions);
   /* before a workout leaves for the archive: the boxes it earned are given, and a shield that is held covers a missed week */
-  const bx = boxClaim(me.shop, all, week().length); if (bx) me.shop = bx;
+  const bx = boxClaim(me.shop, all, week().length, levelOf(totalsOf(all, me.arch).xp).lvl); if (bx) me.shop = bx;
   const shd = shieldStep(me.shop, all, me.arch, Date.now()); if (shd) { me.shop = shd; S.shieldAt = Date.now(); }
   const a = archiveStep(all, me.arch, KEEP);
   if (a) me.arch = a;
   const P = meNow();
-  for (const id of earned(P.T, P.X)) if (!me.badges[id]) { me.badges[id] = Date.now(); got.push(id); }
   if (a || got.length || bx || shd) saveCfg();
   return got;
 }
 /* points a workout would bring if every planned set is done */
 const xpPlan = (list) => list.reduce((n, e) => n + e.sets, 0) * XP.set + XP.done;
 
-function restText(e) { const a = e.rest[0], b = e.rest[1]; if (a >= 120 && a % 60 === 0 && b % 60 === 0) return Ltr(a === b ? a / 60 : a / 60 + '–' + b / 60) + say(' דק׳', ' min'); return Ltr(a === b ? a : a + '–' + b) + say(' שנ׳', ' sec'); }
+/* the rest of an exercise is said in minutes, to the nearest half: "1–2", "1.5", "2–3" */
+function restMins(e) { const m = (x) => Math.max(0.5, Math.round(x / 30) / 2), a = m(e.rest[0]), b = m(e.rest[1]); return { v: a === b ? String(a) : a + '–' + b, one: a === b && a === 1 }; }
+function restText(e) { const r = restMins(e); return Ltr(r.v) + (r.one ? say(' דקה', ' min') : say(' דקות', ' min')); }
 const restPlain = (e) => restText(e).replace(/<[^>]+>/g, '');
 const rirText = (r) => (r == null ? '' : r >= 4 ? say('רחוק מכשל', 'Far from failure') : r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה אחת לפני כשל', '1 rep before failure') : r + say(' חזרות לפני כשל', ' reps before failure'));
 function num(v, int) { const s = String(v == null ? '' : v).trim().replace(',', '.'); if (!/^\d+(\.\d+)?$/.test(s)) return null; const n = parseFloat(s); return int ? Math.round(n) : Math.round(n * 100) / 100; }

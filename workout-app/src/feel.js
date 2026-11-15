@@ -6,8 +6,10 @@
    browser through the one control Safari answers with a tick: a switch, and only when a finger itself lands on it or
    on its label (see dress() below). Sound and vibration each have a switch in the settings. */
 const SFX = {
-  set: [[587, 0, 0.11, 0.06, 'sine'], [880, 0.085, 0.2, 0.06, 'sine']],
-  pr: [[659, 0, 0.1, 0.065, 'sine'], [880, 0.09, 0.1, 0.065, 'sine'], [1175, 0.18, 0.3, 0.07, 'sine']],
+  /* a logged set: a bright coin, a quick step up to a note that rings, with a shimmer an octave above it */
+  set: [[988, 0, 0.06, 0.055, 'triangle'], [1319, 0.065, 0.24, 0.07, 'sine'], [2637, 0.065, 0.18, 0.02, 'sine'], [1976, 0.125, 0.22, 0.028, 'sine']],
+  /* a personal best: the same coin run up a whole chord, landing on a long high note */
+  pr: [[1047, 0, 0.07, 0.055, 'triangle'], [1319, 0.065, 0.07, 0.055, 'triangle'], [1568, 0.13, 0.09, 0.06, 'triangle'], [2093, 0.2, 0.55, 0.07, 'sine'], [3136, 0.22, 0.42, 0.02, 'sine'], [1568, 0.2, 0.5, 0.03, 'sine']],
   coin: [[880, 0, 0.08, 0.05, 'sine'], [1175, 0.07, 0.16, 0.05, 'sine']],
   /* a new exercise comes in: two soft notes that rise */
   next: [[440, 0, 0.09, 0.045, 'sine'], [660, 0.08, 0.24, 0.05, 'sine']],
@@ -16,14 +18,15 @@ const SFX = {
   glory: [[392, 0, 0.12, 0.055, 'triangle'], [523, 0.1, 0.12, 0.055, 'triangle'], [659, 0.2, 0.12, 0.06, 'triangle'], [784, 0.3, 0.16, 0.065, 'triangle'], [1047, 0.46, 0.75, 0.075, 'sine'], [784, 0.46, 0.75, 0.04, 'sine'], [1319, 0.5, 0.8, 0.035, 'sine'], [1568, 0.56, 0.9, 0.022, 'sine']],
 };
 /* one note: [frequency, start, length, volume, wave] with a soft start and a long tail, like a struck bar */
-function sfx(kind) {
-  const notes = SFX[kind]; if (!notes || !S.sound) return;
+/* up: semitones to lift the whole sound by (a run of good sets climbs a scale) */
+function sfx(kind, up) {
+  const notes = SFX[kind], lift = Math.pow(2, (up || 0) / 12); if (!notes || !S.sound) return;
   primeAudio(); if (!actx) return;
   try {
     const t0 = actx.currentTime + 0.005;
     for (const n of notes) {
       const o = actx.createOscillator(), g = actx.createGain(), t = t0 + n[1], end = t + n[2] + 0.18;
-      o.type = n[4]; o.frequency.setValueAtTime(n[0], t);
+      o.type = n[4]; o.frequency.setValueAtTime(n[0] * lift, t);
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(n[3], t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, end);
       o.connect(g); g.connect(actx.destination); o.start(t); o.stop(end + 0.02);
     }
@@ -79,10 +82,16 @@ function feel(kind, touch) { sfx(kind); haptic(touch || (kind === 'set' ? 'succe
 function popGain(n, pr, combo) {
   if (!(n > 0) || reduced) return;
   for (const o of $$('.gain')) o.remove();
-  const f = document.createElement('div'), run = !pr && combo >= 3 && combo % 3 === 0;
+  const f = document.createElement('div'), run = !pr && combo >= 3 && combo % 3 === 0, big = pr || run;
+  /* it leaves from the button that logged the set, and rises to under the top of the screen */
+  const btn = $('#dkHit') || $('#dock .hit'), r = btn && btn.getBoundingClientRect(), ok = r && r.width > 0;
+  const x = ok ? r.left + r.width / 2 : innerWidth / 2, y = ok ? r.top + r.height * 0.2 : innerHeight * 0.78;
   f.className = 'gain' + (pr ? ' pr' : run ? ' run' : ''); f.setAttribute('aria-hidden', 'true');
-  f.innerHTML = '<b>' + Ltr('+' + n) + '</b>' + (pr ? '<span>' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : run ? '<span>' + glyph('flame') + say(combo + ' סטים ברצף', combo + ' in a row') + '</span>' : '');
-  document.body.appendChild(f); setTimeout(() => f.remove(), pr || run ? 2800 : 2000);
+  f.style.setProperty('--gx', x.toFixed(0) + 'px'); f.style.setProperty('--gy', y.toFixed(0) + 'px'); f.style.setProperty('--dy', Math.max(110, Math.min(190, y - 96)).toFixed(0) + 'px');
+  let sparks = ''; const cnt = big ? 14 : 9;
+  for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + Math.random() * 0.5, d = 46 + Math.random() * (big ? 64 : 42); sparks += '<i class="gain-s' + (i % 3 === 0 ? ' w' : '') + '" style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d - 18).toFixed(0) + 'px;--sd:' + (i * 14) + 'ms"></i>'; }
+  f.innerHTML = '<i class="gain-ring"></i>' + sparks + '<b>' + Ltr('+' + n) + '</b>' + (pr ? '<span>' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : run ? '<span>' + glyph('flame') + say(combo + ' סטים ברצף', combo + ' in a row') + '</span>' : '');
+  document.body.appendChild(f); setTimeout(() => f.remove(), big ? 2800 : 2000);
   if (run) haptic('heavy');
 }
 function flyPoints(el, n) {

@@ -104,19 +104,22 @@ const landmark = (k, total) => (total > MUSCLE[k].mrv ? 'over' : total < MUSCLE[
 
 /* ---- changing the plan ---- */
 /* what a movement gets when the lifter adds it by hand, by the kind of movement it is: sets, rep range, rest and how hard (lvl as in the plan) */
-const RX = { big: { sets: 3, reps: '8–12', rest: [120, 120], lvl: 2 }, small: { sets: 2, reps: '10–15', rest: [75, 75], lvl: 3 }, calf: { sets: 3, reps: '12–20', rest: [60, 60], lvl: 3 }, core: { sets: 3, reps: '10–15', rest: [60, 60], lvl: 0 } };
-const RX_KIND = { hpress: 'big', vpress: 'big', vpull: 'big', hpull: 'big', squat: 'big', lunge: 'big', hinge: 'big', thrust: 'big', raise: 'small', rearfly: 'small', ext: 'small', curl: 'small', kcurl: 'small', kext: 'small', calf: 'calf', flex: 'core', antirot: 'core' };
-/* ---- the goals bend the written plan (goals: any of 0 physique, 1 strength, 2 fitness and health; exp: 0 for a beginner).
+const RX = { hold: { sets: 3, reps: '20–40', rest: [60, 60], lvl: 0 }, big: { sets: 3, reps: '8–12', rest: [120, 120], lvl: 2 }, small: { sets: 2, reps: '10–15', rest: [75, 75], lvl: 3 }, calf: { sets: 3, reps: '12–20', rest: [60, 60], lvl: 3 }, core: { sets: 3, reps: '10–15', rest: [60, 60], lvl: 0 } };
+const RX_KIND = { hpress: 'big', vpress: 'big', vpull: 'big', hpull: 'big', squat: 'big', lunge: 'big', hinge: 'big', thrust: 'big', raise: 'small', rearfly: 'small', ext: 'small', curl: 'small', kcurl: 'small', kext: 'small', calf: 'calf', flex: 'core', antirot: 'core', fly: 'small', abd: 'small' };
+/* ---- the goals bend the written plan (goals: any of 0 mass, 1 strength, 2 fitness and endurance, 3 cutting, 4 health, 5 running;
+   exp: 0 for a beginner). Cutting keeps the weights and moves faster: every rest comes down a step. Health never goes heavy: the
+   lifts that open a workout stay at eight reps and more. Running bends the legs as fitness bends everything (leg: the movement
+   trains the legs).
    Strength takes the heavy lifts that open a workout (a range that starts at eight or under, and two minutes of rest or
    more) lower, with longer rests; fitness and health takes every range a step higher, with shorter rests. Physique is the
    plan as written, and a goal that is chosen beside another bends half as far. A beginner is never sent under five reps.
    Returns the bent { reps, rest }, or null where the plan stands as it is written ---- */
 const RX_LOW = [{ '6–10': '5–8', '8–10': '6–8', '8–12': '6–10' }, { '6–10': '4–6', '8–10': '5–8', '8–12': '6–8' }];
 const RX_HIGH = { '6–10': '8–12', '8–10': '10–12', '8–12': '10–15', '10–15': '12–15', '12–15': '12–20' };
-function goalRx(reps, rest, goals, exp) {
+function goalRx(reps, rest, goals, exp, leg) {
   const g = Array.isArray(goals) ? goals : [];
   if (!g.length || !Array.isArray(rest)) return null;
-  const str = g.includes(1), fit = g.includes(2), many = g.length > 1, m = /^(\d+)–\d+$/.exec(String(reps));
+  const str = g.includes(1), fit = g.includes(2) || (g.includes(5) && !!leg), many = g.length > 1, m = /^(\d+)–\d+$/.exec(String(reps));
   const heavy = !!m && +m[1] <= 8 && rest[0] >= 120, r15 = (v) => Math.round(v / 15) * 15;
   if (str && heavy) {
     const k = many || exp === 0 ? 0 : 1;
@@ -126,9 +129,21 @@ function goalRx(reps, rest, goals, exp) {
     const k = many ? 0 : 1, cut = (v) => Math.max(45, k ? r15(v * 0.75) : v - 15);
     return { reps: (k && RX_HIGH[reps]) || reps, rest: [cut(rest[0]), cut(rest[1])] };
   }
+  if (g.includes(3)) return { reps, rest: [Math.max(45, rest[0] - 15), Math.max(45, rest[1] - 15)] };
+  if (g.includes(4) && heavy) return { reps: RX_HIGH[reps] || reps, rest };
   return null;
 }
-function rxOf(mv) { const r = RX[RX_KIND[LIB[mv].pat] || 'small']; return { sets: r.sets, reps: r.reps, rest: r.rest.slice(), lvl: r.lvl }; }
+const isLeg = (mv) => ['quads', 'hams', 'glutes', 'calves'].includes((LIB[mv] || {}).p);
+/* the reps and the rest of a slot for this lifter: bent by the goals, then by the age. From fifty the long rests are a little
+   longer; under sixteen nothing opens a workout under eight reps. ans: { goals, exp, age } */
+function lifterRx(reps, rest, ans, mv) {
+  let g = goalRx(reps, rest, ans.goals, ans.exp, isLeg(mv)) || null;
+  const r = g ? g.reps : reps, t = g ? g.rest : rest, m = /^(\d+)–\d+$/.exec(String(r)), age = ans.age | 0;
+  if (age >= 50 && Array.isArray(t) && t[0] >= 120) g = { reps: r, rest: [t[0] + 15, Math.min(240, t[1] + 15)] };
+  else if (age > 0 && age < 16 && m && +m[1] < 8 && RX_HIGH[r]) g = { reps: RX_HIGH[r], rest: t };
+  return g;
+}
+function rxOf(mv) { const r = RX[LIB[mv].hold ? 'hold' : RX_KIND[LIB[mv].pat] || 'small']; return { sets: r.sets, reps: r.reps, rest: r.rest.slice(), lvl: r.lvl }; }
 /* ---- where the numbers start for a movement that was never logged: a first guess at its weight, by its kind and its
    equipment, for a regular lifter, scaled by experience and rounded to what the equipment can be loaded with. It is only a
    place to start from: the lifter moves it to the weight that fits, and the first sets calibrate it. null for a movement
@@ -136,13 +151,14 @@ function rxOf(mv) { const r = RX[RX_KIND[LIB[mv].pat] || 'small']; return { sets
 const START_KG = {
   hpress: { smith: 40, machine: 40, plates: 40, bar: 40, db: 14, cable: 20 }, vpress: { smith: 30, machine: 30, bar: 30, db: 10 },
   vpull: { cable: 45, machine: 45 }, hpull: { cable: 40, machine: 40, plates: 40, bar: 40, db: 16 },
+  fly: { machine: 30, cable: 10 }, abd: { machine: 35 },
   raise: { db: 6, cable: 5, machine: 20 }, rearfly: { db: 5, cable: 5, machine: 25 }, ext: { cable: 20, db: 8, machine: 25 }, curl: { db: 8, cable: 15, machine: 20, bar: 20 },
   flex: { cable: 30, machine: 30 }, antirot: { cable: 10 },
-  squat: { plates: 60, smith: 50, bar: 50, machine: 50, db: 14 }, lunge: { db: 10, smith: 30, bar: 30 }, hinge: { bar: 50, smith: 50, db: 14 }, thrust: { bar: 60, smith: 60, machine: 60 },
+  squat: { plates: 60, smith: 50, bar: 50, machine: 50, db: 14 }, lunge: { db: 10, smith: 30, bar: 30 }, hinge: { bar: 50, smith: 50, db: 14 }, thrust: { bar: 60, smith: 60, machine: 60, db: 16 },
   kcurl: { machine: 30 }, kext: { machine: 40 }, calf: { machine: 50, plates: 40, smith: 50 },
 };
-const START_OWN = { legPress: 100, pressCalf: 80, singleLegExt: 20, assistedPullup: 30 };
-const START_EXP = [0.6, 1, 1.4];
+const START_OWN = { legPress: 100, pressCalf: 80, singleLegExt: 20, assistedPullup: 30, facePull: 15 };
+const START_EXP = [0.6, 1, 1.4, 1.7];
 function startKg(mv, exp, inc) {
   const L = LIB[mv]; if (!L || L.bw || L.eq === 'bw') return null;
   const base = START_OWN[mv] != null ? START_OWN[mv] : (START_KG[L.pat] || {})[L.eq]; if (!(base > 0)) return null;
@@ -173,21 +189,51 @@ const sameKind = (mv) => { const L = LIB[mv]; return Object.keys(LIB).filter((k)
    - reps and rest are as written, r and t as the goals bend them;
    - while a workout runs longer than the time and keeps more than four exercises, its last one leaves ---- */
 const FIT_MIN = 4;
+/* where the lifter trains: the kinds of equipment there (null for all of them), and what else stands there: a bar to hang from,
+   parallel bars, a bench. 0 a gym, 1 an outdoor park with bars, 2 home with dumbbells, 3 home with nothing */
+const PLACES = [{ ok: null, has: ['bar', 'dip', 'bench'] }, { ok: ['bw'], has: ['bar', 'dip'] }, { ok: ['db', 'bw'], has: [] }, { ok: ['bw'], has: [] }];
+function canDo(mv, ans) {
+  const L = LIB[mv], P = PLACES[ans.place | 0] || PLACES[0], ok = ans.ok || P.ok;
+  return (!ok || ok.includes(L.eq)) && (!L.need || P.has.includes(L.need));
+}
+/* what hurts: 0 knees, 1 lower back, 2 shoulders, 3 elbows, 4 wrists. Each names the movements that load it; one that is easy on
+   the joints is never among them */
+const PAIN = [
+  (L) => ['squat', 'lunge', 'kext'].includes(L.pat),
+  (L) => L.pat === 'hinge' || (L.pat === 'squat' && ['bar', 'smith'].includes(L.eq)),
+  (L) => L.pat === 'vpress' || (L.pat === 'hpress' && (['bar', 'smith'].includes(L.eq) || L.need === 'dip')),
+  (L) => L.pat === 'ext' || (L.pat === 'curl' && L.eq === 'bar'),
+  (L) => (L.pat === 'hpress' && L.eq === 'bw') || (L.pat === 'curl' && L.eq === 'bar'),
+];
+const hurts = (mv, pain) => { const L = LIB[mv]; return !L.jf && (pain || []).some((i) => PAIN[i] && PAIN[i](L)); };
+/* the body areas a lifter can ask more of, and the muscles of each: chest, back, shoulders, arms, legs, glutes, abs */
+const FOCUS = [['chest'], ['back'], ['delts', 'fdelt'], ['biceps', 'triceps'], ['quads', 'hams'], ['glutes'], ['abs']];
 function fitPlanData(ans) {
-  const ok = ans.ok || null, mins = (list) => workMins(list.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })));
+  const mins = (list) => workMins(list.map((x) => ({ sets: x.sets, reps: x.r, rest: x.t }))), goals = Array.isArray(ans.goals) ? ans.goals : [], pain = ans.pain || [];
+  const want = ans.exp === 0 ? 1 : ans.exp === 1 ? 2 : 3, old = (ans.age | 0) >= 50, more = FOCUS[ans.focus] || [];
+  /* among movements that can stand in, the nearest in difficulty to this lifter comes first, and from fifty the ones easy on the joints */
+  const rank = (a, b) => (old ? (LIB[b].jf ? 1 : 0) - (LIB[a].jf ? 1 : 0) : 0) || Math.abs((LIB[a].lv || 2) - want) - Math.abs((LIB[b].lv || 2) - want);
   return PLAN.map((wk) => {
-    const used = wk.ex.map((e) => e.a); let list = [];
+    const used = wk.ex.map((e) => e.a); let list = [], extra = 0;
     wk.ex.forEach((e, i) => {
       let mv = e.a, full = e.sets, reps = e.reps, rest = e.rest, kind = '';
-      if (ok && !ok.includes(LIB[mv].eq)) {
-        const fits = (k) => ok.includes(LIB[k].eq) && !used.includes(k), same = sameKind(mv).find(fits), near = same ? null : Object.keys(LIB).find((k) => LIB[k].p === LIB[mv].p && fits(k));
+      if (!canDo(mv, ans) || hurts(mv, pain)) {
+        const must = !canDo(mv, ans), fits = (k) => canDo(k, ans) && !hurts(k, pain) && !used.includes(k);
+        const same = sameKind(mv).filter(fits).sort(rank)[0], near = same ? null : Object.keys(LIB).filter((k) => LIB[k].p === LIB[mv].p && fits(k)).sort(rank)[0];
         if (same) { kind = 'swap'; mv = same; }
         else if (near) { const rx = rxOf(near); kind = 'repl'; mv = near; full = rx.sets; reps = rx.reps; rest = rx.rest; }
-        else { used[i] = null; return; }
+        else if (must) { used[i] = null; return; }
         used[i] = mv;
       }
-      const g = goalRx(reps, rest, ans.goals, ans.exp) || { reps, rest };
-      list.push({ id: e.id, mv, kind, full, sets: ans.exp === 0 && full >= 3 ? full - 1 : full, reps, rest, r: g.reps, t: g.rest });
+      const g = lifterRx(reps, rest, ans, mv) || { reps, rest };
+      /* the sets: one less for a beginner, one more on the lift that opens the workout for a veteran,
+         one less on the big leg lifts of a runner, one more on the first two of the area that was asked for */
+      let sets = full;
+      if (ans.exp === 0 && full >= 3) sets--;
+      if (ans.exp === 3 && i === 0) sets++;
+      if (goals.includes(5) && isLeg(mv) && full >= 3 && rest[0] >= 120) sets--;
+      if (more.includes(LIB[mv].p) && extra < 2) { sets++; extra++; }
+      list.push({ id: e.id, mv, kind, full, sets: clamp(sets, 1, 5), reps, rest, r: g.reps, t: g.rest });
     });
     if (ans.time) while (list.length > FIT_MIN && mins(list) > ans.time) list = list.slice(0, -1);
     return list;

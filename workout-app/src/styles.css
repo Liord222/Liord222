@@ -2022,3 +2022,407 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .stage-wrap:active{transform:none}
 .tq-row{direction:ltr}.tq-row .tq-in{direction:rtl}
 [dir="ltr"] .tq-row .tq-in{direction:ltr}
+
+/* round 3, phase 1, the owner's second notes */
+/* the rest clock: yellow for the last half minute, green when it says go */
+.dock.ready .rt-ring .f,.dock.ready .rt-ring .h{stroke:#F5B82E}
+.dock.ready .rt-ring::before{background:radial-gradient(circle,rgb(245 184 46 / .24),transparent 68%)}
+.dock.ready .rt-word{color:#F5B82E}
+.dock.go .rt-ring .f,.dock.go .rt-ring .h{stroke:#3DDC97}
+.dock.go .rt-ring::before{background:radial-gradient(circle,rgb(61 220 151 / .28),transparent 68%)}
+.dock.go .rt-word{opacity:1;color:#3DDC97}
+/* a way back at the top corner of a card before the workout */
+.pre.gate{position:relative}
+.pre-back{position:absolute;top:10px;inset-inline-start:10px;width:44px;height:44px;border:0;border-radius:14px;background:none;color:var(--ink-3);display:grid;place-items:center}
+.pre-back svg{width:22px;height:22px}
+.pre-back:active{background:var(--surface-2)}
+/* a new exercise: the whole screen in purple with a few soft white circles, its number large behind, the name, and one white button */
+.xi{display:grid;place-items:center;align-items:center;padding:28px 22px calc(28px + env(safe-area-inset-bottom));color:#fff;background:radial-gradient(circle at 12% 12%,rgb(255 255 255 / .14) 0 54px,transparent 55px),radial-gradient(circle at 93% 22%,rgb(255 255 255 / .09) 0 92px,transparent 93px),radial-gradient(circle at 84% 84%,rgb(255 255 255 / .12) 0 40px,transparent 41px),radial-gradient(circle at 5% 91%,rgb(255 255 255 / .07) 0 78px,transparent 79px),radial-gradient(120% 80% at 50% 36%,#8A5CFF 0%,#6D3FE0 42%,#4A27B8 100%)}
+.xi .xi-in{position:relative;display:grid;grid-template-rows:none;justify-items:center;align-content:center;gap:16px;width:100%;max-width:420px;height:auto;margin:0 auto;text-align:center}
+.xi .xi-num{position:absolute;top:-128px;left:50%;transform:translateX(-50%);font-size:210px;font-weight:800;line-height:1;color:rgb(255 255 255 / .08);direction:ltr;pointer-events:none}
+.xi .xi-k{position:relative;top:auto;inset-inline-start:auto;margin:0;padding:6px 16px;border-radius:999px;background:rgb(255 255 255 / .16);color:#fff;font-size:15px;font-weight:800}
+.xi .xi-t{position:relative;margin:0;font-size:clamp(30px,9.5vw,42px);font-weight:800;line-height:1.08;letter-spacing:-.02em;color:#fff;text-wrap:balance}
+.xi .mus-chips span{background:rgb(255 255 255 / .14);color:#fff}
+.xi .mus-chips span.p{background:#fff;color:#4A27B8}
+.xi .xi-rx li{background:rgb(255 255 255 / .13);box-shadow:none}
+.xi .xi-rx b{color:#fff}
+.xi .xi-rx span{color:rgb(255 255 255 / .78)}
+.xi #xiGo{width:100%;max-width:400px;margin-top:10px;border:0;background:#fff;color:#4A27B8;box-shadow:0 5px 0 rgb(0 0 0 / .24)}
+.xi #xiGo:active{transform:translateY(3px);box-shadow:0 2px 0 rgb(0 0 0 / .24)}
+.xi-back{position:fixed;z-index:2;top:calc(12px + env(safe-area-inset-top,0px));inset-inline-start:12px;width:44px;height:44px;border:0;border-radius:14px;background:rgb(255 255 255 / .14);color:#fff;display:grid;place-items:center}
+.xi-back svg{width:22px;height:22px}
+
+/* the points of a set rise from the button that logged it, with a ring and sparks, and fade slowly on the way up */
+.gain{left:var(--gx,50%);top:var(--gy,70%);z-index:96;transform:translate(-50%,-50%);animation:gain-rise 1.95s cubic-bezier(.16,.84,.3,1) both}
+.gain.pr,.gain.run{animation-duration:2.75s}
+.gain b{position:relative;font-size:46px;font-weight:800;line-height:1;letter-spacing:-.02em;color:#FFC83D;background:linear-gradient(180deg,#FFF3B0 0%,#FFD24A 42%,#F59E0B 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 3px 0 rgb(120 60 0 / .45)) drop-shadow(0 0 16px rgb(255 196 60 / .6))}
+.gain.pr b,.gain.run b{font-size:56px}
+.gain span{position:relative}
+.gain-ring{position:absolute;left:50%;top:22px;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:3px solid rgb(255 208 74 / .9);animation:gain-ring .55s ease-out both;pointer-events:none}
+.gain-s{position:absolute;left:50%;top:22px;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;background:#FFD24A;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:gain-spark .8s cubic-bezier(.15,.8,.3,1) var(--sd,0ms) both;pointer-events:none}
+.gain-s.w{background:#fff;width:7px;height:7px}
+@keyframes gain-rise{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}10%{opacity:1;transform:translate(-50%,calc(-50% - 30px)) scale(1.28)}20%{transform:translate(-50%,calc(-50% - 44px)) scale(1)}62%{opacity:1}100%{opacity:0;transform:translate(-50%,calc(-50% - var(--dy,220px))) scale(.9)}}
+@keyframes gain-ring{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(2.4)}}
+@keyframes gain-spark{0%{opacity:0;transform:translate(0,0) scale(.3) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(1.15) rotate(140deg)}}
+.xi .xi-rx span{background:none;padding:0;border-radius:0}
+
+/* ================================================================== round 3, phase 2: the opening */
+/* the first screen: a real skip button in one top corner and the logo in the other, Eilon in the middle, the language under the button */
+.ob-top.first{grid-template-columns:auto minmax(0,1fr) auto;align-items:start}
+.ob-skip{min-height:40px;padding:0 18px;border:0;border-radius:12px;font-size:15px;font-weight:700;background:rgb(255 255 255 / .16);color:#fff;box-shadow:0 3px 0 rgb(0 0 0 / .3)}
+.ob-skip:active{transform:translateY(2px);box-shadow:0 1px 0 rgb(0 0 0 / .3)}
+.ob-logo{display:grid;justify-items:end;gap:1px;line-height:1}
+.ob-in.film .ob-logo .logo-w{font-size:27px}
+.ob-in.film .ob-logo small{font-size:10px}
+.ob-film[data-beat="0"] .ob-set{transform:scale(1.18)}
+.ob-film .ob-coach{inset-inline-start:auto;left:50%;width:56%;margin-left:-28%}
+.ob-in.film .ob-body{grid-template-rows:minmax(0,1fr);align-content:end}
+.ob-hello{align-self:end;display:grid;gap:6px;text-align:center;padding-bottom:4px;animation:ob-rise .6s cubic-bezier(.2,.8,.2,1) .25s both}
+.ob-hello h1{margin:0;font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.1;text-shadow:0 2px 20px rgb(0 0 0 / .45)}
+.ob-hello p{margin:0;font-size:17px;font-weight:600;color:rgb(255 255 255 / .82)}
+.ob-foot{display:grid}
+.ob-foot .ob-lang{width:auto;margin:12px 0 0;padding:3px;border-radius:14px;justify-self:end}
+.ob-foot .ob-lang button{min-height:36px;padding:0 14px;font-size:13.5px;border-radius:11px}
+/* the goals: six cards, two in a row, a name on each */
+.ob-opts.g2{grid-template-columns:1fr 1fr}
+.ob-opts.g2 .ob-opt{grid-template-columns:auto minmax(0,1fr);min-height:74px;padding:12px;gap:10px}
+.ob-opts.g2 .ob-opt .ob-chk{position:absolute;top:8px;inset-inline-end:8px}
+.ob-opts.g2 .ob-opt{position:relative}
+.ob-opts.g2 .ob-opt b{font-size:16px}
+.ob-opts.g2 .ob-ic{width:40px;height:40px;border-radius:12px}
+.ob-opts>:nth-child(4){animation-delay:.28s}.ob-opts>:nth-child(5){animation-delay:.34s}.ob-opts>:nth-child(6){animation-delay:.4s}
+/* a number in one big square between a minus and a plus */
+.ob-num{display:grid;grid-template-columns:60px minmax(0,1fr) 60px;align-items:center;gap:12px;direction:ltr;max-width:360px;width:100%;justify-self:center;padding-top:2vh}
+.ob-st{height:60px;border:0;border-radius:18px;background:var(--surface);color:var(--ink);font-size:30px;font-weight:800;line-height:1;box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.ob-st:active{transform:translateY(3px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.ob-nbox{display:grid;justify-items:center;gap:2px;padding:18px 10px 14px;border-radius:24px;background:var(--surface);box-shadow:inset 0 0 0 2.5px var(--accent),0 0 0 6px var(--accent-soft)}
+.ob-nbox input{width:2.4ch;border:0;background:none;color:var(--ink);font:inherit;font-size:84px;font-weight:800;line-height:1;text-align:center;font-variant-numeric:tabular-nums;outline:none;padding:0}
+.ob-nbox span{font-size:16px;font-weight:700;color:var(--ink-3)}
+.ob-body.in .ob-num,.ob-body.in .ob-chips,.ob-body.in .ob-lk2,.ob-body.in .ob-plan2{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .12s both}
+/* the quick questions: chips to tap */
+.ob-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding-top:1vh}
+.ob-chip{min-height:52px;padding:0 20px;border:0;border-radius:16px;background:var(--surface);color:var(--ink);font-size:17px;font-weight:700;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+.ob-chip:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.ob-chip[aria-checked="true"]{background:var(--ink);color:var(--paper);box-shadow:0 3px 0 rgb(0 0 0 / .3)}
+/* the character: the figure large on one side, the choices beside it */
+.ob-lk2{display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);gap:10px;align-items:stretch;direction:ltr;min-height:0}
+.ob-lk2>*{direction:rtl}
+[dir="ltr"] .ob-lk2>*{direction:ltr}
+.ob-lk-fig{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto;justify-items:center;gap:6px;padding:10px 6px 8px;border-radius:18px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);min-height:300px}
+.ob-lk-tag{justify-self:start;max-width:100%;padding:4px 10px;border-radius:10px;background:var(--surface-2);font-size:13px;font-weight:800;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ob-lk-fig .lv-badge{position:absolute;top:10px;inset-inline-end:8px;height:24px;padding:0 9px;font-size:12px;background:#F2B02E;color:#3D2600}
+.ob-lk-fig .lk-stage{width:100%;max-width:170px;align-self:center}
+.ob-lk-fig .lk-photo-box{display:grid;justify-items:center;width:100%}
+.ob-lk-fig .lk-photo{min-height:40px;width:100%;padding:0 8px;border-radius:12px;background:#fff;color:#5A2FCC;font-size:13.5px;font-weight:800;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+.ob-lk2 .ob-look{padding:8px;align-content:start}
+.ob-lk2 .lk-tabs{flex-wrap:wrap}
+.ob-lk2 .lk-tabs button{flex:1 1 30%;min-height:36px;font-size:13px;padding:0 4px}
+.ob-lk2 .lk-pane{min-height:0;max-height:250px;overflow:auto;align-content:start}
+.ob-lk2 .lk-cuts{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ob-lk2 .lk-cuts.two{grid-template-columns:1fr 1fr}
+.ob-lk2 .lk-opts{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ob-lk2 .lk-tees{grid-template-columns:repeat(4,minmax(0,1fr))}
+/* the plan: one light card, a row for each workout with its real time */
+.ob-plan2{display:grid;gap:12px;padding:14px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.ob-plan2.reveal{animation:plan-in .7s cubic-bezier(.2,.9,.3,1.15) both}
+.ob-tags{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.ob-tags li{padding:5px 11px;border-radius:10px;background:var(--surface-2);font-size:13.5px;font-weight:700;color:var(--ink-2)}
+.ob-wks2{list-style:none;margin:0;padding:0;display:grid}
+.ob-wks2 li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 2px}
+.ob-wks2 li+li{border-top:1px solid var(--line)}
+.ob-wks2 i{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--ink);color:var(--paper);font-style:normal;font-size:15px;font-weight:800}
+.ob-wks2 span{display:grid;min-width:0;gap:1px}
+.ob-wks2 span b{font-size:16.5px;font-weight:800}
+.ob-wks2 span small{font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ob-wks2 em{display:grid;justify-items:end;font-style:normal;font-size:13px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+.ob-wks2 em b{display:inline;font-size:19px;font-weight:800;color:var(--ink)}
+.ob-wks2 em small{font-size:12px;font-weight:600;color:var(--ink-3)}
+.ob-plan2 .ob-wk-tip{margin:0;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink-3)}
+.ob-plan2 .ob-wk-tip svg{width:16px;height:16px;flex:none}
+.ob-in.film .ob-top .ob-skip{background:rgb(255 255 255 / .16);color:#fff;border:0}
+.ob-lk-fig .lk-stage{width:100%;max-width:none}
+.ob-lk-fig .lk-stage .av{display:block;width:100%;height:auto;max-height:330px}
+.ob-wks2 em span{white-space:nowrap}
+.ob-wks2 em span{display:block}
+.ob-opts.g2 .ob-opt .ob-chk{display:none}
+.ob-opts.g2 .ob-opt b{overflow-wrap:anywhere}
+.ob-lk2 .lk-cut{min-width:0;overflow:hidden}
+.ob-lk2 .lk-face{width:100%;max-width:none}
+.ob-lk2 .lk-face svg{display:block;width:100%;height:auto}
+@media (max-height:640px){.ob-film .ob-coach{width:42%;margin-left:-21%}.ob-hello h1{font-size:28px}.ob-lk-fig{min-height:0}.ob-lk2 .lk-pane{max-height:170px}}
+.ob-lk-fig{overflow:hidden}
+.ob-lk-fig .lk-stage .av{width:170%;max-height:none;margin:0 -35%;overflow:visible}
+.ob-lk-fig .lk-stage .av-aura{display:none}
+.ob-opts.g2 .ob-opt b{overflow-wrap:normal}
+@media (max-width:360px){.ob-opts.g2 .ob-opt{padding:10px 8px;gap:8px}.ob-opts.g2 .ob-ic{width:34px;height:34px}.ob-opts.g2 .ob-opt b{font-size:14.5px}.ob-lk2 .lk-tabs button{font-size:12px}}
+@media (max-height:640px){.ob-film .ob-coach{bottom:24%}}
+
+/* ================================================================== round 3, phase 4: the tour with Eilon
+   the dark layer itself takes no touch: what is lit is the real control under it, and a guard lets a touch reach only that */
+.tour{pointer-events:none;z-index:99}
+.tour-card{pointer-events:auto}
+.tour-hole{box-shadow:0 0 0 200vmax rgb(8 6 18 / .86)}
+.tour.wait .tour-hole{outline-color:transparent}
+.tour-say p{font-size:17px;font-weight:700;line-height:1.35;margin:0}
+.tour-foot .btn[hidden]{display:none}
+.tour-foot{min-height:26px}
+/* during the tour there is no way back from a step: the tour itself leads */
+body.touring .pre-back,body.touring .xi-back{display:none}
+.tour-dots{gap:3px;min-width:0;flex:1 1 auto;overflow:hidden}
+.tour-dots i{width:4px;height:4px;flex:none}
+.tour-dots i.on{width:14px}
+.tour-foot .btn{margin-inline-start:8px}
+
+/* ================================================================== round 3, phase 5 (first part) */
+/* a rank's medal, wherever it stands */
+.medal{display:block;width:28px;height:34px;flex:none}
+.pf-rank{display:flex;align-items:center;justify-content:center;gap:8px}
+.pf-rank .medal{width:26px;height:31px}
+/* the profile: three numbers, no tons */
+.pf-nums{grid-template-columns:repeat(3,minmax(0,1fr))}
+/* achievements: each a card; one that is still ahead shows how far along it is */
+.badges{display:grid;grid-template-columns:1fr 1fr;gap:8px;list-style:none;margin:0;padding:0}
+.bdg{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px;min-height:68px;padding:10px 12px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink-2);opacity:1}
+.bdg .bdg-i{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface-2);color:var(--ink-3)}
+.bdg .bdg-i svg{width:22px;height:22px}
+.bdg .bdg-t{display:grid;gap:3px;min-width:0;font-size:14.5px;font-weight:800;line-height:1.2;color:var(--ink)}
+.bdg small{display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink-3)}
+.bdg small svg{width:13px;height:13px;stroke-width:3}
+.bdg-bar{display:block;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bdg-bar i{display:block;height:100%;border-radius:inherit;background:var(--ink)}
+.bdg.on{background:linear-gradient(160deg,#FFF6DC,#FFE7A6);box-shadow:inset 0 0 0 1.5px #F2C14E,0 3px 0 #E3AC2F}
+.bdg.on .bdg-i{background:#F5C04A;color:#5A3A00}
+.bdg.on .bdg-t{color:#3D2600}
+.bdg.on small{color:#8A5A00}
+[data-theme="dark"] .bdg.on{background:linear-gradient(160deg,#4A3A12,#33270A);box-shadow:inset 0 0 0 1.5px #A07A1E}
+[data-theme="dark"] .bdg.on .bdg-t{color:#FFE7A6}
+[data-theme="dark"] .bdg.on small{color:#E3C778}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bdg.on{background:linear-gradient(160deg,#4A3A12,#33270A);box-shadow:inset 0 0 0 1.5px #A07A1E}:root:not([data-theme="light"]) .bdg.on .bdg-t{color:#FFE7A6}:root:not([data-theme="light"]) .bdg.on small{color:#E3C778}}
+/* recent workouts: light grey cards, one for each, with the day, what was done and the new bests */
+.rows.hist{display:grid;gap:8px;background:none;border-radius:0;overflow:visible}
+.rows.hist li.tap{border:0;border-radius:16px;background:var(--surface-2)}
+.rows.hist li+li{border-top:0}
+.rows.hist .row-b{grid-template-columns:minmax(0,1fr) auto auto;gap:4px 10px;min-height:66px;padding:11px 14px}
+.rows.hist .h-t{font-size:16px;font-weight:800}
+.rows.hist .h-d{grid-column:2;grid-row:1;font-size:13px;font-weight:700;color:var(--ink-3);white-space:nowrap}
+.rows.hist .h-s{grid-column:1 / 3;display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px;font-weight:700}
+.rows.hist .h-s span{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:9px;background:var(--surface);color:var(--ink-2)}
+.rows.hist .h-s .pr{background:#FFE7A6;color:#5A3A00}
+.rows.hist .h-s .pr svg{grid-column:auto;grid-row:auto;width:12px;height:12px;color:#B5820E;fill:currentColor}
+.rows.hist .row-b>svg{grid-column:3;grid-row:1 / 3}
+/* the journey: where the lifter stands among the ranks, then the prizes on the way, and at the foot the goal, small */
+.jr-top{display:grid;gap:10px;padding:16px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.jr-rank{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px}
+.jr-rank .medal{width:46px;height:55px}
+.jr-top .jr-k{margin:0;font-size:13px;font-weight:700;color:var(--ink-3)}
+.jr-top h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.jr-top .jr-lv{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
+.jr-top .jr-line{margin:0;font-size:13.5px;font-weight:700;color:var(--ink-3)}
+.jr-ranks{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.jr-ranks li{display:grid;justify-items:center;gap:2px;padding:8px 0 6px;border-radius:12px;text-align:center;opacity:.38;filter:grayscale(1)}
+.jr-ranks li.done{opacity:1;filter:none}
+.jr-ranks li.cur{opacity:1;filter:none;background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--line)}
+.jr-ranks .medal{width:24px;height:29px}
+.jr-ranks b{font-size:11.5px;font-weight:800;line-height:1.1}
+.jr-ranks small{font-size:10px;font-weight:700;color:var(--ink-3)}
+.stop .dot.rk{background:var(--surface);box-shadow:0 6px 0 var(--lip),inset 0 0 0 2px var(--line)}
+.stop .dot.rk .medal{width:44px;height:53px}
+.stop.later .dot.rk .medal{filter:grayscale(1);opacity:.55}
+.jr-goal{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;margin-top:14px;padding:10px 14px;border-radius:16px;background:var(--surface-2)}
+.jr-goal-fig{width:46px;height:46px;border-radius:50%;overflow:hidden;background:var(--surface)}
+.jr-goal-fig svg{display:block;width:100%;height:100%}
+.jr-goal b{display:block;font-size:15px;font-weight:800}
+.jr-goal small{font-size:12.5px;font-weight:700;color:var(--ink-3)}
+/* a new rank, on the whole screen */
+.rank-up{position:fixed;inset:0;z-index:97;display:grid;place-items:center;padding:24px;background:radial-gradient(90% 70% at 50% 42%,#3B2477 0%,#150D2E 60%,#07050D 100%);color:#fff;animation:tour-fade .25s ease-out}
+.rank-up.out{opacity:0;transition:opacity .2s}
+.ru-in{position:relative;display:grid;justify-items:center;gap:8px;text-align:center}
+.ru-rays{position:absolute;top:-70px;width:330px;height:330px;border-radius:50%;background:repeating-conic-gradient(rgb(255 215 106 / .16) 0 12deg,transparent 12deg 24deg);animation:ru-spin 14s linear infinite;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.ru-medal{position:relative;animation:ru-pop .7s cubic-bezier(.2,1.5,.4,1) both}
+.ru-medal .medal{width:150px;height:180px;filter:drop-shadow(0 12px 22px rgb(0 0 0 / .5))}
+.ru-k{position:relative;margin:14px 0 0;font-size:16px;font-weight:800;color:#FFD76A}
+.ru-in h2{position:relative;margin:0;font-size:46px;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+.ru-in .btn{position:relative;min-width:200px;margin-top:18px;border:0;background:#fff;color:#2A1866;box-shadow:0 5px 0 rgb(0 0 0 / .3)}
+@keyframes ru-spin{to{transform:rotate(360deg)}}
+@keyframes ru-pop{0%{transform:scale(.2) rotate(-18deg);opacity:0}100%{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.ru-rays,.ru-medal{animation:none}}
+/* the chat opens on four ready questions, as chips two by two */
+.sugs.chips{grid-template-columns:1fr 1fr;gap:8px}
+.sugs.chips .sug{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;min-height:58px;padding:8px 10px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip);font-size:14px;font-weight:700;line-height:1.25;text-align:start}
+.sugs.chips .sug:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.sugs.chips .sug-i{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--surface-2);color:var(--ink-2)}
+.sugs.chips .sug-i svg{width:18px;height:18px}
+.msg{font-size:15px;line-height:1.45}
+
+/* the journey's own bar stands on a light card */
+.jr-top .jr-lv .xpbar{height:12px;background:var(--surface-2)}
+.jr-top .jr-lv .xpbar i{background:var(--gold)}
+.jr-top .jr-nx{font-size:14px;font-weight:800;color:var(--ink-3)}
+.jr-got{white-space:nowrap}
+
+/* ================================================================== round 3, phase 5 (second part): the collection */
+/* how rare a thing is: a small tag in the colour of its rarity */
+.rr{display:inline-flex;align-items:center;justify-self:center;min-height:22px;padding:0 9px;border-radius:99px;background:color-mix(in srgb,var(--rc) 16%,var(--surface));color:color-mix(in srgb,var(--rc) 78%,var(--ink));font-size:12px;font-weight:800;white-space:nowrap}
+.bx{display:block;width:100%;height:auto;overflow:visible}
+/* the kiosk's card in the profile */
+.ks-prog{display:block;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.ks-prog i{display:block;height:100%;border-radius:inherit;background:var(--ks)}
+.ks-wait{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;min-height:60px;padding:6px 12px;border:0;border-radius:16px;background:linear-gradient(135deg,#FFF6DA,#FFE7A3);color:#5C3A00;font:inherit;text-align:start;box-shadow:inset 0 0 0 1.5px #F2C14E,0 4px 0 #D9A21E;animation:ch-call 2.4s ease-in-out 1s infinite}
+.ks-wait:active{transform:translateY(3px);box-shadow:inset 0 0 0 1.5px #F2C14E,0 1px 0 #D9A21E}
+.ks-wait b{font-size:16.5px;font-weight:800}
+.ks-wait>svg:last-child{width:20px;height:20px;stroke-width:2.6}
+.ks-peek li{padding:6px;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--rc,transparent) 55%,transparent)}
+.ks-peek li.bxp{padding:10px 18px}
+/* the kiosk: sections one under the other */
+.ks-sec{display:grid;gap:10px}
+.ks-sec h3{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 0 0;font-size:18px;font-weight:800;letter-spacing:-.01em}
+.ks-sec h3 small{font-size:13px;font-weight:700;color:var(--ink-3)}
+.ks-boxes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ks-bx{position:relative;display:grid;justify-items:center;gap:4px;width:100%;padding:8px 6px 10px;border:0;border-radius:16px;background:var(--surface);color:var(--ink);font:inherit;text-align:center;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+.ks-bx:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.ks-bx .bx{width:62px}
+.ks-bx b{font-size:14.5px;font-weight:800;line-height:1.2}
+.ks-bx small{font-size:12px;font-weight:700;color:var(--ink-3)}
+.ks-bx.far .ks-pr{background:var(--surface-3);color:var(--ink-2)}
+.ks-bx.far .ks-pr .coin{filter:grayscale(1);opacity:.8}
+.ks-bx.full{opacity:.6;box-shadow:inset 0 0 0 1.5px var(--line)}
+.ks-bx.full .bx{filter:grayscale(1)}
+.ks-boxes.wait .ks-bx{background:linear-gradient(160deg,#FFF6DA,#FFE7A3);color:#5C3A00;box-shadow:inset 0 0 0 1.5px #F2C14E,0 3px 0 #D9A21E}
+.ks-boxes.wait .ks-bx .bx{animation:bx-hop 1.6s ease-in-out infinite}
+.ks-boxes.wait .ks-st{background:#5C3A00;color:#FFE7A3}
+.ks-n{position:absolute;top:6px;inset-inline-end:8px;display:grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:99px;background:var(--ks);color:#fff;font-size:13px;font-weight:800}
+@keyframes bx-hop{0%,100%{transform:none}12%{transform:translateY(-5px) rotate(-4deg)}24%{transform:none}36%{transform:translateY(-3px) rotate(3deg)}48%{transform:none}}
+.ks-week{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+.ks-week>div{display:grid;gap:5px;justify-items:start;min-width:0}
+.ks-week b{font-size:16px;font-weight:800;line-height:1.2}
+.ks-week p{margin:0;font-size:13.5px;font-weight:600;line-height:1.3;color:var(--ink-3)}
+.ks-week .ks-pic{background:var(--ks-soft)}
+.ks-week .btn{min-height:44px;padding:0 14px;border:0;border-radius:14px;background:var(--ks);color:#fff;font-size:16px;font-weight:800;direction:ltr;gap:5px;box-shadow:0 4px 0 color-mix(in srgb,var(--ks) 70%,#000)}
+.ks-week .btn .coin{width:17px;height:17px}
+.ks-week .btn.far{background:var(--surface-3);color:var(--ink-2);box-shadow:0 4px 0 var(--lip)}
+.ks-week .btn.far .coin{filter:grayscale(1);opacity:.8}
+.ks-shield{grid-template-columns:44px minmax(0,1fr) auto}
+.shd{display:block;width:44px;height:48px}
+/* the collection: a thing that is owned wears the colour of its rarity; one that is not is a question mark in that colour */
+.ks-it{position:relative}
+.ks-it.own{border-color:color-mix(in srgb,var(--rc) 55%,var(--line))}
+.ks-it.own .ks-pic{background:color-mix(in srgb,var(--rc) 13%,var(--surface))}
+.ks-it .rr{min-height:20px;font-size:11.5px}
+.ks-it.q{display:grid;justify-items:center;gap:6px;padding:8px 6px 10px;border:1.5px dashed color-mix(in srgb,var(--rc) 50%,var(--line));border-radius:14px;background:var(--surface-2);box-shadow:none}
+.ks-it.q .ks-pic{display:grid;place-items:center;width:100%;border-radius:12px;background:color-mix(in srgb,var(--rc) 10%,var(--surface));color:color-mix(in srgb,var(--rc) 70%,var(--ink-3));font-size:34px;font-weight:800;line-height:1}
+.ks-none{margin:0;padding:18px 12px;border-radius:14px;background:var(--surface-2);font-size:14.5px;font-weight:600;text-align:center;color:var(--ink-3)}
+.ks-say .rr{justify-self:start}
+.ks-odds{display:grid;gap:8px;padding:12px;border-radius:14px;background:var(--surface-2)}
+.ks-odds b{font-size:13.5px;font-weight:800;color:var(--ink-2)}
+.ks-odds ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ks-odds li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink-2)}
+.ks-odds i{width:9px;height:9px;border-radius:50%;background:var(--rc)}
+.ks-odds span{font-variant-numeric:tabular-nums;color:var(--ink-3)}
+/* the box of the summary */
+#sumBox:empty{display:none}
+.sum-chest{grid-template-columns:72px minmax(0,1fr)}
+.sum-chest .bx{width:72px}
+/* a box is opened, on the whole screen: the box waits, shakes, and gives way to the thing in the colour of its rarity */
+.box-up{position:fixed;inset:0;z-index:98;display:grid;place-items:center;padding:24px;background:radial-gradient(90% 70% at 50% 42%,#2A2140 0%,#120E22 60%,#07050D 100%);color:#fff;animation:tour-fade .2s ease-out;overflow:hidden}
+.box-up.open{background:radial-gradient(90% 70% at 50% 40%,color-mix(in srgb,var(--rc) 46%,#1B1530) 0%,#120E22 62%,#07050D 100%)}
+.box-up.out{opacity:0;transition:opacity .2s}
+.box-up .confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.bu-in{position:relative;display:grid;justify-items:center;gap:10px;width:min(100%,340px);text-align:center}
+.bu-rays{position:absolute;top:-60px;left:50%;width:360px;height:360px;margin-left:-180px;border-radius:50%;opacity:0;background:repeating-conic-gradient(color-mix(in srgb,var(--rc) 55%,transparent) 0 10deg,transparent 10deg 20deg);-webkit-mask:radial-gradient(circle,#000 28%,transparent 70%);mask:radial-gradient(circle,#000 28%,transparent 70%);pointer-events:none}
+.box-up.open .bu-rays{opacity:1;animation:ru-spin 16s linear infinite;transition:opacity .4s}
+.bu-box{position:relative;width:190px;padding:0;border:0;background:none;animation:bx-hop 1.5s ease-in-out infinite;cursor:pointer}
+.bu-box .bx{filter:drop-shadow(0 14px 22px rgb(0 0 0 / .5))}
+.box-up.shake .bu-box{animation:bu-shake .9s cubic-bezier(.36,.07,.19,.97) both}
+.bu-hint{position:relative;margin:6px 0 0;font-size:17px;font-weight:800;color:rgb(255 255 255 / .82);animation:glow-pulse 1.4s ease-in-out infinite}
+.box-up.shake .bu-hint{visibility:hidden}
+.bu-got{position:relative;display:grid;justify-items:center;gap:10px;width:100%}
+.bu-pic{display:block;width:176px;aspect-ratio:1;border-radius:32px;overflow:hidden;background:#fff;box-shadow:0 0 0 5px var(--rc),0 0 46px 6px color-mix(in srgb,var(--rc) 70%,transparent);animation:ru-pop .6s cubic-bezier(.2,1.5,.4,1) both}
+.bu-pic .av{display:block;width:100%;height:100%}
+.bu-got .rr{min-height:30px;padding:0 16px;background:var(--rc);color:#fff;font-size:15px;animation:ob-rise .4s .25s both}
+.bu-got h2{margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.15;animation:ob-rise .4s .32s both}
+.bu-act{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:10px;animation:ob-rise .4s .45s both}
+.bu-act .btn{min-width:0;border:0;background:#fff;color:#1B1530;box-shadow:0 5px 0 rgb(0 0 0 / .35)}
+.bu-act .btn.ghost{background:rgb(255 255 255 / .14);color:#fff;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .3),0 5px 0 rgb(0 0 0 / .3)}
+@keyframes bu-shake{0%{transform:none}10%{transform:rotate(-7deg) scale(1.03)}22%{transform:rotate(7deg) scale(1.05)}34%{transform:rotate(-9deg) scale(1.07)}46%{transform:rotate(9deg) scale(1.09)}58%{transform:rotate(-11deg) scale(1.12)}70%{transform:rotate(11deg) scale(1.15)}82%{transform:rotate(-6deg) scale(1.2)}100%{transform:scale(1.5);opacity:0}}
+/* things of the collection that glow or flicker */
+.av-pulse{animation:glow-pulse 1.8s ease-in-out infinite}
+@keyframes glow-pulse{50%{opacity:.7}}
+.av-flick{transform-box:fill-box;transform-origin:50% 0;animation:av-flick .28s ease-in-out infinite alternate}
+@keyframes av-flick{from{transform:scaleY(.8)}to{transform:scaleY(1.12)}}
+.av.still .av-pulse,.av.still .av-flick{animation:none}
+@media (prefers-reduced-motion:reduce){.bu-box,.box-up.shake .bu-box,.bu-hint,.bu-rays,.ks-wait,.ks-boxes.wait .ks-bx .bx,.av-pulse,.av-flick{animation:none!important}}
+
+/* what is still to be found: small question marks, each in the colour of its rarity */
+.ks-more{margin:4px 0 0;font-size:14px;font-weight:800;color:var(--ink-3)}
+.ks-qs{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
+.ks-q{display:grid;place-items:center;aspect-ratio:1;border:1.5px dashed color-mix(in srgb,var(--rc) 55%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--rc) 11%,var(--surface));color:color-mix(in srgb,var(--rc) 75%,var(--ink-3));font-size:20px;font-weight:800;line-height:1}
+
+/* ================================================================== the body log */
+.scale{display:block;width:100%;height:auto}
+.body-card{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;padding:12px 16px 12px 14px;border:0;color:var(--ink);font:inherit;text-align:start;box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.body-card:active{transform:translateY(3px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.body-card .bd-t{display:grid;gap:3px;min-width:0}
+.body-card b{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.body-card small{font-size:14px;font-weight:600;color:var(--ink-3)}
+.body-card>svg:last-child{width:20px;height:20px;stroke-width:2.6;color:var(--ink-3)}
+.sheet-in.bd{gap:14px}
+.bd-top{display:grid;grid-template-columns:108px minmax(0,1fr);align-items:center;gap:14px}
+.bd-in{display:grid;gap:10px;min-width:0}
+.bd-kg{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px}
+.bd-kg .tq-in input{width:100%;min-width:0}
+.bd-date,.bd-f{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;min-height:48px;padding:0 14px;border-radius:14px;background:var(--surface-2);font-size:15px;font-weight:700;color:var(--ink-2)}
+.bd-date input,.bd-f input{min-width:0;width:100%;min-height:44px;border:0;background:none;color:var(--ink);font:inherit;font-size:17px;font-weight:800;text-align:end}
+.bd-f small{font-size:13px;font-weight:700;color:var(--ink-3)}
+.bd-more{display:grid;gap:8px}
+.bd-more-b{justify-self:start;min-height:40px;font-size:15px;font-weight:800}
+.bd-act{display:grid;gap:8px}
+.bd-hist{display:grid;gap:10px}
+.bd-hist h3{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 0 0;font-size:18px;font-weight:800}
+.bd-hist h3 small{font-size:13px;font-weight:700;color:var(--ink-3)}
+.bd-chart{display:block;width:100%;height:84px;border-radius:14px;background:var(--surface-2)}
+.bd-area{fill:color-mix(in srgb,var(--ink) 9%,transparent)}
+.bd-line{fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.bd-dot{fill:var(--ink)}
+.bd-trend{margin:0;font-size:15px;font-weight:800;color:var(--ink-2)}
+.bd-rows{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.bd-r{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:4px 12px;width:100%;min-height:56px;padding:9px 14px;border:0;border-radius:14px;background:var(--surface-2);color:var(--ink);font:inherit;text-align:start}
+.bd-r.cur{box-shadow:inset 0 0 0 2px var(--ink)}
+.bd-r .bd-d{font-size:14.5px;font-weight:700;color:var(--ink-2)}
+.bd-r b{display:inline-flex;align-items:baseline;gap:4px;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+.bd-r b small{font-size:12px;font-weight:700;color:var(--ink-3)}
+.bd-dl{min-width:52px;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;text-align:end;color:var(--ink-3);direction:ltr}
+.bd-x{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:6px}
+.bd-x i{padding:3px 9px;border-radius:9px;background:var(--surface);font-size:12.5px;font-weight:700;font-style:normal;color:var(--ink-2)}
+/* the opening: height and weight side by side */
+.ob-hw{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:340px;margin-inline:auto}
+.ob-hw .ob-nbox{width:auto}
+.ob-hw .ob-nbox input{width:100%;min-width:0}
+.ob-may{margin:14px 0 0;font-size:14.5px;font-weight:600;text-align:center;color:var(--ink-3)}
+/* the tour speaks in colour: each step its own, on Eilon's words, on the light round what he shows, and on his button */
+.tour-say{background:var(--tc,#6D3FE0);color:#fff;transition:background-color .35s}
+.tour-hole{outline-color:color-mix(in srgb,var(--tc,#fff) 45%,#fff);transition-property:left,top,width,height,outline-color}
+.tour-dots i{background:rgb(255 255 255 / .36)}
+.tour-dots i.on{background:#fff}
+.tour-dots i{width:6px;height:6px}
+.tour-dots i.on{width:18px}
+.tour-foot .btn,.tour-foot .btn.primary{background:#fff;color:var(--tc,#6D3FE0);box-shadow:0 3px 0 rgb(0 0 0 / .22)}
+
+/* numbers of three digits and a point need a smaller hand than the days of the week */
+.ob-hw .ob-nbox{padding:16px 8px 12px}
+.ob-hw .ob-nbox input{font-size:50px;direction:ltr}
+.ob-hw .ob-nbox input::placeholder{color:var(--ink-3);opacity:.45}
+.ob-body.in .ob-hw,.ob-body.in .ob-may{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .12s both}
+.bd-kg{direction:ltr}
+.bd-kg .tq-in{direction:rtl;padding:8px 10px;gap:6px}
+[dir="ltr"] .bd-kg .tq-in{direction:ltr}
+.bd-kg .tq-in input{font-size:38px}
+.bd-kg .tq-in span{font-size:14px}
+.bd-kg .tq-st{width:44px;min-width:44px}
+
+/* the weight of the day: the number over its unit, so that four figures and a point have room */
+.bd-top{grid-template-columns:88px minmax(0,1fr)}
+.bd-kg .tq-in{flex-direction:column;align-items:center;gap:0;padding:6px 8px 8px}
+.bd-kg .tq-in input{width:100%;font-size:36px;line-height:1.1}
+
+/* the body log on a narrow phone */
+@media (max-width:359px){.bd-top{grid-template-columns:62px minmax(0,1fr);gap:10px}.bd-kg .tq-in input{font-size:28px}.bd-kg .tq-st{width:40px;min-width:40px}.bd-date{padding:0 10px;gap:6px;font-size:14px}.bd-date input{font-size:15px}}

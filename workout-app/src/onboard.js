@@ -66,19 +66,21 @@ function langFade(fn) {
    A short film first: the camera finds Eilon, pulls back onto the player's character beside him, and pushes in on it as it
    grows. Then the questions, one a screen, each asked by Eilon from the same place, so that only what is asked changes. The
    answers build the plan: experience sets the sets, the time sets how many exercises, and the gym sets the machines */
-const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goals: [], days: null, time: null, eq: null, fb: 2, beat: 0 };
-const OB_STEPS = ['film', 'name', 'exp', 'goals', 'days', 'time', 'eq', 'look', 'plan', 'done'];
+const OB = { on: false, step: 0, dir: 0, name: '', exp: null, goals: [], days: null, place: null, age: null, focus: null, pain: [], q: 0, time: null, eq: null, fb: 2, beat: 0 };
+const OB_STEPS = ['film', 'name', 'exp', 'goals', 'days', 'place', 'quick', 'look', 'plan', 'done'];
 const OB_LAST = OB_STEPS.length - 1;
 const obIs = (k) => OB_STEPS[OB.step] === k;
-const EXP = () => [[say('מתחיל', 'Beginner'), say('פחות מחצי שנה', 'Less than six months')], [say('מתאמן קבוע', 'Regular'), say('חצי שנה עד שנתיים', 'Six months to two years')], [say('מנוסה', 'Experienced'), say('יותר משנתיים', 'More than two years')]];
-/* how built the character is drawn for each answer, before a single level is earned: as one starts, half way, well trained */
-const EXP_BASE = [0, 0.35, 0.62];
-const GOALS = () => [[say('מראה ומבנה גוף', 'Physique'), say('מסה, חיטוב והגדרה', 'Size, shape and definition')], [say('כוח', 'Strength'), say('להרים יותר משקל', 'Lift heavier')], [say('כושר ובריאות', 'Fitness and health'), say('אנרגיה, יציבה וגוף בריא', 'Energy, posture and a healthy body')]];
-/* how many workouts a week, and what the week is made of then */
-const DAYS = () => [[2, say('כל הגוף, פעמיים', 'Full body, twice')], [3, say('כל הגוף, 3 פעמים', 'Full body, 3 times')], [4, say('עליון ותחתון', 'Upper and lower')], [5, say('חלוקה מלאה', 'A full split')]];
-const TIMES = () => [[30, say('קצר וממוקד', 'Short and focused')], [45, say('מאוזן', 'Balanced')], [60, say('אימון מלא', 'A full workout')], [75, say('ארוך ויסודי', 'Long and thorough')]];
-const EQS = () => [[say('חדר כושר מלא', 'A full gym'), say('מכונות, כבלים, מוטות ומשקולות', 'Machines, cables, bars and dumbbells')], [say('חדר כושר בסיסי', 'A basic gym'), say('משקולות, מוטות וכבלים, בלי מכונות', 'Dumbbells, bars and cables, no machines')], [say('עוד לא יודע', 'Not sure yet'), say('מתחילים מחדר מלא, וכל תרגיל מתחלף בלחיצה', 'We start with a full gym; any exercise swaps with a tap')]];
-/* the equipment each answer has: null for all of it */
+const EXP = () => [[say('מתחיל', 'Beginner'), say('פחות מחצי שנה', 'Less than six months')], [say('קבוע', 'Regular'), say('חצי שנה עד שנתיים', 'Six months to two years')], [say('מנוסה', 'Experienced'), say('שנתיים עד חמש', 'Two to five years')], [say('ותיק', 'Veteran'), say('יותר מחמש שנים', 'More than five years')]];
+/* how built the character is drawn for each answer, before a single level is earned */
+const EXP_BASE = [0, 0.35, 0.62, 0.8];
+/* the goals by their number (0 mass, 1 strength, 2 fitness and endurance, 3 getting lean, 4 health, 5 running), and the order they are offered in */
+const GOALS = () => [[say('מסה', 'Muscle')], [say('כוח', 'Strength')], [say('כושר וסיבולת', 'Fitness and endurance')], [say('חיטוב', 'Getting lean')], [say('בריאות', 'Health')], [say('ריצות', 'Running')]];
+const GOAL_ORDER = [3, 0, 1, 4, 2, 5];
+/* where the lifter trains (see PLACES in prog.js), the body areas to ask more of (FOCUS), and what can hurt (PAIN) */
+const WHERE = () => [say('חדר כושר', 'A gym'), say('גינת כושר', 'An outdoor gym'), say('בבית עם משקולות', 'Home with dumbbells'), say('בבית בלי ציוד', 'Home with no equipment')];
+const AREAS = () => [say('חזה', 'Chest'), say('גב', 'Back'), say('כתפיים', 'Shoulders'), say('ידיים', 'Arms'), say('רגליים', 'Legs'), say('ישבן', 'Glutes'), say('בטן', 'Abs')];
+const OUCH = () => [say('ברכיים', 'Knees'), say('גב תחתון', 'Lower back'), say('כתפיים', 'Shoulders'), say('מרפקים', 'Elbows'), say('פרקי ידיים', 'Wrists')];
+/* the equipment an older answer about the gym left: null for all of it */
 const EQ_OK = [null, ['db', 'bar', 'cable', 'bw'], null];
 /* a bar with one, two or three plates a side: the more there is on the bar, the longer one has trained */
 const platesIcon = (n) => {
@@ -93,42 +95,27 @@ const OBI = {
   unsure: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M9.7 9.5a2.4 2.4 0 1 1 3.5 2.2c-.8.4-1.2 1-1.2 1.8M12 16.6h.01"/></svg>',
   clock: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3 2"/></svg>',
   del: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 5.5h9.3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9.2L3.5 12z"/><path d="M12 9.6l4.6 4.8M16.6 9.6L12 14.4"/></svg>',
+  flame: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.4c.6 3-1.2 4.4-2.6 6.2C8 11.300 7 12.800 7 14.800a5 5 0 0 0 10 0c0-1.7-.7-3-1.600-4.200-.5 1-1.200 1.600-2 1.900.5-2.800-.1-6.300-1.400-9.100z"/></svg>',
+  bolt: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.4 3.4 6 13.200h5.200l-1 7.400 7.800-10h-5.400z"/></svg>',
+  run: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="14.6" cy="4.6" r="2"/><path d="M6.200 11.200 9.400 8.600l3.400.6 2.200 3.200 3.200 1M12.800 9.200l-2 5 3.200 2.400.6 4.200M10.800 14.200l-2.400 2.400-3.600.2"/></svg>',
+  park: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20.500V5.200M19 20.500V5.200M3.500 7.200h17M9.200 7.200v5.200M14.800 7.200v5.200M3.500 20.500h17"/></svg>',
+  home: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.200 12 4.600l8 6.600M6.200 9.800v9.700h11.600V9.800M10 19.500v-5h4v5"/></svg>',
+  crown: '<svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.500 8.200l4 3.600L12 5.400l4.500 6.400 4-3.600-1.600 10.200H5.100z"/></svg>',
 };
 /* the experience the character is drawn with: the answer being given, while the opening is open */
 const expNow = () => (OB.on && OB.exp != null ? OB.exp : S.cfg.me.exp);
 
-/* ---- the film: three beats, each a camera move and a line. It plays by itself and goes round; a touch moves it on ---- */
-const FILM = () => [
-  say('היי, אני אילון. המאמן האישי שלך.', 'Hi, I am Eilon. Your personal coach.'),
-  say('אבנה לך תוכנית שמתאימה בדיוק לך.', 'I will build a plan that fits you exactly.'),
-  say('וכל אימון יעלה אותך רמה.', 'And every workout takes you up a level.'),
-];
-const BEAT_MS = 3200;
-const storyHTML = () => FILM().map((_, i) => '<i class="' + (i < OB.beat ? 'full' : i === OB.beat ? 'run' : '') + '"><b></b></i>').join('');
+/* ---- the first screen: Eilon waves and says hello; the character that will grow stands beside him ---- */
 function filmHTML() {
-  return '<div class="ob-film" id="obFilm" data-beat="' + OB.beat + '" aria-hidden="true"><div class="ob-cam"><div class="ob-set">' +
+  return '<div class="ob-film" id="obFilm" data-beat="0" aria-hidden="true"><div class="ob-cam"><div class="ob-set">' +
     '<span class="ob-glow"></span><span class="ob-floor"></span>' +
-    '<span class="ob-coach">' + avatarSVG(COACH, 16, {}) + '</span>' +
-    '<span class="ob-you" id="obYou"><span class="y1">' + avatar(1) + '</span><span class="y2">' + avatar(30) + '</span><b class="lv-badge" id="obYouLv">' + say('רמה ', 'Level ') + '1</b></span>' +
+    '<span class="ob-coach">' + avatarSVG(COACH, COACH_LVL, {}) + '</span>' +
     '</div></div></div>';
 }
-function filmBeat(n) {
+function filmBeat() {
   const f = $('#obFilm'); clearTimeout(OB.beatT);
   if (!f || !OB.on || OB.step !== 0) return;
-  OB.beat = ((n % 3) + 3) % 3; f.dataset.beat = OB.beat;
-  /* he waves as he says hello */
-  const co = $('.ob-coach .av', f); if (co) { co.classList.toggle('wave', OB.beat === 0); co.classList.toggle('grin', OB.beat === 0); }
-  const cap = $('#obCap'); if (cap) { cap.textContent = FILM()[OB.beat]; cap.classList.remove('in'); void cap.offsetWidth; cap.classList.add('in'); }
-  const st = $('#obStory'); if (st) st.innerHTML = storyHTML();
-  /* the last beat: the character grows and flexes, and its level climbs */
-  const y2 = $('#obYou .y2 .av'), lv = $('#obYouLv');
-  if (y2) { y2.classList.remove('flex'); if (OB.beat === 2) setTimeout(() => { if (y2.isConnected && OB.beat === 2) y2.classList.add('flex'); }, 650); }
-  if (lv) {
-    cancelAnimationFrame(OB.lvRaf);
-    if (OB.beat !== 2) lv.textContent = say('רמה ', 'Level ') + 1;
-    else { const t0 = performance.now(), step = (now) => { const k = Math.min(1, (now - t0) / 1100); lv.textContent = say('רמה ', 'Level ') + Math.round(1 + 29 * (1 - Math.pow(1 - k, 3))); if (k < 1 && lv.isConnected) OB.lvRaf = requestAnimationFrame(step); }; OB.lvRaf = requestAnimationFrame(step); }
-  }
-  if (!reduced) OB.beatT = setTimeout(() => filmBeat(OB.beat + 1), BEAT_MS);
+  const co = $('.ob-coach .av', f); if (co) { co.classList.add('wave', 'grin'); }
 }
 
 /* the curtain: a black screen with the name, as when a phone wakes up. It lifts once the account has said which language
@@ -164,7 +151,7 @@ function applyExp() {
   }
 }
 /* the answers that shape the plan: the ones being given while the opening is open, else the ones that were kept */
-const fitAns = (a) => ({ exp: a.exp, goals: a.goals || [], time: a.time, ok: EQ_OK[a.eq] || null });
+const fitAns = (a) => ({ exp: a.exp, goals: a.goals || [], time: a.time, ok: a.place == null ? EQ_OK[a.eq] || null : null, place: a.place | 0, age: a.age || null, focus: a.focus, pain: a.pain || [] });
 /* the plan is made for its lifter (see fitPlanData): the movements the gym has, the sets for this experience, and as many
    exercises as the time holds. It is written from the plan's own slots each time, so going through the opening again with
    other answers gives the plan those answers ask for. Only before the first logged set, like applyExp */
@@ -203,87 +190,104 @@ function planPreview() {
 
 /* what the plan is fitted to, one line for each, in the lifter's own answers */
 const buildSteps = () => [
-  OB.eq === 1 ? say('בוחר תרגילים בלי מכונות', 'Choosing exercises that need no machines') : say('בוחר תרגילים לחדר כושר מלא', 'Choosing exercises for a full gym'),
-  OB.days ? say('בונה שבוע של ', 'Building a week of ') + OB.days + say(' אימונים', ' workouts') : say('בונה את השבוע', 'Building the week'),
-  [say('קובע סטים למתחיל', 'Setting the sets for a beginner'), say('קובע סטים למתאמן קבוע', 'Setting the sets for a regular lifter'), say('קובע סטים למנוסה', 'Setting the sets for an experienced lifter')][OB.exp == null ? 1 : OB.exp],
+  [say('בוחר תרגילים לחדר כושר', 'Choosing exercises for a gym'), say('בוחר תרגילים לגינת כושר', 'Choosing exercises for an outdoor gym'), say('בוחר תרגילים לבית עם משקולות', 'Choosing exercises for home with dumbbells'), say('בוחר תרגילים לבית בלי ציוד', 'Choosing exercises that need no equipment')][OB.place | 0],
+  OB.days === 1 ? say('בונה שבוע של אימון אחד', 'Building a week of one workout') : say('בונה שבוע של ', 'Building a week of ') + (OB.days || 3) + say(' אימונים', ' workouts'),
+  [say('קובע סטים למתחיל', 'Setting the sets for a beginner'), say('קובע סטים למתאמן קבוע', 'Setting the sets for a regular lifter'), say('קובע סטים למנוסה', 'Setting the sets for an experienced lifter'), say('קובע סטים לותיק', 'Setting the sets for a veteran')][OB.exp == null ? 1 : OB.exp],
   say('מכוון חזרות ומנוחות למטרות שלך', 'Tuning reps and rests to your goals'),
-  OB.time ? say('מתאים כל אימון ל-', 'Fitting each workout into ') + Ltr(OB.time) + say(' דקות', ' minutes') : say('משאיר כל אימון באורך מלא', 'Keeping each workout at full length'),
+  OB.pain.length ? say('מחליף תרגילים שמעמיסים על מה שכואב', 'Swapping out what loads the sore spots') : OB.focus != null ? say('מוסיף סטים ל', 'Adding sets for the ') + AREAS()[OB.focus] : say('מאזן בין כל השרירים', 'Balancing every muscle'),
+  say('מחשב כמה זמן כל אימון לוקח', 'Working out how long each workout takes'),
 ];
+/* a number in a big square, with a minus and a plus: the days of the week, the age */
+const numBox = (id, v, unit, less, more) => '<div class="ob-num" role="group" aria-labelledby="obTitle"><button type="button" class="ob-st" data-obn="-1" aria-label="' + less + '">−</button>' +
+  '<label class="ob-nbox"><input id="' + id + '" type="text" inputmode="numeric" maxlength="2" autocomplete="off" value="' + v + '" aria-label="' + unit + '"><span>' + unit + '</span></label>' +
+  '<button type="button" class="ob-st" data-obn="1" aria-label="' + more + '">+</button></div>';
 function obHTML() {
   const st = OB_STEPS[OB.step], nm = String(OB.name || '').trim();
-  /* Eilon, all of him, beside what he asks. On the first question he stands larger, above it */
-  /* over each question, a small line that says what it is about, as the Workouts screen says "the next workout" over its name */
-  const KICK = { exp: say('הניסיון שלך', 'Your experience'), goals: say('המטרות', 'Your goals'), days: say('השבוע שלך', 'Your week'), time: say('זמן אימון', 'Workout time'), eq: say('ציוד', 'Equipment'), look: say('הדמות שלך', 'Your character'), plan: say('אילון בנה', 'Built by Eilon') };
-  const ask = (t, sub, big) => '<div class="ob-q' + (big ? ' big' : '') + '"><span class="ob-eilon" aria-hidden="true">' + avatarSVG(COACH, 16, big ? {} : { bust: true }) + '</span><div class="ob-bub">' + (!big && KICK[st] ? '<p class="ob-k">' + KICK[st] + '</p>' : '') + '<h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
+  /* over each question, a small line that says what it is about */
+  const KICK = { exp: say('הניסיון שלך', 'Your experience'), goals: say('המטרות', 'Your goals'), days: say('השבוע שלך', 'Your week'), place: say('המקום', 'The place'), quick: say('שאלה ' + ((OB.q | 0) + 1) + ' מתוך 4', 'Question ' + ((OB.q | 0) + 1) + ' of 4'), look: say('הדמות שלך', 'Your character'), plan: say('אילון בנה', 'Built by Eilon') };
+  const ask = (t, sub, big) => '<div class="ob-q' + (big ? ' big' : '') + '"><span class="ob-eilon" aria-hidden="true">' + avatarSVG(COACH, COACH_LVL, big ? {} : { bust: true }) + '</span><div class="ob-bub">' + (!big && KICK[st] ? '<p class="ob-k">' + KICK[st] + '</p>' : '') + '<h1 id="obTitle">' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
   const card = (key, i, ic, t, sub, on, multi) => '<button type="button" class="ob-opt" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '" data-ob="' + key + '" data-v="' + i + '"><i class="ob-ic" aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span><i class="ob-chk" aria-hidden="true">' + ICON.check + '</i></button>';
-  const group = (multi, inner) => '<div class="ob-opts" role="' + (multi ? 'group' : 'radiogroup') + '" aria-labelledby="obTitle">' + inner + '</div>';
+  const group = (multi, inner, cls) => '<div class="ob-opts' + (cls || '') + '" role="' + (multi ? 'group' : 'radiogroup') + '" aria-labelledby="obTitle">' + inner + '</div>';
+  const chip = (key, i, t, on, multi) => '<button type="button" class="ob-chip" role="' + (multi ? 'checkbox' : 'radio') + '" aria-checked="' + on + '" data-ob="' + key + '" data-v="' + i + '">' + t + '</button>';
   let body, cta = say('המשך', 'Continue'), can = true, quiet = false;
   if (st === 'film') {
-    cta = say('בואו נתחיל', "Let's start");
-    body = '<div class="ob-head"><div class="logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' +
-      '<h1 class="sr" id="obTitle">' + say('ברוכים הבאים ל-gymi', 'Welcome to gymi') + '</h1></div><div class="ob-tap" id="obTap"></div><p class="ob-cap in" id="obCap">' + FILM()[OB.beat] + '</p>';
+    cta = say('בוא נתחיל', "Let's start");
+    body = '<div class="ob-hello"><h1 id="obTitle">' + say('היי אני אילון', 'Hi, I am Eilon') + '</h1><p>' + say('נבנה לך תוכנית אישית', 'Let us build a plan of your own') + '</p></div>';
   } else if (st === 'name') {
-    body = ask(say('איך קוראים לך?', 'What is your name?'), '', true) +
-      '<div class="ob-name"><input class="ob-in-name" id="obName" type="text" dir="auto" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '"><p class="ob-hint">' + say('ככה אילון יפנה אליך', 'So Eilon knows what to call you') + '</p></div>';
+    body = ask(say('איך קוראים לך', 'What is your name'), '', true) +
+      '<div class="ob-name"><input class="ob-in-name" id="obName" type="text" dir="auto" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '"></div>';
   } else if (st === 'exp') {
-    body = ask(say('כמה ניסיון יש לך בחדר כושר?', 'How much gym experience do you have?')) +
-      group(false, EXP().map((o, i) => card('exp', i, platesIcon(i + 1), o[0], o[1], OB.exp === i)).join('')) +
+    body = ask(say('כמה ניסיון יש לך', 'How much experience do you have')) +
+      group(false, EXP().map((o, i) => card('exp', i, i < 3 ? platesIcon(i + 1) : OBI.crown, o[0], o[1], OB.exp === i)).join('')) +
       '<div class="ob-pre" id="obPre" aria-hidden="true">' + avatar(1) + '</div>';
     can = OB.exp != null;
   } else if (st === 'goals') {
-    body = ask(say('מה המטרות שלך?', 'What are your goals?'), say('אפשר לבחור כמה', 'Pick as many as you like')) +
-      group(true, GOALS().map((o, i) => card('goals', i, [OBI.body, OBI.bell, OBI.heart][i], o[0], o[1], OB.goals.includes(i), true)).join(''));
+    const ic = [OBI.body, OBI.bell, OBI.bolt, OBI.flame, OBI.heart, OBI.run];
+    body = ask(say('מה חשוב לך', 'What matters to you')) +
+      group(true, GOAL_ORDER.map((i) => card('goals', i, ic[i], GOALS()[i][0], '', OB.goals.includes(i), true)).join(''), ' g2');
     can = OB.goals.length > 0;
   } else if (st === 'days') {
-    body = ask(say('כמה אימונים בשבוע אתה יכול?', 'How many workouts a week can you do?'), say('אבנה את השבוע לפי זה. אפשר לשנות בכל רגע', 'I will build the week around it. You can change it any time')) +
-      '<div class="ob-times days" role="radiogroup" aria-labelledby="obTitle">' + DAYS().map((t) => '<button type="button" class="ob-time" role="radio" aria-checked="' + (OB.days === t[0]) + '" data-ob="days" data-v="' + t[0] + '"><b>' + t[0] + '</b><span>' + say('בשבוע', 'a week') + '</span><small>' + t[1] + '</small></button>').join('') + '</div>' +
-      '<p class="ob-hint">' + say('3–4 אימונים בשבוע זה המקום הכי טוב להתחיל בו', '3–4 a week is the best place to start') + '</p>';
-    can = OB.days != null;
-  } else if (st === 'time') {
-    body = ask(say('כמה זמן יש לך לאימון?', 'How long can a workout take?'), say('אתאים לזה את מספר התרגילים', 'I will fit the number of exercises to it')) +
-      '<div class="ob-times" role="radiogroup" aria-labelledby="obTitle">' + TIMES().map((t) => '<button type="button" class="ob-time" role="radio" aria-checked="' + (OB.time === t[0]) + '" data-ob="time" data-v="' + t[0] + '"><b>' + Ltr(t[0] === 75 ? '75+' : '' + t[0]) + '</b><span>' + say('דקות', 'minutes') + '</span><small>' + t[1] + '</small></button>').join('') +
-      '<button type="button" class="ob-time any" role="radio" aria-checked="' + (OB.time === 0) + '" data-ob="time" data-v="0">' + OBI.clock + '<span>' + say('לא משנה לי', 'Any length') + '</span></button></div>';
-    can = OB.time != null;
-  } else if (st === 'eq') {
-    body = ask(say('איפה תתאמן?', 'Where will you train?'), say('אבחר תרגילים שיש להם ציוד אצלך', 'I will pick exercises you have the equipment for')) +
-      group(false, EQS().map((o, i) => card('eq', i, [OBI.gym, OBI.bell, OBI.unsure][i], o[0], o[1], OB.eq === i)).join(''));
-    can = OB.eq != null;
+    body = ask(say('כמה ימים בשבוע תתאמן', 'How many days a week will you train')) +
+      numBox('obDays', OB.days || 3, say('ימים בשבוע', 'days a week'), say('יום פחות', 'One day less'), say('יום יותר', 'One day more'));
+  } else if (st === 'place') {
+    body = ask(say('איפה תתאמן', 'Where will you train')) +
+      group(false, WHERE().map((t, i) => card('place', i, [OBI.gym, OBI.park, OBI.bell, OBI.home][i], t, '', OB.place === i)).join(''));
+    can = OB.place != null;
+  } else if (st === 'quick') {
+    const q = OB.q | 0;
+    if (q === 0) {
+      body = ask(say('מה הגיל שלך', 'How old are you')) + numBox('obAge', OB.age || 25, say('שנים', 'years'), say('שנה פחות', 'One year less'), say('שנה יותר', 'One year more'));
+    } else if (q === 1) {
+      /* height and weight: not a must. What is written here is the first day of the body log */
+      const box = (id, v, ph, unit, lab, mode, max) => '<label class="ob-nbox"><input id="' + id + '" type="text" inputmode="' + mode + '" maxlength="' + max + '" autocomplete="off" placeholder="' + ph + '" value="' + (v == null ? '' : v) + '" aria-label="' + lab + '"><span>' + unit + '</span></label>';
+      body = ask(say('מה הגובה והמשקל שלך', 'Your height and weight')) + '<div class="ob-hw" role="group" aria-labelledby="obTitle">' + box('obH', OB.h, '170', say('סנטימטר', 'cm'), say('גובה בסנטימטר', 'Height in cm'), 'numeric', 3) + box('obKg', OB.kg, '70', say('קילו', 'kg'), say('משקל בקילו', 'Weight in kg'), 'decimal', 5) + '</div>' +
+        '<p class="ob-may">' + say('לא חובה אפשר למלא אחר כך ביומן הגוף', 'Not a must. You can fill it in later in the body log') + '</p>';
+    } else if (q === 2) {
+      body = ask(say('איזה אזור הכי חשוב לך', 'Which area matters most to you')) +
+        '<div class="ob-chips" role="radiogroup" aria-labelledby="obTitle">' + AREAS().map((t, i) => chip('focus', i, t, OB.focus === i)).join('') + chip('focus', -1, say('הכול', 'All of it'), OB.focus == null) + '</div>';
+    } else {
+      body = ask(say('משהו כואב או רגיש', 'Does anything hurt')) +
+        '<div class="ob-chips" role="group" aria-labelledby="obTitle">' + OUCH().map((t, i) => chip('pain', i, t, OB.pain.includes(i), true)).join('') + chip('pain', -1, say('הכול בסדר', 'All good'), !OB.pain.length, true) + '</div>';
+    }
   } else if (st === 'look') {
-    body = ask(say('וזה אתה באפליקציה', 'And this is you in the app'), say('הדמות מתחזקת איתך, מרמה לרמה', 'It gets stronger with you, level by level')) +
-      '<div class="ob-stage"><div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div><div class="lk-photo-box" id="lkPhotoBox">' + lookPhoto() + '</div></div>' +
-      '<div class="ob-look lk-ed" id="lkRows">' + lookRows() + '</div>';
+    body = ask(say('הדמות שלך באפליקציה', 'Your character in the app')) +
+      '<div class="ob-lk2"><div class="ob-lk-fig"><span class="ob-lk-tag">' + (nm ? '<bdi>' + esc(nm) + '</bdi>' : say('זה אתה', 'This is you')) + '</span><b class="lv-badge">' + say('רמה 1', 'Level 1') + '</b>' +
+      '<div class="lk-stage" id="lkStage">' + avatar(S.lvl || 1) + '</div><div class="lk-photo-box" id="lkPhotoBox">' + lookPhoto() + '</div></div>' +
+      '<div class="ob-look lk-ed" id="lkRows">' + lookRows() + '</div></div>';
   } else if (st === 'plan' && OB.building) {
     can = false;
-    body = ask(say('רגע, בונה לך תוכנית', 'One moment, building your plan'), say('לפי כל מה שסיפרת לי', 'From everything you told me')) +
+    body = ask(say('רגע אני בונה לך תוכנית', 'One moment, I am building your plan')) +
       '<div class="ob-build" id="obBuild"><div class="ob-ring" role="img" aria-label="' + say('בונה את התוכנית', 'Building the plan') + '"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="t" cx="60" cy="60" r="52"/><circle class="f" id="obRing" cx="60" cy="60" r="52" pathLength="100"/></svg><b id="obPct" aria-hidden="true">' + Ltr('0%') + '</b></div>' +
       '<ul class="ob-steps">' + buildSteps().map((t) => '<li><i aria-hidden="true">' + ICON.check + '</i><span>' + t + '</span></li>').join('') + '</ul></div>';
   } else if (st === 'plan') {
-    const P = planPreview(), stat = (v, t) => '<li><b>' + v + '</b><span>' + t + '</span></li>';
-    cta = say('נשמע טוב', 'Sounds good');
-    body = ask(say('התוכנית שלך מוכנה', 'Your plan is ready'), say('בניתי אותה לפי מה שסיפרת לי', 'I built it from what you told me')) +
-      '<section class="card next w0 ob-plan' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '"><p class="k">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + obWeek().length + say(' אימונים בשבוע', ' workouts a week') + '</h2>' +
-      '<ul class="ob-stats">' + stat(P.ex, say('תרגילים באימון', 'exercises a workout')) + stat(P.sets, say('סטים לתרגיל', 'sets each')) + stat(P.mins, say('דקות לאימון', 'minutes a workout')) + '</ul>' +
-      '<ol class="ob-wks">' + obWeek().map((w, k) => '<li><span class="w-dot w' + k + '"></span><b>' + say('אימון ', 'Workout ') + (k + 1) + '</b><small>' + wkMus(w) + '</small></li>').join('') + '</ol><p class="ob-wk-tip">' + glyph('pen') + '<span>' + say('אפשר לתת לכל אימון שם משלך, בתוכנית', 'You can give each workout a name of your own, in the plan') + '</span></p><i class="ob-shine" aria-hidden="true"></i></section>' +
-      '';
+    const fresh = meNow().T.sets === 0, all = fresh ? fitPlanData(fitAns(OB)) : null, wk = obWeek();
+    const lists = wk.map((w) => (fresh ? all[w].map((x) => ({ sets: x.sets, reps: x.r, rest: x.t })) : exList(w, undefined, true)));
+    const tag = (t) => '<li>' + t + '</li>', goals = GOAL_ORDER.filter((i) => OB.goals.includes(i)).map((i) => GOALS()[i][0]);
+    cta = say('נראה טוב', 'Looks good');
+    body = ask(say('התוכנית שלך', 'Your plan')) +
+      '<section class="ob-plan2' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '">' +
+      '<ul class="ob-tags">' + tag(cnt(wk.length, 'ימים', 'יום אחד', 'days', 'day')) + goals.slice(0, 2).map(tag).join('') + (OB.place != null ? tag(WHERE()[OB.place]) : '') + '</ul>' +
+      '<ol class="ob-wks2">' + wk.map((w, k) => '<li><i aria-hidden="true">' + (k + 1) + '</i><span><b>' + say('אימון ', 'Workout ') + (k + 1) + '</b><small>' + wkMus(w) + '</small></span><em><span><b>' + workMins(lists[k]) + '</b>' + say(' דק׳', ' min') + '</span><small>' + cnt(lists[k].length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + '</small></em></li>').join('') + '</ol>' +
+      '<p class="ob-wk-tip">' + glyph('pen') + '<span>' + say('אפשר לתת לכל אימון שם משלך אחר כך', 'You can give each workout a name of your own later') + '</span></p></section>';
   } else {
     const old = meNow().T.wk > 0, cap = (a, b) => '<figcaption>' + a + '<b>' + b + '</b></figcaption>';
     cta = old ? say('קדימה', "Let's go") : say('לאימון הראשון', 'To the first workout');
-    body = '<div class="ob-done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi>' + say(', הכול מוכן!', ', you are all set!') : say('הכול מוכן!', 'You are all set!')) + '</h1>' +
+    body = '<div class="ob-done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi> ' + say('הכול מוכן', 'you are all set') : say('הכול מוכן', 'You are all set')) + '</h1>' +
       '<p class="ob-sub">' + say('כל אימון מקרב אותך לרמה 100', 'Every workout takes you closer to level 100') + '</p>' +
       '<div class="ob-ladder" aria-hidden="true"><figure class="now"><span class="ob-fig">' + avatar(1) + '</span>' + cap(say('היום', 'Today'), say('רמה 1', 'Level 1')) + '</figure>' +
       '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span>' +
       '<figure class="max"><span class="ob-fig">' + avatar(100) + '</span>' + cap(say('המטרה', 'The goal'), say('רמה 100', 'Level 100')) + '</figure></div>' +
-      '<p class="ob-note">' + say('לא תחליף לייעוץ רפואי. יש כאב או מגבלה? קודם מתייעצים עם איש מקצוע.', 'Not medical advice. Pain or a condition? Talk to a professional first.') + '</p></div>';
+      '<p class="ob-note">' + say('האפליקציה לא מחליפה ייעוץ רפואי', 'The app does not replace medical advice') + '</p></div>';
   }
   const langs = '<div class="seg ob-lang" role="group" aria-labelledby="obLangL"><span class="sr" id="obLangL">' + LANG_LABEL + '</span>' + LANGS.map((l) => '<button type="button" data-lang="' + l[0] + '" lang="' + l[0] + '" aria-pressed="' + (LANG === l[0]) + '">' + l[1] + '</button>').join('') + '</div>';
   const first = st === 'film', fin = st === 'done', last = OB_LAST - 1;
   return (first ? filmHTML() : fin ? '<div class="ob-film fin" aria-hidden="true"></div>' : '') +
     '<div class="ob-in' + (first ? ' film' : '') + (fin ? ' fin' : '') + (OB.stay ? ' stay' : '') + '" data-step="' + OB.step + '" data-k="' + st + '"><div class="ob-top' + (first ? ' first' : '') + '">' +
-    (first ? langs : '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>') +
-    (first ? '<div class="ob-story" id="obStory" aria-hidden="true">' + storyHTML() + '</div>' : fin ? '<span></span>' : '<div class="ob-prog" role="img" aria-label="' + say('שלב ' + OB.step + ' מתוך ' + last, 'Step ' + OB.step + ' of ' + last) + '"><i style="width:' + Math.round((Math.min(OB.step, last) / last) * 100) + '%"></i></div>') +
-    (first ? '<button class="link" id="obSkip" type="button">' + say('דלג', 'Skip') + '</button>' : '<span class="ob-sp"></span>') + '</div>' +
+    (first ? '<button class="btn ob-skip" id="obSkip" type="button">' + say('דלג', 'Skip') + '</button>' : '<button class="fx-nav" id="obBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>') +
+    (first ? '<span class="ob-sp"></span>' : fin ? '<span></span>' : '<div class="ob-prog" role="img" aria-label="' + say('שלב ' + OB.step + ' מתוך ' + last, 'Step ' + OB.step + ' of ' + last) + '"><i style="width:' + Math.round((Math.min(OB.step, last) / last) * 100) + '%"></i></div>') +
+    (first ? '<div class="logo ob-logo" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div>' : '<span class="ob-sp"></span>') + '</div>' +
     '<div class="ob-body' + (OB.dir ? ' in' : '') + '">' + body + '</div>' +
-    '<div class="ob-foot"><button class="btn big' + (quiet ? '' : ' primary') + '" id="obNext" type="button"' + (can ? '' : ' disabled') + '>' + cta + '</button></div></div>';
+    '<div class="ob-foot"><button class="btn big' + (quiet ? '' : ' primary') + '" id="obNext" type="button"' + (can ? '' : ' disabled') + '>' + cta + '</button>' + (first ? langs : '') + '</div></div>';
 }
 /* the character under the experience question takes on the build of the answer */
 function obPre() {
@@ -296,7 +300,7 @@ function obPre() {
 /* the timers of a screen's own show (the plan being built, the last screen) end with the screen */
 function obClear() { for (const t of OB.ts || []) clearTimeout(t); OB.ts = []; cancelAnimationFrame(OB.buildRaf); }
 /* the plan is built in front of the lifter: each thing it is fitted to is ticked in turn, the ring fills, and then the plan arrives */
-const BUILD_MS = 640;
+const BUILD_MS = 780;
 function obBuilt() { if (!OB.on || !obIs('plan') || !OB.building) return; OB.building = false; OB.reveal = true; renderOb(); }
 function obBuild() {
   const lis = $$('#obBuild li'), ring = $('#obRing'), pct = $('#obPct'), t0 = performance.now(), all = lis.length * BUILD_MS;
@@ -321,6 +325,8 @@ function renderOb() {
   const el = $('#ob'); clearTimeout(OB.beatT); obClear();
   el.innerHTML = obHTML(); OB.dir = 0; OB.stay = false; el.dataset.step = OB.step; el.dataset.k = OB_STEPS[OB.step];
   if (obIs('name')) { const inp = $('#obName'); try { inp.focus({ preventScroll: true }); inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* not focusable here */ } }
+  if (obIs('days') && OB.days == null) OB.days = 3;
+  if (obIs('quick') && (OB.q | 0) === 0 && OB.age == null) OB.age = 25;
   if (obIs('plan')) { if (OB.building) obBuild(); else if (OB.reveal) { OB.reveal = false; feel('glory', 'success'); } }
   if (obIs('done')) obFinale();
   el.scrollTop = 0; obPlay();
@@ -334,8 +340,8 @@ function obFade(fn) {
 }
 function openOb() {
   const me = S.cfg.me;
-  LK.tab = 'skin'; LK.note = '';
-  Object.assign(OB, { on: true, step: 0, dir: 0, beat: 0, stay: false, building: false, reveal: false, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goals: (me.goals || []).slice(), time: me.time, eq: me.eq, days: me.days, fb: me.fb == null ? 2 : me.fb });
+  LK.tab = 'body'; LK.note = '';
+  Object.assign(OB, { on: true, step: 0, dir: 0, beat: 0, q: 0, stay: false, building: false, reveal: false, playT: 0, stepAt: 0, was: me.ob, name: me.name || '', exp: me.exp, goals: (me.goals || []).slice(), time: me.time, eq: me.eq, days: me.days, place: me.place, age: me.age, focus: me.focus, pain: (me.pain || []).slice(), fb: me.fb == null ? 2 : me.fb });
   /* the language shown is the one kept: a look chosen on the way must not turn an English page Hebrew on the next visit */
   if (!S.cfg.lang) S.cfg.lang = LANG;
   $('#ob').hidden = false; document.body.style.overflow = 'hidden'; renderOb();
@@ -346,7 +352,7 @@ function obFinish(skip) {
   const me = S.cfg.me;
   if (!skip) {
     me.name = String(OB.name || '').trim().slice(0, 16); me.exp = OB.exp; me.goals = OB.goals.slice(); me.goal = OB.goals.length ? OB.goals[0] : null;
-    me.time = OB.time; me.eq = OB.eq; me.fb = OB.fb; me.made = me.made || Date.now();
+    me.place = OB.place == null ? 0 : OB.place; me.age = OB.age; if (OB.h || OB.kg) me.body = OB.kg ? bodyPut({ h: OB.h || me.body.h, log: me.body.log }, { d: isoDay(new Date()), kg: OB.kg }) : cleanBody({ h: OB.h, log: me.body.log }); me.focus = OB.focus; me.pain = OB.pain.slice(); me.time = null; me.fb = OB.fb; me.made = me.made || Date.now();
     if (OB.days != null && OB.days !== me.days) { me.days = OB.days; if (!live(S.tab)) S.tab = nextUp().next; }
     fitPlan();
   }
@@ -355,70 +361,136 @@ function obFinish(skip) {
   /* a lifter who has just come in is shown around, once */
   if (!skip && !me.tour) setTimeout(startTour, 700);
 }
-/* ---- the first tour. Once the opening is passed the screen dims, one thing at a time stays lit, and the coach walks in from the
-   right to say what it is. A tap anywhere goes on; it can be skipped, and it is shown once (see startTour) ---- */
-const TR = { on: false, i: 0 };
-const TOUR = () => [
-  { at: '#tabbar [data-view="home"]', t: say('כאן האימונים שלך. מכאן מתחילים בכל פעם.', 'Your workouts live here. Every session starts from this tab.') },
-  { at: '#homeGo', t: say('זה האימון הבא שלך. לוחצים על "התחל אימון", ואני מלווה אותך סט אחרי סט.', 'This is your next workout. Tap "Start workout" and I\'ll take you through it, set by set.') },
-  { at: '#tabs .tab[aria-current="true"] .dot', round: 1, t: say('אלה האימונים של השבוע. כל אימון שמסיימים מסומן, והמונה מתמלא.', 'These are the workouts of your week. Each one you finish is ticked off, and the meter fills.') },
-  { at: '#tabbar [data-view="journey"]', t: say('במסע רואים לאן כל זה מוביל: הדמות שלך ברמה 100.', 'The journey shows where all this leads: your character at level 100.') },
-  { at: '#tabbar [data-view="profile"]', t: say('בפרופיל נמצאים הדמות שלך, ההישגים וההגדרות.', 'Your profile holds your character, your achievements and the settings.') },
-  { at: '#chatOpen', alt: '.chat-h', t: say('ואני תמיד כאן. שאלה על תרגיל, על כאב או על התוכנית? לוחצים עליי.', 'And I\'m always here. A question about an exercise, a pain or the plan? Tap me.') },
-];
-/* the light goes to what is spoken of, and the coach stands on the half of the screen that it is not in. now: without the glide */
+/* ---- the tour with Eilon. Once the opening is passed the screen goes dark but for one thing, and only that thing works: there
+   is no skip. A lifter with no workout yet is taken through a sample of the first one (the start, a set, the rest, how it ends);
+   what was logged on the way is taken back at the end of it. Then the journey, the profile and the chat. A step is one of:
+   tap  - the lit control itself has to be pressed (the tour goes on when the app has moved on: done())
+   free - the lit card is used as it is (typing, choosing), and the tour goes on when done()
+   else - Eilon's own button goes on ---- */
+const TR = { on: false, i: 0, steps: [], iv: 0, was: null };
+function tourSteps() {
+  const full = !Object.keys(S.sessions).length, girl = S.cfg.me.look.body === 1;
+  const A = [{ at: '#homeGo', tap: full, t: full ? say('זה האימון הראשון שלך תלחץ התחל ונעבור עליו ביחד', 'This is your first workout. Tap Start and we will go through it together') : say('מכאן מתחילים כל אימון', 'Every workout starts here'), done: () => S.view === 'workout' }];
+  /* a short sample of the first workout: the numbers, a set, the rest. Its questions and its opening screen wait for the real one */
+  if (full) A.push(
+    { at: '#dock .dk-nums', t: say('כאן קובעים משקל וחזרות ולמעלה רואים איך עושים את התרגיל', 'Set the weight and the reps here. Above, you see how the exercise is done') },
+    { at: '#dkHit', tap: 1, t: say('אחרי הסט לוחצים סיימתי סט', 'After the set, tap Set done'), done: () => rest.on },
+    { at: '#rtSkip', tap: 1, t: say('השעון סופר לך מנוחה וכשמוכנים לוחצים המשך', 'The clock counts your rest. When you are ready, tap Continue'), done: () => !rest.on, leave: tourUndo }
+  );
+  A.push(
+    { at: '#bodyBtn', enter: () => { if (S.view !== 'profile') setView('profile'); }, t: girl ? say('זה יומן הגוף כאן את מתעדת כמה את שוקלת בכל יום', 'This is the body log. Write down here what you weigh, day by day') : say('זה יומן הגוף כאן אתה מתעד כמה אתה שוקל בכל יום', 'This is the body log. Write down here what you weigh, day by day') },
+    { at: '#chatOpen', alt: '.chat-h', enter: () => { if (S.view !== 'home') setView('home'); window.scrollTo(0, 0); }, t: say('ואני תמיד כאן לכל שאלה', 'And I am always here for any question') }
+  );
+  return A;
+}
+/* each step of the tour speaks in a colour of its own */
+const TOUR_C = ['#6D3FE0', '#2B78F0', '#12A679', '#F2792E', '#E0457B', '#6D3FE0'];
+const tourEl = (st) => { const ok = (x) => (x && x.getBoundingClientRect().width > 0 ? x : null); return st && st.at ? ok($(st.at)) || ok(st.alt && $(st.alt)) : null; };
+/* what the sample workout logged is taken back, and the workout waits untouched for the real first time */
+function tourUndo() {
+  const w = S.tab, sx = live(w);
+  clearTimeout(S.slideT); clearInterval(rest.iv); rest.on = false; rest.last = null;
+  if (sx) { delete S.sessions[sx.id]; S.dirty.delete(sx.id); }
+  delete S.day[w]; S.timeAsk = null; S.eqAsk = null; S.eqOpen = false; S.miss = {}; S.combo = 0; S.open = null; S.edit = null; S.drafts = {}; S.justDone = null;
+  for (const o of $$('.gain')) o.remove();
+  exIntroOff(); saveLocal(); setView('home'); renderAll(); window.scrollTo(0, 0);
+}
+/* the light goes to what is spoken of, and Eilon stands on the half of the screen that it is not in. now: without the glide */
 function tourPlace(now) {
   if (!TR.on) return;
-  const st = TOUR()[TR.i], shown = (x) => (x && x.getBoundingClientRect().width > 0 ? x : null), el = shown($(st.at)) || shown(st.alt && $(st.alt)), box = $('#tour'), hole = $('#tourHole'), card = $('#tourCard');
-  /* what is not on this screen is passed over */
-  if (!el) { if (TR.i < TOUR().length - 1) { TR.i++; tourShow(); } else tourEnd(); return; }
+  const st = TR.steps[TR.i], el = tourEl(st), box = $('#tour'), hole = $('#tourHole'), card = $('#tourCard');
+  box.classList.toggle('now', !!now); box.classList.toggle('wait', !!st.at && !el);
+  if (!st.at || !el) {
+    /* nothing to light: the whole screen is dark and Eilon stands in the middle of it */
+    hole.style.left = innerWidth / 2 + 'px'; hole.style.top = innerHeight / 2 + 'px'; hole.style.width = '0px'; hole.style.height = '0px';
+    card.style.top = 'auto'; card.style.bottom = Math.round(innerHeight * 0.36) + 'px';
+    return;
+  }
   let r = el.getBoundingClientRect();
   /* what is spoken of is brought onto the screen first (the bar at the foot is always there) */
-  if (!el.closest('#tabbar') && (r.top < 90 || r.bottom > innerHeight - 120)) { window.scrollTo(0, Math.max(0, window.scrollY + r.top - innerHeight * 0.3)); r = el.getBoundingClientRect(); }
-  const pad = st.round ? 12 : 7, x = r.left - pad, y = r.top - pad, w = r.width + pad * 2, h = r.height + pad * 2, low = y + h / 2 > innerHeight / 2;
-  box.classList.toggle('now', !!now);
-  hole.style.left = x + 'px'; hole.style.top = y + 'px'; hole.style.width = w + 'px'; hole.style.height = h + 'px'; hole.style.borderRadius = st.round ? '50%' : Math.min(24, h / 2) + 'px';
-  card.style.top = low ? 'auto' : y + h + 22 + 'px'; card.style.bottom = low ? innerHeight - y + 22 + 'px' : 'auto';
+  if (!el.closest('#tabbar,#dock,#pre,#exIntro') && (r.top < 90 || r.bottom > innerHeight - 120)) { window.scrollTo(0, Math.max(0, window.scrollY + r.top - innerHeight * 0.3)); r = el.getBoundingClientRect(); }
+  const pad = 7, x = r.left - pad, y = r.top - pad, w = r.width + pad * 2, h = r.height + pad * 2, low = y + h / 2 > innerHeight / 2;
+  hole.style.left = x + 'px'; hole.style.top = y + 'px'; hole.style.width = w + 'px'; hole.style.height = h + 'px'; hole.style.borderRadius = Math.min(24, h / 2) + 'px';
+  /* Eilon stands clear of what is lit: under it, over it, or where the screen has room when it fills most of the screen */
+  const room = 150;
+  if (!low && y + h + room < innerHeight) { card.style.top = y + h + 18 + 'px'; card.style.bottom = 'auto'; }
+  else if (low && y > room) { card.style.top = 'auto'; card.style.bottom = innerHeight - y + 18 + 'px'; }
+  else { card.style.top = '8px'; card.style.bottom = 'auto'; }
 }
 function tourShow() {
-  const T = TOUR(), card = $('#tourCard');
-  $('#tourText').textContent = T[TR.i].t;
+  const T = TR.steps, st = T[TR.i], card = $('#tourCard'), own = !st.tap && !st.free;
+  $('#tourText').textContent = st.t; $('#tour').style.setProperty('--tc', TOUR_C[TR.i % TOUR_C.length]);
   $('#tourDots').innerHTML = T.map((_, i) => '<i' + (i === TR.i ? ' class="on"' : '') + '></i>').join('');
-  $('#tourNext').textContent = TR.i === T.length - 1 ? say('מתחילים!', 'Let\'s go!') : say('הבא', 'Next');
+  const nx = $('#tourNext'); nx.hidden = !own; nx.textContent = TR.i === T.length - 1 ? say('מתחילים', 'Let\'s go') : say('הבא', 'Next');
   tourPlace(TR.i === 0);
   if (TR.i > 0 && !reduced) { card.classList.remove('hop'); void card.offsetWidth; card.classList.add('hop'); }
+  if (own) nx.focus({ preventScroll: true });
 }
 /* the tour's own frame, in the language of the page (drawn again when the language changes under it) */
 function tourDraw() {
   const box = $('#tour');
   box.setAttribute('aria-label', say('סיור קצר באפליקציה', 'A short tour of the app'));
-  box.innerHTML = '<div class="tour-hole" id="tourHole"></div><button class="tour-skip" id="tourSkip" type="button">' + say('דילוג', 'Skip') + '</button>' +
-    '<div class="tour-card" id="tourCard"><span class="tour-fig" aria-hidden="true">' + avatarSVG(COACH, 12, {}) + '</span>' +
+  box.innerHTML = '<div class="tour-hole" id="tourHole"></div>' +
+    '<div class="tour-card" id="tourCard"><span class="tour-fig" aria-hidden="true">' + avatarSVG(COACH, COACH_LVL, {}) + '</span>' +
     '<div class="tour-say" dir="' + (LANG === 'he' ? 'rtl' : 'ltr') + '"><p id="tourText" aria-live="polite"></p><div class="tour-foot"><span class="tour-dots" id="tourDots" aria-hidden="true"></span><button class="btn primary" id="tourNext" type="button"></button></div></div></div>';
   const av = $('.tour-fig .av', box); if (av) av.classList.add('grin');
   tourShow();
+}
+/* a few times a second: the light follows what it is on, and a step that waits for the app goes on when the app has moved */
+function tourTick() {
+  if (!TR.on) return;
+  const st = TR.steps[TR.i], el = tourEl(st), act = st.tap || st.free;
+  if (el) { TR.seen = TR.i; TR.gone = 0; } else TR.gone = (TR.gone || 0) + 1;
+  /* the app has moved on from what was lit (or it went away by itself, as a rest that ran out does): the tour goes on */
+  if (act && st.done && st.done() && (TR.seen === TR.i || TR.gone >= 6)) { tourGo(); return; }
+  /* what this step is about never came (a step that this workout does not have), and a later one is already here: pass it over */
+  if (act && st.at && !el && TR.steps.slice(TR.i + 1).some((x) => tourEl(x))) { tourGo(); return; }
+  tourPlace(true);
 }
 function startTour() {
   if (TR.on || OB.on || !$('#sheet').hidden) return;
   closeChat(); if (S.view !== 'home') { renderHome(); setView('home'); }
   window.scrollTo(0, 0);
-  TR.on = true; TR.i = 0;
+  TR.on = true; TR.i = 0; TR.seen = -1; TR.gone = 0; TR.steps = tourSteps();
+  document.body.classList.add('touring');
   tourDraw(); $('#tour').hidden = false;
-  $('#tourNext').focus({ preventScroll: true });
+  clearInterval(TR.iv); TR.iv = setInterval(tourTick, 220);
 }
-function tourStep() { if (!TR.on) return; if (TR.i >= TOUR().length - 1) { tourEnd(); return; } TR.i++; tourShow(); haptic('select'); }
+function tourGo() {
+  if (!TR.on) return;
+  const st = TR.steps[TR.i];
+  if (st.leave) st.leave();
+  if (TR.i >= TR.steps.length - 1) { tourEnd(); return; }
+  TR.i++; TR.gone = 0; if (TR.steps[TR.i].enter) TR.steps[TR.i].enter(); tourShow(); haptic('select');
+}
+const tourStep = tourGo;
 function tourEnd() {
   if (!TR.on) return;
-  TR.on = false;
+  /* left in the middle of the sample workout (the Escape key): what it logged is taken back all the same */
+  const mid = TR.steps.slice(TR.i).find((x) => x.leave); if (mid && S.view === 'workout') mid.leave();
+  TR.on = false; clearInterval(TR.iv); document.body.classList.remove('touring');
   const box = $('#tour'); box.hidden = true; box.innerHTML = '';
   if (!S.cfg.me.tour) { S.cfg.me.tour = Date.now(); saveCfg(); }
   window.scrollTo(0, 0);
   /* the page is back in reach a moment later: the way in is the next workout, and it shows it */
   setTimeout(() => { const go = $('#homeGo'); if (!go || TR.on || S.view !== 'home') return; go.focus({ preventScroll: true }); go.classList.add('nudge'); setTimeout(() => go.classList.remove('nudge'), 2600); }, 80);
 }
+/* while the tour is on, a touch or a key reaches only what is lit (when the step is one to press or to use) and Eilon's own card */
+function tourGuard(ev) {
+  if (!TR.on) return;
+  const st = TR.steps[TR.i], t = ev.target, inCard = t && t.closest && t.closest('#tourCard');
+  if (ev.type === 'keydown') { if (ev.key === 'Escape' || inCard) return; }
+  else if (inCard) return;
+  const el = tourEl(st);
+  if ((st.tap || st.free) && el && t && el.contains(t)) return;
+  ev.stopPropagation(); if (ev.cancelable) ev.preventDefault();
+}
 function obStep(d) {
+  /* the three quick questions are one step of the opening: forward and back walk through them first */
+  if (obIs('quick')) { const q = (OB.q | 0) + d; if (q >= 0 && q <= 3) { OB.q = q; OB.stepAt = Date.now(); OB.dir = d; OB.stay = true; if (d > 0) sfx('set'); renderOb(); return; } }
   const n = OB.step + d; if (n < 0) return;
   OB.stepAt = Date.now();
+  if (OB_STEPS[n] === 'quick') OB.q = d > 0 ? 0 : 3;
   if (n > OB_LAST) { obFinish(false); return; }
   if (d > 0 && n < OB_LAST) sfx('set');
   /* Eilon stays where he stands from one question to the next: only the words and the answers arrive. (On the name he
@@ -437,23 +509,33 @@ function maybeOb() {
 }
 function wireOb() {
   const tour = $('#tour');
-  tour.addEventListener('click', (ev) => { if (ev.target.closest('#tourSkip')) tourEnd(); else tourStep(); });
-  tour.addEventListener('wheel', (ev) => ev.preventDefault(), { passive: false });
+  tour.addEventListener('click', (ev) => { if (ev.target.closest('#tourNext')) tourGo(); });
+  for (const k of ['click', 'pointerdown', 'pointerup', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'keydown', 'wheel']) document.addEventListener(k, tourGuard, { capture: true, passive: false });
   for (const t of ['resize', 'scroll']) window.addEventListener(t, () => { if (TR.on) tourPlace(true); }, { passive: true });
   const el = $('#ob');
   el.addEventListener('click', (ev) => {
     const b = ev.target.closest('button');
     /* a touch on the film moves it on to its next beat */
-    if (!b) { if (OB.step === 0 && ev.target.closest('#obTap,.ob-film,.ob-cap')) filmBeat(OB.beat + 1); else if (ev.target.closest('#obBuild')) obBuilt(); return; }
+    if (!b) { if (ev.target.closest('#obBuild')) obBuilt(); return; }
     if (b.id === 'obNext') { if (ev.detail !== 0 && Date.now() - (OB.stepAt || 0) < 300) return; obStep(1); }
     else if (b.id === 'obBack') obStep(-1);
     else if (b.id === 'obSkip') obFinish(true);
-    else if (b.id === 'obFb') { OB.fb = OB.fb > 0 ? 0 : 2; b.setAttribute('aria-checked', String(OB.fb > 0)); haptic('select'); }
+    /* the minus and the plus beside a number: the days of the week, the age */
+    else if (b.dataset.obn) {
+      const days = obIs('days'), inp = $(days ? '#obDays' : '#obAge'); if (!inp) return;
+      const v = clamp((parseInt(inp.value, 10) || (days ? 3 : 25)) + +b.dataset.obn, days ? 1 : 10, days ? 7 : 99);
+      inp.value = v; if (days) OB.days = v; else OB.age = v; $('#obNext').disabled = false; haptic('select');
+    }
     else if (b.dataset.lang) { if (b.getAttribute('aria-pressed') === 'true') return; obFade(() => { setLang(b.dataset.lang, true); renderOb(); }); }
     /* an answer is marked where it stands: the screen does not arrive a second time */
     else if (b.dataset.ob) {
       const k = b.dataset.ob, v = +b.dataset.v;
       if (k === 'goals') { const i = OB.goals.indexOf(v); if (i >= 0) OB.goals.splice(i, 1); else OB.goals.push(v); b.setAttribute('aria-checked', String(i < 0)); $('#obNext').disabled = !OB.goals.length; }
+      else if (k === 'focus') { OB.focus = v < 0 ? null : v; for (const o of $$('[data-ob="focus"]', el)) o.setAttribute('aria-checked', String(o === b)); }
+      else if (k === 'pain') {
+        if (v < 0) OB.pain = []; else { const i = OB.pain.indexOf(v); if (i >= 0) OB.pain.splice(i, 1); else OB.pain.push(v); }
+        for (const o of $$('[data-ob="pain"]', el)) o.setAttribute('aria-checked', String(+o.dataset.v < 0 ? !OB.pain.length : OB.pain.includes(+o.dataset.v)));
+      }
       else { OB[k] = v; for (const o of $$('[data-ob="' + k + '"]', el)) o.setAttribute('aria-checked', String(o === b)); $('#obNext').disabled = false; }
       haptic('select');
       if (k === 'exp') obPre();
@@ -462,8 +544,20 @@ function wireOb() {
     else if (b.dataset.lktab) lookTab(b.dataset.lktab);
     else if (b.id === 'lkPhoto') $('#lkFile').click();
   });
-  el.addEventListener('input', (ev) => { if (ev.target.id === 'obName') OB.name = ev.target.value; });
+  el.addEventListener('input', (ev) => {
+    const t = ev.target;
+    if (t.id === 'obName') OB.name = t.value;
+    /* a number that is typed: kept when it is one that can be, and the way on waits for one */
+    if (t.id === 'obH') { const v = parseInt(String(t.value).replace(/[^0-9]/g, ''), 10); OB.h = v >= 100 && v <= 250 ? v : null; }
+    if (t.id === 'obKg') { const v = num(t.value); OB.kg = v != null && v >= 20 && v <= 400 ? v : null; }
+    if (t.id === 'obDays' || t.id === 'obAge') {
+      const days = t.id === 'obDays', v = parseInt(String(t.value).replace(/[^0-9]/g, ''), 10), ok = days ? v >= 1 && v <= 7 : v >= 10 && v <= 99;
+      if (days) OB.days = ok ? v : null; else OB.age = ok ? v : null;
+      $('#obNext').disabled = !ok;
+    }
+  });
   el.addEventListener('keydown', (ev) => {
     if (ev.key === 'Enter' && ev.target.id === 'obName') { ev.preventDefault(); obStep(1); }
+    if (ev.key === 'Enter' && (ev.target.id === 'obDays' || ev.target.id === 'obAge') && !$('#obNext').disabled) { ev.preventDefault(); obStep(1); }
   });
 }

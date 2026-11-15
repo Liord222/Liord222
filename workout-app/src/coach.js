@@ -57,7 +57,7 @@ function renderPre() {
   if (!any) { box.innerHTML = ''; S.preOpen = false; return; }
   if (eqOn) { box.innerHTML = eqHTML(w); return; }
   if (!S.preOpen) {
-    box.innerHTML = '<div class="pre gate"><h2>' + say('השרירים התאוששו', 'Have your muscles recovered') + '</h2>' +
+    box.innerHTML = '<div class="pre gate">' + PRE_BACK() + '<h2>' + say('השרירים התאוששו', 'Have your muscles recovered') + '</h2>' +
       '<div class="pre-q"><button class="btn primary big" id="preAll" type="button">' + say('כן הכול טוב', 'Yes, all good') + '</button><button class="btn big" id="preEdit" type="button">' + say('לא לגמרי', 'Not quite') + '</button></div>' +
       '<button class="link" id="preSkip" type="button">' + say('דלג', 'Skip') + '</button></div>';
     return;
@@ -67,6 +67,13 @@ function renderPre() {
     (fx.length ? '<p class="pre-fx">' + fx.join(' · ') + '</p>' : '') + '<button class="btn primary big" id="preDone" type="button">' + say('המשך', 'Continue') + '</button></div>';
 }
 function afterPre() { renderPre(); renderHero(); renderList(); updateProgress(); renderDock(); }
+/* one step back before a workout: to the question of time (the day's choice is dropped and asked again), or to today's workout */
+const PRE_BACK = () => '<button class="pre-back" id="preBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>';
+function preBack(to) {
+  if (to === 'eq') { S.eqAsk = S.tab; S.eqOpen = false; }
+  else { delete S.day[S.tab]; S.timeAsk = S.tab; S.eqAsk = null; S.eqOpen = false; S.preOpen = false; S.open = null; }
+  haptic('select'); afterPre(); renderHome();
+}
 /* ---- something the workout needs is missing today (a machine taken, no cables): each exercise that needs it moves to one of the
    same kind that does not, for today only. Nothing about machines is asked in the opening; it is asked here, when it matters ---- */
 const EQK = [['bar', ['bar'], () => say('מוט', 'Barbell')], ['smith', ['smith'], () => say('סמית׳', 'Smith machine')], ['mach', ['machine', 'plates'], () => say('מכונות', 'Machines')], ['cable', ['cable'], () => say('כבלים', 'Cables')], ['db', ['db'], () => say('משקולות', 'Dumbbells')]];
@@ -77,7 +84,7 @@ const eqKind = (mv) => { const q = LIB[mv] && LIB[mv].eq, k = EQK.find((x) => x[
 const baseMv = (id) => (S.cfg.swap && S.cfg.swap[id]) || planEx(id).a;
 function eqHTML(w) {
   const s = live(w), list = exList(w, s), miss = (S.miss && S.miss[w]) || [], kinds = EQK.filter((k) => list.some((e) => eqKind(baseMv(e.id)) === k[0]));
-  return '<div class="pre gate eqq"><h2>' + say('האימון של היום', 'Today\'s workout') + '</h2>' +
+  return '<div class="pre gate eqq">' + PRE_BACK() + '<h2>' + say('האימון של היום', 'Today\'s workout') + '</h2>' +
     '<ol class="eq-list">' + list.map((e) => '<li class="d' + hardOf(e.mv) + (e.mv !== baseMv(e.id) ? ' sw' : '') + '"><i aria-hidden="true"></i><span>' + e.nm + '<span class="sr"> ' + HARD()[hardOf(e.mv) - 1] + '</span></span><small>' + cnt(e.sets, 'סטים', 'סט אחד', 'sets', 'set') + '</small></li>').join('') + '</ol>' +
     '<p class="eq-key" aria-hidden="true">' + HARD().map((t, i) => '<span class="d' + (i + 1) + '"><i></i>' + t + '</span>').join('') + '</p>' +
     (S.eqOpen && kinds.length ? '<p class="eq-q">' + say('מה חסר היום', 'What is missing today') + '</p><div class="eq-ch">' + kinds.map((k) => '<button type="button" class="eq-c" data-miss="' + k[0] + '" aria-pressed="' + miss.includes(k[0]) + '">' + k[2]() + '</button>').join('') + '</div>' +
@@ -91,8 +98,8 @@ function applyMiss(w) {
   for (const pe of slots) {
     const base = baseMv(pe.id); let mv = base;
     if (miss.includes(eqKind(base))) {
-      const ok = (k) => !miss.includes(eqKind(k)) && !used.has(k);
-      mv = sameKind(base).find(ok) || Object.keys(LIB).filter((k) => k !== base && LIB[k].p === LIB[base].p && ok(k)).sort((a, b) => (LIB[b].pat === LIB[base].pat) - (LIB[a].pat === LIB[base].pat))[0] || base;
+      const ok = (k) => !miss.includes(eqKind(k)) && !used.has(k) && canDo(k, fitAns(S.cfg.me));
+      mv = sameKind(base).filter(ok).sort((a, b) => floorMv(a) - floorMv(b))[0] || Object.keys(LIB).filter((k) => k !== base && LIB[k].p === LIB[base].p && ok(k)).sort((a, b) => (LIB[b].pat === LIB[base].pat) - (LIB[a].pat === LIB[base].pat))[0] || base;
     }
     used.add(mv); swapTo(pe.id, mv, false);
   }
@@ -139,7 +146,7 @@ function volHTML(dl) {
   return Object.keys(MUSCLE).map((k) => {
     const v = vol[k], tot = v.d + v.i, M = MUSCLE[k], st = dl ? 'ok' : F[k] || 'ok';
     return '<div class="vol-row ' + st + '"><span class="vol-n">' + muName(k) + '</span>' +
-      '<div class="vol-bar" role="img" aria-label="' + muName(k) + ': ' + fmtN(tot) + say(' סטים בשבוע. הטווח המומלץ: ', ' sets a week. Suggested range: ') + M.mev + say(' עד ', ' to ') + M.mrv + '"><i class="band" style="inset-inline-start:' + pct(M.mev) + '%;width:' + pct(M.mrv - M.mev) + '%"></i><i class="val" style="width:' + pct(tot) + '%"></i></div>' +
+      '<div class="vol-bar" role="img" aria-label="' + muName(k) + ': ' + fmtN(tot) + say(' סטים בשבוע הטווח המומלץ ', ' sets a week. Suggested range: ') + M.mev + say(' עד ', ' to ') + M.mrv + '"><i class="band" style="inset-inline-start:' + pct(M.mev) + '%;width:' + pct(M.mrv - M.mev) + '%"></i><i class="val" style="width:' + pct(tot) + '%"></i></div>' +
       '<span class="vol-v"><b>' + fmtN(tot) + '</b></span>' +
       (st === 'ok' ? '' : '<span class="vol-flag">' + (st === 'under' ? say('▼ מתחת למינימום (', '▼ Below the minimum (') + M.mev + ')' : say('▲ מעל המקסימום (', '▲ Above the maximum (') + M.mrv + ')') + '</span>') + '</div>';
   }).join('');
@@ -298,6 +305,7 @@ function wireCoach() {
       if (!(m >= 5 && m <= 300)) { inp.classList.remove('bad'); void inp.offsetWidth; inp.classList.add('bad'); inp.focus(); return; }
       day(m >= T.full ? 0 : m); return;
     }
+    if (b.id === 'preBack') { preBack('time'); return; }
     if (b.id === 'eqMiss') { S.eqOpen = true; renderPre(); return; }
     if (b.dataset.miss) { const w = S.tab, M = S.miss || (S.miss = {}), l = M[w] || (M[w] = []), k = b.dataset.miss, at = l.indexOf(k); if (at >= 0) l.splice(at, 1); else l.push(k); applyMiss(w); haptic('select'); renderPre(); renderHome(); return; }
     if (b.id === 'eqGo') { S.eqAsk = null; S.eqOpen = false; afterPre(); return; }

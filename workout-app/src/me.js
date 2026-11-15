@@ -14,7 +14,7 @@ const GLYPH = {
   crown: '<path d="M4.5 17.5l-1-9 5 4L12 5.5l3.5 7 5-4-1 9zM5 20.5h14"/>',
   gift: '<path d="M4 10h16v10H4zM3 6.5h18V10H3zM12 6.5V20M12 6.5C10 3 6.5 3.5 7.5 5.5S12 6.5 12 6.5zM12 6.5c2-3.5 5.5-3 4.5-1S12 6.5 12 6.5z"/>',
   pen: '<path d="M4 20l1-4.5L16 4.5a2.1 2.1 0 0 1 3 3L8.5 19zM14 6.5l3 3"/>',
-  gear: '<circle cx="12" cy="12" r="3.1"/><path d="M12 2.9v2.5M12 18.6v2.5M21.1 12h-2.5M5.4 12H2.9M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8M18.4 18.4l-1.8-1.8M7.4 7.4L5.6 5.6"/>',
+  gear: '<circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.6v-3.2l-2.2-.5-.7-1.6 1.2-1.900-2.300-2.300-1.900 1.200-1.600-.700-.500-2.200H8.200l-.500 2.200-1.600.700-1.900-1.200-2.300 2.300 1.200 1.900-.700 1.600-2.200.500v3.200l2.200.500.700 1.600-1.200 1.900 2.300 2.300 1.900-1.200 1.600.700.500 2.200h3.200l.500-2.200 1.600-.700 1.900 1.200 2.300-2.300-1.200-1.900.700-1.600z" transform="translate(2.4 0) scale(.8) translate(1.200 3)"/>',
 };
 /* the streak's flame: drawn in two tones, not a line icon */
 const flameSVG = () => '<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.4 1.6c.5 3.6 6 6 6 12a6.4 6.4 0 0 1-12.8 0c0-2.5 1.1-4.4 2.6-5.7.3 1.8 1 2.9 2.1 3.5-.4-3.6.4-7 2.1-9.8z" fill="var(--flame)"/><path d="M12.1 11.6c.5 1.7 2.7 2.7 2.7 5.2a2.8 2.8 0 0 1-5.6 0c0-2.1 1.9-3 2.9-5.2z" fill="var(--flame-2)"/></svg>';
@@ -40,15 +40,22 @@ function renderMe() {
 function playerHTML(P) {
   const me = S.cfg.me;
   return '<button class="player" id="playerBtn" type="button" aria-label="' + say('הפרופיל שלי: רמה ', 'My profile: level ') + P.L.lvl + ', ' + nm(P.rank) + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
-    '<span class="p-txt"><b>' + (me.name ? say('היי, ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi>' : say('היי!', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
-    (P.X.streak ? '<span class="p-streak" title="' + say('שבועות ברצף', 'Weeks in a row') + '">' + flameSVG() + '<b>' + P.X.streak + '</b></span>' : '') + '</button>';
+    '<span class="p-txt"><b>' + (me.name ? say('היי ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi>' : say('היי', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
+    (P.X.days ? '<span class="p-streak" title="' + say('ימים ברצף', 'Days in a row') + '">' + flameSVG() + '<b>' + P.X.days + '</b></span>' : '') + '</button>';
 }
-function badgeHTML(b, on) { return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span>' + nm(b) + '</span></li>'; }
+/* an achievement: earned ones shine; one that is still ahead shows how far along it is, in words and as a bar */
+function badgeHTML(b, on, P) {
+  const of = !on && P && b.of ? b.of(P.T, P.X) : null, cur = of ? Math.max(0, Math.min(of[0], of[1])) : 0, pct = of ? Math.round((cur / of[1]) * 100) : 0;
+  return '<li class="bdg' + (on ? ' on' : '') + '" aria-label="' + nm(b) + (on ? say(', הושג', ', earned') : of ? ', ' + nf(cur) + say(' מתוך ', ' of ') + nf(of[1]) : say(', עוד לא', ', not yet')) + '"><span class="bdg-i">' + glyph(b.ic) + '</span><span class="bdg-t">' + nm(b) +
+    (on ? '<small class="bdg-ok">' + ICON.check + say('הושג', 'Earned') + '</small>' : of ? '<small>' + nf(cur) + say(' מתוך ', ' of ') + nf(of[1]) + '</small><i class="bdg-bar"><i style="width:' + pct + '%"></i></i>' : '') + '</span></li>';
+}
 /* a coin of the kiosk */
 const COIN = '<svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="#F2B02E" stroke="#C98A12" stroke-width="1.6"/><path d="M10 5.5l1.35 2.75 3.05.45-2.2 2.15.5 3-2.7-1.45-2.7 1.45.5-3-2.2-2.15 3.05-.45z" fill="#C98A12"/></svg>';
 /* the part of the figure that a thing of the kiosk is worn on, as a close view of the lifter's own character with that thing alone */
-const CROP = { head: '56 2 88 88', eyes: '60 14 80 80', ears: '54 4 92 92', neck: '58 58 84 84', wrist: '104 112 80 80', hands: '104 124 80 80', hold: '18 126 80 80', feet: '56 176 88 88' };
-const cropFig = (it, lvl) => avatarSVG(Object.assign({}, S.cfg.me.look, { wear: [it.id], gear: false }), lvl, { crop: CROP[it.slot], base: EXP_BASE[expNow()] || 0 });
+const CROP = { head: '56 2 88 88', eyes: '60 14 80 80', ears: '54 4 92 92', neck: '58 58 84 84', wrist: '104 112 80 80', hands: '104 124 80 80', hold: '18 126 80 80', feet: '56 176 88 88', shirt: '52 76 96 96', back: '6 28 188 188' };
+/* a hat that rises above the head is shown from further away */
+const cropOf = (it) => (it.slot === 'head' && HAT_TOP[it.m] ? (HAT_TOP[it.m] === 2 ? '46 -10 108 108' : '52 -6 96 96') : CROP[it.slot]);
+const cropFig = (it, lvl) => avatarSVG(Object.assign({}, S.cfg.me.look, { wear: [it.id], gear: false }), lvl, { crop: cropOf(it), base: EXP_BASE[expNow()] || 0 });
 /* the profile: the character on its stage with where it stands in the game, the kiosk, and the achievements, small */
 function renderProfile(P) {
   P = P || meNow();
@@ -57,64 +64,225 @@ function renderProfile(P) {
   /* the achievements in short: the last ones that were earned, then the next to go for. All of them are a tap away */
   const got = BADGES.filter((b) => have.has(b.id)), todo = BADGES.filter((b) => !have.has(b.id)), few = todo.length ? got.slice(-3).concat(todo).slice(0, 4) : got.slice(-4);
   /* the shelf in short: the next three things to buy; once everything is owned, the dearest three */
-  const left = SHOP.filter((x) => !me.shop.own.includes(x.id)), peek = left.length ? left.slice(0, 3) : SHOP.slice(-3);
+  const owned = ownedOf(me.shop), wait = me.shop.inv.reduce((a, b) => a + b, 0), peek = me.shop.own.slice(-3).reverse().map(shopItem).filter(Boolean);
   $('#profile').innerHTML = '<section class="pf-top"><div class="pf-bar">' + (me.made ? '<button class="pf-ic pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '<span></span>') +
     '<button class="pf-ic" id="setBtn" type="button" aria-label="' + say('הגדרות', 'Settings') + '">' + glyph('gear') + '</button></div>' +
     '<div class="pf-stage" id="pfStage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? '<bdi>' + esc(me.name) + '</bdi>' : say('הדמות שלי', 'My character')) + '</h1>' +
-    '<p class="pf-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
-    '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + (nx ? ' · ' + say('ברמה ' + nx.at + ': ', 'At level ' + nx.at + ': ') + nm(nx) : '') + '</p></div>' +
+    '<p class="pf-rank">' + medalSVG(P.rank.i) + '<span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
+    '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נקודות לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + (nx ? '<br>' + say('ברמה ' + nx.at + ' ', 'At level ' + nx.at + ': ') + nm(nx) : '') + '</p></div>' +
     (me.made ? '' : '<button class="btn primary" id="lookBtn" type="button">' + glyph('pen') + say('עיצוב הדמות', 'Design the character') + '</button>') +
-    '<ul class="pf-nums">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(P.X.streak, say('שבועות ברצף', 'week streak')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + stat(Ltr(tons(P.T.kg)), say('טון הורמו', 'tons lifted')) + '</ul></section>' +
+    '<ul class="pf-nums">' + stat(nf(P.T.wk), say('אימונים', 'workouts')) + stat(nf(P.X.days || 0), say('ימים ברצף', 'days in a row')) + stat(nf(P.T.prs), say('שיאים', 'PRs')) + '</ul></section>' +
+    bodyCardHTML() +
     '<section class="card kiosk" aria-label="' + say('הקיוסק', 'The kiosk') + '">' + '<div class="ks-awn" aria-hidden="true"><i></i></div>' + '<div class="ks-card-in"><div class="ks-card-h"><div><p class="ks-k">' + say('הקיוסק', 'The kiosk') + '</p>' +
-    '<h2>' + say('ציוד לדמות שלך', 'Gear for your character') + '</h2></div><span class="coin-tag" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span></div>' +
-    '<p class="meta">' + say(SHOP.length + ' פריטים על המדף. כל אימון מוסיף מטבעות', SHOP.length + ' things on the shelf. Every workout adds coins') + '</p>' +
-    '<ul class="ks-peek" aria-hidden="true">' + peek.map((it) => '<li><span class="ks-pic">' + cropFig(it, L.lvl) + '</span><span class="pr">' + COIN + it.cost + '</span></li>').join('') + '</ul>' +
+    '<h2>' + say('האוסף שלך', 'Your collection') + '</h2></div><span class="coin-tag" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span></div>' +
+    '<p class="meta">' + owned + say(' מתוך ', ' of ') + SHOP.length + say(' פריטים', ' things') + '</p><span class="ks-prog" aria-hidden="true"><i style="width:' + Math.max(owned ? 3 : 0, Math.round((owned / SHOP.length) * 100)) + '%"></i></span>' +
+    (wait ? '<button class="ks-wait" id="shopWait" type="button">' + boxSVG(me.shop.inv.findIndex((n) => n > 0)) + '<b>' + (wait === 1 ? say('קופסה אחת מחכה לך', 'A box is waiting for you') : say(wait + ' קופסאות מחכות לך', wait + ' boxes are waiting for you')) + '</b>' + ICON.fwd + '</button>' : '') +
+    '<ul class="ks-peek" aria-hidden="true">' + (peek.length ? peek.map((it) => '<li style="--rc:' + rareOf(it).c + '"><span class="ks-pic">' + cropFig(it, L.lvl) + '</span></li>') : [0, 2, 3].map((k) => '<li class="bxp">' + boxSVG(k) + '</li>')).join('') + '</ul>' +
     '<button class="btn ks-go big" id="shopBtn" type="button">' + say('לקיוסק', 'To the kiosk') + '</button></div></section>' +
-    '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + '/' + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
-    '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id))).join('') + '</ul></section>';
+    '<section class="pf-sec"><div class="sec-h"><h2 class="sec">' + say('הישגים ', 'Achievements ') + '<small>' + have.size + say(' מתוך ', ' of ') + BADGES.length + '</small></h2><button class="link" id="bdgAll" type="button" aria-expanded="' + !!S.bdgAll + '">' + (S.bdgAll ? say('פחות', 'Fewer') : say('כל ההישגים', 'All of them')) + '</button></div>' +
+    '<ul class="badges">' + (S.bdgAll ? BADGES : few).map((b) => badgeHTML(b, have.has(b.id), P)).join('') + '</ul></section>';
 }
-/* ---- the kiosk. The character on the stage tries a thing on; coins buy it; what is owned goes on and off with a tap ---- */
+/* ---- the kiosk. Coins buy boxes; a box gives one thing of its kind that is not owned yet; what is owned goes on and off with a
+   tap. Beside the boxes stand the thing of the week and the shield of the streak, and under them the whole collection ---- */
+/* what a kind of box carries on its front: a cap, glasses, a shirt, a shoe, a star */
+const BOX_MARK = [
+  '<path d="M22.5 47H40M24 47C24 40.4 27.4 36.4 32 36.4C36.6 36.4 40 40.4 40 47M40 47L45 48.6"/>',
+  '<circle cx="26.4" cy="43" r="4.5"/><circle cx="37.6" cy="43" r="4.5"/><path d="M30.9 43H33.1"/>',
+  '<path d="M27 35.4L21 39L23.4 43.6L26.2 42.2V51.4H37.8V42.2L40.6 43.6L43 39L37 35.4C36 37.4 34.2 38.4 32 38.4C29.8 38.4 28 37.4 27 35.4Z"/>',
+  '<path d="M21.4 49V40.4L26.6 41L30 44.6L39 46.6C41.6 47.2 43 48.4 43 50.2V51H21.4Z"/>',
+  '<path d="M32 35.2L34.5 40.3L40.1 41.1L36 45L37 50.6L32 48L27 50.6L28 45L23.900 41.100L29.500 40.300Z"/>',
+];
+function boxSVG(kind) {
+  const c = BOXES[kind].c;
+  return '<svg class="bx" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="22" ry="3.2" fill="rgb(0 0 0 / .14)"/>' +
+    '<g class="bx-body"><rect x="9" y="27" width="46" height="30" rx="5" fill="' + c + '"/><rect x="9" y="27" width="46" height="6" fill="rgb(0 0 0 / .18)"/></g>' +
+    '<g class="bx-mark" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' + BOX_MARK[kind] + '</g>' +
+    '<g class="bx-lid"><rect x="6" y="17" width="52" height="12" rx="4" fill="' + c + '"/><rect x="6" y="17" width="52" height="5" rx="2.5" fill="#fff" opacity=".22"/><rect x="27.500" y="17" width="9" height="12" fill="#fff"/>' +
+    '<path d="M32 17C26 7 16 9 19 15C21 18 27 18 32 17ZM32 17C38 7 48 9 45 15C43 18 37 18 32 17Z" fill="#fff"/></g></svg>';
+}
+const SHIELD_SVG = '<svg class="shd" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2.5L36 8V20.500C36 30.500 29.500 37.500 20 41.500C10.500 37.500 4 30.500 4 20.500V8Z" fill="#2B78F0" stroke="#1B4FB0" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 7.500L31.500 11.500V20.500C31.500 27.800 26.900 33 20 36.300Z" fill="#fff" opacity=".22"/><path d="M19.500 12C23.500 15.500 25.500 18.500 25.500 22.300C25.500 25.700 23.100 28 20 28C16.900 28 14.500 25.700 14.500 22.300C14.500 20 15.500 18.400 17 16.900C17.300 18.700 18 19.700 19.100 20.200C18.600 17.300 18.700 14.600 19.500 12Z" fill="#FFD76A"/></svg>';
+const rareTag = (it) => { const r = rareOf(it); return '<span class="rr" style="--rc:' + r.c + '">' + nm(r) + '</span>'; };
+const ownedOf = (shop) => SHOP.filter((x) => shop.own.includes(x.id)).length;
 function renderShop(pump) {
-  const P = meNow(), me = S.cfg.me, shop = me.shop, bal = coinsLeft(P.T.xp, shop, P.T.ch), sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0;
-  const it = shopItem(S.shopTry), own = !!it && shop.own.includes(it.id);
-  /* what the figure on the stage wears: the wardrobe, with the thing that is being tried in place of what its slot held */
-  const worn = it && !own ? shop.on.filter((k) => shopItem(k).slot !== it.slot).concat(it.id) : shop.on;
-  const word = !it ? '<b>' + say('מה בא לך?', 'What takes your fancy?') + '</b><p>' + say('לוחצים על פריט כדי למדוד אותו על הדמות.', 'Tap a thing to try it on your character.') + '</p>'
-    : own ? '<b>' + nm(it) + '</b><p>' + (shop.on.includes(it.id) ? say('עליך עכשיו. לחיצה נוספת מורידה.', 'On you now. Another tap takes it off.') : say('בארון שלך. לחיצה נוספת לובשת.', 'In your wardrobe. Another tap puts it on.')) + '</p>'
-    : '<b>' + nm(it) + '</b>' + (bal >= it.cost ? '<button class="btn" id="shopBuy" type="button" data-buy="' + it.id + '">' + say('קנה ב-', 'Buy for ') + COIN + it.cost + '</button>'
-      : '<p>' + (it.cost - bal === 1 ? say('חסר עוד מטבע אחד.', '1 more coin to go.') : say('חסרים עוד ' + (it.cost - bal) + ' מטבעות.', (it.cost - bal) + ' more coins to go.')) + ' ' + say('כל אימון מוסיף.', 'Every workout adds some.') + '</p>');
+  const P = meNow(), me = S.cfg.me, shop = me.shop, bal = coinsLeft(P.T.xp, shop, P.T.ch), sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, lvl = P.L.lvl;
+  const it = shopItem(S.shopTry), have = ownedOf(shop), wait = shop.inv.reduce((a, b) => a + b, 0), wk = weekIdx(Date.now()), wIt = weekItem(wk), wOwn = shop.own.includes(wIt.id), dLeft = 7 - new Date().getDay();
+  const short = (cost) => (cost - bal === 1 ? say('חסר עוד מטבע אחד', '1 more coin to go') : say('חסרים עוד ' + (cost - bal) + ' מטבעות', (cost - bal) + ' more coins to go'));
+  const word = it && shop.own.includes(it.id) ? '<b>' + nm(it) + '</b>' + rareTag(it) + '<p>' + (shop.on.includes(it.id) ? say('עליך עכשיו', 'On you now') : say('בארון שלך', 'In your wardrobe')) + '</p>'
+    : S.shopMsg ? '<b>' + S.shopMsg + '</b><p>' + say('כל אימון מוסיף מטבעות', 'Every workout adds coins') + '</p>'
+    : '<b>' + say('פותחים קופסה ומגלים פריט', 'Open a box and find a thing') + '</b><p>' + (shop.pt >= PITY - 1 ? say('הקופסה הבאה אפיק לפחות', 'The next box is epic at least') : say('עוד ' + (PITY - shop.pt) + ' קופסאות ומובטח אפיק', (PITY - shop.pt) + ' more boxes and an epic is sure')) + '</p>';
+  /* boxes that wait: from finished workouts and from full weeks */
+  const waiting = wait ? '<section class="ks-sec"><h3>' + say('מחכות לך', 'Waiting for you') + '</h3><ul class="ks-boxes wait">' + BOXES.map((b, k) => (shop.inv[k] ? '<li><button class="ks-bx" type="button" data-open="' + k + '" aria-label="' + nm(b) + say(' לפתוח', ', open it') + '">' + boxSVG(k) +
+    '<b>' + say(b.of[0], b.of[1]) + '</b>' + (shop.inv[k] > 1 ? '<span class="ks-n">' + shop.inv[k] + '</span>' : '') + '<span class="ks-st">' + say('לפתוח', 'Open') + '</span></button></li>' : '')).join('') + '</ul></section>' : '';
+  const boxes = '<section class="ks-sec"><h3>' + say('קופסאות', 'Boxes') + '</h3><ul class="ks-boxes">' + BOXES.map((b, k) => {
+    const all = SHOP.filter((x) => kindOf(x) === k).length, left = boxLeft(shop, k).length, full = !left;
+    return '<li><button class="ks-bx' + (full ? ' full' : bal >= BOX_COST ? '' : ' far') + '" type="button" data-box="' + k + '"' + (full ? ' disabled' : '') + ' aria-label="' + nm(b) + ', ' + (full ? say('הכול אצלך', 'all yours') : BOX_COST + say(' מטבעות', ' coins')) + '">' + boxSVG(k) +
+      '<b>' + say(b.of[0], b.of[1]) + '</b><small>' + (all - left) + say(' מתוך ', ' of ') + all + '</small>' + (full ? '<span class="ks-st">' + ICON.check + say('הכול אצלך', 'All yours') + '</span>' : '<span class="ks-pr">' + COIN + BOX_COST + '</span>') + '</button></li>';
+  }).join('') + '</ul></section>';
+  const week = '<section class="ks-sec"><h3>' + say('רק השבוע', 'This week only') + '<small>' + (dLeft === 1 ? say('יום אחרון', 'Last day') : say('עוד ' + dLeft + ' ימים', dLeft + ' days left')) + '</small></h3>' +
+    '<div class="ks-week"><span class="ks-pic">' + cropFig(wIt, lvl) + '</span><div><b>' + nm(wIt) + '</b>' + rareTag(wIt) + '</div>' +
+    (wOwn ? '<span class="ks-st">' + ICON.check + say('שלך', 'Yours') + '</span>' : '<button class="btn' + (bal >= WEEK_COST ? '' : ' far') + '" type="button" data-week="' + wk + '">' + COIN + WEEK_COST + '</button>') + '</div></section>';
+  const shield = '<section class="ks-sec"><div class="ks-week ks-shield">' + SHIELD_SVG + '<div><b>' + say('מגן רצף', 'Streak shield') + '</b><p>' + say('שומר על הרצף אם פספסת שבוע', 'Keeps your streak through a missed week') + '</p></div>' +
+    (shop.sh >= SHIELD_TOP ? '<span class="ks-st">' + ICON.check + say('יש לך מגן', 'You have one') + '</span>' : '<button class="btn' + (bal >= SHIELD_COST ? '' : ' far') + '" type="button" data-shield="1">' + COIN + SHIELD_COST + '</button>') + '</div></section>';
+  /* the collection: what is owned is drawn and can be worn; what is not is a question mark in the colour of its rarity */
+  const mine = shop.own.map(shopItem).filter(Boolean), shelf = S.shelf === 'me' || (S.shelf !== '' && BOXES[+S.shelf]) ? S.shelf : mine.length ? 'me' : '0';
   const tile = (x) => {
-    const o = shop.own.includes(x.id), on = shop.on.includes(x.id);
-    return '<li><button class="ks-it' + (on ? ' on' : o ? ' own' : bal >= x.cost ? '' : ' far') + (S.shopTry === x.id ? ' try' : '') + '" type="button" data-shop="' + x.id + '" aria-pressed="' + on + '" aria-label="' + nm(x) + ', ' + (on ? say('עליך', 'on') : o ? say('בארון', 'owned') : x.cost + say(' מטבעות', ' coins')) + '">' +
-      '<span class="ks-pic">' + cropFig(x, P.L.lvl) + '</span><b>' + nm(x) + '</b>' + (on ? '<span class="ks-st">' + ICON.check + say('עליך', 'On') + '</span>' : o ? '<span class="ks-st">' + say('ללבוש', 'Put on') + '</span>' : '<span class="ks-pr">' + COIN + x.cost + '</span>') + '</button></li>';
+    const o = shop.own.includes(x.id), on = shop.on.includes(x.id), r = rareOf(x);
+    return o ? '<li><button class="ks-it own' + (on ? ' on' : '') + (S.shopTry === x.id ? ' try' : '') + '" style="--rc:' + r.c + '" type="button" data-shop="' + x.id + '" aria-pressed="' + on + '" aria-label="' + nm(x) + ', ' + nm(r) + ', ' + (on ? say('עליך', 'on') : say('בארון', 'owned')) + '">' +
+      '<span class="ks-pic">' + cropFig(x, lvl) + '</span><b>' + nm(x) + '</b>' + (on ? '<span class="ks-st">' + ICON.check + say('עליך', 'On') + '</span>' : '<span class="rr">' + nm(r) + '</span>') + '</button></li>'
+      : '<li class="ks-q" style="--rc:' + r.c + '" role="img" aria-label="' + say('פריט שעוד לא גילית, ', 'A thing not found yet, ') + nm(r) + '">?</li>';
   };
-  /* the shelves: all of it, or one part of the body */
-  const shelf = SHELF.some((x) => x[0] === S.shelf) ? S.shelf : '', onShelf = SHOP.filter((x) => !shelf || shelfOf(x) === shelf);
-  const chips = '<div class="ks-shelf" role="radiogroup" aria-label="' + say('מדפים', 'Shelves') + '">' + SHELF.map((x) => '<button type="button" role="radio" data-shelf="' + x[0] + '" aria-checked="' + (x[0] === shelf) + '">' + say(x[1], x[2]) + '<small>' + SHOP.filter((y) => !x[0] || shelfOf(y) === x[0]).length + '</small></button>').join('') + '</div>';
-  sh.innerHTML = '<div class="sheet-in ks" role="dialog" aria-modal="true" aria-label="' + say('הקיוסק', 'The kiosk') + '">' + '<div class="ks-awn" aria-hidden="true"><i></i></div>' + '<div class="ed-h"><div><p class="kicker">' + say('הקיוסק', 'The kiosk') + '</p><h2>' + say('ציוד לדמות', 'Gear for the character') + '</h2></div>' +
+  const list = shelf === 'me' ? mine.slice().reverse() : mine.filter((x) => x.wk != null && kindOf(x) === +shelf).concat(SHOP.filter((x) => kindOf(x) === +shelf).sort((a, b) => a.r - b.r));
+  const got = list.filter((x) => shop.own.includes(x.id)), todo = list.filter((x) => !shop.own.includes(x.id));
+  const chips = '<div class="ks-shelf" role="radiogroup" aria-label="' + say('מדפים', 'Shelves') + '">' + [['me', say('שלי', 'Mine'), mine.length]].concat(BOXES.map((b, k) => [String(k), say(b.of[0], b.of[1]), SHOP.filter((x) => kindOf(x) === k && shop.own.includes(x.id)).length])).map((x) =>
+    '<button type="button" role="radio" data-shelf="' + x[0] + '" aria-checked="' + (x[0] === shelf) + '">' + x[1] + '<small>' + x[2] + '</small></button>').join('') + '</div>';
+  const odds = '<div class="ks-odds"><b>' + say('הסיכוי בכל קופסה', 'The odds of every box') + '</b><ul>' + RARE.map((r) => '<li style="--rc:' + r.c + '"><i></i>' + nm(r) + '<span dir="ltr">' + r.w / 10 + '%</span></li>').join('') + '</ul></div>';
+  sh.innerHTML = '<div class="sheet-in ks" role="dialog" aria-modal="true" aria-label="' + say('הקיוסק', 'The kiosk') + '">' + '<div class="ks-awn" aria-hidden="true"><i></i></div>' + '<div class="ed-h"><div><p class="kicker">' + say('הקיוסק', 'The kiosk') + '</p><h2>' + say('האוסף שלך', 'Your collection') + '</h2></div>' +
     '<span class="coin-tag dark" role="img" aria-label="' + say(nf(bal) + ' מטבעות', nf(bal) + ' coins') + '">' + COIN + nf(bal) + '</span><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<div class="ks-stage"><span class="ks-fig' + (pump ? ' pump' : '') + '" aria-hidden="true">' + avatarSVG(Object.assign({}, me.look, { wear: worn }), P.L.lvl, { base: EXP_BASE[expNow()] || 0 }) + '</span><div class="ks-say" aria-live="polite">' + word + '</div></div>' +
-    chips + '<ul class="ks-grid">' + onShelf.map(tile).join('') + '</ul>' +
-    '<p class="ms-sub">' + say('כל 10 נקודות באימון הן מטבע. הרמה שלך לא יורדת כשקונים.', 'Every 10 points in a workout are a coin. Your level never drops when you buy.') + '</p></div>';
+    '<div class="ks-stage"><span class="ks-fig' + (pump ? ' pump' : '') + '" aria-hidden="true">' + avatarSVG(Object.assign({}, me.look, { wear: shop.on }), lvl, { base: EXP_BASE[expNow()] || 0 }) + '</span><div class="ks-say" aria-live="polite">' + word + '</div></div>' +
+    waiting + boxes + week + shield +
+    '<section class="ks-sec"><h3>' + say('האוסף', 'The collection') + '<small>' + have + say(' מתוך ', ' of ') + SHOP.length + '</small></h3>' + chips +
+    (got.length ? '<ul class="ks-grid">' + got.map(tile).join('') + '</ul>' : shelf === 'me' ? '<p class="ks-none">' + say('עוד אין לך פריטים פותחים קופסה ומתחילים לאסוף', 'Nothing here yet. Open a box and start collecting') + '</p>' : '') +
+    (todo.length ? '<p class="ks-more">' + say('עוד ' + todo.length + ' לגלות', todo.length + ' more to find') + '</p><ul class="ks-qs">' + todo.map(tile).join('') + '</ul>' : '') + '</section>' + odds +
+    '<p class="ms-sub">' + say('כל 10 נקודות באימון הן מטבע והרמה שלך לא יורדת כשקונים', 'Every 10 points in a workout are a coin. Your level never drops when you buy.') + '</p></div>';
   $('.sheet-in', sh).scrollTop = top;
 }
-/* a tap on a thing: what is owned goes on or off; what is not is tried on */
+/* a tap on a thing that is owned: it goes on or off */
 function shopTap(id) {
-  const me = S.cfg.me, it = shopItem(id); if (!it) return;
-  if (me.shop.own.includes(id)) { const next = shopWear(me.shop, id, !me.shop.on.includes(id)); if (next) { me.shop = next; saveCfg(); renderMe(); } }
-  S.shopTry = id; renderShop(true);
+  const me = S.cfg.me, it = shopItem(id); if (!it || !me.shop.own.includes(id)) return;
+  const next = shopWear(me.shop, id, !me.shop.on.includes(id)); if (!next) return;
+  me.shop = next; saveCfg(); S.shopTry = id; S.shopMsg = ''; haptic('select'); renderMe(); renderShop(true);
 }
-function shopBuyNow(id) {
-  const me = S.cfg.me, T = meNow().T, next = shopBuy(me.shop, id, T.xp, T.ch); if (!next) return;
-  me.shop = next; saveCfg(); S.shopTry = id; S.shopBal = coinsLeft(T.xp, next, T.ch); saveLocal();
-  feel('coin', 'success'); renderMe(); renderShop(true);
-  toast(COIN + '<b>' + say('שלך: ', 'Yours: ') + nm(shopItem(id)) + '</b>');
+/* after anything was bought or opened: the coins that are left are what the kiosk was last seen with */
+function shopSaved() { const T = meNow().T; saveCfg(); S.shopBal = coinsLeft(T.xp, S.cfg.me.shop, T.ch); saveLocal(); markShop(); }
+/* a box is opened: one that waited, or one bought now. What it holds is shown on the whole screen */
+function boxOpenNow(kind, paid) {
+  const me = S.cfg.me, T = meNow().T, bal = coinsLeft(T.xp, me.shop, T.ch);
+  if (paid && bal < BOX_COST) { S.shopMsg = BOX_COST - bal === 1 ? say('חסר עוד מטבע אחד', '1 more coin to go') : say('חסרים עוד ' + (BOX_COST - bal) + ' מטבעות', (BOX_COST - bal) + ' more coins to go'); S.shopTry = null; haptic('warn'); if (S.sheet === 'shop') { renderShop(); $('.sheet-in', $('#sheet')).scrollTop = 0; } return false; }
+  /* the seed of this lifter's luck is drawn once, with the first box */
+  const res = boxOpen(me.shop.sd ? me.shop : Object.assign({}, me.shop, { sd: 1 + Math.floor(Math.random() * 4294967294) }), kind, paid, T.xp, T.ch);
+  if (!res) return false;
+  me.shop = res.shop; S.shopMsg = ''; S.shopTry = res.it.id; shopSaved();
+  boxReveal(res.it, res.kind);
+  return true;
 }
-function openShop() { S.sheet = 'shop'; S.shopTry = null; S.shelf = ''; renderShop(); $('#sheet').hidden = false; S.shopBal = (() => { const T = meNow().T; return coinsLeft(T.xp, S.cfg.me.shop, T.ch); })(); saveLocal(); markShop(); }
-/* the profile's tab is marked once the coins have grown enough to buy something since the kiosk was last looked at */
+function weekBuyNow(w) {
+  const me = S.cfg.me, T = meNow().T, bal = coinsLeft(T.xp, me.shop, T.ch), next = weekBuy(me.shop, w, Date.now(), T.xp, T.ch);
+  if (!next) { if (bal < WEEK_COST) { S.shopMsg = say('חסרים עוד ' + (WEEK_COST - bal) + ' מטבעות', (WEEK_COST - bal) + ' more coins to go'); S.shopTry = null; haptic('warn'); renderShop(); $('.sheet-in', $('#sheet')).scrollTop = 0; } return; }
+  me.shop = next; S.shopMsg = ''; S.shopTry = 'wk' + w; shopSaved(); feel('coin', 'success'); renderMe(); renderShop(true); $('.sheet-in', $('#sheet')).scrollTop = 0;
+  toast(COIN + '<b>' + say('שלך ', 'Yours: ') + nm(shopItem('wk' + w)) + '</b>');
+}
+function shieldBuyNow() {
+  const me = S.cfg.me, T = meNow().T, bal = coinsLeft(T.xp, me.shop, T.ch), next = shieldBuy(me.shop, T.xp, T.ch);
+  if (!next) { if (bal < SHIELD_COST && me.shop.sh < SHIELD_TOP) { S.shopMsg = say('חסרים עוד ' + (SHIELD_COST - bal) + ' מטבעות', (SHIELD_COST - bal) + ' more coins to go'); S.shopTry = null; haptic('warn'); renderShop(); $('.sheet-in', $('#sheet')).scrollTop = 0; } return; }
+  me.shop = next; S.shopMsg = ''; shopSaved(); feel('coin', 'success'); renderShop();
+  toast(say('<b>יש לך מגן רצף</b>', '<b>You have a streak shield</b>'));
+}
+/* what came out of a box, on the whole screen: the box waits for a tap, shakes, and opens on the thing in the colour of its rarity */
+function boxReveal(it, kind) {
+  const old = $('#boxUp'); if (old) old.remove();
+  const r = rareOf(it), lvl = meNow().L.lvl, el = document.createElement('div');
+  el.id = 'boxUp'; el.className = 'box-up'; el.style.setProperty('--rc', r.c); el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', nm(BOXES[kind]));
+  el.innerHTML = '<canvas class="confetti" id="buConf" aria-hidden="true"></canvas><div class="bu-in"><span class="bu-rays" aria-hidden="true"></span>' +
+    '<button class="bu-box" id="buBox" type="button" aria-label="' + say('לפתוח את הקופסה', 'Open the box') + '">' + boxSVG(kind) + '</button><p class="bu-hint" id="buHint">' + say('לחץ על הקופסה', 'Tap the box') + '</p>' +
+    '<div class="bu-got" id="buGot" hidden><span class="bu-pic">' + cropFig(it, lvl) + '</span>' + rareTag(it) + '<h2>' + nm(it) + '</h2>' +
+    '<div class="bu-act"><button class="btn big" id="buWear" type="button">' + say('ללבוש', 'Put it on') + '</button><button class="btn big ghost" id="buOk" type="button">' + say('המשך', 'Continue') + '</button></div></div></div>';
+  $('#app').appendChild(el);
+  let step = 0;
+  const show = () => {
+    if (step > 1 || !el.isConnected) return; step = 2;
+    el.classList.remove('shake'); el.classList.add('open'); $('#buBox').hidden = true; $('#buHint').hidden = true; $('#buGot').hidden = false;
+    el.setAttribute('aria-label', say('בקופסה ', 'In the box: ') + nm(it) + ', ' + nm(r));
+    if (it.wk == null && it.r >= 3) { feel('glory', 'heavy'); confetti($('#buConf'), it.r >= 4 ? 110 : 70); } else if (it.r === 2) { sfx('pr'); haptic('success'); } else feel('coin', 'success');
+    setTimeout(() => { const b = $('#buWear'); if (b) b.focus({ preventScroll: true }); }, 60);
+  };
+  const open = () => {
+    if (step) return; step = 1; el.classList.add('shake'); haptic('select');
+    /* four rising ticks while the box shakes, then it opens */
+    if (!reduced) [0, 1, 2, 3].forEach((k) => setTimeout(() => { if (step === 1) sfx('set', k * 3); }, k * 210));
+    setTimeout(show, reduced ? 0 : 900);
+  };
+  const done = (wear) => {
+    if (wear) { const me = S.cfg.me, next = shopWear(me.shop, it.id, true); if (next) { me.shop = next; saveCfg(); } }
+    el.classList.add('out'); setTimeout(() => el.remove(), reduced ? 0 : 200);
+    renderMe(); if (S.sheet === 'shop') renderShop(true); else if (S.sheet === 'sum') sumBox();
+  };
+  el.addEventListener('click', (ev) => { if (ev.target.closest('#buBox')) open(); else if (ev.target.closest('#buWear')) done(true); else if (ev.target.closest('#buOk')) done(false); });
+  overlayKeys(el, () => { if (!step) open(); else if (step === 2) done(false); });
+  setTimeout(() => { const b = $('#buBox'); if (b && !b.hidden) b.focus({ preventScroll: true }); }, 60);
+}
+/* the box of the summary: the first one that waits, the one this workout ended with before the others */
+function sumBoxHTML(first) {
+  const inv = S.cfg.me.shop.inv, k = first >= 0 && inv[first] ? first : inv.findIndex((n) => n > 0);
+  return k < 0 ? '' : '<button class="sum-chest" id="sumBoxBtn" type="button" data-open="' + k + '" aria-label="' + nm(BOXES[k]) + say(' לפתוח', ', open it') + '">' + boxSVG(k) + '<span class="ch-t"><b>' + nm(BOXES[k]) + '</b><small>' + say('לחץ לפתוח', 'Tap to open') + '</small></span></button>';
+}
+function sumBox() { const b = $('#sumBox'); if (b) b.innerHTML = sumBoxHTML(-1); }
+function openShop() { S.sheet = 'shop'; S.shopTry = null; S.shopMsg = ''; S.shelf = ''; renderShop(); $('#sheet').hidden = false; S.shopBal = (() => { const T = meNow().T; return coinsLeft(T.xp, S.cfg.me.shop, T.ch); })(); saveLocal(); markShop(); }
+/* the profile's tab is marked when a box waits, or once the coins have grown enough for a box since the kiosk was last looked at */
 function markShop() {
   const me = S.cfg.me, T = meNow().T, bal = coinsLeft(T.xp, me.shop, T.ch), b = $('#tabbar [data-view="profile"]');
-  if (b) b.classList.toggle('new', bal > (S.shopBal || 0) && SHOP.some((x) => !me.shop.own.includes(x.id) && x.cost <= bal));
+  if (b) b.classList.toggle('new', me.shop.inv.some((n) => n > 0) || (bal > (S.shopBal || 0) && bal >= BOX_COST));
+}
+/* ---- the body log: what the scale showed, day by day, with a few more things for those who measure them. One entry for a day */
+const scaleSVG = (t) => '<svg class="scale" viewBox="0 0 96 96" aria-hidden="true"><rect x="6" y="8" width="84" height="84" rx="20" fill="#23212B"/><rect x="9" y="11" width="78" height="78" rx="17" fill="none" stroke="#fff" stroke-width="1.5" opacity=".12"/>' +
+  '<rect x="22" y="17" width="52" height="24" rx="7" fill="#C9F7D4"/><text x="48" y="35" text-anchor="middle" font-family="Rubik,Arial,sans-serif" font-weight="800" font-size="16" fill="#12331C">' + t + '</text>' +
+  [20, 54].map((x) => '<rect x="' + x + '" y="50" width="22" height="34" rx="11" fill="#383642"/><path d="M' + (x + 6) + ' 60h10M' + (x + 6) + ' 67h10M' + (x + 6) + ' 74h10" stroke="#565462" stroke-width="2" stroke-linecap="round"/>').join('') + '</svg>';
+const bodyGirl = () => S.cfg.me.look.body === 1;
+const bodyDay = (d) => { const t = new Date(d + 'T12:00:00'), o = { weekday: 'short', day: 'numeric', month: 'numeric' }; if (t.getFullYear() !== new Date().getFullYear()) o.year = '2-digit'; return new Intl.DateTimeFormat(LANG === 'he' ? 'he-IL' : 'en-GB', o).format(t).replace(',', ''); };
+/* the card of the log in the profile: a scale that shows the last weight */
+function bodyCardHTML() {
+  const T = bodyTrend(S.cfg.me.body), last = T && T.last;
+  return '<button class="card body-card" id="bodyBtn" type="button" aria-label="' + say('יומן הגוף', 'Body log') + (last ? ', ' + fmtKg(last.kg) + say(' קילו', ' kg') : '') + '">' + scaleSVG(last ? fmtKg(last.kg) : '') +
+    '<span class="bd-t"><b>' + say('יומן הגוף', 'Body log') + '</b><small>' + (last ? say('נשקלת ', 'Weighed ') + ago(Date.parse(last.d + 'T12:00:00')) : say('מתעדים כמה שוקלים בכל יום', 'What you weigh, day by day')) + '</small></span>' + ICON.fwd + '</button>';
+}
+/* the line of the weights, the newest at the end */
+function bodyChart(log) {
+  const L = log.slice(-30); if (L.length < 2) return '';
+  const lo = Math.min.apply(null, L.map((r) => r.kg)), hi = Math.max.apply(null, L.map((r) => r.kg)), span = Math.max(1, hi - lo), W = 300, H = 84;
+  const pt = L.map((r, i) => [+(8 + (i / (L.length - 1)) * (W - 16)).toFixed(1), +(12 + (1 - (r.kg - lo) / span) * (H - 26)).toFixed(1)]), line = pt.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(''), end = pt[pt.length - 1];
+  return '<svg class="bd-chart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="' + say('גרף המשקל', 'The weight chart') + '"><path d="' + line + 'L' + end[0] + ' ' + H + 'L' + pt[0][0] + ' ' + H + 'Z" class="bd-area"/><path d="' + line + '" class="bd-line"/><circle cx="' + end[0] + '" cy="' + end[1] + '" r="4.5" class="bd-dot"/></svg>';
+}
+const bdNew = (d) => { const b = S.cfg.me.body, r = b.log.find((x) => x.d === d), last = b.log[b.log.length - 1]; return { d, kg: r ? fmtKg(r.kg) : last ? fmtKg(last.kg) : '', fat: r && r.fat != null ? String(r.fat) : '', waist: r && r.waist != null ? String(r.waist) : '', n: (r && r.n) || '', h: b.h ? String(b.h) : '', more: !!(r && (r.fat != null || r.waist != null || r.n)), had: !!r }; };
+/* what is typed is kept before the sheet is drawn again */
+function bdRead() { const B = S.bd; if (!B) return; for (const k of ['kg', 'fat', 'waist', 'n', 'h']) { const el = $('#bd_' + k); if (el) B[k] = el.value; } }
+function renderBody() {
+  const B = S.bd || (S.bd = bdNew(isoDay(new Date()))), body = S.cfg.me.body, sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, today = isoDay(new Date()), T = bodyTrend(body), g = bodyGirl();
+  const fld = (k, label, unit, mode, max) => '<label class="bd-f"><span>' + label + '</span><input id="bd_' + k + '" type="text" inputmode="' + mode + '" maxlength="' + max + '" autocomplete="off" value="' + esc(B[k]) + '">' + (unit ? '<small>' + unit + '</small>' : '') + '</label>';
+  const trend = !T || T.month == null ? '' : '<p class="bd-trend ' + (T.month < 0 ? 'down' : T.month > 0 ? 'up' : '') + '">' + (T.month < 0 ? say('ירדת ' + fmtKg(-T.month) + ' קילו בחודש האחרון', 'Down ' + fmtKg(-T.month) + ' kg in the last month') : T.month > 0 ? say('עלית ' + fmtKg(T.month) + ' קילו בחודש האחרון', 'Up ' + fmtKg(T.month) + ' kg in the last month') : say('אותו משקל כמו לפני חודש', 'The same weight as a month ago')) + '</p>';
+  const rows = body.log.slice().reverse().slice(0, 60).map((r, i, a) => { const prev = a[i + 1], dl = prev ? Math.round((r.kg - prev.kg) * 10) / 10 : 0;
+    return '<li><button class="bd-r' + (r.d === B.d ? ' cur' : '') + '" type="button" data-bdrow="' + r.d + '" aria-label="' + bodyDay(r.d) + ', ' + fmtKg(r.kg) + say(' קילו, עריכה', ' kg, edit') + '"><span class="bd-d">' + (r.d === today ? say('היום', 'Today') : bodyDay(r.d)) + '</span><b>' + fmtKg(r.kg) + '<small>' + say('קילו', 'kg') + '</small></b>' +
+      '<span class="bd-dl' + (dl < 0 ? ' down' : dl > 0 ? ' up' : '') + '">' + (dl ? (dl < 0 ? '▼ ' : '▲ ') + fmtKg(Math.abs(dl)) : '') + '</span>' +
+      (r.fat != null || r.waist != null || r.n ? '<span class="bd-x">' + (r.fat != null ? '<i>' + fmtKg(r.fat) + say(' אחוז שומן', '% fat') + '</i>' : '') + (r.waist != null ? '<i>' + say('מותניים ', 'Waist ') + fmtKg(r.waist) + '</i>' : '') + (r.n ? '<i>' + esc(r.n) + '</i>' : '') + '</span>' : '') + '</button></li>'; }).join('');
+  sh.innerHTML = '<div class="sheet-in bd" role="dialog" aria-modal="true" aria-label="' + say('יומן הגוף', 'Body log') + '"><div class="ed-h"><div><p class="kicker">' + say('יומן הגוף', 'Body log') + '</p><h2>' +
+    (B.d === today ? (g ? say('כמה את שוקלת היום', 'What do you weigh today') : say('כמה אתה שוקל היום', 'What do you weigh today')) : say('כמה שקלת ביום הזה', 'What did you weigh that day')) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    '<div class="bd-top"><span class="bd-scale" id="bdScale">' + scaleSVG(esc(B.kg)) + '</span>' +
+    '<div class="bd-in"><div class="bd-kg"><button type="button" class="tq-st" data-bdst="-0.1" aria-label="' + say('100 גרם פחות', '100 grams less') + '">−</button><label class="tq-in"><input id="bd_kg" type="text" inputmode="decimal" maxlength="5" autocomplete="off" value="' + esc(B.kg) + '" aria-label="' + say('משקל בקילו', 'Weight in kg') + '"><span>' + say('קילו', 'kg') + '</span></label><button type="button" class="tq-st" data-bdst="0.1" aria-label="' + say('100 גרם יותר', '100 grams more') + '">+</button></div>' +
+    '<label class="bd-date"><span>' + say('תאריך', 'Date') + '</span><input id="bdDate" type="date" max="' + today + '" value="' + B.d + '"></label></div></div>' +
+    (B.more ? '<div class="bd-more">' + fld('fat', say('אחוז שומן', 'Body fat'), say('אחוז', '%'), 'decimal', 4) + fld('waist', say('היקף מותניים', 'Waist'), say('סנטימטר', 'cm'), 'decimal', 5) + fld('h', say('גובה', 'Height'), say('סנטימטר', 'cm'), 'numeric', 3) + fld('n', say('הערה', 'Note'), '', 'text', 80) + '</div>'
+      : '<button class="link bd-more-b" id="bdMore" type="button">' + say('עוד פרטים', 'More details') + '</button>') +
+    '<div class="bd-act"><button class="btn primary big" id="bdSave" type="button">' + say('שמור', 'Save') + '</button>' + (B.had ? '<button class="btn danger" id="bdDel" type="button">' + say('מחק את היום הזה', 'Delete this day') + '</button>' : '') + '</div>' +
+    (body.log.length ? '<section class="bd-hist"><h3>' + say('מה שתיעדת', 'What you logged') + '<small>' + cnt(body.log.length, 'ימים', 'יום אחד', 'days', 'day') + '</small></h3>' + bodyChart(body.log) + trend + '<ul class="bd-rows">' + rows + '</ul></section>'
+      : '<p class="ks-none">' + say('עוד אין כלום ביומן השקילה הראשונה מתחילה את הגרף', 'Nothing in the log yet. Your first weigh-in starts the chart') + '</p>') + '</div>';
+  const inS = $('.sheet-in', sh); inS.scrollTop = top;
+  inS.addEventListener('input', (ev) => { if (ev.target.id === 'bd_kg') { const t = $('#bdScale text'); if (t) t.textContent = ev.target.value.slice(0, 5); } });
+  inS.addEventListener('change', (ev) => { if (ev.target.id !== 'bdDate') return; const d = ev.target.value; if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || d > today) { ev.target.value = B.d; return; } bdRead(); const keep = S.bd.more; S.bd = bdNew(d); S.bd.more = S.bd.more || keep; renderBody(); });
+}
+function openBody() { S.sheet = 'body'; S.bd = bdNew(isoDay(new Date())); renderBody(); $('#sheet').hidden = false; }
+function bodySave() {
+  bdRead(); const B = S.bd, me = S.cfg.me, kg = num(B.kg);
+  if (kg == null || kg < 20 || kg > 400) { haptic('warn'); toast(say('<b>צריך לכתוב משקל במספרים</b>', '<b>Type your weight as a number</b>')); const el = $('#bd_kg'); if (el) el.focus(); return; }
+  const row = { d: B.d, kg }, fat = num(B.fat), waist = num(B.waist), h = num(B.h, true);
+  if (fat != null) row.fat = fat; if (waist != null) row.waist = waist; if (B.n.trim()) row.n = B.n.trim();
+  me.body = bodyPut(h != null && h >= 100 && h <= 250 ? { h, log: me.body.log } : me.body, row); saveCfg();
+  S.bd = bdNew(B.d); feel('coin', 'success'); renderMe(); renderBody(); toast(say('<b>נשמר ביומן</b>', '<b>Saved to the log</b>'));
+}
+function bodyClick(ev) {
+  if (S.sheet !== 'body') return false;
+  const stp = ev.target.closest('[data-bdst]'); if (stp) { bdRead(); const v = num(S.bd.kg); S.bd.kg = fmtKg(Math.round(clamp((v == null ? 70 : v) + +stp.dataset.bdst, 20, 400) * 10) / 10); haptic('select'); renderBody(); return true; }
+  const row = ev.target.closest('[data-bdrow]'); if (row) { S.bd = bdNew(row.dataset.bdrow); S.bd.more = true; renderBody(); $('.sheet-in', $('#sheet')).scrollTop = 0; return true; }
+  if (ev.target.closest('#bdMore')) { bdRead(); S.bd.more = true; renderBody(); return true; }
+  if (ev.target.closest('#bdSave')) { bodySave(); return true; }
+  if (ev.target.closest('#bdDel')) { const me = S.cfg.me; me.body = bodyDrop(me.body, S.bd.d); saveCfg(); S.bd = bdNew(isoDay(new Date())); renderMe(); renderBody(); toast(say('<b>נמחק מהיומן</b>', '<b>Deleted from the log</b>')); return true; }
+  return false;
 }
 /* ---- the journey: the levels as a road, from the first to the hundredth. Every stop is a level that opens something, and on the
    wide sides of the road stands the player's own character, dressed as it will be there ---- */
@@ -137,7 +305,7 @@ function renderJourney(P) {
     items.forEach((i, n) => { pos[i] = { x: REWARDS[i].at === top ? 50 : 50 + STOP_X[i % 4] * AMP, y }; y += n < items.length - 1 ? J_PITCH : 0; });
     y += last ? 330 : 168;
     signs += '<div class="jr-sign' + (got === items.length ? ' done' : here ? ' here' : '') + '" style="top:' + (y0 + 22) + 'px"><small>' + say('עולם ' + (k + 1) + ' · רמות ' + from + '–' + W.to, 'World ' + (k + 1) + ' · levels ' + from + '–' + W.to) + '</small><b>' + say(W.he, W.en) + '</b>' +
-      '<span class="jr-got" aria-label="' + say(got + ' מתוך ' + items.length + ' נפתחו', got + ' of ' + items.length + ' open') + '">' + (got === items.length ? ICON.check : got + '/' + items.length) + '</span></div>';
+      '<span class="jr-got" aria-label="' + say(got + ' מתוך ' + items.length + ' נפתחו', got + ' of ' + items.length + ' open') + '">' + (got === items.length ? ICON.check : got + say(' מתוך ', ' of ') + items.length) + '</span></div>';
     bands += '<div class="jr-band b' + k + '" style="top:' + y0 + 'px;height:' + (y - y0 + 1) + 'px" aria-hidden="true">' + (last
       ? '<svg class="jr-peak" style="top:' + (pos[items[items.length - 1]].y - y0 + 112) + 'px" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100V72L16 52L27 62L50 0L73 60L85 47L100 70V100Z" fill="#3B2C90"/><path d="M50 0L41.5 25L46.5 21L50 28L53.5 21L58.5 25Z" fill="#F4F2FF"/><path d="M0 100V86Q22 72 46 84T100 80V100Z" fill="#1B1347"/></svg>'
       : '<svg class="jr-hill" viewBox="0 0 100 40" preserveAspectRatio="none"><path class="bk" d="M0 40V22Q16 6 34 16T66 14T100 18V40Z"/><path class="f" d="M0 40V30Q20 18 42 28T78 24T100 28V40Z"/></svg>') + '</div>';
@@ -147,21 +315,19 @@ function renderJourney(P) {
     const x = pos[i].x, s = lvl >= r.at ? 'done' : nx && nx.at === r.at ? 'next' : 'later', side = STOP_X[i % 4] > 0 ? 'l' : r.at === top ? 'r' : STOP_X[i % 4] < 0 ? 'r' : i % 8 < 4 ? 'r' : 'l';
     stops += '<li class="stop ' + s + ' j' + worldOf(r.at) + (r.at === top ? ' top' : '') + '" style="top:' + pos[i].y + 'px;left:' + x + '%;--i:' + Math.min(i, 6) + '">' +
       '<button class="lv" type="button" data-lv="' + r.at + '" aria-label="' + say('רמה ', 'Level ') + r.at + ': ' + nm(r) + (s === 'done' ? say(', הושג', ', reached') : '') + '">' +
-      (s === 'next' ? '<span class="go-chip" aria-hidden="true">' + toGo(r.at - lvl) + '</span>' : '') + (r.at === top ? CROWN : '') + '<span class="dot" aria-hidden="true">' + (s === 'done' && r.at !== top ? ICON.check : r.at) + '</span><b>' + nm(r) + '</b></button>' +
+      (s === 'next' ? '<span class="go-chip" aria-hidden="true">' + toGo(r.at - lvl) + '</span>' : '') + (r.at === top ? CROWN : '') + '<span class="dot' + (RANKS.some((k) => k.at === r.at) ? ' rk' : '') + '" aria-hidden="true">' + (RANKS.some((k) => k.at === r.at) ? medalSVG(rankOf(r.at).i) : s === 'done' ? ICON.check : r.at) + '</span><b>' + nm(r) + '</b></button>' +
       /* the lifter stands at the stop that is next; at every second stop beside it, the character as it will look at that level */
       (s === 'next' ? palHTML(side, avatar(lvl, { still: true }), say('אתה כאן', 'You are here'), 'me') : i % 2 && r.at !== top ? palHTML(side, avatar(r.at, { still: true }), '', 'pv') : '') + '</li>';
     if (i < N - 1) trail += trailSeg(x, pos[i].y + 38, pos[i + 1].x, pos[i + 1].y + 38, lvl >= REWARDS[i + 1].at);
   });
-  $('#journey').innerHTML = '<section class="jr-hero" aria-label="' + say('המסע שלי', 'My journey') + '"><p class="jr-k">' + say('המסע שלך', 'Your journey') + '</p>' +
-    '<h1>' + (lvl >= top ? say('רמה ' + lvl + '. מעבר לפסגה.', 'Level ' + lvl + '. Past the summit.') : say('מרמה ' + lvl + ' עד רמה ' + top, 'From level ' + lvl + ' to level ' + top)) + '</h1>' +
-    '<div class="ob-ladder" aria-hidden="true"><figure class="now"><span class="ob-fig">' + avatar(lvl) + '</span>' + cap(say('רמה ', 'Level ') + lvl, say('היום', 'Today')) + '</figure>' +
-    (lvl >= top ? '' : '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span><figure class="max"><span class="ob-fig">' + avatar(top) + '</span>' + cap(say('רמה ', 'Level ') + top, say('המטרה', 'The goal')) + '</figure>') + '</div>' +
-    '<div class="jr-lv"><span class="lv-badge">' + say('רמה ', 'Level ') + lvl + '</span>' + xpBar(pctOf(L)) + '<span class="jr-nx" aria-hidden="true">' + (lvl + 1) + '</span></div>' +
-    '<p class="jr-line">' + say('עוד ' + nf(L.need - L.into) + ' נק׳ לרמה ' + (lvl + 1), nf(L.need - L.into) + ' points to level ' + (lvl + 1)) + '</p></section>' +
-    '<section class="jr-map" aria-label="' + say('מה נפתח בדרך', 'What opens on the way') + '"><div class="jr-map-h"><h2>' + say('מה נפתח בדרך', 'What opens on the way') + '</h2><p>' + say('כל סט שווה נקודות, והנקודות מעלות רמה', 'Every set earns points, and points raise the level') + '</p></div>' +
+  $('#journey').innerHTML = '<section class="jr-top" aria-label="' + say('המסע שלי', 'My journey') + '"><div class="jr-rank">' + medalSVG(P.rank.i) + '<div><p class="jr-k">' + say('המסע שלך', 'Your journey') + '</p><h1>' + nm(P.rank) + '</h1></div><span class="lv-badge">' + say('רמה ', 'Level ') + lvl + '</span></div>' +
+    '<div class="jr-lv">' + xpBar(pctOf(L)) + '<span class="jr-nx" aria-hidden="true">' + (lvl + 1) + '</span></div>' +
+    '<p class="jr-line">' + say('עוד ' + nf(L.need - L.into) + ' נקודות לרמה ' + (lvl + 1), nf(L.need - L.into) + ' points to level ' + (lvl + 1)) + '</p>' +
+    '<ol class="jr-ranks" aria-label="' + say('הדרגות', 'The ranks') + '">' + RANKS.map((k, i) => '<li class="' + (i < P.rank.i ? 'done' : i === P.rank.i ? 'cur' : '') + '">' + medalSVG(i) + '<b>' + nm(k) + '</b><small>' + say('רמה ', 'Level ') + k.at + '</small></li>').join('') + '</ol></section>' +
+    '<section class="jr-map" aria-label="' + say('הפרסים בדרך', 'The prizes on the way') + '"><div class="jr-map-h"><h2>' + say('הפרסים בדרך', 'The prizes on the way') + '</h2></div>' +
     '<div class="jr-road" style="height:' + H + 'px">' + bands +
-    '<div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol></div>' + signs +
-    '<p class="jr-after">' + say('ואחרי רמה 100? ממשיכים לעלות.', 'And after level 100? The levels keep going.') + '</p></div></section>';
+    '<div class="pw-road" style="height:' + H + 'px"><svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol></div>' + signs + '</div></section>' +
+    (lvl >= top ? '' : '<section class="jr-goal" aria-label="' + say('המטרה', 'The goal') + '"><span class="jr-goal-fig" aria-hidden="true">' + avatar(top, { bust: true }) + '</span><div><b>' + say('רמה ' + top, 'Level ' + top) + '</b><small>' + toGo(top - lvl) + '</small></div></section>');
 }
 /* a stop of the journey, opened: the character as it will stand at that level */
 function openLevel(at) {
@@ -212,12 +378,11 @@ function renderSettings() {
     grp(say('אני', 'Me'), nav(say('הדמות והשם', 'Character and name'), 'setLook', me.name ? '<bdi>' + esc(me.name) + '</bdi>' : '', 'me') + seg(say('שפה', 'Language'), 'lang', LANGS, LANG, 'lang', '')) +
     grp(say('האימון שלי', 'My training'),
       seg(say('ניסיון', 'Experience'), 'exp', EXP().map((o, i) => [i, o[0]]), me.exp, 'exp') +
-      seg(say('מטרות', 'Goals'), 'goals', GOALS().map((o, i) => [i, o[0]]), me.goals, 'goal') +
+      seg(say('מטרות', 'Goals'), 'goals', GOAL_ORDER.map((i) => [i, GOALS()[i][0]]), me.goals, 'goal') +
       seg(say('אימונים בשבוע', 'Workouts a week'), 'days', DAYS_OK.map((d) => [d, '' + d]), me.days || 4, 'days') +
-      seg(say('זמן לאימון, בדקות', 'Time for a workout, in minutes'), 'time', [[30, '30'], [45, '45'], [60, '60'], [75, '75'], [0, say('לא משנה', 'Any')]], me.time, 'time', 'five') +
-      seg(say('חדר הכושר', 'The gym'), 'eq', [[0, say('מלא', 'Full')], [1, say('בסיסי', 'Basic')], [2, say('לא בטוח', 'Not sure')]], me.eq, 'eq') +
+      seg(say('איפה מתאמנים', 'Where you train'), 'place', [[0, say('חדר כושר', 'Gym')], [1, say('גינת כושר', 'Park')], [2, say('בית ומשקולות', 'Home, dumbbells')], [3, say('בית', 'Home')]], me.place == null ? 0 : me.place, 'place') +
       '') +
-    (refit ? '<div class="st-note" role="status"><span>' + say('התשובות השתנו, והתוכנית נשארה כפי ששינית אותה.', 'The answers changed, and the plan stays as you changed it.') + '</span><button class="btn" id="setRefit" type="button">' + say('לבנות את התוכנית מחדש', 'Build the plan again') + '</button></div>' : '') +
+    (refit ? '<div class="st-note" role="status"><span>' + say('התשובות השתנו והתוכנית נשארה כפי ששינית אותה', 'The answers changed, and the plan stays as you changed it.') + '</span><button class="btn" id="setRefit" type="button">' + say('לבנות את התוכנית מחדש', 'Build the plan again') + '</button></div>' : '') +
     grp(say('צליל ומגע', 'Sound and touch'), tog(say('צליל', 'Sound'), 'sound', !!S.sound, 'sound') + tog(say('רטט', 'Vibration'), 'buzz', S.buzz !== false, 'buzz')) +
     grp(say('גיבוי', 'Backup'), '<section class="backup" id="backup" aria-label="' + say('גיבוי', 'Backup') + '"></section>') +
     grp(say('עוד', 'More'), nav(say('סיור באפליקציה', 'A tour of the app'), 'tourAgain', '', 'tour', 'calm') + nav(say('מסך הפתיחה', 'The opening screens'), 'obAgain', '', 'film', 'calm')) +
@@ -240,16 +405,16 @@ function setAnswer(key, v) {
 /* ---- deleting the account: said plainly, and confirmed by typing a word ---- */
 function delPageHTML() {
   const D = S.del || (S.del = { v: '', busy: false, note: '' }), word = delWord();
-  return '<div class="st-del"><span class="st-del-i" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">' + SET_I.del + '</svg></span><h3>' + say('למחוק את החשבון?', 'Delete the account?') + '</h3>' +
-    '<p>' + say('כל האימונים, הדמות, המטבעות וההגדרות יימחקו מהמכשיר הזה ומהחשבון. אי אפשר לבטל את זה.', 'Every workout, the character, the coins and the settings will be erased from this device and from the account. This cannot be undone.') + '</p>' +
+  return '<div class="st-del"><span class="st-del-i" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">' + SET_I.del + '</svg></span><h3>' + say('למחוק את החשבון', 'Delete the account?') + '</h3>' +
+    '<p>' + say('כל האימונים הדמות המטבעות וההגדרות יימחקו מהמכשיר הזה ומהחשבון אי אפשר לבטל את זה', 'Every workout, the character, the coins and the settings will be erased from this device and from the account. This cannot be undone.') + '</p>' +
     (S.dl ? '<button class="link" id="backupBtn" type="button">' + say('קודם לשמור גיבוי לקובץ', 'Save a backup file first') + '</button>' : '') +
-    '<label for="delName">' + say('כדי לאשר, כותבים כאן: ', 'To confirm, type: ') + '<b><bdi>' + esc(word) + '</bdi></b></label>' +
+    '<label for="delName">' + say('כדי לאשר כותבים כאן ', 'To confirm, type: ') + '<b><bdi>' + esc(word) + '</bdi></b></label>' +
     '<input id="delName" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" value="' + esc(D.v) + '">' +
     (D.note ? '<p class="st-del-n" role="status">' + D.note + '</p>' : '') +
     '<button class="btn danger big" id="delYes" type="button"' + (D.busy || !sameWord(D.v, word) ? ' disabled' : '') + '>' + (D.busy ? say('מוחק…', 'Deleting…') : say('מחיקה לצמיתות', 'Delete for good')) + '</button>' +
     '<button class="btn big" data-setpg="" type="button">' + say('ביטול', 'Cancel') + '</button></div>';
 }
-const WIPE_FAIL = () => say('המחיקה לא הושלמה: אין חיבור לחשבון. אפשר לנסות שוב כשיש חיבור.', 'The deletion did not finish: the account could not be reached. Try again once you are connected.');
+const WIPE_FAIL = () => say('המחיקה לא הושלמה אין חיבור לחשבון אפשר לנסות שוב כשיש חיבור', 'The deletion did not finish: the account could not be reached. Try again once you are connected.');
 function delNow() {
   const D = S.del; if (!D || D.busy || !sameWord(D.v, delWord())) return;
   D.busy = true; D.note = ''; renderSettings();
@@ -335,23 +500,27 @@ async function lookFromPhoto(file) {
     const m = String((res && res.text) || '').match(/\{[^{}]*\}/); let o = null;
     try { o = m ? JSON.parse(m[0]) : null; } catch (e) { o = null; }
     LK.busy = false;
-    if (o && o.none) { say2(say('לא מצאתי פנים בתמונה. אפשר לנסות תמונה אחרת.', 'I could not find a face in the photo. Try another one.')); return; }
+    if (o && o.none) { say2(say('לא מצאתי פנים בתמונה אפשר לנסות תמונה אחרת', 'I could not find a face in the photo. Try another one.')); return; }
     const me = S.cfg.me, lim = { body: 2, skin: SKIN.length, hair: HAIR.length, hc: HAIRC.length, beard: BEARD.length }; let n = 0;
     if (o) for (const key of Object.keys(lim)) if (Number.isInteger(o[key]) && o[key] >= 0 && o[key] < lim[key]) { me.look[key] = o[key]; n++; }
     if (me.look.body === 1) me.look.beard = 0;
-    if (!o || !n) { say2(say('לא הצלחתי לקרוא את התמונה. אפשר לנסות שוב.', 'I could not read the photo. Try again.')); return; }
-    me.made = me.made || Date.now(); saveCfg(); LK.note = say('הנה. אפשר לשנות כל פרט.', 'There. Every detail can still be changed.'); lookDraw(true); feel('set', 'success');
+    if (!o || !n) { say2(say('לא הצלחתי לקרוא את התמונה אפשר לנסות שוב', 'I could not read the photo. Try again.')); return; }
+    me.made = me.made || Date.now(); saveCfg(); LK.note = say('הנה אפשר לשנות כל פרט', 'There. Every detail can still be changed.'); lookDraw(true); feel('set', 'success');
   } catch (e) {
-    LK.busy = false; say2(say('לא הצלחתי לקרוא את התמונה כרגע. אפשר לבחור ידנית.', 'I could not read the photo right now. You can choose by hand.'));
+    LK.busy = false; say2(say('לא הצלחתי לקרוא את התמונה כרגע אפשר לבחור ידנית', 'I could not read the photo right now. You can choose by hand.'));
   }
 }
 function setName(v) { const me = S.cfg.me, n = String(v || '').trim().slice(0, 16); if (n === me.name) return; me.name = n; me.made = me.made || Date.now(); saveCfg(); }
 /* clicks and typing inside the sheet that belong to this file; returns true when the click was handled */
 function meSheetClick(ev) {
+  if (bodyClick(ev)) return true;
   const lk = ev.target.closest('[data-look]'); if (lk) { setLook(lk.dataset.look, +lk.dataset.v); return true; }
   const tb = ev.target.closest('[data-lktab]'); if (tb) { lookTab(tb.dataset.lktab); return true; }
   if (ev.target.closest('#lkPhoto')) { $('#lkFile').click(); return true; }
-  const buy = ev.target.closest('[data-buy]'); if (buy) { shopBuyNow(buy.dataset.buy); return true; }
+  const opn = ev.target.closest('[data-open]'); if (opn) { boxOpenNow(+opn.dataset.open, false); return true; }
+  const bxb = ev.target.closest('[data-box]'); if (bxb) { boxOpenNow(+bxb.dataset.box, true); return true; }
+  const wkb = ev.target.closest('[data-week]'); if (wkb) { weekBuyNow(+wkb.dataset.week); return true; }
+  if (ev.target.closest('[data-shield]')) { shieldBuyNow(); return true; }
   const thing = ev.target.closest('[data-shop]'); if (thing) { shopTap(thing.dataset.shop); return true; }
   const shelfB = ev.target.closest('[data-shelf]'); if (shelfB) { S.shelf = shelfB.dataset.shelf; haptic('select'); renderShop(); return true; }
   if (S.sheet !== 'set') return false;
@@ -370,7 +539,7 @@ function meSheetClick(ev) {
   else if (k === 'lang') { if (v !== LANG) langFade(() => setLang(v)); }
   else if (k === 'sound') { S.sound = v === '1'; saveLocal(); if (S.sound) sfx('set'); renderSettings(); }
   else if (k === 'buzz') { S.buzz = v === '1'; saveLocal(); if (HX.on) document.documentElement.dataset.hx = S.buzz ? 'on' : 'off'; haptic('success'); renderSettings(); }
-  else if (k === 'exp' || k === 'goals' || k === 'days' || k === 'time' || k === 'eq' || k === 'fb') setAnswer(k, +v);
+  else if (k === 'exp' || k === 'goals' || k === 'days' || k === 'place' || k === 'fb') setAnswer(k, +v);
   else return false;
   return true;
 }
@@ -425,7 +594,8 @@ function wireMe() {
     const b = ev.target.closest('button'); if (!b) return;
     if (b.id === 'lookBtn') openLook();
     else if (b.id === 'setBtn') openSettings();
-    else if (b.id === 'shopBtn') openShop();
+    else if (b.id === 'shopBtn' || b.id === 'shopWait') openShop();
+    else if (b.id === 'bodyBtn') openBody();
     else if (b.id === 'bdgAll') { S.bdgAll = !S.bdgAll; renderProfile(); const again = $('#bdgAll'); if (again) again.focus({ preventScroll: true }); }
   });
   $('#journey').addEventListener('click', (ev) => { const b = ev.target.closest('button[data-lv]'); if (b) openLevel(+b.dataset.lv); });

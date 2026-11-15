@@ -45,22 +45,47 @@ const obWalk = async (pg, a, to, seen) => {
   await look('film'); await next();
   if (a.name != null) await pg.fill('#obName', a.name);
   await look('name'); await next();
-  await pg.click('.ob-opt[data-v="' + a.exp + '"]'); await look('exp'); await next();
-  for (const g of a.goals) await pg.click('.ob-opt[data-v="' + g + '"]');
+  await pg.click('.ob-opt[data-ob="exp"][data-v="' + a.exp + '"]'); await look('exp'); await next();
+  for (const g of a.goals) await pg.click('.ob-opt[data-ob="goals"][data-v="' + g + '"]');
   await look('goals'); await next();
-  await pg.click('.ob-time[data-ob="days"][data-v="' + (a.days || 4) + '"]'); await look('days'); await next();
-  await pg.click('.ob-time[data-ob="time"][data-v="' + a.time + '"]'); await look('time'); await next();
-  await pg.click('.ob-opt[data-v="' + a.eq + '"]'); await look('eq'); await next();
+  await pg.fill('#obDays', String(a.days || 4)); await look('days'); await next();
+  await pg.click('.ob-opt[data-ob="place"][data-v="' + (a.place || 0) + '"]'); await look('place'); await next();
+  if (a.age) await pg.fill('#obAge', String(a.age));
+  await look('age'); await next();
+  if (a.h) await pg.fill('#obH', String(a.h));
+  if (a.kg) await pg.fill('#obKg', String(a.kg));
+  await look('hw'); await next();
+  if (a.focus != null) await pg.click('.ob-chip[data-ob="focus"][data-v="' + a.focus + '"]');
+  await look('focus'); await next();
+  for (const x of a.pain || []) await pg.click('.ob-chip[data-ob="pain"][data-v="' + x + '"]');
+  await look('pain'); await next();
   for (const t of ['hair', 'hc', 'beard', 'shirt', 'skin']) { await pg.click('#ob [data-lktab="' + t + '"]'); await look('look-' + t); }
   await next(); await look('build');
-  await pg.waitForSelector('#obNext:not([disabled])', { timeout: 9000 }); await pg.waitForTimeout(300); await look('plan');
+  await pg.waitForSelector('#obNext:not([disabled])', { timeout: 12000 }); await pg.waitForTimeout(300); await look('plan');
   if (to === 'plan') return;
   await next(); await look('done');
 };
 /* the question about today's length, when it is asked: answered with the whole workout */
 const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t) { await pg.waitForTimeout(130); await t.click(); await pg.waitForTimeout(320); } };
 /* the tour that follows the opening, left by its corner button */
-const noTour = async (pg) => { await pg.waitForSelector('#tourSkip', { timeout: 5000 }); await pg.waitForTimeout(150); await pg.click('#tourSkip'); await pg.waitForTimeout(250); };
+const noTour = async (pg) => { await pg.waitForSelector('#tour:not([hidden])', { timeout: 5000 }); await pg.waitForTimeout(150); await pg.keyboard.press('Escape'); await pg.waitForTimeout(250); };
+/* the tour is walked as a lifter walks it: what is lit is pressed, a card that is lit is answered, and Eilon's own button is
+   pressed where he has one. Returns what he said at each step (a step that this run of the app does not have leaves a gap) */
+const tourWalk = async (pg, each) => {
+  const said = [];
+  for (let k = 0; k < 80; k++) {
+    const st = await pg.evaluate(() => (TR.on ? { i: TR.i, t: document.querySelector('#tourText').textContent, own: !document.querySelector('#tourNext').hidden, at: TR.steps[TR.i].at, tap: !!TR.steps[TR.i].tap, here: !!tourEl(TR.steps[TR.i]) } : null));
+    if (!st) break;
+    if (said[st.i] == null && (st.own || st.here || !st.at)) { said[st.i] = st.t; if (each) await each(st); }
+    if (st.own) await pg.click('#tourNext');
+    else if (!st.here) { await pg.waitForTimeout(250); continue; }
+    else if (st.tap) await pg.click(st.at);
+    else if (st.at === '#pre .tq') await pg.click('#tqGo');
+    else if (st.at === '#pre .eqq') await pg.click('#eqGo');
+    await pg.waitForTimeout(500);
+  }
+  return said;
+};
 /* what steers the round is folded away on the first page of the plan: this unfolds it */
 const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { await pg.click('#msAdv'); await pg.waitForTimeout(250); } };
 (async () => {
@@ -219,7 +244,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await clean('the chat, empty'); await snap(p, 'en10-chat');
   await p.fill('#chatInput', 'Can a seated chest press replace this?'); await p.click('#sendBtn'); await p.waitForTimeout(600);
   const call = await p.evaluate(() => window.__calls[0]);
-  check('the coach gets his rules in English, with the plan and the lifter', !/[֐-׿]/.test(call.first) && call.first.startsWith('You are Eilon') && call.first.includes('Workout 1 (') && call.first.includes('1. [ua1] Incline Smith Machine Press: 3 sets × 6–10 reps | rest 2–3 min') && call.first.includes('About the user: Name: Sam · Gym experience: Regular (Six months to two years) · Goal: Physique') && call.first.includes('"Verdict: Partly suitable"'), call.first.slice(0, 200));
+  check('the coach gets his rules in English, with the plan and the lifter', !/[֐-׿]/.test(call.first) && call.first.startsWith('You are Eilon') && call.first.includes('Workout 1 (') && call.first.includes('1. [ua1] Incline Smith Machine Press: 3 sets × 6–10 reps | rest 2–3 min') && call.first.includes('About the user: Name: Sam · Gym experience: Regular (Six months to two years) · Goal: Muscle') && call.first.includes('"Verdict: Partly suitable"'), call.first.slice(0, 200));
   check('the question goes with its context in English', !/[֐-׿]/.test(call.last) && call.last.startsWith('[Context from the app.') && call.last.includes('The question is about the exercise [ua2] "Assisted Pull-ups" (Workout 1): 3 sets × 6–10 reps, rest 2 min, To failure.') && /Recent results \(kg×reps\): \d+ days ago: /.test(call.last) && call.last.endsWith('Can a seated chest press replace this?'), call.last);
   check('an English verdict is shown as a verdict', (await txt('#msgs .verdict.mid')) === 'Partly suitable' && (await txt('#msgs')).includes('About Assisted Pull-ups') && !(await txt('#msgs .msg.a')).includes('Verdict:'), await txt('#msgs'));
   await p.fill('#chatInput', 'log 40 kg 8 8 7'); await p.click('#sendBtn'); await p.waitForTimeout(700);
@@ -245,7 +270,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await tab('profile');
   const pr = await txt('#history');
   check('the workouts in the profile are in English', pr.includes('Recent workouts') && pr.includes('More workouts') && !pr.includes('Backup') && !(await p.$('#history .xp-tag')), pr.slice(0, 500));
-  check('dates are written in English, with the month in letters', /[A-Z][a-z]{2},? \d{1,2} [A-Z][a-z]{2} · \d+ sets · \d+ min/.test(await txt('#history .h-s')), await txt('#history .h-s'));
+  check('dates are written in English, with the month in letters', /^[A-Z][a-z]{2} \d{1,2} [A-Z][a-z]{2}$/.test((await txt('#history .h-d')).trim()) && /\d+ sets?/.test(await txt('#history .h-s')) && /\d+ min/.test(await txt('#history .h-s')), [await txt('#history .h-d'), await txt('#history .h-s')]);
   await clean('profile'); await snap(p, 'en13-history', true);
   await p.click('#history [data-edit]'); await p.waitForTimeout(350);
   const ed = await txt('#sheet');
@@ -258,8 +283,8 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   // ---- the profile and the character
   await tab('profile');
   const pf = await txt('#profile');
-  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('week streak') && pf.includes('PRs') && pf.includes('tons lifted') && /At level \d+: [A-Z]/.test(pf) && pf.includes('Achievements') && pf.includes('All of them') && pf.includes('The kiosk') && pf.includes('Gear for your character') && pf.includes('Every workout adds coins') && pf.includes('To the kiosk') && (await p.getAttribute('#setBtn', 'aria-label')) === 'Settings' && (await p.getAttribute('#lookBtn', 'aria-label')) === 'Edit the character' && /^[\d,]+ coins$/.test(await p.getAttribute('#profile .coin-tag', 'aria-label')) && !pf.includes('A set +10') && !pf.includes('Language'), pf.slice(0, 600));
-  check('an achievement is read out in English', /^[A-Za-z0-9 ]+, (earned|not yet)$/.test(await p.getAttribute('#profile .bdg', 'aria-label')), await p.getAttribute('#profile .bdg', 'aria-label'));
+  check('the profile is in English', pf.includes('Sam') && /Level \d+/.test(pf) && /pts to level \d+/.test(pf) && pf.includes('workouts') && pf.includes('days in a row') && pf.includes('PRs') && !pf.includes('tons') && /At level \d+: [A-Z]/.test(pf) && pf.includes('Achievements') && pf.includes('All of them') && pf.includes('The kiosk') && pf.includes('Your collection') && / of 180 things/.test(pf) && pf.includes('To the kiosk') && (await p.getAttribute('#setBtn', 'aria-label')) === 'Settings' && (await p.getAttribute('#lookBtn', 'aria-label')) === 'Edit the character' && /^[\d,]+ coins$/.test(await p.getAttribute('#profile .coin-tag', 'aria-label')) && !pf.includes('A set +10') && !pf.includes('Language'), pf.slice(0, 600));
+  check('an achievement is read out in English', /^[A-Za-z0-9, ]+, (earned|not yet|[\d,]+ of [\d,]+)$/.test(await p.getAttribute('#profile .bdg', 'aria-label')), await p.getAttribute('#profile .bdg', 'aria-label'));
   await clean('the profile'); await snap(p, 'en15-profile', true);
   await p.click('#bdgAll'); await p.waitForTimeout(200);
   check('every achievement has an English name', (await p.$$('#profile .bdg')).length === 12 && (await txt('#bdgAll')) === 'Fewer' && (await txt('#profile .badges')).includes('First workout'), await txt('#profile .badges'));
@@ -267,17 +292,36 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   /* the kiosk: its things, a thing tried on, and what it says about the coins */
   await p.click('#shopBtn'); await p.waitForTimeout(350);
   const ksE = await txt('#sheet');
-  check('the kiosk is in English', ksE.includes('The kiosk') && ksE.includes('Gear for the character') && ksE.includes('What takes your fancy?') && ksE.includes('Tap a thing to try it on your character.') && ksE.includes('Towel') && ksE.includes('White sneakers') && ksE.includes('Gold chain') && ksE.includes('Every 10 points in a workout are a coin.') && /^[A-Z][a-z ]+, (\d+ coins|owned|on)$/.test(await p.getAttribute('#sheet .ks-it', 'aria-label')), ksE.slice(0, 300));
+  check('the kiosk is in English', ksE.includes('The kiosk') && ksE.includes('Your collection') && ksE.includes('Open a box and find a thing') && ksE.includes('Boxes') && ksE.includes('Hats') && ksE.includes('Accessories') && ksE.includes('This week only') && ksE.includes('Weekly edition') && ksE.includes('Streak shield') && ksE.includes('The collection') && ksE.includes('The odds of every box') && ksE.includes('Legendary') && ksE.includes('Every 10 points in a workout are a coin.') && /^(Hat|Glasses|Shirt|Shoe|Accessory) box, (\d+ coins|all yours)$/.test(await p.getAttribute('#sheet [data-box]', 'aria-label')) && /^(Winter|Spring|Summer|Autumn) \d{4} [a-z\- ]+$/.test(await txt('#sheet .ks-week b')), ksE.slice(0, 300));
   await clean('the kiosk');
-  await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
-  const tryE = await txt('#sheet .ks-say');
-  check('a thing that is tried on is named in English, with its price or what is missing', tryE.includes('Towel') && (/Buy for\s*30/.test(tryE) || /\d+ more coins? to go\. Every workout adds some\./.test(tryE)), tryE);
-  if (await p.$('#shopBuy')) { await p.click('#shopBuy'); await p.waitForTimeout(400); check('and bought in English', (await txt('#toast')).includes('Yours: Towel') && (await txt('#sheet .ks-say')).includes('On you now. Another tap takes it off.') && (await txt('#sheet [data-shop="towel"] .ks-st')) === 'On', await txt('#sheet .ks-say')); await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(250); check('and what is taken off stays in the wardrobe', (await txt('#sheet .ks-say')).includes('In your wardrobe. Another tap puts it on.') && (await txt('#sheet [data-shop="towel"] .ks-st')) === 'Put on', await txt('#sheet .ks-say')); }
+  /* a box that waits is opened in English */
+  await p.evaluate(() => { S.cfg.me.shop.inv[1] = 1; S.cfg.me.shop.sd = 5; saveCfg(); renderShop(); });
+  await p.click('#sheet [data-open="1"]'); await p.waitForTimeout(350);
+  check('a box waits to be tapped, in English', (await p.getAttribute('#boxUp', 'aria-label')) === 'Glasses box' && (await txt('#buHint')) === 'Tap the box' && (await p.getAttribute('#buBox', 'aria-label')) === 'Open the box', await txt('#boxUp'));
+  await p.click('#buBox'); await p.waitForTimeout(1250);
+  const gotE = (await txt('#buGot')).replace(/\s+/g, ' ').trim();
+  check('what a box holds is told in English: how rare it is, its name, and that it can be put on', /^(Common|Rare|Super rare|Epic|Mythic|Legendary) [A-Z0-9][A-Za-z0-9\- ]+ Put it on Continue$/.test(gotE) && (await p.getAttribute('#boxUp', 'aria-label')).startsWith('In the box: '), gotE);
+  await clean('a box that was opened');
+  await p.click('#buWear'); await p.waitForTimeout(450);
+  check('and what is worn says so in English', (await txt('#sheet .ks-say')).includes('On you now') && (await txt('#sheet .ks-it.on .ks-st')) === 'On' && /^[A-Z0-9][A-Za-z0-9\- ]+, (Common|Rare|Super rare|Epic|Mythic|Legendary), on$/.test(await p.getAttribute('#sheet .ks-it.on', 'aria-label')), await txt('#sheet .ks-say'));
+  await p.click('#sheet .ks-it.on'); await p.waitForTimeout(300);
+  check('and what is taken off stays in the wardrobe', (await txt('#sheet .ks-say')).includes('In your wardrobe') && !(await p.$('#sheet .ks-it.on')), await txt('#sheet .ks-say'));
   await clean('the kiosk, a thing tried on'); await snap(p, 'en15a-kiosk', true);
+  await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
+  /* the body log in English */
+  check('the card of the body log is in English', (await txt('#bodyBtn .bd-t')).includes('Body log') && (await txt('#bodyBtn .bd-t')).includes('What you weigh, day by day') && (await p.getAttribute('#bodyBtn', 'aria-label')) === 'Body log', await txt('#bodyBtn'));
+  await p.click('#bodyBtn'); await p.waitForTimeout(300);
+  const bdE = await txt('#sheet');
+  check('the body log is in English', bdE.includes('Body log') && bdE.includes('What do you weigh today') && bdE.includes('kg') && bdE.includes('Date') && bdE.includes('More details') && bdE.includes('Save') && bdE.includes('Nothing in the log yet') && (await p.getAttribute('#bd_kg', 'aria-label')) === 'Weight in kg', bdE.slice(0, 300));
+  await p.click('#bdMore'); await p.waitForTimeout(150);
+  await p.fill('#bd_kg', '80.5'); await p.fill('#bd_fat', '18'); await p.click('#bdSave'); await p.waitForTimeout(400);
+  const bdE2 = await txt('#sheet');
+  check('a day that is written is told in English', (await txt('#toast')).includes('Saved to the log') && bdE2.includes('What you logged') && bdE2.includes('1 day') && bdE2.includes('Today') && bdE2.includes('18% fat') && bdE2.includes('Delete this day') && bdE2.includes('Body fat') && bdE2.includes('Waist') && bdE2.includes('Height') && bdE2.includes('Note') && (await p.getAttribute('#bodyBtn', 'aria-label')) === 'Body log, 80.5 kg', bdE2.slice(0, 400));
+  await clean('the body log');
   await p.click('#sheet [data-close]'); await p.waitForTimeout(250);
   await p.click('#setBtn'); await p.waitForTimeout(300);
   const st = await txt('#sheet');
-  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Physique') && st.includes('Fitness and health') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && st.includes('Character and name') && st.includes('My training') && st.includes('Goals') && st.includes('Time for a workout, in minutes') && st.includes('The gym') && st.includes('Not sure') && st.includes('Sound and touch') && st.includes('Workouts a week') && !st.includes('Privacy') && !st.includes('Entry code') && st.includes('A tour of the app') && st.includes('Delete the account') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
+  check('the settings are in English', st.includes('Settings') && st.includes('Language') && st.includes('Experience') && st.includes('Regular') && st.includes('Goal') && st.includes('Muscle') && st.includes('Getting lean') && st.includes('Fitness and endurance') && st.includes('Running') && st.includes('Veteran') && st.includes('Sound') && st.includes('Vibration') && st.includes('Backup') && st.includes('Save to a file') && st.includes('Restore') && st.includes('Export CSV') && st.includes('Saved on this device') && st.includes('The opening screens') && st.includes('Character and name') && st.includes('My training') && st.includes('Goals') && st.includes('Where you train') && st.includes('Park') && st.includes('Home, dumbbells') && !st.includes('Time for a workout') && st.includes('Sound and touch') && st.includes('Workouts a week') && !st.includes('Privacy') && !st.includes('Entry code') && st.includes('A tour of the app') && st.includes('Delete the account') && (await p.getAttribute('#sheet .tog', 'aria-label')) === 'Sound' && (await p.getAttribute('#backup', 'aria-label')) === 'Backup', st);
   await clean('the settings'); await snap(p, 'en15b-settings', true);
   /* the page that deletes the account: no code any more, the name typed is the confirmation */
   check('there is no entry code in the settings', !(await p.$('#pinSet')) && !(await p.$('#lock')) && !(await txt('#sheet')).includes('code'), await txt('#sheet'));
@@ -301,8 +345,11 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('the offer of an easy week is in English', (await txt('#sheet')).includes('Signs of fatigue') && (await txt('#sheet')).includes('Twice in a row you missed the target. That is usually fatigue') && (await txt('#sheet')).includes('Start an easy week') && (await txt('#sheet')).includes('Not now') && (await txt('#sheet .xp-line')).includes('level up'), await txt('#sheet'));
   await clean('the offer of an easy week');
   await p.click('#sheet [data-close]'); await p.waitForTimeout(200);
-  await p.evaluate(() => { const s = sorted().find((x) => x.end); showSummary(s, { y: tally(s), from: levelOf(100), to: levelOf(5000), got: ['first', 'week'] }); });
+  await p.evaluate(() => { window.__rank = true; const s = sorted().find((x) => x.end); showSummary(s, { y: tally(s), from: levelOf(100), to: levelOf(5000), got: ['first', 'week'] }); window.__rank = false; });
   await p.waitForTimeout(300);
+  const ru = await p.evaluate(() => { const el = document.querySelector('#rankUp'); return el ? { label: el.getAttribute('aria-label'), text: el.innerText.replace(/\s+/g, ' ').trim(), medal: !!el.querySelector('svg.medal'), heb: /[\u0590-\u05FF]/.test(el.innerText + el.getAttribute('aria-label')) } : null; });
+  check('a new rank is told in English on the whole screen, with its medal', !!ru && ru.label === 'A new rank: Warrior' && ru.text === 'A new rank Warrior Yes' && ru.medal && !ru.heb, ru);
+  await p.click('#rankOk'); await p.waitForTimeout(350);
   check('a level-up and its rewards are told in English', (await txt('#sheet')).includes('You reached level ') && (await txt('#sheet')).includes('Unlocked Headband') && (await txt('#sheet')).includes('Achievement First workout') && (await txt('#sheet')).includes('Achievement Full week'), await txt('#sheet'));
   await clean('a level-up'); await snap(p, 'en17-levelup');
   await p.click('#sheetClose'); await p.waitForTimeout(250);
@@ -345,14 +392,14 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('a first visit on an English phone opens in English', (await p.isVisible('#ob')) && (await p.evaluate(() => LANG)) === 'en' && (await hebOn(p)).length === 0, await hebOn(p));
   const seenOb = [];
   await obWalk(p, { name: 'Ann', exp: 1, goals: [0, 1], time: 45, eq: 2 }, 'done', async (k) => { seenOb.push(k); const h = await hebOn(p); if (h.length) bad.push('Hebrew on opening screen ' + k + ' -> ' + JSON.stringify(h)); if (k === 'film' || k === 'exp' || k === 'look-hair' || k === 'plan' || k === 'done') await snap(p, 'en19-ob-' + k); });
-  check('every screen of the opening was seen in English', seenOb.join() === 'film,name,exp,goals,days,time,eq,look-hair,look-hc,look-beard,look-shirt,look-skin,build,plan,done', seenOb.join());
+  check('every screen of the opening was seen in English', seenOb.join() === 'film,name,exp,goals,days,place,age,hw,focus,pain,look-hair,look-hc,look-beard,look-shirt,look-skin,build,plan,done', seenOb.join());
   await p.click('#obNext'); await p.waitForTimeout(400);
   /* the tour that follows speaks English too, step by step */
-  await p.waitForSelector('#tourNext'); await p.waitForTimeout(900); await snap(p, 'en19-tour');
-  const tourSaid = [];
-  for (let i = 0; i < 6; i++) { tourSaid.push(await txt('#tourText')); const h = await hebOn(p); if (h.length) bad.push('Hebrew in the tour, step ' + i + ' -> ' + JSON.stringify(h)); if (i < 5) { await p.click('#tourNext'); await p.waitForTimeout(500); } }
-  check('the tour is in English: six steps, a way to skip, and a last button that starts', tourSaid.length === 6 && new Set(tourSaid).size === 6 && tourSaid[0].includes('Your workouts live here') && tourSaid[5].includes('I\'m always here') && (await txt('#tourSkip')) === 'Skip' && (await txt('#tourNext')) === 'Let\'s go!' && (await p.getAttribute('#tour', 'aria-label')) === 'A short tour of the app', tourSaid);
-  await p.click('#tourNext'); await p.waitForTimeout(400);
+  await p.waitForSelector('#tour:not([hidden])'); await p.waitForTimeout(900); await snap(p, 'en19-tour');
+  const tourLabel = await p.getAttribute('#tour', 'aria-label'), tourSkip = !!(await p.$('#tourSkip'));
+  const tourSaid = (await tourWalk(p, async (st) => { const h = await hebOn(p); if (h.length) bad.push('Hebrew in the tour, step ' + st.i + ' -> ' + JSON.stringify(h)); })).filter(Boolean);
+  check('the tour is in English: a short sample of the first workout, then the body log and the coach, with no way to skip', tourSaid.length === 6 && new Set(tourSaid).size === 6 && tourSaid[0].includes('This is your first workout') && tourSaid.some((t) => t.includes('Set done')) && tourSaid.some((t) => t.includes('The clock counts your rest')) && tourSaid[4].includes('This is the body log') && tourSaid[5].includes('I am always here') && !tourSkip && tourLabel === 'A short tour of the app' && (await p.evaluate(() => !TR.on && S.view === 'home' && !Object.keys(S.sessions).length)), tourSaid);
+  await p.waitForTimeout(300);
   check('after the opening screens the app is in English', (await p.isHidden('#ob')) && (await p.evaluate(() => (document.querySelector('#home').innerText || '').includes('Hi, Ann'))) && (await hebOn(p)).length === 0, await hebOn(p));
   await p.context().close();
 

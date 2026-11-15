@@ -36,10 +36,10 @@ const ICON = {
    ob (when the opening screens were passed), exp (gym experience: 0 beginner, 1 regular, 2 experienced), goals (any of 0 physique, 1 strength,
    2 fitness; goal is the first of them, for what read it before), time (minutes a workout may take: 30, 45, 60, 75, or 0 for any),
    eq (0 a full gym, 1 a basic gym, 2 not sure yet), fb (how often Eilon asks how an exercise went: 0 never, 1 now and then, 2 always),
-   days (how many workouts a week: 2 to 5, or null before it was asked, which keeps the four),
+   days (how many workouts a week: 1 to 7, or null before it was asked, which keeps the four),
    arch (totals of workouts too old to be kept on the device, see game.js), badges: { id: when it was earned }.
    S.cfg.lang: 'he' or 'en'; empty until it is chosen */
-const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0, body: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, days: null, names: {}, fb: 2, tour: 0, shop: { own: [], on: [] }, arch: archZero(), badges: {} });
+const meDef = () => ({ name: '', look: { skin: 1, hair: 1, hc: 0, beard: 0, shirt: 0, body: 0 }, made: 0, ob: 0, exp: null, goal: null, goals: [], time: null, eq: null, place: null, age: null, focus: null, pain: [], days: null, names: {}, fb: 2, tour: 0, shop: cleanShop(null), body: cleanBody(null), arch: archZero(), badges: {} });
 const TIME_OK = [30, 45, 60, 75, 0];
 /* the lifter's own names for the workouts, by their place in PLAN: short, trimmed, and only for workouts that exist */
 function cleanNames(v) {
@@ -50,9 +50,9 @@ function cleanNames(v) {
 function normMe(v) {
   const d = meDef(), pick = (x, n, dflt) => (Number.isInteger(x) && x >= 0 && x < n ? x : dflt), pos = (x) => (typeof x === 'number' && isFinite(x) && x > 0 ? x : 0), obj = (x) => (x && typeof x === 'object' ? x : {});
   v = obj(v); const l = obj(v.look), a = obj(v.arch), b = obj(v.badges);
-  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0), body: pick(l.body, 2, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 3, null), goal: pick(v.goal, 3, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), days: DAYS_OK.includes(v.days) ? v.days : null, names: cleanNames(v.names), fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), arch: {}, badges: {} };
+  const out = { name: typeof v.name === 'string' ? v.name.trim().slice(0, 16) : '', look: { skin: pick(l.skin, SKIN.length, d.look.skin), hair: pick(l.hair, HAIR.length, d.look.hair), hc: pick(l.hc, HAIRC.length, 0), beard: pick(l.beard, BEARD.length, 0), shirt: pick(l.shirt, SHIRT.length, 0), body: pick(l.body, 2, 0) }, made: pos(v.made), ob: pos(v.ob), exp: pick(v.exp, 4, null), goal: pick(v.goal, 6, null), goals: [], time: TIME_OK.includes(v.time) ? v.time : null, eq: pick(v.eq, 3, null), place: pick(v.place, 4, null), age: Number.isInteger(v.age) && v.age >= 10 && v.age <= 99 ? v.age : null, focus: pick(v.focus, 7, null), pain: Array.isArray(v.pain) ? v.pain.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 5 && a.indexOf(g) === i) : [], days: DAYS_OK.includes(v.days) ? v.days : null, names: cleanNames(v.names), fb: pick(v.fb, 3, 2), tour: pos(v.tour), shop: cleanShop(v.shop), body: cleanBody(v.body), arch: {}, badges: {} };
   /* the goals: a list of different ones; a profile from before the list has its one goal in it */
-  out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 3 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
+  out.goals = Array.isArray(v.goals) ? v.goals.filter((g, i, a) => Number.isInteger(g) && g >= 0 && g < 6 && a.indexOf(g) === i) : out.goal != null ? [out.goal] : [];
   if (out.goals.length) out.goal = out.goals[0];
   /* an archive from a file is held to real sizes: a total no lifter reaches, or an end in the future, would hide the log or stall the page */
   for (const k of Object.keys(d.arch)) out.arch[k] = Math.min(pos(a[k]), k === 'until' ? Date.now() + 864e5 : k === 'kg' ? 1e10 : 1e7);
@@ -221,7 +221,7 @@ function view(pe, s, plan) {
   const n0 = s ? (s.n && s.n[pe.id] != null ? s.n[pe.id] : pe.sets) : plan[pe.id] != null ? plan[pe.id] : pe.sets;
   let n = n0;
   if (cut) { const r = rowsOf(s, pe.id); n = 0; r.forEach((x, i) => { if (isDone(x)) n = i + 1; }); n = Math.min(n, n0); }
-  const rx = goalRx(pe.reps, pe.rest, S.cfg.me.goals, S.cfg.me.exp) || pe;
+  const rx = lifterRx(pe.reps, pe.rest, S.cfg.me, mv) || pe;
   return { id: pe.id, a: animOf(mv), mv, name: mv === pe.a ? pe.name : EN[mv], he: LIB[mv].he, nm: say(LIB[mv].he, mv === pe.a ? pe.name : EN[mv]), sets: n, n0, plan: pe.sets, reps: rx.reps, rest: rx.rest, int: planNote(pe.int), lvl: pe.lvl, suf: planNote(pe.suf), cut, swapped: mv !== pe.a };
 }
 /* the exercises of a workout as it is done: a workout that is running has its own list; one that is not is the plan, cut to
@@ -346,7 +346,13 @@ function fatigued() {
   return l.length === 2 && l.every((x) => missedMuscles(x).size >= 2);
 }
 /* swap options for a slot: the same movement pattern only, joint-friendly ones first */
-function swapOptions(e) { return sameKind(e.mv); }
+/* what an exercise can be swapped for: the same kind of movement, and only what can be done where the lifter trains. In a gym the
+   floor versions done with the body's own weight are left to the list of all the exercises, unless the exercise is one itself */
+const floorMv = (k) => LIB[k].eq === 'bw' && !LIB[k].need;
+function swapOptions(e) {
+  const ans = fitAns(S.cfg.me), gym = !(ans.place | 0);
+  return sameKind(e.mv).filter((k) => canDo(k, ans) && !(gym && floorMv(k) && !floorMv(e.mv)));
+}
 /* after a pain report: a movement of the same pattern that is not already in this workout, a joint-friendly one if there is one */
 function gentleAlt(e) { const used = exList(wkOf(e.id)).map((x) => x.mv), o = swapOptions(e); return o.find((k) => LIB[k].jf && !used.includes(k)) || o.find((k) => !used.includes(k)) || o[0] || null; }
 /* returns true when today's workout switched, false when the change waits for the next one */
@@ -489,17 +495,21 @@ function mesoSummary(id) {
 const KEEP = 40;
 function meNow() {
   const A = S.cfg.me.arch, list = Object.values(S.sessions), T = totalsOf(list, A), L = levelOf(T.xp);
-  return { T, L, rank: rankOf(L.lvl), X: { lvl: L.lvl, streak: streakOf(list, A, Date.now()), fullWeek: fullWeek(list), rounds: roundsDone(list) } };
+  return { T, L, rank: rankOf(L.lvl), X: { lvl: L.lvl, streak: streakOf(list, A, Date.now(), S.cfg.me.shop.shw), days: streakDays(list, A, Date.now(), S.cfg.me.shop.shw), fullWeek: fullWeek(list), rounds: roundsDone(list) } };
 }
 /* keep the stored side of the profile in step with the log: old workouts move into the archive, new achievements get their date.
    Waits until the settings arrived from the account, so a new device never writes over an archive it has not seen yet. Returns the new achievements */
 function meSync() {
   if (!S.cfgReady) return [];
-  const me = S.cfg.me, got = [], a = archiveStep(Object.values(S.sessions), me.arch, KEEP);
+  const me = S.cfg.me, got = [], all = Object.values(S.sessions);
+  /* before a workout leaves for the archive: the boxes it earned are given, and a shield that is held covers a missed week */
+  const bx = boxClaim(me.shop, all, week().length); if (bx) me.shop = bx;
+  const shd = shieldStep(me.shop, all, me.arch, Date.now()); if (shd) { me.shop = shd; S.shieldAt = Date.now(); }
+  const a = archiveStep(all, me.arch, KEEP);
   if (a) me.arch = a;
   const P = meNow();
   for (const id of earned(P.T, P.X)) if (!me.badges[id]) { me.badges[id] = Date.now(); got.push(id); }
-  if (a || got.length) saveCfg();
+  if (a || got.length || bx || shd) saveCfg();
   return got;
 }
 /* points a workout would bring if every planned set is done */
@@ -536,6 +546,8 @@ async function flush(id) {
   const w = W(id);
   /* while the account is being emptied nothing is written to it */
   if (S.wiping || !S.col || !S.dirty.has(id)) return;
+  /* the sample workout of the tour stays on this device: it is taken back at its end, and the account never hears of it */
+  if (id !== 'cfg' && typeof TR !== 'undefined' && TR.on && TR.steps.some((x) => x.leave)) return;
   /* the settings are never written before the account's copy was read: they would replace it */
   if (id === 'cfg' && !S.cfgIn) return;
   if (w.busy) { w.again = true; return; }
@@ -619,7 +631,7 @@ function mergeCfg(was, mine, theirs) {
     }
   }
   const me = out.me, mm = mine.me, bm = was.me;
-  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'days', 'names', 'fb', 'tour', 'shop']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
+  for (const k of ['name', 'look', 'made', 'ob', 'exp', 'goal', 'goals', 'time', 'eq', 'place', 'age', 'focus', 'pain', 'days', 'names', 'fb', 'tour', 'shop', 'body']) if (!same(mm[k], bm[k])) me[k] = clone(mm[k]);
   if (mm.arch.until > me.arch.until) me.arch = clone(mm.arch);
   me.badges = Object.assign({}, mm.badges, me.badges);
   return out;
@@ -701,7 +713,8 @@ function restoreData(text) {
     me.arch = theirs.arch.until > mine.arch.until ? theirs.arch : mine.arch; me.badges = Object.assign({}, theirs.badges, mine.badges);
     if (made) { me.name = made.name; me.look = made.look; me.made = made.made; }
     me.ob = me.ob || mine.ob || theirs.ob; if (me.exp == null) me.exp = mine.exp != null ? mine.exp : theirs.exp; if (me.goal == null) me.goal = mine.goal != null ? mine.goal : theirs.goal;
-    for (const k of ['time', 'eq', 'days']) if (me[k] == null) me[k] = mine[k] != null ? mine[k] : theirs[k];
+    for (const k of ['time', 'eq', 'days', 'place', 'age', 'focus']) if (me[k] == null) me[k] = mine[k] != null ? mine[k] : theirs[k];
+    if (!(me.pain || []).length) me.pain = (mine.pain && mine.pain.length ? mine.pain : theirs.pain || []).slice();
     if (!me.goals.length) me.goals = (mine.goals && mine.goals.length ? mine.goals : theirs.goals || []).slice();
     if (JSON.stringify(me) !== before) { S.cfg.upd = Date.now(); S.dirty.add('cfg'); schedule('cfg'); cfg = true; }
   }

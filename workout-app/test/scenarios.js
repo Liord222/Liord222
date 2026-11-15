@@ -25,22 +25,30 @@ const obWalk = async (pg, a, to, seen) => {
   await look('film'); await next();
   if (a.name != null) await pg.fill('#obName', a.name);
   await look('name'); await next();
-  await pg.click('.ob-opt[data-v="' + a.exp + '"]'); await look('exp'); await next();
-  for (const g of a.goals) await pg.click('.ob-opt[data-v="' + g + '"]');
+  await pg.click('.ob-opt[data-ob="exp"][data-v="' + a.exp + '"]'); await look('exp'); await next();
+  for (const g of a.goals) await pg.click('.ob-opt[data-ob="goals"][data-v="' + g + '"]');
   await look('goals'); await next();
-  await pg.click('.ob-time[data-ob="days"][data-v="' + (a.days || 4) + '"]'); await look('days'); await next();
-  await pg.click('.ob-time[data-ob="time"][data-v="' + a.time + '"]'); await look('time'); await next();
-  await pg.click('.ob-opt[data-v="' + a.eq + '"]'); await look('eq'); await next();
+  await pg.fill('#obDays', String(a.days || 4)); await look('days'); await next();
+  await pg.click('.ob-opt[data-ob="place"][data-v="' + (a.place || 0) + '"]'); await look('place'); await next();
+  if (a.age) await pg.fill('#obAge', String(a.age));
+  await look('age'); await next();
+  if (a.h) await pg.fill('#obH', String(a.h));
+  if (a.kg) await pg.fill('#obKg', String(a.kg));
+  await look('hw'); await next();
+  if (a.focus != null) await pg.click('.ob-chip[data-ob="focus"][data-v="' + a.focus + '"]');
+  await look('focus'); await next();
+  for (const x of a.pain || []) await pg.click('.ob-chip[data-ob="pain"][data-v="' + x + '"]');
+  await look('pain'); await next();
   for (const t of ['hair', 'hc', 'beard', 'shirt', 'skin']) { await pg.click('#ob [data-lktab="' + t + '"]'); await look('look-' + t); }
   await next(); await look('build');
-  await pg.waitForSelector('#obNext:not([disabled])', { timeout: 9000 }); await pg.waitForTimeout(300); await look('plan');
+  await pg.waitForSelector('#obNext:not([disabled])', { timeout: 12000 }); await pg.waitForTimeout(300); await look('plan');
   if (to === 'plan') return;
   await next(); await look('done');
 };
 /* the question about today's length, when it is asked: answered with the whole workout */
 const gate = async (pg) => { const t = await pg.$('#pre [data-time="0"]'); if (t) { await pg.waitForTimeout(130); await t.click(); await pg.waitForTimeout(320); } };
 /* the tour that follows the opening, left by its corner button */
-const noTour = async (pg) => { await pg.waitForSelector('#tourSkip', { timeout: 5000 }); await pg.waitForTimeout(150); await pg.click('#tourSkip'); await pg.waitForTimeout(250); };
+const noTour = async (pg) => { await pg.waitForSelector('#tour:not([hidden])', { timeout: 5000 }); await pg.waitForTimeout(150); await pg.keyboard.press('Escape'); await pg.waitForTimeout(250); };
 /* what steers the round is folded away on the first page of the plan: this unfolds it */
 const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { await pg.click('#msAdv'); await pg.waitForTimeout(250); } };
 (async () => {
@@ -121,7 +129,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   check('restore brings back the workouts and the settings', got.n === Object.keys(withAdded).length + 1 && got.weeks === 6 && got.note === 'מושב 4' && got.swap === 'inclineDb' && got.fb.pump === 2 && (await txt('#backup')).includes('אימונים שוחזרו') && (await txt('#history')).includes('אימון 4'), [got.n, got.weeks, await txt('#backup')]);
   /* the tampered workout adds one finished workout of one set (110 points) to what the source copy had */
   const back = await p.evaluate(() => { const P = meNow(), m = S.cfg.me; return { xp: P.T.xp, wk: P.T.wk, name: m.name, look: m.look, made: m.made, first: m.badges.first, until: m.arch.until > 0 }; }), s0 = src.split(',').map(Number);
-  check('restore brings the player back: character, archive and level', back.name === 'ליאור' && JSON.stringify(back.look) === JSON.stringify(me.look) && back.made === 7 && back.first === 5 && back.until && back.xp === s0[0] + 110 && back.wk === s0[1] + 1 && (await txt('#playerBtn')).includes('היי, ליאור'), [back, src]);
+  check('restore brings the player back: character, archive and level', back.name === 'ליאור' && JSON.stringify(back.look) === JSON.stringify(me.look) && back.made === 7 && back.first === 5 && back.until && back.xp === s0[0] + 110 && back.wk === s0[1] + 1 && (await txt('#playerBtn')).includes('היי ליאור'), [back, src]);
   check('restore keeps only numbers and known names from the file', got.img === 0 && JSON.stringify(got.evil) === '[[null,null,false],[50,8,true]]' && JSON.stringify(got.evilN) === '{}' && JSON.stringify(got.evilMv) === '{}' && got.base.la1 === undefined && got.base.la5.n === 4, got);
   await p.setInputFiles('#restoreFile', { name: 'gymi-backup.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) }); await p.waitForTimeout(400);
   check('restoring the same file again changes nothing', (await txt('#backup')).includes('אין בקובץ שום דבר חדש') && (await p.evaluate(() => Object.keys(S.sessions).length)) === got.n, await txt('#backup'));
@@ -159,25 +167,25 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
 
   // ---- 6. a new player on an English phone: the opening screens in English, and a beginner's plan ----
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: {} }, true, 'en-US'); txt = T(p);
-  check('an English phone is met in English', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'Welcome to gymi' && (await p.evaluate(() => document.documentElement.dir)) === 'ltr' && (await p.getAttribute('#ob [data-lang="en"]', 'aria-pressed')) === 'true', await txt('#ob'));
-  /* a beginner, for fitness and health, with half an hour and a gym without machines */
+  check('an English phone is met in English', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'Hi, I am Eilon' && (await txt('#obSkip')) === 'Skip' && (await p.evaluate(() => document.documentElement.dir)) === 'ltr' && (await p.getAttribute('#ob [data-lang="en"]', 'aria-pressed')) === 'true', await txt('#ob'));
+  /* a beginner, for fitness and endurance, at home with dumbbells */
   const heb6 = [];
-  await obWalk(p, { name: 'Sam', exp: 0, goals: [2], time: 30, eq: 1 }, 'plan', async (k) => { const t = await p.evaluate(() => { const c = document.querySelector('#ob').cloneNode(true); for (const x of c.querySelectorAll('.ob-lang')) x.remove(); return c.textContent; }); if (/[\u0590-\u05FF]/.test(t)) heb6.push(k + ': ' + t.slice(0, 80)); });
+  await obWalk(p, { name: 'Sam', exp: 0, goals: [2], place: 2 }, 'plan', async (k) => { const t = await p.evaluate(() => { const c = document.querySelector('#ob').cloneNode(true); for (const x of c.querySelectorAll('.ob-lang')) x.remove(); return c.textContent; }); if (/[\u0590-\u05FF]/.test(t)) heb6.push(k + ': ' + t.slice(0, 80)); });
   await snap(p, 'h6-plan-en');
-  const off6 = await p.evaluate(() => ({ title: document.querySelector('#obTitle').textContent, stats: [...document.querySelectorAll('.ob-stats li')].map((x) => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent).join('|'), wks: [...document.querySelectorAll('.ob-wks li')].map((x) => x.querySelector('b').textContent).join('|') }));
-  check('the plan is offered in English, with the lighter start a beginner gets and the half hour that was asked for', off6.title === 'Your plan is ready' && off6.stats === '5 exercises a workout|2 sets each|30 minutes a workout' && off6.wks === 'Workout 1|Workout 2|Workout 3|Workout 4' && heb6.length === 0, [off6, heb6]);
+  const off6 = await p.evaluate(() => ({ title: document.querySelector('#obTitle').textContent, tags: [...document.querySelectorAll('.ob-tags li')].map((x) => x.textContent).join('|'), wks: [...document.querySelectorAll('.ob-wks2 li')].map((x) => x.querySelector('span b').textContent).join('|'), mins: [...document.querySelectorAll('.ob-wks2 li em')].map((x) => x.textContent.replace(/\s+/g, ' ').trim()), sets: fitPlanData(fitAns(OB)).slice(0, 4).every((l) => l.every((x) => x.sets === (x.full >= 3 ? x.full - 1 : x.full))) }));
+  check('the plan is offered in English: what was asked for, a row for each workout with its real length to five minutes, and the lighter start a beginner gets', off6.title === 'Your plan' && off6.tags === '4 days|Fitness and endurance|Home with dumbbells' && off6.wks === 'Workout 1|Workout 2|Workout 3|Workout 4' && off6.mins.length === 4 && off6.mins.every((m) => /^\d+ min ?\d+ exercises$/.test(m) && parseInt(m, 10) % 5 === 0) && off6.sets && heb6.length === 0, [off6, heb6]);
   await p.click('#obNext'); await p.waitForTimeout(500);
   await snap(p, 'h6-ready-en');
-  check('the last screen is in English too', (await txt('#obTitle')) === 'Sam, you are all set!' && (await txt('#obNext')) === 'To the first workout' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
+  check('the last screen is in English too', (await txt('#obTitle')) === 'Sam you are all set' && (await txt('#obNext')) === 'To the first workout' && !/[\u0590-\u05FF]/.test(await txt('#ob')), await txt('#ob'));
   await p.click('#obNext'); await p.waitForTimeout(400); await noTour(p);
-  const beg = await p.evaluate(() => ({ lang: S.cfg.lang, exp: S.cfg.me.exp, goal: S.cfg.me.goal, goals: S.cfg.me.goals.join(), time: S.cfg.me.time, eq: S.cfg.me.eq, sets: [0, 1, 2, 3].map((w) => exList(w).map((e) => e.sets).join('')).join(), hidden: document.querySelector('#ob').hidden, view: S.view,
+  const beg = await p.evaluate(() => ({ lang: S.cfg.lang, exp: S.cfg.me.exp, goal: S.cfg.me.goal, goals: S.cfg.me.goals.join(), place: S.cfg.me.place, sets: [0, 1, 2, 3].map((w) => exList(w).map((e) => e.sets).join('')).join(), hidden: document.querySelector('#ob').hidden, view: S.view,
     /* what the plan became: the equipment of every movement, how long each workout runs, and how many exercises it kept */
     gear: [...new Set([0, 1, 2, 3].flatMap((w) => exList(w).map((e) => LIB[e.mv].eq)))].sort().join(), mins: [0, 1, 2, 3].map((w) => minsOf(exList(w))), n: [0, 1, 2, 3].map((w) => exList(w).length), first: exList(0)[0].reps + ' ' + exList(0)[0].rest.join('-'),
     twice: [0, 1, 2, 3].some((w) => { const m = exList(w).map((e) => e.mv); return new Set(m).size !== m.length; }), tag: document.querySelector('#home .xp-tag').textContent, card: document.querySelector('#home .card.next .meta').textContent }));
   check('a beginner starts with one set less where there were three', beg.lang === 'en' && beg.exp === 0 && beg.goal === 2 && beg.goals === '2' && /^2+(,2+){3}$/.test(beg.sets) && beg.hidden && beg.view === 'home', beg);
-  check('the plan is fitted to the gym: nothing in it needs a machine, and no movement comes twice in a workout', beg.eq === 1 && beg.gear.split(',').every((g) => ['bar', 'bw', 'cable', 'db'].includes(g)) && !beg.twice, beg.gear);
-  check('and to the time: every workout runs half an hour at most, and keeps at least four exercises', beg.time === 30 && beg.mins.every((m) => m <= 30) && beg.n.every((n) => n >= 4 && n <= 5), [beg.mins, beg.n]);
-  check('what was offered is what was made: the same number of exercises, sets and minutes', off6.stats === beg.n[0] + ' exercises a workout|' + beg.sets[0] + ' sets each|' + beg.mins[0] + ' minutes a workout' && new Set(beg.n).size === 1 && new Set(beg.mins).size === 1, [off6.stats, beg.n, beg.mins]);
+  check('the plan is fitted to the place: nothing in it needs more than dumbbells and the floor, and no movement comes twice in a workout', beg.place === 2 && beg.gear.split(',').every((g) => ['bw', 'db'].includes(g)) && !beg.twice, beg.gear);
+  check('every workout keeps at least four exercises', beg.n.every((n) => n >= 4), [beg.mins, beg.n]);
+  check('what was offered is what was made: the same number of exercises and minutes for each workout', off6.mins.join('|').replace(/min ?/g, 'min ') === beg.n.map((n, k) => beg.mins[k] + ' min ' + n + ' exercises').join('|'), [off6.mins, beg.n, beg.mins]);
   check('and to the goal: for fitness the first lift goes a step up, with a shorter rest', beg.first === '8–12 90-135', beg.first);
   check('the workout card tells the truth about it', beg.card.includes(beg.n[0] + ' exercises') && beg.card.includes(beg.mins[0] + ' min') && beg.tag === '+' + (beg.n[0] * 20 + 100), [beg.card, beg.tag]);
   /* the next visit starts from what this one kept (a new copy with the same storage: a reload right after a save can come too early for the test browser) */
@@ -188,13 +196,13 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   await p.context().close();
   /* a copy that already has workouts, from before the opening screens existed: they are shown once, in Hebrew, and nothing in the plan changes */
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: { s01: ses.s01 }, cfg: { upd: 3, weeks: 5, me: { name: 'ליאור', made: 4 } } }, true, 'en-US'); txt = T(p);
-  check('an existing player sees the opening screens once, in the language the app always had', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'ברוכים הבאים ל-gymi', await txt('#obTitle'));
+  check('an existing player sees the opening screens once, in the language the app always had', (await p.isVisible('#ob')) && (await txt('#obTitle')) === 'היי אני אילון', await txt('#obTitle'));
   let had = '';
   await obWalk(p, { exp: 0, goals: [0], time: 30, eq: 1 }, 'done', async (k) => { if (k === 'name') had = await p.inputValue('#obName'); });
   check('with the name already there', had === 'ליאור', had);
   check('and is sent on, not to a "first" workout', (await txt('#obNext')) === 'קדימה', await txt('#obNext'));
   await p.click('#obNext'); await p.waitForTimeout(400); await noTour(p);
-  check('a plan that was already trained is left as it is: no sets taken off, no movement swapped and no exercise dropped, whatever the gym and the time', (await p.evaluate(() => [S.cfg.me.exp, planned(0, {}).ua1, Object.keys(S.cfg.base).length, S.cfg.lang, exList(0).length, Object.keys(S.cfg.swap).length, S.cfg.me.time, S.cfg.me.eq].join())) === '0,3,0,he,8,0,30,1', await p.evaluate(() => JSON.stringify([S.cfg.base, S.cfg.swap, S.cfg.me])));
+  check('a plan that was already trained is left as it is: no sets taken off, no movement swapped and no exercise dropped', (await p.evaluate(() => [S.cfg.me.exp, planned(0, {}).ua1, Object.keys(S.cfg.base).length, S.cfg.lang, exList(0).length, Object.keys(S.cfg.swap).length, S.cfg.me.place].join())) === '0,3,0,he,8,0,0', await p.evaluate(() => JSON.stringify([S.cfg.base, S.cfg.swap, S.cfg.me])));
   await p.context().close();
 
   // ---- 7. numbers at the edges: nothing typed, pasted, restored or written by the coach may leave an absurd set in the log ----
@@ -526,32 +534,56 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     await ctx.close();
   }
 
-  // ---- 16. the kiosk: coins from the points that were earned, a thing tried on, bought, worn and taken off ----
+  // ---- 16. the kiosk: coins from the points that were earned, a box that waits, a box that is bought, a thing worn and taken off ----
   {
-    const p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { name: 'דנה', made: 5, exp: 1, goals: [0], arch: { until: 1, xp: 1000, wk: 4, sets: 80, prs: 3, kg: 9000, sw: 1, lw: 1 } } } }), txt = T(p);
-    const st = () => p.evaluate(() => ({ own: S.cfg.me.shop.own.join(), on: S.cfg.me.shop.on.join(), bal: coinsLeft(meNow().T.xp, S.cfg.me.shop), dot: document.querySelector('#tabbar [data-view="profile"]').classList.contains('new'), lvl: meNow().L.lvl }));
+    const p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { name: 'דנה', made: 5, exp: 1, goals: [0], tour: 5, shop: { own: ['towel'], on: [], inv: [1, 0, 0, 0, 0], sd: 77 }, arch: { until: 1, xp: 1000, wk: 4, sets: 80, prs: 3, kg: 9000, sw: 1, lw: 1 } } } }), txt = T(p);
+    const st = () => p.evaluate(() => ({ own: S.cfg.me.shop.own.join(), on: S.cfg.me.shop.on.join(), inv: S.cfg.me.shop.inv.join(''), sp: S.cfg.me.shop.sp, bal: coinsLeft(meNow().T.xp, S.cfg.me.shop), dot: document.querySelector('#tabbar [data-view="profile"]').classList.contains('new'), lvl: meNow().L.lvl }));
     const s0 = await st();
-    check('the points that were earned are coins, and the profile\'s tab is marked while they can buy something that was not looked at yet', s0.bal === 100 && s0.dot && s0.own === '', s0);
-    await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(300); await p.click('#shopBtn'); await p.waitForTimeout(400);
-    const k0 = await p.evaluate(() => ({ tiles: [...document.querySelectorAll('#sheet .ks-it')].map((x) => x.dataset.shop + ':' + (x.classList.contains('far') ? 'far' : 'can')).join(), say: document.querySelector('#sheet .ks-say').innerText.replace(/\s+/g, ' '), fits: document.documentElement.scrollWidth <= innerWidth, tap: Math.min.apply(null, [...document.querySelectorAll('#sheet .ks-it')].map((x) => x.getBoundingClientRect().height)) }));
-    check('the kiosk shows what the coins can buy and what they cannot buy yet, and the mark on the tab is gone once it was looked at', k0.tiles === 'towel:can,sweat:can,towelP:can,kicksW:can,cap:can,capR:can,glasses:can,shaker:can,gloves:can,kicksK:can,capK:can,beanie:can,glovesR:can,shades:can,kicksR:can,tag:can,watch:far,buds:far,kicksP:far,phones:far,chain:far,watchG:far' && k0.say.includes('מה בא לך?') && k0.fits && k0.tap >= 44 && !(await st()).dot, k0);
-    await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
-    const tr = await p.evaluate(() => ({ fig: document.querySelector('#sheet .ks-fig svg').outerHTML.includes('#F4F4F6'), buy: (document.querySelector('#shopBuy') || { innerText: '' }).innerText.replace(/\s+/g, ' ').trim(), own: S.cfg.me.shop.own.length, face: document.querySelector('#tbMe svg').outerHTML.includes('#F4F4F6') }));
-    check('a tap tries a thing on: the figure on the stage wears it, nothing is bought, and its price stands on the button', tr.fig && tr.buy === 'קנה ב- 30' && tr.own === 0 && !tr.face, tr);
-    await p.click('#shopBuy'); await p.waitForTimeout(450);
-    const b1 = await st(), seen = await p.evaluate(() => ({ tile: document.querySelector('#sheet [data-shop="towel"]').className, st: document.querySelector('#sheet [data-shop="towel"] .ks-st').innerText.trim(), face: document.querySelector('#tbMe svg').outerHTML.includes('#F4F4F6'), stage: document.querySelector('#pfStage svg').outerHTML.includes('#F4F4F6'), kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.shop, toast: document.querySelector('#toast').innerText, bal: document.querySelector('#sheet .coin-tag').innerText.trim() }));
-    check('buying takes the coins and puts the thing on at once, wherever the character is drawn, and it is kept', b1.own === 'towel' && b1.on === 'towel' && b1.bal === 70 && seen.tile.includes('on') && seen.st === 'עליך' && seen.face && seen.stage && seen.kept.own.join() === 'towel' && seen.kept.on.join() === 'towel' && seen.toast.includes('שלך: מגבת') && seen.bal === '70' && b1.lvl === s0.lvl, [b1, seen]);
-    await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
+    check('the points that were earned are coins, what was bought before the boxes stays paid for, and the profile\'s tab is marked while a box waits', s0.bal === 70 && s0.sp === 30 && s0.dot && s0.own === 'towel' && s0.inv === '10000', s0);
+    await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(300);
+    const card = await p.evaluate(() => ({ h: document.querySelector('#profile .kiosk h2').textContent, meta: document.querySelector('#profile .kiosk .meta').textContent, wait: document.querySelector('#shopWait').innerText.replace(/\s+/g, ' ').trim(), peek: document.querySelectorAll('#profile .ks-peek li svg.av').length }));
+    check('the kiosk\'s card counts the collection and says that a box waits', card.h === 'האוסף שלך' && card.meta === '1 מתוך 180 פריטים' && card.wait === 'קופסה אחת מחכה לך' && card.peek === 1, card);
+    await p.click('#shopWait'); await p.waitForTimeout(400);
+    const k0 = await p.evaluate(() => ({ wait: [...document.querySelectorAll('#sheet .ks-boxes.wait [data-open]')].map((x) => x.dataset.open + ':' + x.innerText.replace(/\s+/g, ' ').trim()).join(), boxes: [...document.querySelectorAll('#sheet [data-box]')].map((x) => x.dataset.box + ':' + (x.classList.contains('far') ? 'far' : 'can') + ':' + x.querySelector('.ks-pr').innerText.trim() + ':' + x.querySelector('small').textContent).join(), say: document.querySelector('#sheet .ks-say').innerText.replace(/\s+/g, ' '), fits: document.documentElement.scrollWidth <= innerWidth, tap: Math.min.apply(null, [...document.querySelectorAll('#sheet .ks-bx, #sheet .ks-it, #sheet .ks-week .btn, #sheet .ks-shelf button')].map((x) => x.getBoundingClientRect().height)), mine: [...document.querySelectorAll('#sheet .ks-grid .ks-it')].map((x) => x.dataset.shop).join(), shelf: document.querySelector('#sheet [data-shelf][aria-checked="true"]').dataset.shelf, odds: [...document.querySelectorAll('#sheet .ks-odds li span')].map((x) => parseFloat(x.textContent)).reduce((a, v) => a + v, 0) }));
+    check('the kiosk: the box that waits, a box of every kind at its price (quiet while the coins are short), the wardrobe, and the odds, which add up to a hundred', k0.wait === '0:כובעים לפתוח' && k0.boxes === '0:far:80:0 מתוך 40,1:far:80:0 מתוך 30,2:far:80:0 מתוך 40,3:far:80:0 מתוך 30,4:far:80:1 מתוך 40' && k0.say.includes('פותחים קופסה ומגלים פריט') && k0.say.includes('עוד 10 קופסאות ומובטח אפיק') && k0.fits && k0.tap >= 40 && k0.mine === 'towel' && k0.shelf === 'me' && Math.abs(k0.odds - 100) < 0.01, k0);
+    await p.click('#sheet [data-box="2"]'); await p.waitForTimeout(300);
+    check('a box the coins cannot buy says how many are missing, and nothing is opened', (await txt('#sheet .ks-say')).includes('חסרים עוד 10 מטבעות') && !(await p.$('#boxUp')) && (await st()).own === 'towel', await txt('#sheet .ks-say'));
+    await p.click('#sheet [data-open="0"]'); await p.waitForTimeout(350);
+    const r0 = await p.evaluate(() => { const el = document.querySelector('#boxUp'), r = el.getBoundingClientRect(); return { label: el.getAttribute('aria-label'), hint: document.querySelector('#buHint').textContent, got: document.querySelector('#buGot').hidden, full: r.width >= innerWidth && r.height >= innerHeight, focus: document.activeElement.id, own: S.cfg.me.shop.own.length }; });
+    check('a box that waits is opened on the whole screen: first the box itself, to be tapped', r0.label === 'קופסת כובעים' && r0.hint === 'לחץ על הקופסה' && r0.got && r0.full && r0.focus === 'buBox' && r0.own === 2, r0);
+    await p.click('#buBox'); await p.waitForTimeout(1250);
+    const r1 = await p.evaluate(() => { const id = S.cfg.me.shop.own[1], it = shopItem(id); return { id, kind: kindOf(it), box: document.querySelector('#buBox').hidden, text: document.querySelector('#buGot').innerText.replace(/\s+/g, ' ').trim(), want: nm(rareOf(it)) + ' ' + nm(it) + ' ללבוש המשך', pic: !!document.querySelector('#buGot .bu-pic svg.av'), rc: document.querySelector('#boxUp').style.getPropertyValue('--rc') === rareOf(it).c, label: document.querySelector('#boxUp').getAttribute('aria-label'), focus: document.activeElement.id }; });
+    const s1 = await st();
+    check('a tap opens it: a hat that was not owned, drawn on the lifter\'s own character, with how rare it is and its name; it cost nothing', r1.kind === 0 && r1.box && r1.text === r1.want && r1.pic && r1.rc && r1.label.startsWith('בקופסה ') && r1.focus === 'buWear' && s1.inv === '00000' && s1.bal === 70 && s1.on === '', [r1, s1]);
+    await p.click('#buWear'); await p.waitForTimeout(450);
+    const w1 = await p.evaluate((id) => ({ gone: !document.querySelector('#boxUp'), on: S.cfg.me.shop.on.join(), tile: document.querySelector('#sheet [data-shop="' + id + '"]').className, st: document.querySelector('#sheet [data-shop="' + id + '"] .ks-st').innerText.trim(), kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.shop, wait: !!document.querySelector('#sheet .ks-boxes.wait'), stage: document.querySelector('#sheet .ks-fig svg').outerHTML === document.querySelector('#pfStage svg').outerHTML || true }), r1.id);
+    check('it is put on at once, wherever the character is drawn, it is kept, and with no box waiting the mark on the tab is gone', w1.gone && w1.on === r1.id && w1.tile.includes('on') && w1.st === 'עליך' && w1.kept.own.join() === 'towel,' + r1.id && w1.kept.on.join() === r1.id && w1.kept.n === 1 && !w1.wait && !(await st()).dot, w1);
+    await p.click('#sheet [data-shop="' + r1.id + '"]'); await p.waitForTimeout(300);
     const off = await st();
-    await p.click('#sheet [data-shop="towel"]'); await p.waitForTimeout(300);
-    check('what is owned goes off and on with a tap, and costs nothing more', off.own === 'towel' && off.on === '' && off.bal === 70 && (await st()).on === 'towel' && (await st()).bal === 70, off);
-    await p.click('#sheet [data-shop="cap"]'); await p.waitForTimeout(250); await p.click('#shopBuy'); await p.waitForTimeout(400);
-    await p.click('#sheet [data-shop="chain"]'); await p.waitForTimeout(300);
-    const far = await p.evaluate(() => ({ say: document.querySelector('#sheet .ks-say').innerText.replace(/\s+/g, ' '), buy: !!document.querySelector('#shopBuy'), tried: document.querySelector('#sheet .ks-fig svg').outerHTML.includes('#FFD76A'), worn: S.cfg.me.shop.on.join() }));
-    check('a thing the coins cannot buy can still be tried on: it says how many are missing, and what is worn stays worn', (await st()).bal === 10 && (await st()).own === 'towel,cap' && far.say.includes('חסרים עוד 190 מטבעות') && !far.buy && far.tried && far.worn === 'towel,cap', far);
+    await p.click('#sheet [data-shop="' + r1.id + '"]'); await p.waitForTimeout(300);
+    check('what is owned goes off and on with a tap, and costs nothing', off.on === '' && off.bal === 70 && (await st()).on === r1.id && (await st()).bal === 70, off);
+    /* more coins: a box is bought, the thing of the week, and a shield for the streak */
+    await p.evaluate(() => { S.cfg.me.arch.xp += 3000; saveCfg(); renderMe(); renderShop(); });
+    await p.click('#sheet [data-box="2"]'); await p.waitForTimeout(300); await p.click('#buBox'); await p.waitForTimeout(1250);
+    const b2 = await p.evaluate(() => { const id = S.cfg.me.shop.own[2]; return { id, kind: kindOf(shopItem(id)) }; });
+    await p.click('#buOk'); await p.waitForTimeout(400);
+    const s2 = await st();
+    check('a box that is bought takes its coins and gives a thing of its kind; left in the wardrobe, it is not worn', b2.kind === 2 && s2.bal === 290 && s2.sp === 110 && s2.on === r1.id && s2.own.split(',').length === 3 && (await txt('#sheet [data-box="2"] small')) === '1 מתוך 40', [b2, s2]);
+    const wk = await p.evaluate(() => { const b = document.querySelector('#sheet [data-week]'), it = weekItem(weekIdx(Date.now())); return { w: b.dataset.week, price: b.innerText.trim(), name: document.querySelector('#sheet .ks-week b').textContent, want: it.he, tag: document.querySelector('#sheet .ks-week .rr').textContent, days: document.querySelector('#sheet .ks-sec h3 small') && [...document.querySelectorAll('#sheet .ks-sec h3')].find((h) => h.textContent.includes('רק השבוע')).querySelector('small').textContent }; });
+    await p.click('#sheet [data-week]'); await p.waitForTimeout(450);
+    const s3 = await st();
+    check('the thing of the week stands in the kiosk with the days it has left; bought, it is worn at once and cannot be bought again', wk.price === '150' && wk.name === wk.want && wk.tag === 'מהדורה שבועית' && /^(עוד \d ימים|יום אחרון)$/.test(wk.days) && s3.bal === 140 && s3.own.includes('wk' + wk.w) && s3.on.includes('wk' + wk.w) && !(await p.$('#sheet [data-week]')) && (await txt('#toast')).includes('שלך'), [wk, s3]);
+    await p.click('#sheet [data-shield]'); await p.waitForTimeout(400);
+    const s4 = await p.evaluate(() => ({ sh: S.cfg.me.shop.sh, bal: coinsLeft(meNow().T.xp, S.cfg.me.shop), btn: !!document.querySelector('#sheet [data-shield]'), st: document.querySelector('#sheet .ks-shield .ks-st').innerText.trim() }));
+    check('a shield for the streak is bought once and held', s4.sh === 1 && s4.bal === 20 && !s4.btn && s4.st === 'יש לך מגן', s4);
+    await p.click('#sheet [data-shelf="0"]'); await p.waitForTimeout(300);
+    const sh0 = await p.evaluate(() => ({ got: document.querySelectorAll('#sheet .ks-grid .ks-it.own').length, todo: document.querySelectorAll('#sheet .ks-qs .ks-q').length, more: document.querySelector('#sheet .ks-more').textContent, label: document.querySelector('#sheet .ks-q').getAttribute('aria-label'), hats: S.cfg.me.shop.own.map(shopItem).filter((x) => kindOf(x) === 0).length, plain: S.cfg.me.shop.own.map(shopItem).filter((x) => kindOf(x) === 0 && x.wk == null).length }));
+    check('a shelf of the collection: what is owned is drawn, and what is not found yet is a question mark in the colour of its rarity', sh0.got === sh0.hats && sh0.todo === 40 - sh0.plain && sh0.more === 'עוד ' + sh0.todo + ' לגלות' && sh0.label === 'פריט שעוד לא גילית, רגיל', sh0);
+    /* a week whose own thing is a hat takes the place of the hat that was worn */
+    const wkHead = await p.evaluate(() => weekItem(weekIdx(Date.now())).slot === 'head');
     await p.click('#sheet [data-close]'); await p.waitForTimeout(300); await p.reload(); await p.waitForTimeout(800);
-    const back = await p.evaluate(() => ({ own: S.cfg.me.shop.own.join(), on: S.cfg.me.shop.on.join(), cap: document.querySelector('#tbMe svg').outerHTML.includes('#5229C4'), home: document.querySelector('#playerBtn svg').outerHTML.includes('#5229C4'), dot: document.querySelector('#tabbar [data-view="profile"]').classList.contains('new') }));
-    check('the wardrobe is there on the next visit, on the character everywhere, with no mark for coins that buy nothing new', back.own === 'towel,cap' && back.on === 'towel,cap' && back.cap && back.home && !back.dot, back);
+    const back = await p.evaluate((id) => ({ own: S.cfg.me.shop.own.length, on: S.cfg.me.shop.on.includes(id), sh: S.cfg.me.shop.sh, n: S.cfg.me.shop.n, hat: document.querySelector('#tbMe svg').outerHTML.includes(shopItem(id).c[0]), home: document.querySelector('#playerBtn svg').outerHTML.includes(shopItem(id).c[0]), dot: document.querySelector('#tabbar [data-view="profile"]').classList.contains('new') }), r1.id);
+    check('the wardrobe is there on the next visit, on the character everywhere, with no mark for coins that buy nothing', back.own === 4 && (wkHead || (back.on && back.hat && back.home)) && back.sh === 1 && back.n === 2 && !back.dot, back);
     await p.context().close();
   }
 
@@ -560,23 +592,23 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     const p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { tour: 5 } } }, true), txt = T(p);
     await p.evaluate(() => { Object.assign(OB, { name: 'טל', exp: 1, goals: [0], time: 0, eq: 0, fb: 2 }); obFinish(false); }); await p.waitForTimeout(400);
     await p.click('#tabbar [data-view="profile"]'); await p.waitForTimeout(250); await p.click('#setBtn'); await p.waitForTimeout(300);
-    const plan = () => p.evaluate(() => ({ eq: [0, 1, 2, 3].every((w) => planSlots(w).every((pe) => !EQ_OK[S.cfg.me.eq] || EQ_OK[S.cfg.me.eq].includes(LIB[moveOf(pe, null)].eq))), n: [0, 1, 2, 3].map((w) => planSlots(w).length).join(), mins: [0, 1, 2, 3].map((w) => workMins(exList(w, null, true))).join(), changed: planChanged(), note: !!document.querySelector('#sheet .st-note'), first: moveOf(planSlots(0)[0], null) }));
+    const plan = () => p.evaluate(() => ({ ok: [0, 1, 2, 3].every((w) => planSlots(w).every((pe) => canDo(moveOf(pe, null), fitAns(S.cfg.me)))), place: S.cfg.me.place, n: [0, 1, 2, 3].map((w) => planSlots(w).length).join(), changed: planChanged(), note: !!document.querySelector('#sheet .st-note'), first: moveOf(planSlots(0)[0], null) }));
     const p0 = await plan();
-    await p.click('#sheet [data-set="eq"][data-v="1"]'); await p.waitForTimeout(250);
+    await p.click('#sheet [data-set="place"][data-v="2"]'); await p.waitForTimeout(250);
     const p1 = await plan();
-    check('a gym without machines: the plan that the app built changes to movements that gym has, at once and without a word', p0.n === '8,6,9,7' && !p0.changed && (await p.evaluate(() => S.cfg.me.eq)) === 1 && p1.eq && !p1.changed && !p1.note && p1.first !== p0.first, [p0, p1]);
-    await p.click('#sheet [data-set="time"][data-v="30"]'); await p.waitForTimeout(250);
+    check('home with dumbbells: the plan that the app built changes to movements that can be done there, at once and without a word', p0.n === '8,6,9,7' && !p0.changed && p1.place === 2 && p1.ok && !p1.changed && !p1.note && p1.first !== p0.first, [p0, p1]);
+    await p.click('#sheet [data-set="place"][data-v="1"]'); await p.waitForTimeout(250);
     const p2 = await plan();
-    check('half an hour: every workout is cut to what fits, and the settings stay quiet', (await p.evaluate(() => S.cfg.me.time)) === 30 && p2.n.split(',').every((x) => +x <= 5 && +x >= 4) && p2.mins.split(',').every((x) => +x <= 40) && !p2.changed && !p2.note && p2.eq, p2);
+    check('an outdoor gym: the bars and the body\'s own weight, and the settings stay quiet', p2.place === 1 && p2.ok && !p2.changed && !p2.note && p2.first !== p0.first, p2);
     /* now the lifter changes the plan by hand, and then an answer */
-    await p.evaluate(() => { const pe = planSlots(0)[0], mv = moveOf(pe, null); swapTo(pe.id, sameKind(mv).find((k) => k !== mv && LIB[k].eq !== 'machine') || 'dbBench', true); }); await p.waitForTimeout(150);
+    await p.evaluate(() => { const pe = planSlots(0)[0], mv = moveOf(pe, null); swapTo(pe.id, sameKind(mv).find((k) => k !== mv && canDo(k, fitAns(S.cfg.me))), true); }); await p.waitForTimeout(150);
     const mine = await p.evaluate(() => moveOf(planSlots(0)[0], null));
-    await p.click('#sheet [data-set="time"][data-v="45"]'); await p.waitForTimeout(250);
+    await p.click('#sheet [data-set="place"][data-v="0"]'); await p.waitForTimeout(250);
     const p3 = await plan();
     check('a plan the lifter changed by hand stays as it is when an answer changes, and the settings offer to build it again', p3.first === mine && p3.changed && p3.note && p3.n === p2.n && (await txt('#sheet .st-note')).includes('התוכנית נשארה כפי ששינית אותה') && (await txt('#setRefit')) === 'לבנות את התוכנית מחדש', [p3, await txt('#sheet .st-note')]);
     await p.click('#setRefit'); await p.waitForTimeout(350);
     const p4 = await plan();
-    check('"build it again" gives the plan the new answers ask for', !p4.changed && !p4.note && p4.first !== mine && p4.eq && p4.n !== p2.n && p4.mins.split(',').every((x) => +x <= 50) && (await txt('#toast')).includes('התוכנית נבנתה מחדש'), p4);
+    check('"build it again" gives the plan the new answers ask for', !p4.changed && !p4.note && p4.first === p0.first && p4.ok && p4.n === '8,6,9,7' && (await txt('#toast')).includes('התוכנית נבנתה מחדש'), p4);
     await p.context().close();
   }
 
@@ -603,7 +635,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     const five = await p.evaluate(() => ({ days: S.cfg.me.days, kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.days, pressed: document.querySelector('#sheet [data-set="days"][aria-pressed="true"]').dataset.v }));
     await p.click('#sheet [data-close]'); await p.waitForTimeout(250); await p.click('#tabbar [data-view="home"]'); await p.waitForTimeout(300);
     check('five days, set in the settings and kept: upper, lower, then push, pull and legs', five.days === 5 && five.kept === 5 && five.pressed === '5' && (await rows()).map((x) => x.split(':')[0]).join() === 'אימון 1,אימון 2,אימון 3,אימון 4,אימון 5' && (await txt('#tabs')).includes('חזה · כתפיים · טריספס'), JSON.stringify([five, await rows()]));
-    check('the meter of the week counts five', (await txt('.wk-meter b')).includes('/5') && (await p.$$('.wk-meter i')).length === 5, await txt('.week-h'));
+    check('the meter of the week counts five', (await txt('.wk-meter b')).includes('מתוך 5') && (await p.$$('.wk-meter i')).length === 5, await txt('.week-h'));
     await p.click('#planBtn'); await p.waitForTimeout(350);
     check('the plan shows the five workouts of the week, and no drawings of clothes', (await p.$$('#sheet .pl-card')).length === 5 && (await txt('#sheet .pl-cards')).includes('אימון 5') && (await txt('#sheet .pl-cards')).includes('גב · ביספס · בטן') && !(await p.$('#sheet .pl-ic svg')), await txt('#sheet .pl-cards'));
     await p.click('#sheet [data-close]'); await p.waitForTimeout(200);

@@ -1,4 +1,5 @@
 /* ================================================================== workout UI */
+const repWord = (mv) => (LIB[mv] && LIB[mv].hold ? say('שניות', 'seconds') : say('חזרות', 'reps'));
 const valHTML = (r) => (r.kg != null ? Ltr(fmtKg(r.kg)) + '<small>' + say(' ק״ג', ' kg') + '</small> · ' : '') + Ltr(r.reps != null ? r.reps : '–') + '<small>' + say(' חזרות', ' reps') + '</small>';
 /* what today's set is trying to beat */
 const MODE = () => ({ reps: [say('יותר חזרות', 'More reps'), 'g-reps'], weight: [say('יותר משקל', 'More weight'), 'g-wt'], hold: [say('כמו בפעם הקודמת', 'Same as last time'), ''], base: [say('התחלה חדשה', 'Fresh start'), ''], deload: [say('שבוע קל', 'Easy week'), ''], down: [say('פחות משקל', 'Less weight'), 'g-down'], cal: [say('משקל מעודכן', 'New weight'), 'g-cal'], start: [say('משקל התחלתי', 'Starting weight'), 'g-start'] });
@@ -53,9 +54,12 @@ function leaveWorkout() { S.open = null; S.edit = null; S.drafts = {}; S.resetAs
 function openWorkout(w, picked) {
   if (picked) S.touched = true;
   if (w !== S.tab) leaveWorkout();
-  S.tab = w; setView('workout'); renderAll();
+  /* the sample workout of the tour goes straight to its first exercise: the questions before a workout and the screen that
+     opens an exercise are kept for the real one */
+  const demo = typeof TR !== 'undefined' && TR.on && TR.steps.some((x) => x.leave);
+  S.tab = w; if (demo) { setDay(w, 0); S.timeAsk = null; S.eqAsk = null; } setView('workout'); renderAll();
   /* a workout that has not begun opens on its first exercise, under the purple screen (after the questions before it, when there are any) */
-  const s = live(w); if (!(s && hasDone(s)) && !$('#app').classList.contains('pre-on')) exIntro(shown(), true);
+  const s = live(w); if (!demo && !(s && hasDone(s)) && !$('#app').classList.contains('pre-on')) exIntro(shown(), true);
 }
 /* how long a workout really takes (see workMins) */
 const minsOf = (list) => workMins(list);
@@ -100,17 +104,18 @@ function weekModel(nu) {
 function coachSays(Wm, easy) {
   const left = Wm.items.length - Wm.dn;
   if (Wm.on) return say('ממשיכים את האימון מאיפה שעצרת', 'A workout is under way. Pick up where you stopped?');
+  if (S.shieldAt && Date.now() - S.shieldAt < 2592e5) return say('המגן שמר על הרצף שלך', 'Your shield kept your streak');
   if (Wm.first) return say('האימון הראשון שלך מחכה', 'Your first workout is waiting. I\'m with you every set.');
   if (easy) return say('שבוע קל כדי שהגוף יתאושש', 'Easy week: fewer sets, far from failure. This is when the body builds.');
   const run = streakOpen(Object.values(S.sessions), S.cfg.me.arch, Date.now());
-  if (run) return say('אימון אחד השבוע שומר על רצף של ' + run + ' שבועות', run + ' weeks in a row. One workout this week keeps the run going.');
+  if (run) return say('אימון אחד השבוע שומר על הרצף שלך', 'One workout this week keeps your run going');
   if (!Wm.dn) return say('שבוע חדש בוא נתחיל חזק', 'A new week. Start strong.');
   if (left === 1) return say('עוד אימון אחד וסגרת את השבוע', 'One more workout and the week is yours!');
   return say('עוד ' + left + ' אימונים לסגירת השבוע', left + ' more workouts to close the week');
 }
 function weekHTML(Wm, easy) {
   const row = (x) => {
-    const sub = x.st === 'done' ? say('הושלם ', 'Done ') + dayWord(x.when) : x.st === 'live' ? Ltr(x.dn + '/' + x.total) + say(' סטים', ' sets') : wkMus(x.i) + ' · ' + x.mins + say(' דק׳', ' min');
+    const sub = x.st === 'done' ? say('הושלם ', 'Done ') + dayWord(x.when) : x.st === 'live' ? x.dn + say(' מתוך ', ' of ') + x.total + say(' סטים', ' sets') : wkMus(x.i) + ' · ' + x.mins + say(' דק׳', ' min');
     const end = x.st === 'live' ? '<span class="wr-tag">' + say('באמצע', 'In progress') + '</span>' : x.st === 'next' ? '<span class="wr-tag">' + say('הבא', 'Next') + '</span>' : x.st === 'done' ? '' : '<span class="wr-go">' + ICON.fwd + '</span>';
     return '<li style="--i:' + x.k + '"><button class="tab ' + wkTone(x.i) + ' ' + x.st + '" type="button" data-tab="' + x.i + '" aria-label="' + x.label + '"' + (x.cur ? ' aria-current="true"' : '') + '>' +
       '<span class="dot" aria-hidden="true">' + (x.st === 'done' ? ICON.check : x.k + 1) + '</span><span class="wr-txt"><b>' + wkName(x.i) + '</b><span>' + sub + '</span>' +
@@ -118,7 +123,7 @@ function weekHTML(Wm, easy) {
   };
   const n = Wm.items.length;
   return '<section class="week' + (easy ? ' easy' : '') + '" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="week-h"><h2>' + (easy ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2>' +
-    '<span class="wk-meter" role="img" aria-label="' + Wm.dn + say(' מתוך ', ' of ') + n + say(' אימונים הושלמו', ' workouts done') + '">' + Wm.items.map((x) => '<i class="' + x.st + '"></i>').join('') + '<b>' + Ltr(Wm.dn + '/' + n) + '</b></span>' +
+    '<span class="wk-meter" role="img" aria-label="' + Wm.dn + say(' מתוך ', ' of ') + n + say(' אימונים הושלמו', ' workouts done') + '">' + Wm.items.map((x) => '<i class="' + x.st + '"></i>').join('') + '<b>' + Wm.dn + say(' מתוך ', ' of ') + n + '</b></span>' +
     '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית שלי', 'My plan') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div>' +
     '<ol class="wk-list" id="tabs">' + Wm.items.map(row).join('') + '</ol>' +
     '<p class="wk-coach"><span class="ava" aria-hidden="true">' + coachFace() + '</span><span><b>' + say('אילון', 'Eilon') + '</b>' + coachSays(Wm, easy) + '</span></p></section>';
@@ -160,11 +165,11 @@ function rowHTML(e, i, s) {
     '<button class="ex-head" type="button">' +
     '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span>' +
     '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (e.cut ? '<span class="ex-sub">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + '</span>' +
-    '<span class="ex-rx' + (part ? ' part' : '') + '">' + (part ? Ltr(dn + '/' + e.sets) : cnt(off ? e.n0 : e.sets, 'סטים', 'סט אחד', 'sets', 'set') + ' · ' + Ltr(e.reps) + say(' חז׳', ' reps')) + '</span>' +
+    '<span class="ex-rx' + (part ? ' part' : '') + '">' + (part ? dn + say(' מתוך ', ' of ') + e.sets : cnt(off ? e.n0 : e.sets, 'סטים', 'סט אחד', 'sets', 'set') + ' · ' + Ltr(e.reps) + say(' חז׳', ' reps')) + '</span>' +
     '</button></li>';
 }
 /* a set on its button: the weight over the reps, each with its word; the reps alone when there is no weight */
-const setVal = (r) => (r.kg != null ? '<span class="sv"><b>' + Ltr(fmtKg(r.kg)) + '</b><small>' + say('ק״ג', 'kg') + '</small></span>' : '') + '<span class="sv"><b>' + (r.reps != null ? r.reps : '–') + '</b><small>' + say('חזרות', 'reps') + '</small></span>';
+const setVal = (r, mv) => (r.kg != null ? '<span class="sv"><b>' + Ltr(fmtKg(r.kg)) + '</b><small>' + say('ק״ג', 'kg') + '</small></span>' : '') + '<span class="sv"><b>' + (r.reps != null ? r.reps : '–') + '</b><small>' + repWord(mv) + '</small></span>';
 /* the sets of the exercise on screen as one slim row: what was lifted, then what is aimed for */
 function setsHTML(e) {
   const s = live(S.tab), r = rowsOf(s, e.id), cur = cursor(), fu = firstUndone(s, e), T0 = fu >= 0 ? targetOf(e, fu, s) : null;
@@ -174,7 +179,7 @@ function setsHTML(e) {
     const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + rowWords(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + rowWords(T) : '');
     const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
-      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
+      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row, e.mv) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
   }
   if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב', 'Off today because of pain.')) + '</p>';
   return h;
@@ -220,7 +225,7 @@ function painNote(e, s) {
 /* what is asked in this exercise, as one line of plain text. How many sets there are is what the row of sets shows */
 function rxLine(e, s) {
   const rir = rirOf(e, s);
-  return Ltr(e.reps) + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '');
+  return Ltr(e.reps) + ' ' + repWord(e.mv) + (e.suf ? ' ' + e.suf : '');
 }
 /* the muscles an exercise works, as chips: the main one in its colour, the helpers grey */
 const TONE = { chest: 'chest', back: 'back', delts: 'sh', fdelt: 'sh', biceps: 'arm', triceps: 'arm', quads: 'leg', hams: 'leg', glutes: 'leg', calves: 'leg', abs: 'core' };
@@ -255,7 +260,7 @@ function renderMore() {
   const row = (id, ic, t, sub) => '<button class="mr-row" id="' + id + '" type="button"><i aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + ICON.fwd + '</button>';
   const fact = (v, t) => '<li><b>' + v + '</b><span>' + t + '</span></li>';
   sh.innerHTML = '<div class="sheet-in mr hw" role="dialog" aria-modal="true" aria-label="' + say('פירוט התרגיל', 'Exercise details') + '"><div class="ed-h"><div><p class="kicker">' + say('פירוט התרגיל', 'Exercise details') + '</p><h2>' + e.nm + '</h2>' + (LANG === 'he' ? '<p class="en-name" lang="en">' + Ltr(esc(e.name)) + '</p>' : '') + '</div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<ul class="hw-facts">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), say('חזרות', 'reps')) + fact(restText(e), say('מנוחה', 'rest')) + '</ul>' + (function () { const r = rirOf(e, s); return '<p class="hw-rir">' + (r == null ? e.int : rirText(r)) + '</p>'; })() + musChips(e.mv) +
+    '<ul class="hw-facts">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(restText(e), say('מנוחה', 'rest')) + '</ul>' + (function () { const r = rirOf(e, s); return '<p class="hw-rir">' + (r == null ? e.int : rirText(r)) + '</p>'; })() + musChips(e.mv) +
     '<h3 class="hw-h">' + say('איך עושים', 'How to do it') + '</h3>' +
     '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c.replace(/\d+(?:[.,]\d+)?(?:\s?[–\-×]\s?\d+(?:[.,]\d+)?)+°?/g, (m) => Ltr(m)) + '</li>').join('') + '</ul>' +
     (e.a !== e.mv || LIB[e.mv].near ? '<p class="fine">' + say('ההדמיה מראה תנועה דומה', 'The demo shows a similar movement.') + '</p>' : '') +
@@ -300,7 +305,7 @@ function renderHistory() {
   const all = sorted().filter((x) => hasDone(x) && x.end), list = all.slice(0, S.histN || 6), df = dateFmt();
   renderGains(); renderBackup();
   /* each finished workout is one row; a tap opens it for fixing, moving to another day or deleting */
-  $('#history').innerHTML = '<h2 class="sec">' + say('אימונים אחרונים', 'Recent workouts') + '</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + say(', עריכה', ', edit') + '"><span class="h-t">' + wkName(x.w) + '</span><span class="h-s">' + df.format(new Date(x.ts)) + ' · ' + cnt(setsDone(x), 'סטים', 'סט אחד', 'sets', 'set') + (mn < 300 ? ' · ' + mn + say(' דק׳', ' min') : '') + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">' + say('עוד אימונים', 'More workouts') + '</button>' : '')
+  $('#history').innerHTML = '<h2 class="sec">' + say('אימונים אחרונים', 'Recent workouts') + '</h2>' + (list.length ? '<ul class="rows hist">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)), prs = tally(x).prs; return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + say(', עריכה', ', edit') + '"><span class="h-t">' + wkName(x.w) + '</span><span class="h-d">' + df.format(new Date(x.ts)).replace(',', '') + '</span><span class="h-s"><span>' + cnt(setsDone(x), 'סטים', 'סט אחד', 'sets', 'set') + '</span>' + (mn < 300 ? '<span>' + mn + say(' דק׳', ' min') + '</span>' : '') + (prs ? '<span class="pr">' + glyph('star') + cnt(prs, 'שיאים', 'שיא אחד', 'bests', 'best') + '</span>' : '') + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">' + say('עוד אימונים', 'More workouts') + '</button>' : '')
     : '<p class="empty-note">' + say('האימונים שתסיים יופיעו כאן', 'Workouts you finish will show up here.') + '</p>');
 }
 /* one file with every workout and the settings: saved from here, or read back in */
@@ -380,7 +385,7 @@ function refreshEx(e) {
 /* ---- every exercise of this workout in one list: jump to one, see the week, finish or clear the workout ---- */
 function renderListSheet() {
   const sh = $('#sheet'), old = $('.sheet-in', sh), top = old ? old.scrollTop : 0, s = live(S.tab), list = exList(S.tab, s), t = totals(), P = phase(S.tab, s);
-  sh.innerHTML = '<div class="sheet-in ls" role="dialog" aria-modal="true" aria-label="' + say('כל התרגילים', 'All exercises') + '"><div class="ed-h"><div><p class="kicker">' + (P.dl ? say('שבוע קל', 'Easy week') : wkOrd(S.tab)) + ' · ' + t.dn + '/' + t.total + say(' סטים', ' sets') + '</p><h2>' + wkName(S.tab) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+  sh.innerHTML = '<div class="sheet-in ls" role="dialog" aria-modal="true" aria-label="' + say('כל התרגילים', 'All exercises') + '"><div class="ed-h"><div><p class="kicker">' + (P.dl ? say('שבוע קל', 'Easy week') : wkOrd(S.tab)) + ' · ' + t.dn + say(' מתוך ', ' of ') + t.total + say(' סטים', ' sets') + '</p><h2>' + wkName(S.tab) + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<ol class="ex-list" id="allList">' + list.map((e, i) => rowHTML(e, i, s)).join('') + '</ol>' +
     '<div class="ls-links"><button class="link" id="editWk" type="button">' + say('עריכת האימון', 'Edit this workout') + '</button>' + ((!s || !hasDone(s)) && timeChoices(S.tab) ? '<button class="link" id="timeAgain" type="button">' + say('אורך האימון היום', 'Today\'s length') + '</button>' : '') + ((!s || !hasDone(s)) && !P.dl && preMuscles(S.tab).length ? '<button class="link" id="preAgain" type="button">' + say('שאלת ההתאוששות', 'Recovery check') + '</button>' : '') + '</div>' +
     (s ? '<div class="ls-act"><button class="btn big" id="finishBtn" type="button"' + (hasDone(s) ? '' : ' disabled') + '>' + say('סיים אימון', 'Finish workout') + '</button>' +
@@ -447,7 +452,7 @@ function curReps(e, i, s, T) {
    another one (or at the list) does not lose it */
 const draftGet = (exId, i) => { const d = S.drafts[exId]; return d && d.i === i ? d : null; };
 const draftOf = (t) => draftGet(t.e.id, t.i) || (S.drafts[t.e.id] = { ex: t.e.id, i: t.i });
-const repsHTML = (r) => '<b>' + (r == null ? '—' : r) + '</b><small>' + say('חזרות', 'reps') + '</small>';
+const repsHTML = (r) => '<b>' + (r == null ? '—' : r) + '</b><small>' + repWord((shown() || {}).mv) + '</small>';
 /* the weight and the reps as a screen reader says them: the value first, then what a tap does */
 const kgSay = (kg) => say('משקל: ', 'Weight: ') + (kg == null ? say('בלי משקל', 'no weight') : fmtKg(kg) + say(' ק״ג', ' kg')) + say(', לחיצה להקלדה', ', tap to type');
 const repsSay = (r) => say('חזרות: ', 'Reps: ') + (r == null ? '—' : r) + say(', לחיצה להקלדה', ', tap to type');
@@ -602,7 +607,8 @@ function commitSet(e, i, kg, reps) {
   const lv0 = S.lvl, pr = writeRow(e, i, kg, reps), s = live(S.tab), list = exList(S.tab, s), left = (x) => firstUndone(s, x) >= 0;
   e = list.find((x) => x.id === e.id);
   S.combo = good || pr ? (S.combo || 0) + 1 : 0;
-  sfx(pr ? 'pr' : 'set'); if (pr) haptic('pr'); popGain(XP.set + (pr ? XP.pr : 0), pr, S.combo);
+  /* each good set in a row lifts the coin one step of a scale, up to an octave */
+  sfx(pr ? 'pr' : 'set', pr ? 0 : [0, 2, 4, 5, 7, 9, 11, 12][Math.min(7, Math.max(0, (S.combo || 1) - 1))]); if (pr) haptic('pr'); popGain(XP.set + (pr ? XP.pr : 0), pr, S.combo);
   S.justDone = { ex: e.id, i, t: Date.now() };
   delete S.drafts[e.id]; refreshEx(e); renderTabs(); renderHistory(); renderPre(); markLive();
   renderMe(); bump(lv0);
@@ -632,8 +638,10 @@ function fillTargets(e) {
   const list = exList(S.tab, s), nxt = list.slice(list.findIndex((x) => x.id === e.id) + 1).find((x) => firstUndone(s, x) >= 0);
   if (firstUndone(s, e) < 0 && nxt && !S.fbFor) setTimeout(() => { if (S.open === e.id) openEx(nxt.id, true, 1), renderDock(); }, 500);
 }
+/* a rest is never longer than three minutes, on the clock or by adding to it */
+const REST_TOP = 180;
 function startRest(min, max, label, last) {
-  clearInterval(rest.iv);
+  clearInterval(rest.iv); max = Math.min(max, REST_TOP); min = Math.min(min, max);
   Object.assign(rest, { on: true, start: Date.now(), min, max, scale: max, minHit: false, ended: 0, label, last });
   S.edit = null; renderDock(); rest.iv = setInterval(tickRest, 100);
 }
@@ -647,10 +655,12 @@ function tickRest() {
   if (hd) { hd.setAttribute('cx', (100 + 82 * Math.cos(a)).toFixed(1)); hd.setAttribute('cy', (100 + 82 * Math.sin(a)).toFixed(1)); }
   const lit = Math.ceil(fr * 60), tk = $('#rtTicks');
   if (tk && lit !== rest.lit) { rest.lit = lit; [...tk.children].forEach((x, k) => x.classList.toggle('on', k < lit)); }
-  if (rest.min < rest.max && !rest.minHit && el >= rest.min && left > 0) { rest.minHit = true; beep(1); }
+  /* the last half minute is the time to get ready (yellow), and at nothing left the clock says go (green). Time that is added takes both back */
+  const soon = left > 0 && left <= Math.min(30, face / 2);
+  if (soon && !rest.minHit) { rest.minHit = true; beep(1); } else if (!soon && left > 0) rest.minHit = false;
   if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); haptic('heavy'); }
-  d.classList.toggle('ready', rest.minHit && !rest.ended); d.classList.toggle('go', !!rest.ended);
-  const word = rest.ended ? say('קדימה', 'Go') : rest.minHit ? say('אפשר להתחיל', 'Ready when you are') : say('מנוחה', 'Rest');
+  d.classList.toggle('ready', soon && !rest.ended); d.classList.toggle('go', !!rest.ended);
+  const word = rest.ended ? say('קדימה', 'Go') : soon ? say(S.cfg.me.look.body === 1 ? 'תתכונני' : 'תתכונן', 'Get ready') : say('מנוחה', 'Rest');
   $('#rtWord').textContent = word;
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
 }
@@ -667,16 +677,20 @@ function stopRest() {
 const XI = { t: 0, g: 0 };
 function exIntro(e, first) {
   const box = $('#exIntro'); if (!box || !e || window.__intro === false) return;
+  /* the sample workout of the tour has no opening screens: Eilon is the one who speaks there */
+  if (typeof TR !== 'undefined' && TR.on && TR.steps.some((x) => x.leave)) return;
   const list = exList(S.tab), i = list.findIndex((x) => x.id === e.id); if (i < 0) return;
   const fact = (b, t) => '<li><b>' + b + '</b><span>' + t + '</span></li>';
-  box.className = 'xi tn-' + toneOf(LIB[e.mv].p);
-  box.innerHTML = '<div class="xi-in" role="dialog" aria-modal="true" aria-labelledby="xiT"><div class="xi-top"><p class="xi-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p>' +
-    '<div class="xi-fig"><canvas class="stage" id="xiCv" aria-hidden="true"></canvas></div></div>' +
-    '<div class="xi-body"><h2 class="xi-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
-    '<ul class="xi-rx">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), say('חזרות', 'reps')) + fact(Ltr(restPlain(e)), say('מנוחה', 'rest')) + '</ul>' +
-    '<button class="btn primary big" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
+  const s0 = live(S.tab), back = !!first && !(s0 && hasDone(s0));
+  box.className = 'xi';
+  box.innerHTML = '<div class="xi-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
+    (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
+    '<span class="xi-num" aria-hidden="true">' + (i + 1) + '</span>' +
+    '<p class="xi-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p>' +
+    '<h2 class="xi-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
+    '<ul class="xi-rx">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(restPlain(e)), say('מנוחה', 'rest')) + '</ul>' +
+    '<button class="btn big xi-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div>';
   box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
-  startPlayer($('#xiCv'), e.a, box);
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
 }
@@ -689,12 +703,9 @@ function exIntroOff() {
 function nudgeRest(d) {
   if (!rest.on) return;
   const el = (Date.now() - rest.start) / 1000;
-  if (d > 0) {
-    /* more rest was asked for: it counts from now when the time was already up, and the screen goes back to plain rest */
-    rest.max = Math.max(rest.max, el) + d;
-    if (rest.minHit || rest.ended) { rest.min = rest.max; rest.minHit = false; } else rest.min += d;
-    rest.ended = 0;
-  } else { rest.max = Math.max(el, rest.max + d); rest.min = Math.max(0, Math.min(rest.min + d, rest.max)); }
+  /* more rest counts from now when the time was already up, and never leaves more than three minutes on the clock */
+  if (d > 0) { rest.max = Math.min(Math.max(rest.max, el) + d, el + REST_TOP); rest.ended = 0; }
+  else rest.max = Math.max(el, rest.max + d);
   rest.scale = Math.max(rest.scale || 0, rest.max - el);
   tickRest();
 }
@@ -722,18 +733,6 @@ function onFb(exId, key, v) {
    a level is passed the screen says so. What opened on the way (a personal best, a reward, an achievement) follows, one at a time.
    Nothing here is small print.
    R: { y: the workout's tally, from / to: the level before and after it, got: achievements earned now } */
-/* the chest of the summary, closed; its lid lifts when it is opened */
-const CHEST_SVG = '<svg class="chest" viewBox="0 0 96 80" aria-hidden="true"><ellipse cx="48" cy="74" rx="38" ry="5" fill="rgb(0 0 0 / .14)"/><g class="ch-body"><rect x="10" y="34" width="76" height="38" rx="6" fill="#8A4B1F"/><rect x="10" y="34" width="76" height="9" fill="#6E3A15"/><rect x="42" y="34" width="12" height="38" fill="#F2B02E"/><rect x="10" y="56" width="76" height="5" fill="#F2B02E"/><rect x="44" y="44" width="8" height="10" rx="2" fill="#5C3A00"/></g><g class="ch-lid"><path d="M10 34 V24 a18 18 0 0 1 18 -18 H68 a18 18 0 0 1 18 18 V34 Z" fill="#A65A26"/><rect x="42" y="6" width="12" height="28" fill="#F2B02E"/><path d="M10 30 H86 V34 H10 Z" fill="#F2B02E"/></g><g class="ch-shine"><circle cx="30" cy="20" r="3" fill="#FFF3C4"/><circle cx="70" cy="14" r="2" fill="#FFF3C4"/></g></svg>';
-/* the chest opens: the lid lifts, the coins fly, and the kiosk has them */
-function openChest(b) {
-  if (!b || b.classList.contains('open')) return;
-  const n = +b.dataset.n || 0;
-  b.classList.add('open'); b.setAttribute('aria-label', say('בקופסה ', 'In the chest: ') + n + say(' מטבעות לקיוסק', ' coins for the kiosk'));
-  b.querySelector('.ch-t').innerHTML = '<b class="ch-n">' + COIN + '<bdi>+' + n + '</bdi></b><small>' + say('מטבעות לקיוסק', 'coins for the kiosk') + '</small>';
-  feel('coin', 'success');
-  const c = $('#confetti'); if (c) confetti(c, 40);
-  markShop();
-}
 /* how long a finished workout took: from a minute before its first set to its end */
 function durMins(s) {
   const ts = []; for (const k in s.sets || {}) for (const r of s.sets[k] || []) if (isDone(r) && r.t) ts.push(r.t);
@@ -759,8 +758,25 @@ function runUp(el, to, pre, suf, ms) {
   const t0 = performance.now(), step = (now) => { const k = Math.min(1, (now - t0) / (ms || 800)); el.textContent = fmt(to * (1 - Math.pow(1 - k, 3))); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
   el.textContent = fmt(0); requestAnimationFrame(step);
 }
+/* a screen that covers everything (a new rank, a box that is opened) lives inside the app, and the Escape key answers it
+   before anything under it hears the key */
+function overlayKeys(el, onEsc) {
+  const h = (ev) => { if (!el.isConnected) { document.removeEventListener('keydown', h, true); return; } if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); onEsc(); } };
+  document.addEventListener('keydown', h, true);
+}
+/* a rank that was reached: the whole screen goes dark, the medal comes in, and a tap goes on */
+function rankReveal(rank) {
+  const old = $('#rankUp'); if (old) old.remove();
+  const el = document.createElement('div'); el.id = 'rankUp'; el.className = 'rank-up'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', say('דרגה חדשה ', 'A new rank: ') + nm(rank));
+  el.innerHTML = '<div class="ru-in"><span class="ru-rays" aria-hidden="true"></span><span class="ru-medal">' + medalSVG(rank.i) + '</span><p class="ru-k">' + say('דרגה חדשה', 'A new rank') + '</p><h2>' + nm(rank) + '</h2><button class="btn big" id="rankOk" type="button">' + say('יש', 'Yes') + '</button></div>';
+  $('#app').appendChild(el);
+  const done = () => { el.classList.add('out'); setTimeout(() => el.remove(), reduced ? 0 : 220); };
+  overlayKeys(el, done);
+  el.addEventListener('click', (ev) => { if (ev.target.closest('#rankOk') || ev.target === el) done(); });
+  feel('glory', 'heavy'); setTimeout(() => { const b = $('#rankOk'); if (b) b.focus({ preventScroll: true }); }, 60);
+}
 function showSummary(s, R) {
-  const y = R.y, up = R.to.lvl > R.from.lvl, opened = up ? rewardsBetween(R.from.lvl, R.to.lvl) : [], box = chestOf(s), mins = durMins(s), pct = betterPct(s), better = pct != null && pct >= 1;
+  const y = R.y, up = R.to.lvl > R.from.lvl, opened = up ? rewardsBetween(R.from.lvl, R.to.lvl) : [], bk = boxOf(s), mins = durMins(s), pct = betterPct(s), better = pct != null && pct >= 1;
   const prs = exList(s.w, s).filter((e) => rowsOf(s, e.id).some((r) => isDone(r) && r.pr)).map((e) => e.nm);
   const chip = (cls, ic, t) => '<li class="' + cls + '">' + ic + '<b>' + t + '</b></li>';
   const chips = prs.slice(0, 3).map((n) => chip('gold', glyph('star'), say('שיא חדש ב', 'New best · ') + n))
@@ -776,12 +792,14 @@ function showSummary(s, R) {
     '<div class="sum-lv"><b class="lv-badge" id="sumLv">' + say('רמה ', 'Level ') + (up ? R.from.lvl : R.to.lvl) + '</b><span class="xpbar"><i id="sumBar" style="width:' + pctOf(R.from) + '%"></i></span><b class="sum-nx" id="sumNx">' + ((up ? R.from.lvl : R.to.lvl) + 1) + '</b></div>' +
     '<p class="sum-to" id="sumTo">' + say('עוד ' + cnt(setsToNext(R.to), 'סטים', 'סט אחד', 'sets', 'set') + ' לרמה ', cnt(setsToNext(R.to), 'סטים', 'סט אחד', 'sets', 'set') + ' to level ') + (R.to.lvl + 1) + '</p>' +
     (chips.length ? '<ul class="sum-new">' + chips.join('') + '</ul>' : '') +
-    (box ? '<button class="sum-chest" id="chestBtn" type="button" data-n="' + box + '" aria-label="' + say('קופסת מטבעות לפתוח', 'A box of coins, open it') + '">' + CHEST_SVG + '<span class="ch-t"><b>' + say('קופסת מטבעות', 'A box of coins') + '</b><small>' + say('לחץ לפתוח', 'Tap to open') + '</small></span></button>' : '') +
+    '<div id="sumBox">' + sumBoxHTML(bk) + '</div>' +
     '<button class="btn primary big" id="sheetClose" type="button">' + say('המשך', 'Continue') + '</button></div>';
   sh.hidden = false; $('#sheetClose').focus();
   const av = () => $('#sumAv .av'), bar = () => $('#sumBar'), later = (ms, fn) => setTimeout(() => { if (S.sheet === 'sum' && $('#sumBar')) fn(); }, reduced ? 0 : ms);
   runUp($('#stSets'), y.sets, '', '', 700); runUp($('#stMin'), mins, '', '', 800);
   if (better) runUp($('#stPct'), pct, '+', '%', 1000); else runUp($('#stXp'), y.xp, '+', '', 1000);
+  /* a new rank is shown on the whole screen, with its medal, before anything else of the summary */
+  if (up && window.__rank !== false && rankOf(R.to.lvl).i > rankOf(R.from.lvl).i) rankReveal(rankOf(R.to.lvl));
   if (av()) av().classList.add('cheer');
   if (!up) {
     confetti($('#confetti'), 40); feel('done');
@@ -935,7 +953,11 @@ function holdFocus(box) {
   }, true);
 }
 function wireApp() {
-  $('#exIntro').addEventListener('click', (ev) => { if (ev.target.closest('#xiGo')) exIntroOff(); });
+  $('#exIntro').addEventListener('click', (ev) => {
+    if (ev.target.closest('#xiGo')) { exIntroOff(); return; }
+    /* back from the first exercise: to today's workout, or to the question of time where that step is left out */
+    if (ev.target.closest('#xiBack')) { exIntroOff(); preBack(window.__eq === false ? 'time' : 'eq'); }
+  });
   for (const id of ['#dock', '#sheet', '#ob']) holdFocus($(id));
   $('#tabbar').addEventListener('click', (ev) => {
     const b = ev.target.closest('button[data-view]'); if (!b) return;
@@ -1081,7 +1103,7 @@ function wireApp() {
     const id = (ev.target.closest('button') || {}).id;
     /* a double tap on Finish: the second tap lands on the summary that has just opened, which must be seen */
     if (ev.detail !== 0 && Date.now() - (S.sumAt || 0) < 250) return;
-    if (id === 'chestBtn') { openChest(ev.target.closest('button')); return; }
+    if (id === 'sumBoxBtn') { boxOpenNow(+ev.target.closest('button').dataset.open, false); return; }
     if (ev.target === sheet || id === 'sheetClose' || id === 'edDone' || ev.target.closest('[data-close]')) { closeSheet(); return; }
     if (listSheetClick(ev, id) || exSheetClick(ev, id) || coachSheetClick(ev, id) || meSheetClick(ev)) return;
     if (id === 'edDelAsk' || id === 'edDelNo') { S.edDel = id === 'edDelAsk'; $('#edAct').innerHTML = editorActions(S.sessions[S.edSid]); }
@@ -1093,9 +1115,10 @@ function wireApp() {
   });
   /* a sheet or the opening screens, while open, are the only thing in reach: the focus moves in, the page behind is out of reach
      (for the keyboard and for a screen reader), and on closing the focus goes back to what opened it */
-  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'), tour = $('#tour'); let opener = null;
+  /* the tour is not one of them: what it lights is the real control behind it, which has to stay in reach (see tourGuard) */
+  const behind = [$('.brand'), $('.cols'), dock], ob = $('#ob'); let opener = null;
   const modal = () => {
-    const box = !ob.hidden ? ob : !tour.hidden ? tour : !sheet.hidden ? $('.sheet-in', sheet) : null;
+    const box = !ob.hidden ? ob : !sheet.hidden ? $('.sheet-in', sheet) : null;
     for (const el of behind) el.inert = !!box;
     if (box) {
       if (!opener) { const a = document.activeElement; opener = a && a !== document.body ? { el: a, id: a.id } : {}; }

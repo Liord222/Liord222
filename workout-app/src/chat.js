@@ -8,7 +8,9 @@
 const chat = { msgs: [], turns: [], busy: false, ctl: null, img: null, imgUrl: '', sampleP: null, off: '', canImg: false, limits: false, gen: 0 };
 /* the coach has a face: the same figure as the player's, with a look of his own */
 /* the coach's face: brown hair with a loose fringe, a clean chin, a stud in the ear, a light T-shirt and an open smile */
-const COACH = { skin: 1, hair: 5, hairC: '#7A5232', beard: 0, shirtC: '#F3EDE0', stud: true, gear: false };
+const COACH = { skin: 1, hair: 5, hairC: '#7A5232', beard: 0, shirtC: '#1E1D24', stud: true, gear: false };
+/* how built he is drawn: a coach, well trained */
+const COACH_LVL = 62;
 const coachFace = () => avatarSVG(COACH, 12, { bust: true, grin: true });
 /* the plan as it stands today: swaps, this week's set counts and how close to failure the week asks to go */
 function planText() {
@@ -20,12 +22,17 @@ function planText() {
 }
 /* what the opening screens learned about the lifter, for the coach */
 function aboutUser() {
-  const me = S.cfg.me, bits = [], exp = EXP()[me.exp], goals = (me.goals || []).map((i) => GOALS()[i]).filter(Boolean), eq = EQS()[me.eq];
+  const me = S.cfg.me, bits = [], exp = EXP()[me.exp], goals = (me.goals || []).map((i) => GOALS()[i]).filter(Boolean);
   if (me.name) bits.push(say('שם: ', 'Name: ') + me.name);
   if (exp) bits.push(say('ניסיון בחדר כושר: ', 'Gym experience: ') + exp[0] + ' (' + exp[1] + ')');
   if (goals.length) bits.push((goals.length > 1 ? say('מטרות: ', 'Goals: ') : say('מטרה: ', 'Goal: ')) + goals.map((o) => o[0]).join(', '));
-  if (me.time) bits.push(say('זמן לאימון: עד ', 'Time for a workout: up to ') + me.time + say(' דקות', ' minutes'));
-  if (eq && me.eq !== 2) bits.push(say('ציוד: ', 'Equipment: ') + eq[0] + ' (' + eq[1] + ')');
+  if (me.days) bits.push(say('אימונים בשבוע: ', 'Workouts a week: ') + me.days);
+  if (me.place != null) bits.push(say('מתאמן ב: ', 'Trains at: ') + WHERE()[me.place]);
+  if (me.age) bits.push(say('גיל: ', 'Age: ') + me.age);
+  if (me.body.h) bits.push(say('גובה: ', 'Height: ') + me.body.h + say(' ס״מ', ' cm'));
+  if (me.body.log.length) bits.push(say('משקל גוף: ', 'Body weight: ') + fmtKg(me.body.log[me.body.log.length - 1].kg) + say(' ק״ג', ' kg'));
+  if (me.focus != null) bits.push(say('אזור מועדף: ', 'Favourite area: ') + AREAS()[me.focus]);
+  if ((me.pain || []).length) bits.push(say('כואב או רגיש: ', 'Sore or sensitive: ') + me.pain.map((i) => OUCH()[i]).join(', '));
   return bits.length ? say('על המשתמש: ', 'About the user: ') + bits.join(' · ') + say('. התאם את הטון ואת העצות לניסיון, למטרות, לזמן ולציוד.', '. Fit your tone and your advice to the experience, the goals, the time and the equipment.') + '\n\n' : '';
 }
 /* a mark that is written only in the rules: an answer that carries it is quoting them */
@@ -53,7 +60,7 @@ const rulesHe = () => 'אתה אילון, המאמן האישי בתוך gymi, �
   '• אימון שהוחמץ: ממשיכים מהאימון הבא בתור, בלי לפצות עליו.\n' +
   '• ביום עם פחות זמן: שומרים על התרגילים המורכבים שפותחים את האימון ומוותרים על הסוף שלו.\n' +
   '• כאב חד, או כאב במפרק: עוצרים את התרגיל ומציעים לפנות לאיש מקצוע. אין לך מידע רפואי על המשתמש, ואתה לא מאבחן.\n\n' +
-  'האפליקציה: שבוע של 2 עד 5 אימונים (כמה שהמתאמן אמר שהוא יכול), לכל אימון שם משלו (ראה את התוכנית למטה). בלשונית "אימונים" נמצאים האימון הבא ורשימת האימונים של השבוע, והכפתור "התוכנית" פותח אותם, שם מוסיפים, מחליפים ומורידים תרגילים. ב"מסע" רואים את הרמות עד 100 ומה נפתח בכל אחת. ב"פרופיל" נמצאים הדמות, הקיוסק (ציוד לדמות, במטבעות שמרוויחים באימונים), ההישגים, האימונים האחרונים, ובגלגל השיניים ההגדרות. באימון עצמו: לפני הסט הראשון האפליקציה שואלת כמה זמן יש היום ומקצרת את האימון לפי זה, ואז מראה את האימון של היום ושואלת אם חסר משהו (מכונה תפוסה, אין כבלים) ומחליפה תרגילים בהתאם; כל תרגיל חדש נפתח במסך משלו עם כפתור "התחל"; לכל תרגיל יש כפתור "פירוט" (דגשי ביצוע, דילוג עליו היום, הערה, מספר הסטים, והמקום לומר שמשהו כואב) וכפתור "החלף תרגיל"; אחרי כל סט המנוחה תופסת את המסך, והחץ שבראשה מבטל את הסט האחרון. האפליקציה מנהלת סבב של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל). דבר בשפה פשוטה: "סבב", "שבוע קל" ו"חזרות לפני כשל", לא מזוציקל, דילואד או RIR.\n\n' +
+  'האפליקציה: שבוע של 1 עד 7 אימונים (כמה שהמתאמן אמר שהוא יכול), בחדר כושר, בגינת כושר או בבית, לכל אימון שם משלו (ראה את התוכנית למטה). בלשונית "אימונים" נמצאים האימון הבא ורשימת האימונים של השבוע, והכפתור "התוכנית" פותח אותם, שם מוסיפים, מחליפים ומורידים תרגילים. ב"מסע" רואים את הרמות עד 100 ומה נפתח בכל אחת. ב"פרופיל" נמצאים הדמות, הקיוסק (ציוד לדמות, במטבעות שמרוויחים באימונים), ההישגים, האימונים האחרונים, ובגלגל השיניים ההגדרות. באימון עצמו: לפני הסט הראשון האפליקציה שואלת כמה זמן יש היום ומקצרת את האימון לפי זה, ואז מראה את האימון של היום ושואלת אם חסר משהו (מכונה תפוסה, אין כבלים) ומחליפה תרגילים בהתאם; כל תרגיל חדש נפתח במסך משלו עם כפתור "התחל"; לכל תרגיל יש כפתור "פירוט" (דגשי ביצוע, דילוג עליו היום, הערה, מספר הסטים, והמקום לומר שמשהו כואב) וכפתור "החלף תרגיל"; אחרי כל סט המנוחה תופסת את המסך, והחץ שבראשה מבטל את הסט האחרון. האפליקציה מנהלת סבב של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל). דבר בשפה פשוטה: "סבב", "שבוע קל" ו"חזרות לפני כשל", לא מזוציקל, דילואד או RIR.\n\n' +
   'התוכנית של המשתמש. בסוגריים המרובעים מופיע מזהה התרגיל, ובסוגריים העגולים שמו באנגלית. באפליקציה השמות בעברית, אז השתמש בהם:\n\n' + planText() + '\n\n' +
   aboutUser() + 'מבנה התשובה במקרים מיוחדים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה שורה או שתיים: למה, ומה להתאים (סטים, חזרות או דגש ביצוע אחד).\n' +
@@ -85,7 +92,7 @@ const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'
   '• A missed workout: go on with the next one in line, without making up for it.\n' +
   '• On a day with less time: keep the compound lifts that open the workout and drop its end.\n' +
   '• Sharp pain, or pain in a joint: stop the exercise and suggest seeing a professional. You have no medical information about the user, and you do not diagnose.\n\n' +
-  'The app: a week of 2 to 5 workouts (as many as the lifter said they can do), each with a name of its own (see the plan below). The "Workouts" tab holds the next workout and the list of this week\'s workouts, and the "Plan" button opens them, where exercises are added, swapped and removed. "Journey" shows the levels up to 100 and what each one opens. "Profile" holds the character, the kiosk (gear for the character, bought with coins earned in workouts), the achievements, the recent workouts and, under the gear icon, the settings. In a workout: before the first set the app asks how much time there is today and shortens the workout to fit, then shows today\'s workout and asks whether something is missing (a machine taken, no cables) and swaps exercises to match; every new exercise opens on a screen of its own with a "Start" button; every exercise has a "Details" button (cues, skip it today, a note, the number of sets, and the place to say that something hurts) and a "Swap" button; after every set the rest takes the screen, and the arrow at its top takes the last set back. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
+  'The app: a week of 1 to 7 workouts (as many as the lifter said they can do), in a gym, an outdoor gym or at home, each with a name of its own (see the plan below). The "Workouts" tab holds the next workout and the list of this week\'s workouts, and the "Plan" button opens them, where exercises are added, swapped and removed. "Journey" shows the levels up to 100 and what each one opens. "Profile" holds the character, the kiosk (gear for the character, bought with coins earned in workouts), the achievements, the recent workouts and, under the gear icon, the settings. In a workout: before the first set the app asks how much time there is today and shortens the workout to fit, then shows today\'s workout and asks whether something is missing (a machine taken, no cables) and swaps exercises to match; every new exercise opens on a screen of its own with a "Start" button; every exercise has a "Details" button (cues, skip it today, a note, the number of sets, and the place to say that something hurts) and a "Swap" button; after every set the rest takes the screen, and the arrow at its top takes the last set back. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
   'The user\'s plan. The square brackets hold the id of each exercise. Use the exercise names as they are written here:\n\n' + planText() + '\n\n' +
   aboutUser() + 'The shape of the answer in special cases:\n' +
   '- When asked whether an exercise or a machine can replace an exercise from the plan, the first line is exactly one of these: "Verdict: Suitable", "Verdict: Partly suitable" or "Verdict: Not recommended". After it, a line or two: why, and what to adjust (sets, reps or one form cue).\n' +
@@ -115,32 +122,32 @@ const rules = () => (LANG === 'en' ? rulesEn() : rulesHe());
 /* every fixed text of the chat by its code, in the language of the page. The codes are what is kept, so that a
    message that is already on screen follows a change of language */
 const ERR = () => ({
-  not_granted: say('לא אישרת לאילון לענות בדף הזה, ולכן הצ׳אט כבוי כרגע. אפשר לשנות את זה בהרשאות של הדף.', 'You did not allow Eilon to answer on this page, so the chat is off for now. You can change that in the permissions of the page.'),
-  sampling_disabled: say('הצ׳אט לא זמין בחשבון הזה.', 'The chat is not available on this account.'),
-  rate_limited: say('הגעת למגבלת השימוש כרגע. נסה שוב בעוד כמה דקות.', 'You have reached the usage limit for now. Try again in a few minutes.'),
-  session_expired: say('ההתחברות פגה. התחבר מחדש ונסה שוב.', 'Your session has expired. Sign in again and retry.'),
-  image_rejected: say('לא הצלחתי לשלוח את התמונה. נסה לצלם שוב או לבחור תמונה אחרת.', 'The photo could not be sent. Take it again or choose another one.'),
-  images_unavailable: say('אי אפשר לשלוח תמונות בתצוגה הזאת. תאר את המכשיר במילים.', 'Photos cannot be sent in this view. Describe the machine in words.'),
-  refused: say('אילון לא ענה על השאלה הזאת. נסה לנסח אותה אחרת.', 'Eilon did not answer this question. Try wording it differently.'),
-  not_logged: say('שום סט לא נרשם: התרגיל כבר הושלם, או שהמספרים מחוץ לטווח. אפשר לרשום אותו בעצמך באימון.', 'No set was logged: the exercise is already complete, or the numbers are out of range. You can log it yourself in the workout.'),
-  api_error: say('Anthropic לא קיבל את הבקשה.', 'Anthropic did not accept the request.'),
-  empty_completion: say('לא התקבלה תשובה. נסה לנסח את השאלה בקצרה.', 'No answer came back. Try a shorter question.'),
-  prompt_too_large: say('השיחה ארוכה מדי. פתח שיחה חדשה ונסה שוב.', 'The conversation is too long. Start a new chat and try again.'),
-  upstream_error: say('התקשורת נקטעה. נסה לשלוח שוב.', 'The connection dropped. Try sending again.'),
-  bad_key: say('המפתח לא התקבל אצל Anthropic. בדוק אותו בחיבור של אילון (סמל המפתח למעלה).', 'Anthropic did not accept the key. Check it in Eilon\'s connection (the key icon at the top).'),
-  offline: say('אין חיבור לאינטרנט כרגע.', 'No internet connection right now.'),
+  not_granted: say('לא אישרת לאילון לענות בדף הזה ולכן הצ׳אט כבוי כרגע אפשר לשנות את זה בהרשאות של הדף', 'You did not allow Eilon to answer on this page, so the chat is off for now. You can change that in the permissions of the page.'),
+  sampling_disabled: say('הצ׳אט לא זמין בחשבון הזה', 'The chat is not available on this account.'),
+  rate_limited: say('הגעת למגבלת השימוש כרגע נסה שוב בעוד כמה דקות', 'You have reached the usage limit for now. Try again in a few minutes.'),
+  session_expired: say('ההתחברות פגה התחבר מחדש ונסה שוב', 'Your session has expired. Sign in again and retry.'),
+  image_rejected: say('לא הצלחתי לשלוח את התמונה נסה לצלם שוב או לבחור תמונה אחרת', 'The photo could not be sent. Take it again or choose another one.'),
+  images_unavailable: say('אי אפשר לשלוח תמונות בתצוגה הזאת תאר את המכשיר במילים', 'Photos cannot be sent in this view. Describe the machine in words.'),
+  refused: say('אילון לא ענה על השאלה הזאת נסה לנסח אותה אחרת', 'Eilon did not answer this question. Try wording it differently.'),
+  not_logged: say('שום סט לא נרשם התרגיל כבר הושלם או שהמספרים מחוץ לטווח אפשר לרשום אותו בעצמך באימון', 'No set was logged: the exercise is already complete, or the numbers are out of range. You can log it yourself in the workout.'),
+  api_error: say('Anthropic לא קיבל את הבקשה', 'Anthropic did not accept the request.'),
+  empty_completion: say('לא התקבלה תשובה נסה לנסח את השאלה בקצרה', 'No answer came back. Try a shorter question.'),
+  prompt_too_large: say('השיחה ארוכה מדי פתח שיחה חדשה ונסה שוב', 'The conversation is too long. Start a new chat and try again.'),
+  upstream_error: say('התקשורת נקטעה נסה לשלוח שוב', 'The connection dropped. Try sending again.'),
+  bad_key: say('המפתח לא התקבל אצל Anthropic בדוק אותו בחיבור של אילון סמל המפתח למעלה', 'Anthropic did not accept the key. Check it in Eilon\'s connection (the key icon at the top).'),
+  offline: say('אין חיבור לאינטרנט כרגע', 'No internet connection right now.'),
   /* the coach's fixed lines: what he does not answer, and who he is */
-  off_topic: say('אני עונה רק על אימונים ותרגילים. מה נעשה באימון?', 'I only answer about training and exercises. What shall we do in your workout?'),
-  off_part: say('על השאר אני לא עונה: רק אימונים.', 'I leave the rest: training only.'),
-  who: say('אני אילון, מאמן ה-AI של gymi. ליאור דהן יצר אותי. על מה שמאחורי הקלעים אני לא מפרט. מה נעשה באימון?', 'I am Eilon, gymi\'s AI coach. Lior Dahan created me. I don\'t go into what is under the hood. What shall we do in your workout?'),
+  off_topic: say('אני עונה רק על אימונים ותרגילים מה נעשה באימון', 'I only answer about training and exercises. What shall we do in your workout?'),
+  off_part: say('על השאר אני לא עונה רק אימונים', 'I leave the rest: training only.'),
+  who: say('אני אילון מאמן ה-AI של gymi ליאור דהן יצר אותי על מה שמאחורי הקלעים אני לא מפרט מה נעשה באימון', 'I am Eilon, gymi\'s AI coach. Lior Dahan created me. I don\'t go into what is under the hood. What shall we do in your workout?'),
   /* why the chat is off */
-  native: say('בינתיים אילון מתחבר עם מפתח API של Anthropic, וזה מיועד לבעל האפליקציה. בקרוב הוא יענה לכולם, בלי מפתח.', 'For now Eilon connects with an Anthropic API key, which is meant for the owner of the app. Soon he will answer everyone, with no key.'),
-  outside: say('הצ׳אט פועל רק כשהדף פתוח בתוך Claude.', 'The chat works only when this page is open inside Claude.'),
-  view: say('הצ׳אט לא זמין בתצוגה הזאת.', 'The chat is not available in this view.'),
+  native: say('בינתיים אילון מתחבר עם מפתח API של Anthropic וזה מיועד לבעל האפליקציה בקרוב הוא יענה לכולם בלי מפתח', 'For now Eilon connects with an Anthropic API key, which is meant for the owner of the app. Soon he will answer everyone, with no key.'),
+  outside: say('הצ׳אט פועל רק כשהדף פתוח בתוך Claude', 'The chat works only when this page is open inside Claude.'),
+  view: say('הצ׳אט לא זמין בתצוגה הזאת', 'The chat is not available in this view.'),
   /* notes under an answer or above the message box */
-  cut: say('התשובה נקטעה באמצע. בקש המשך או שאל שאלה קצרה יותר.', 'The answer was cut short. Ask for the rest, or ask a shorter question.'),
-  cancelled: say('עצרת את התשובה.', 'You stopped the answer.'),
-  no_image: say('לא הצלחתי לקרוא את התמונה. נסה לצלם שוב או לבחור קובץ JPG או PNG.', 'The photo could not be read. Take it again, or choose a JPG or PNG file.'),
+  cut: say('התשובה נקטעה באמצע בקש המשך או שאל שאלה קצרה יותר', 'The answer was cut short. Ask for the rest, or ask a shorter question.'),
+  cancelled: say('עצרת את התשובה', 'You stopped the answer.'),
+  no_image: say('לא הצלחתי לקרוא את התמונה נסה לצלם שוב או לבחור קובץ JPG או PNG', 'The photo could not be read. Take it again, or choose a JPG or PNG file.'),
 });
 const isErr = (c) => typeof c === 'string' && Object.prototype.hasOwnProperty.call(ERR(), c);
 /* the text of a code; anything that is not a code is shown as it is */
@@ -168,7 +175,7 @@ function fmtText(text) {
 function msgHTML(m, idx) {
   if (m.role === 'u') return '<div class="row u"><div class="msg u" dir="auto">' + (m.imgUrl ? '<img src="' + m.imgUrl + '" alt="' + say('התמונה ששלחת', 'The photo you sent') + '">' : m.hadImg ? '<span class="note">' + say('[תמונה]', '[photo]') + '</span>' : '') + esc(m.text) + (m.ctx ? '<span class="note">' + say('על ', 'About ') + esc(ctxName(m.ctx)) + '</span>' : '') + '</div></div>';
   const text = m.code ? errText(m.code) : stripCmd(m.text || ''), face = '<span class="ava sm" aria-hidden="true">' + coachFace() + '</span>';
-  if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + (m.logged ? say('נרשם.', 'Logged.') : esc(errText(m.note || 'empty_completion'))) + '</span>') + loggedHTML(m, idx) + '</div></div>';
+  if (!text) return '<div class="row a">' + face + '<div class="msg a">' + (m.live ? '<span class="think" role="status" aria-label="' + say('אילון חושב', 'Eilon is thinking') + '"><i></i><i></i><i></i></span>' : '<span class="note">' + (m.logged ? say('נרשם', 'Logged.') : esc(errText(m.note || 'empty_completion'))) + '</span>') + loggedHTML(m, idx) + '</div></div>';
   const v = splitVerdict(text, !m.live);
   return '<div class="row a">' + face + '<div class="msg a" dir="auto">' + (v ? '<span class="verdict ' + v.kind + '">' + v.label + '</span>' + fmtText(v.rest) : fmtText(text)) + (m.note ? '<span class="note">' + esc(errText(m.note)) + '</span>' : '') + loggedHTML(m, idx) + '</div></div>';
 }
@@ -183,8 +190,10 @@ function loggedHTML(m, idx) {
   return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span>' + (canUnlog(m) ? '<button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button>' : '') + '</div>';
 }
 /* first things to ask, each with its sign */
-const SUG_I = () => [ICON.swap, '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>', ICON.info, ICON.bell];
-const SUGS = () => [say('המכשיר תפוס. מה במקום?', 'The machine is taken. What instead?'), say('צילמתי מכשיר. הוא מתאים?', 'I took a photo of a machine. Does it fit?'), say('דגשים לתרגיל הזה', 'Cues for this exercise'), say('כמה משקל לשים היום?', 'How much weight today?')];
+const SUG_I = () => [ICON.swap, '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>', ICON.info, ICON.bell, '<svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.300-7-9.600A4 4 0 0 1 12 8a4 4 0 0 1 7 2.400C19 15.700 12 20 12 20z"/></svg>'];
+const SUGS = () => [say('המכשיר תפוס מה במקום', 'The machine is taken. What instead?'), say('צילמתי מכשיר הוא מתאים', 'I took a photo of a machine. Does it fit?'), say('איך עושים את התרגיל הזה', 'How do I do this exercise?'), say('כמה משקל לשים היום', 'How much weight today?'), say('משהו כואב לי מה לעשות', 'Something hurts. What do I do?')];
+/* the four that open the chat, in the order they are asked most */
+const SUG_SHOW = [0, 3, 2, 4];
 function renderMsgs() {
   const box = $('#msgs'), face = '<span class="ava big" aria-hidden="true">' + coachFace() + '</span>';
   $('#chatNew').hidden = !chat.msgs.length;
@@ -193,8 +202,8 @@ function renderMsgs() {
   if (!chat.msgs.length) {
     /* nothing said yet: the coach himself, waving, and the first things to ask as cards */
     const icons = SUG_I(); chat.shown = 0;
-    box.innerHTML = '<div class="empty hello"><span class="hello-fig" aria-hidden="true">' + avatarSVG(COACH, 12, {}).replace('class="av', 'class="av wave grin') + '</span><strong>' + say('היי, אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('שאל, צלם מכשיר, או כתוב מה עשית ואני ארשום.', 'Ask, snap a machine, or tell me what you did and I will log it.') + '</span><div class="sugs">' +
-      SUGS().map((s, i) => (i === 1 && !chat.canImg ? '' : '<button class="sug" type="button" data-sug="' + i + '"><span class="sug-i" aria-hidden="true">' + icons[i] + '</span><span>' + s + '</span></button>')).join('') + '</div></div>';
+    box.innerHTML = '<div class="empty hello"><span class="hello-fig" aria-hidden="true">' + avatarSVG(COACH, 12, {}).replace('class="av', 'class="av wave grin') + '</span><strong>' + say('היי אני אילון', 'Hi, I am Eilon') + '</strong><span>' + say('שאל אותי כל דבר על האימון', 'Ask me anything about training') + '</span><div class="sugs chips">' +
+      SUG_SHOW.map((i) => '<button class="sug" type="button" data-sug="' + i + '"><span class="sug-i" aria-hidden="true">' + icons[i] + '</span><span>' + SUGS()[i] + '</span></button>').join('') + '</div></div>';
     return;
   }
   box.innerHTML = chat.msgs.map(msgHTML).join(''); box.scrollTop = box.scrollHeight;
@@ -277,7 +286,7 @@ async function sendChat(preset) {
   if (chat.off) return;
   const inp = $('#chatInput'), typed = (preset || inp.value).trim().slice(0, ASK_MAX), img = chat.img, imgUrl = chat.imgUrl;
   if (!typed && !img) { inp.focus(); return; }
-  const text = typed || say('מה המכשיר שבתמונה, והאם הוא מתאים כתחליף?', 'What is the machine in the photo, and does it fit as a substitute?'), ctx = ctxLine(), gen = chat.gen, mine = () => gen === chat.gen;
+  const text = typed || say('מה המכשיר שבתמונה והאם הוא מתאים כתחליף', 'What is the machine in the photo, and does it fit as a substitute?'), ctx = ctxLine(), gen = chat.gen, mine = () => gen === chat.gen;
   compNote('');
   const clear = () => { inp.value = ''; inp.style.height = ''; chat.img = null; chat.imgUrl = ''; $('#attach').hidden = true; };
   /* the lock: answered here, with a fixed line. Nothing is sent and nothing joins the conversation the model sees */

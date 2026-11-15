@@ -102,12 +102,20 @@ const PLAN = [
     E('lg5', 'seatedCalf', 'Seated Calf Raises', 3, '12–20', [60, 60], 'סט אחרון לכשל טכני', 3),
     E('lg6', 'pallof', 'Pallof Press', 2, '12', [60, 60], 'שליטה מלאה', 0, 'לצד'),
   ] },
+  /* ---- the seventh day of a week of seven: light work for the trunk, the upper back and the calves ---- */
+  { name: 'Light', t: 'נשימה', te: 'Breather', m: 'ליבה · גב · שוקיים', me: 'Core · back · calves', ex: [
+    E('lt1', 'backExt', '45° Back Extension', 2, '10–15', [60, 60], 'שליטה מלאה', 0),
+    E('lt2', 'reversePec', 'Reverse Pec Deck', 2, '12–20', [60, 60], 'סט אחרון לכשל טכני', 3),
+    E('lt3', 'kneeRaise', 'Hanging Knee Raises', 2, '8–15', [60, 60], 'חזרות נקיות', 0),
+    E('lt4', 'pallof', 'Pallof Press', 2, '12', [60, 60], 'שליטה מלאה', 0, 'לצד'),
+    E('lt5', 'standingCalf', 'Standing Calf Raises', 2, '12–18', [60, 60], 'סט אחרון לכשל טכני', 3),
+  ] },
 ];
 /* ---- the week: which of the workouts above are trained, by how many workouts a week the lifter can do. Each workout keeps its
    place in PLAN for good (a workout that was logged names its workout by that place), so changing the number of days never
    changes what an old workout was ---- */
-const WEEKS = { 2: [4, 5], 3: [4, 5, 6], 4: [0, 1, 2, 3], 5: [0, 1, 7, 8, 9] };
-const DAYS_OK = [2, 3, 4, 5];
+const WEEKS = { 1: [4], 2: [4, 5], 3: [4, 5, 6], 4: [0, 1, 2, 3], 5: [0, 1, 7, 8, 9], 6: [7, 8, 9, 2, 3, 6], 7: [7, 8, 9, 2, 3, 6, 10] };
+const DAYS_OK = [1, 2, 3, 4, 5, 6, 7];
 const week = () => WEEKS[typeof S !== 'undefined' && S.cfg && S.cfg.me && S.cfg.me.days] || WEEKS[4];
 const inWeek = (w) => week().includes(w);
 /* a workout's place in the week (0 for the first), and the colour that goes with that place */
@@ -115,7 +123,7 @@ const posOf = (w) => Math.max(0, week().indexOf(w));
 const wkTone = (w) => 'w' + (posOf(w) % 5);
 /* how a workout is called in the app: by its place in the week ("אימון 1"), or by the name the lifter gave it. A workout that is
    not in the week any more (the days changed) is called by what it trains. Under the name, always, the muscles it trains */
-const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי'];
+const ORD = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שביעי'];
 const ownName = (w) => { const n = typeof S !== 'undefined' && S.cfg && S.cfg.me && S.cfg.me.names; return (n && typeof n[w] === 'string' && n[w]) || ''; };
 const wkMus = (w) => say(PLAN[w].m, PLAN[w].me);
 const wkOrd = (w) => say('אימון ' + (posOf(w) + 1), 'Workout ' + (posOf(w) + 1));

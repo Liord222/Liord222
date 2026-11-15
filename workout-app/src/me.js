@@ -529,7 +529,7 @@ function meSheetChange(ev) { if (ev.target.id === 'lkName') setName(ev.target.va
 /* ---- rewards: a short note when the level climbs mid-workout, and the celebration at the end ---- */
 let toastT = 0;
 function toast(html) {
-  const el = $('#toast'); el.innerHTML = html; el.hidden = false; el.style.top = laneTop(); el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
+  const el = $('#toast'); el.innerHTML = html; el.hidden = false; el.classList.remove('lvl'); el.style.top = laneTop(); el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
   clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2800);
 }
 function chime() {
@@ -543,7 +543,7 @@ function chime() {
     });
   } catch (e) { /* no audio here */ }
 }
-function levelUp(lvl) { for (const o of $$('.pts')) o.remove(); toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); $('#toast').classList.add('lvl'); setTimeout(() => $('#toast').classList.remove('lvl'), 2800); chime(); haptic('heavy'); }
+function levelUp(lvl) { if (S.sheet === 'sum') { chime(); return; } for (const o of $$('.pts')) o.remove(); toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); $('#toast').classList.add('lvl'); setTimeout(() => $('#toast').classList.remove('lvl'), 2800); chime(); haptic('heavy'); }
 /* call after a change that may have earned points, with the level from before it */
 function bump(lv0) { if (lv0 && S.lvl > lv0) levelUp(S.lvl); }
 /* paper confetti over a sheet: a short burst that falls and stops by itself */

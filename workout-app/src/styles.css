@@ -2353,7 +2353,7 @@ button.ob-may{display:block;margin:10px auto 0;min-height:44px;padding:0 22px;fo
 .ob-av-fig .lk-photo{min-height:38px;padding:0 12px;border-radius:12px;background:#fff;color:#5A2FCC;font-size:13.5px;font-weight:800}
 .ob-av-fig .lk-note{max-width:130px;text-align:end;font-size:12px}
 .ob-av-ed{gap:10px;padding:10px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
-.ob-av-ed .lk-tabs{flex-wrap:nowrap}
+.ob-av-ed .lk-tabs{flex-wrap:wrap}
 .ob-av-ed .lk-tabs button{flex:1 0 auto;min-height:40px;padding:0 11px;font-size:14px;font-weight:700}
 .ob-av-ed .lk-pane{min-height:0;height:172px;overflow-y:auto;align-content:start;padding:2px}
 .ob-av-ed .lk-cuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -2507,3 +2507,7 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 /* the question of time is Eilon's: his face over it, not a clock */
 .pre-ic.coach{width:84px;height:84px;padding:0;border-radius:50%;overflow:hidden;background:var(--xo-bg);box-shadow:0 0 0 4px var(--surface),0 8px 18px -10px rgb(40 20 110 / .5)}
 .pre-ic.coach svg{display:block;width:100%;height:100%;stroke-width:1}
+/* the tabs of the look wrap rather than hide one past the edge (English is longer) */
+.lk-tabs{flex-wrap:wrap}
+/* a narrow phone: the line under a workout's name wraps instead of losing its minutes, and the finish keeps its three numbers inside the screen */
+@media (max-width:359px){.wr-txt>span{white-space:normal}.sum.fin .sum-st{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.sum.fin .sum-st li{padding:10px 2px}.sum.fin .sum-st span{font-size:12px}}

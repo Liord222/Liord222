@@ -618,6 +618,9 @@ function stopRest() {
   const done = L && findEx(L.ex), s = live(S.tab), nxt = done && s && firstUndone(s, done) < 0 ? nextAfter(done.id) : null;
   if (nxt && S.view === 'workout') { if (S.open !== nxt.id) openEx(nxt.id, true, 1); exIntro(nxt); }
   renderDock(); refreshOpenSets();
+  /* a note that came during the rest moves off the name of the exercise, to the top of its drawing */
+  const tt = $('#toast'); if (tt && !tt.hidden) tt.style.top = laneTop();
+  for (const f of $$('.pts')) f.remove();
 }
 /* ---- a new exercise takes the screen: the exercise itself, drawn in large and moving on a soft backdrop, and under it its place
    in the workout, its name, the muscles and what it asks. It stays until "start" ---- */
@@ -730,7 +733,7 @@ function showSummary(s, R) {
   const chips = prs.slice(0, 3).map((n) => chip('gold', glyph('star'), say('שיא חדש ב', 'New best · ') + n))
     .concat(opened.map((r) => chip('', glyph('gift'), say('נפתח ', 'Unlocked ') + nm(r))));
   const tile = (id, v, t, cls) => '<li' + (cls ? ' class="' + cls + '"' : '') + '><b id="' + id + '" dir="ltr">' + v + '</b><span>' + t + '</span></li>';
-  const sh = $('#sheet'); S.sheet = 'sum';
+  const sh = $('#sheet'); S.sheet = 'sum'; $('#toast').hidden = true;
   const who = S.cfg.me.name;
   sh.innerHTML = '<div class="sheet-in sum fin w' + s.w + '" role="dialog" aria-modal="true" aria-label="' + say('סיכום אימון', 'Workout summary') + '"><canvas class="confetti" id="confetti" aria-hidden="true"></canvas><span class="fin-rays" aria-hidden="true"></span>' +
     '<p class="sum-k">' + wkName(s.w) + say(' הושלם', ' complete') + (s.dl ? say(' · שבוע קל', ' · easy week') : '') + '</p>' +

@@ -36,7 +36,7 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   const copy = await p.evaluate(() => localStorage.getItem('gymi:log:v1'));
   check('a logged set is mirrored to the phone\'s storage', !!copy && copy.includes('"kg":60'), copy && copy.slice(0, 120));
   // the player: with no account to wait for, the profile counts the log at once and keeps the character on the phone
-  check('the set earned its points on the phone too', (await f.evaluate(() => [meNow().T.xp, S.cfgReady].join())) === '10,true', await f.evaluate(() => meNow().T.xp));
+  check('the set earned its points on the phone too', (await f.evaluate(() => [meNow().T.xp, S.cfgReady].join())) === '100,true', await f.evaluate(() => meNow().T.xp));
   check('the page\'s back step (window.gymiBack, which the shell calls) returns from the workout to today', (await f.evaluate(() => [window.gymiBack(), S.view, window.gymiBack()].join())) === 'true,home,false', 'back');
   await f.click('#chatOpen'); await f.waitForTimeout(300);
   // ---- the coach: a key saved in the shell, then a question answered by Claude (the API is answered by this script) ----

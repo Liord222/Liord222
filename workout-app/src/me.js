@@ -533,7 +533,7 @@ function toast(html) {
   clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2800);
 }
 function chime() {
-  if (!S.sound || !actx) return;
+  if (!S.sound || !actx || actx.state === 'suspended') return;
   try {
     [523, 659, 784, 1047].forEach((f, i) => {
       const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime + i * 0.11;

@@ -36,7 +36,8 @@ function renderPre() {
   const was = $('#app').classList.contains('pre-on');
   $('#app').classList.toggle('pre-on', any);
   /* the questions before the workout were answered: the first exercise comes in on its own screen */
-  if (was && !any && S.view === 'workout' && !(s && hasDone(s))) setTimeout(() => exIntro(shown(), true), 60);
+  /* before the page is painted (once the list under it is drawn): the workout is not seen for a moment between the card and the new exercise */
+  if (was && !any && S.view === 'workout' && !(s && hasDone(s))) Promise.resolve().then(() => exIntro(shown(), true));
   if (any && box.hidden) S.preAt = Date.now();
   box.hidden = !any;
   if (!any) { box.innerHTML = ''; S.preOpen = false; return; }

@@ -382,7 +382,7 @@ const RT_TICKS = Array.from({ length: 60 }, (_, k) => { const a = (k / 60) * 2 *
 let actx = null, wake = null, logBusy = false;
 function primeAudio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { actx = null; } }
 function beep(n) {
-  if (!S.sound || !actx) return;
+  if (!S.sound || !actx || actx.state === 'suspended') return;
   try {
     for (let i = 0; i < n; i++) {
       const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime + i * 0.3;
@@ -591,12 +591,14 @@ function startRest(min, max, label, last) {
   clearInterval(rest.iv); max = Math.min(max, REST_TOP); min = Math.min(min, max);
   Object.assign(rest, { on: true, start: Date.now(), min, max, scale: max, minHit: false, ended: 0, label, last });
   S.edit = null; renderDock(); rest.iv = setInterval(tickRest, 100);
+  /* the rest covers the whole screen of a phone: the drawing under it is not drawn for nothing while it lasts */
+  const dk = $('#dock'); player.under = !!dk && dk.offsetTop <= 0 && dk.offsetHeight >= innerHeight - 1;
 }
 function tickRest() {
   if (!rest.on) return;
   const el = (Date.now() - rest.start) / 1000, left = Math.max(0, rest.max - el), d = $('#dock'), tm = $('#rtTime');
   if (!tm) return;
-  tm.textContent = mmss(Math.ceil(left));
+  const mm = mmss(Math.ceil(left)); if (tm.textContent !== mm) tm.textContent = mm;
   const face = Math.max(rest.scale || rest.max, 1), fr = Math.max(0, Math.min(1, left / face)), a = fr * 2 * Math.PI, hd = $('#rtHead');
   $('#rtFill').style.strokeDashoffset = String(((1 - fr) * 100).toFixed(2));
   if (hd) { hd.setAttribute('cx', (100 + 82 * Math.cos(a)).toFixed(1)); hd.setAttribute('cy', (100 + 82 * Math.sin(a)).toFixed(1)); }
@@ -608,7 +610,7 @@ function tickRest() {
   if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); haptic('heavy'); }
   d.classList.toggle('ready', soon && !rest.ended); d.classList.toggle('go', !!rest.ended);
   const word = rest.ended ? say('קדימה', 'Go') : soon ? say(S.cfg.me.look.body === 1 ? 'תתכונני' : 'תתכונן', 'Get ready') : say('מנוחה', 'Rest');
-  $('#rtWord').textContent = word;
+  const rw = $('#rtWord'); if (rw.textContent !== word) rw.textContent = word;
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
 }
 function stopRest() {
@@ -640,7 +642,7 @@ function exIntro(e, first) {
     '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
     '<button class="btn primary big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
-  box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
+  box.classList.remove('out'); box.hidden = false; box.classList.add('on');
   startPlayer($('.xo-cv', box), e.a, box, cssVar('--xo-bg'));
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
@@ -649,7 +651,7 @@ function exIntroOff() {
   const box = $('#exIntro'); clearTimeout(XI.t); if (!box || box.hidden) return;
   box.classList.add('out'); box.classList.remove('on'); clearTimeout(XI.g);
   const st = $('#exList .stage'), cur = shown(); if (st && cur) startPlayer(st, cur.a, $('#exList'));
-  XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 100);
+  XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 300);
 }
 function nudgeRest(d) {
   if (!rest.on) return;

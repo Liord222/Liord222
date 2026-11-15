@@ -29,14 +29,15 @@ function wearLook() {
   C.cloth = css(shorts); C.clothFar = css(to(shorts, bg, 0.42));
   C.av = { hair: k.hair | 0, beard: k.beard | 0, band: gear('band'), tank: gear('tank'), beardC: hairOn ? hc : '#4A3A30', browC: hairOn ? css(to(hexRgb(hc), [0, 0, 0], 0.15)) : '#4A3A30', bandC: k.shirt === 3 ? '#F4F5F7' : '#F2B93B' };
 }
-const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH, bg: '' };
+const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH, bg: '', under: false };
 /* a colour of the page, by the name of its variable */
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
 /* the canvas has the shape of its box on the page (a card may be lower than the plan, on a short screen): the camera fits the demo to it */
 function fitCanvas(cv) {
   const r = cv.getBoundingClientRect(), cw = cv.clientWidth || r.width || 340, ch = cv.clientHeight || r.height || (cw * SH) / SW;
-  const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cw * dpr)), h = Math.max(60, Math.round((w * ch) / cw));
+  /* twice the pixels of the page at most: the demo is drawn anew at every frame, and a sharper canvas only made a phone slow */
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cw * dpr)), h = Math.max(60, Math.round((w * ch) / cw));
   if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
   player.vh = (SW * h) / w;
 }
@@ -49,6 +50,10 @@ function frame(now) {
   /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
   if (!player.cv || !player.playing || !player.visible || chat.modal) { player.raf = 0; return; }
   player.raf = requestAnimationFrame(frame);
+  /* a screen of 120 frames a second is drawn for at most 60: the movement looks the same, the phone does half the work */
+  if (player.last && now - player.last < 14) return;
+  /* under the rest, which covers the whole screen of a phone, nothing is drawn: the movement goes on and is seen again when it ends */
+  if (rest.on && player.under) { player.clock += Math.min(80, now - (player.last || now)); player.last = now; return; }
   const dt = Math.min(80, now - (player.last || now)); player.last = now;
   player.clock += dt;
   const ex = ANIM[player.key], tp = ex.tempo || [1.1, 0.25, 1.8, 0.35];

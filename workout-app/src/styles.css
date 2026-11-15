@@ -1465,7 +1465,8 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* a place opens with a short rise; a sheet slides up from the bottom, can be pulled back down by a finger, and slides away when it closes */
 .view{animation:view-in .26s cubic-bezier(.2,.8,.2,1)}
-@keyframes view-in{from{opacity:0;transform:translateY(8px)}}
+/* a fade only: a screen that moved while it came in carried what is pinned inside it (the card of today's questions) with it, and that was cut and then jumped */
+@keyframes view-in{from{opacity:0}}
 .sheet.rise{animation:sheet-fade .22s ease-out}
 .sheet.rise>.sheet-in{animation:sheet-up .34s cubic-bezier(.2,.9,.25,1)}
 .sheet-in.back{transition:transform .3s cubic-bezier(.2,.9,.25,1)}
@@ -2511,3 +2512,10 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .lk-tabs{flex-wrap:wrap}
 /* a narrow phone: the line under a workout's name wraps instead of losing its minutes, and the finish keeps its three numbers inside the screen */
 @media (max-width:359px){.wr-txt>span{white-space:normal}.sum.fin .sum-st{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.sum.fin .sum-st li{padding:10px 2px}.sum.fin .sum-st span{font-size:12px}}
+/* a blur under a bar is worked out again at every frame of whatever passes beneath it (the moving drawing, a scroll of the sets): on a phone that was the lag of the workout screen. The bars are nearly solid anyway */
+.tabbar,.dock,.ex-row .st-btn{-webkit-backdrop-filter:none;backdrop-filter:none}
+.dock{background:color-mix(in srgb,var(--surface) 98%,transparent)}
+/* the screen of a new exercise covers the workout at once (no two screens seen through each other), and on Start it is lifted away like a curtain */
+.xi.xo,.xi.xo.on,.xi.xo.out{opacity:1;transition:none}
+.xi.xo.out{transform:translateY(-100%);transition:transform .28s cubic-bezier(.5,0,.8,.4);pointer-events:none}
+@media (prefers-reduced-motion:reduce){.xi.xo.out{transition:none}}

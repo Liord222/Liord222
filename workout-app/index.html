@@ -1469,7 +1469,8 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* a place opens with a short rise; a sheet slides up from the bottom, can be pulled back down by a finger, and slides away when it closes */
 .view{animation:view-in .26s cubic-bezier(.2,.8,.2,1)}
-@keyframes view-in{from{opacity:0;transform:translateY(8px)}}
+/* a fade only: a screen that moved while it came in carried what is pinned inside it (the card of today's questions) with it, and that was cut and then jumped */
+@keyframes view-in{from{opacity:0}}
 .sheet.rise{animation:sheet-fade .22s ease-out}
 .sheet.rise>.sheet-in{animation:sheet-up .34s cubic-bezier(.2,.9,.25,1)}
 .sheet-in.back{transition:transform .3s cubic-bezier(.2,.9,.25,1)}
@@ -2515,6 +2516,13 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .lk-tabs{flex-wrap:wrap}
 /* a narrow phone: the line under a workout's name wraps instead of losing its minutes, and the finish keeps its three numbers inside the screen */
 @media (max-width:359px){.wr-txt>span{white-space:normal}.sum.fin .sum-st{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.sum.fin .sum-st li{padding:10px 2px}.sum.fin .sum-st span{font-size:12px}}
+/* a blur under a bar is worked out again at every frame of whatever passes beneath it (the moving drawing, a scroll of the sets): on a phone that was the lag of the workout screen. The bars are nearly solid anyway */
+.tabbar,.dock,.ex-row .st-btn{-webkit-backdrop-filter:none;backdrop-filter:none}
+.dock{background:color-mix(in srgb,var(--surface) 98%,transparent)}
+/* the screen of a new exercise covers the workout at once (no two screens seen through each other), and on Start it is lifted away like a curtain */
+.xi.xo,.xi.xo.on,.xi.xo.out{opacity:1;transition:none}
+.xi.xo.out{transform:translateY(-100%);transition:transform .28s cubic-bezier(.5,0,.8,.4);pointer-events:none}
+@media (prefers-reduced-motion:reduce){.xi.xo.out{transition:none}}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -6118,14 +6126,15 @@ function wearLook() {
   C.cloth = css(shorts); C.clothFar = css(to(shorts, bg, 0.42));
   C.av = { hair: k.hair | 0, beard: k.beard | 0, band: gear('band'), tank: gear('tank'), beardC: hairOn ? hc : '#4A3A30', browC: hairOn ? css(to(hexRgb(hc), [0, 0, 0], 0.15)) : '#4A3A30', bandC: k.shirt === 3 ? '#F4F5F7' : '#F2B93B' };
 }
-const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH, bg: '' };
+const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH, bg: '', under: false };
 /* a colour of the page, by the name of its variable */
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
 /* the canvas has the shape of its box on the page (a card may be lower than the plan, on a short screen): the camera fits the demo to it */
 function fitCanvas(cv) {
   const r = cv.getBoundingClientRect(), cw = cv.clientWidth || r.width || 340, ch = cv.clientHeight || r.height || (cw * SH) / SW;
-  const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cw * dpr)), h = Math.max(60, Math.round((w * ch) / cw));
+  /* twice the pixels of the page at most: the demo is drawn anew at every frame, and a sharper canvas only made a phone slow */
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cw * dpr)), h = Math.max(60, Math.round((w * ch) / cw));
   if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
   player.vh = (SW * h) / w;
 }
@@ -6138,6 +6147,10 @@ function frame(now) {
   /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
   if (!player.cv || !player.playing || !player.visible || chat.modal) { player.raf = 0; return; }
   player.raf = requestAnimationFrame(frame);
+  /* a screen of 120 frames a second is drawn for at most 60: the movement looks the same, the phone does half the work */
+  if (player.last && now - player.last < 14) return;
+  /* under the rest, which covers the whole screen of a phone, nothing is drawn: the movement goes on and is seen again when it ends */
+  if (rest.on && player.under) { player.clock += Math.min(80, now - (player.last || now)); player.last = now; return; }
   const dt = Math.min(80, now - (player.last || now)); player.last = now;
   player.clock += dt;
   const ex = ANIM[player.key], tp = ex.tempo || [1.1, 0.25, 1.8, 0.35];
@@ -6565,7 +6578,7 @@ const RT_TICKS = Array.from({ length: 60 }, (_, k) => { const a = (k / 60) * 2 *
 let actx = null, wake = null, logBusy = false;
 function primeAudio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { actx = null; } }
 function beep(n) {
-  if (!S.sound || !actx) return;
+  if (!S.sound || !actx || actx.state === 'suspended') return;
   try {
     for (let i = 0; i < n; i++) {
       const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime + i * 0.3;
@@ -6774,12 +6787,14 @@ function startRest(min, max, label, last) {
   clearInterval(rest.iv); max = Math.min(max, REST_TOP); min = Math.min(min, max);
   Object.assign(rest, { on: true, start: Date.now(), min, max, scale: max, minHit: false, ended: 0, label, last });
   S.edit = null; renderDock(); rest.iv = setInterval(tickRest, 100);
+  /* the rest covers the whole screen of a phone: the drawing under it is not drawn for nothing while it lasts */
+  const dk = $('#dock'); player.under = !!dk && dk.offsetTop <= 0 && dk.offsetHeight >= innerHeight - 1;
 }
 function tickRest() {
   if (!rest.on) return;
   const el = (Date.now() - rest.start) / 1000, left = Math.max(0, rest.max - el), d = $('#dock'), tm = $('#rtTime');
   if (!tm) return;
-  tm.textContent = mmss(Math.ceil(left));
+  const mm = mmss(Math.ceil(left)); if (tm.textContent !== mm) tm.textContent = mm;
   const face = Math.max(rest.scale || rest.max, 1), fr = Math.max(0, Math.min(1, left / face)), a = fr * 2 * Math.PI, hd = $('#rtHead');
   $('#rtFill').style.strokeDashoffset = String(((1 - fr) * 100).toFixed(2));
   if (hd) { hd.setAttribute('cx', (100 + 82 * Math.cos(a)).toFixed(1)); hd.setAttribute('cy', (100 + 82 * Math.sin(a)).toFixed(1)); }
@@ -6791,7 +6806,7 @@ function tickRest() {
   if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); haptic('heavy'); }
   d.classList.toggle('ready', soon && !rest.ended); d.classList.toggle('go', !!rest.ended);
   const word = rest.ended ? say('קדימה', 'Go') : soon ? say(S.cfg.me.look.body === 1 ? 'תתכונני' : 'תתכונן', 'Get ready') : say('מנוחה', 'Rest');
-  $('#rtWord').textContent = word;
+  const rw = $('#rtWord'); if (rw.textContent !== word) rw.textContent = word;
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
 }
 function stopRest() {
@@ -6823,7 +6838,7 @@ function exIntro(e, first) {
     '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
     '<button class="btn primary big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
-  box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
+  box.classList.remove('out'); box.hidden = false; box.classList.add('on');
   startPlayer($('.xo-cv', box), e.a, box, cssVar('--xo-bg'));
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
@@ -6832,7 +6847,7 @@ function exIntroOff() {
   const box = $('#exIntro'); clearTimeout(XI.t); if (!box || box.hidden) return;
   box.classList.add('out'); box.classList.remove('on'); clearTimeout(XI.g);
   const st = $('#exList .stage'), cur = shown(); if (st && cur) startPlayer(st, cur.a, $('#exList'));
-  XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 100);
+  XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 300);
 }
 function nudgeRest(d) {
   if (!rest.on) return;
@@ -7400,6 +7415,10 @@ function touchOf(b) {
 /* saying yes sounds like a set that is done: starting a workout, choosing, saving */
 const YES = '#homeGo,#preAll,#preDone,#dlYes,#edDone,.sw-b button,[data-add],#moreSame';
 function wireFeel() {
+  /* the sound of the app is made ready while nothing happens, after the page is up: made on the first press it held that press
+     (Start workout) for a long moment on a phone. A press then only wakes it */
+  const warm = () => { if (!actx) try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } };
+  setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(warm, { timeout: 2500 }) : warm()), 1800);
   /* an iPhone shows a control as pressed (:active) only on a page that listens for touches */
   document.addEventListener('touchstart', () => {}, { passive: true });
   wireDress();
@@ -7458,7 +7477,8 @@ function renderPre() {
   const was = $('#app').classList.contains('pre-on');
   $('#app').classList.toggle('pre-on', any);
   /* the questions before the workout were answered: the first exercise comes in on its own screen */
-  if (was && !any && S.view === 'workout' && !(s && hasDone(s))) setTimeout(() => exIntro(shown(), true), 60);
+  /* before the page is painted (once the list under it is drawn): the workout is not seen for a moment between the card and the new exercise */
+  if (was && !any && S.view === 'workout' && !(s && hasDone(s))) Promise.resolve().then(() => exIntro(shown(), true));
   if (any && box.hidden) S.preAt = Date.now();
   box.hidden = !any;
   if (!any) { box.innerHTML = ''; S.preOpen = false; return; }
@@ -8246,7 +8266,7 @@ function toast(html) {
   clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2800);
 }
 function chime() {
-  if (!S.sound || !actx) return;
+  if (!S.sound || !actx || actx.state === 'suspended') return;
   try {
     [523, 659, 784, 1047].forEach((f, i) => {
       const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime + i * 0.11;

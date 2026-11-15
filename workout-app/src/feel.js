@@ -107,6 +107,10 @@ function touchOf(b) {
 /* saying yes sounds like a set that is done: starting a workout, choosing, saving */
 const YES = '#homeGo,#preAll,#preDone,#dlYes,#edDone,.sw-b button,[data-add],#moreSame';
 function wireFeel() {
+  /* the sound of the app is made ready while nothing happens, after the page is up: made on the first press it held that press
+     (Start workout) for a long moment on a phone. A press then only wakes it */
+  const warm = () => { if (!actx) try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } };
+  setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(warm, { timeout: 2500 }) : warm()), 1800);
   /* an iPhone shows a control as pressed (:active) only on a page that listens for touches */
   document.addEventListener('touchstart', () => {}, { passive: true });
   wireDress();

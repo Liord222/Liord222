@@ -1845,3 +1845,153 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .ob-q:not(.big){background:#6D3FE0;box-shadow:0 4px 0 #4B27B8}
 .pl-more .ms-act{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
 @media (max-width:360px){.menu.adv-g .stp button{width:36px;height:36px}.menu.adv-g .stp b{min-width:28px}.menu.adv-g .m-row{gap:10px}}
+
+/* ==================================================================== round 3, phase 1: the workout, lighter and calmer
+   ---- the colour of a muscle: soft, and only where it names the muscle (its chip, the new exercise's screen, a dot in a list) */
+.tn-chest{--tn:#E8613A;--tn-bg:#FDEEE8;--tn-ink:#9A3412}
+.tn-back{--tn:#2F7FE0;--tn-bg:#E8F1FC;--tn-ink:#164A8C}
+.tn-sh{--tn:#E39A12;--tn-bg:#FCF2DE;--tn-ink:#7A4E05}
+.tn-arm{--tn:#D9487A;--tn-bg:#FCEAF1;--tn-ink:#8E2450}
+.tn-leg{--tn:#3F9B2A;--tn-bg:#EBF6E5;--tn-ink:#2B6418}
+.tn-core{--tn:#14A07E;--tn-bg:#E2F6F0;--tn-ink:#0B6650}
+:root[data-theme="dark"] .tn-chest{--tn-bg:#3A2219;--tn-ink:#FFB59A}
+:root[data-theme="dark"] .tn-back{--tn-bg:#172A44;--tn-ink:#9CC7FF}
+:root[data-theme="dark"] .tn-sh{--tn-bg:#3A2C10;--tn-ink:#FFD48A}
+:root[data-theme="dark"] .tn-arm{--tn-bg:#3B1A28;--tn-ink:#FFA9C8}
+:root[data-theme="dark"] .tn-leg{--tn-bg:#1E3317;--tn-ink:#A9E08F}
+:root[data-theme="dark"] .tn-core{--tn-bg:#11332B;--tn-ink:#8EE6CF}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .tn-chest{--tn-bg:#3A2219;--tn-ink:#FFB59A}
+  :root:not([data-theme="light"]) .tn-back{--tn-bg:#172A44;--tn-ink:#9CC7FF}
+  :root:not([data-theme="light"]) .tn-sh{--tn-bg:#3A2C10;--tn-ink:#FFD48A}
+  :root:not([data-theme="light"]) .tn-arm{--tn-bg:#3B1A28;--tn-ink:#FFA9C8}
+  :root:not([data-theme="light"]) .tn-leg{--tn-bg:#1E3317;--tn-ink:#A9E08F}
+  :root:not([data-theme="light"]) .tn-core{--tn-bg:#11332B;--tn-ink:#8EE6CF}
+}
+.mus-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0}
+.mus-chips span{padding:4px 10px;border-radius:9px;background:var(--surface-2);color:var(--ink-2);font-size:13px;font-weight:700;line-height:1.35}
+.mus-chips span.p{background:var(--tn-bg);color:var(--tn-ink)}
+.ex-body>.mus-chips{margin:2px 0 0}
+
+/* ---- the demo's two corner buttons: details, and a plain swap */
+.st-btn.swp{inset-inline-end:10px}
+.st-btn span{font-size:13.5px;font-weight:700}
+
+/* ---- a set still ahead says only which set it is */
+.setp .hint{font-size:14px;font-weight:700;color:var(--ink-3)}
+.setp.cur .hint{color:var(--accent-ink)}
+
+/* ---- a new exercise: a light screen, the colour of its muscle on top with the figure doing it, and Start. It stays until Start */
+.xi{background:var(--paper);color:var(--ink);cursor:default;align-items:stretch;place-items:stretch;padding:0}
+.xi::before{display:none}
+.xi .xi-in{display:grid;grid-template-rows:minmax(0,1fr) auto;width:100%;max-width:520px;height:100%;margin:0 auto;gap:0;justify-items:stretch}
+.xi-top{position:relative;display:grid;align-content:end;justify-items:center;gap:8px;padding:calc(18px + env(safe-area-inset-top,0px)) 18px 0;background:var(--tn-bg);border-radius:0 0 28px 28px;overflow:hidden;min-height:0}
+.xi .xi-k{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));inset-inline-start:16px;margin:0;padding:5px 12px;border-radius:10px;background:var(--surface);color:var(--tn-ink);font-size:13.5px;font-weight:800;letter-spacing:0;text-transform:none;animation:xi-up .35s ease both}
+.xi-fig{width:min(100%,360px);aspect-ratio:var(--stage-ar,1.25);max-height:100%;margin-bottom:-2px;border-radius:22px 22px 0 0;overflow:hidden;background:var(--surface);animation:xi-up .4s cubic-bezier(.2,.8,.2,1) .05s both}
+.xi-fig canvas{display:block;width:100%;height:100%}
+.xi-body{display:grid;justify-items:center;gap:12px;padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px));text-align:center}
+.xi .xi-t{margin:0;font-size:26px;font-weight:800;line-height:1.15;letter-spacing:-.02em;text-wrap:balance;animation:xi-up .35s ease .08s both}
+.xi .mus-chips{animation:xi-up .35s ease .12s both}
+.xi .xi-rx{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:400px;margin:0;padding:0;list-style:none;animation:xi-up .35s ease .16s both}
+.xi .xi-rx li{display:grid;gap:1px;padding:10px 4px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.xi .xi-rx b{font-size:20px;font-weight:800;direction:ltr;font-variant-numeric:tabular-nums}
+.xi .xi-rx span{font-size:13px;font-weight:600;color:var(--ink-3)}
+.xi #xiGo{width:100%;max-width:400px;margin-top:4px;animation:xi-up .35s ease .2s both}
+@keyframes xi-up{from{opacity:0;transform:translateY(10px)}}
+@media (max-height:640px){.xi .xi-t{font-size:22px}.xi-body{gap:9px;padding-top:12px}.xi .xi-rx li{padding:7px 4px}}
+@media (prefers-reduced-motion: reduce){.xi .xi-k,.xi-fig,.xi .xi-t,.xi .mus-chips,.xi .xi-rx,.xi #xiGo{animation:none}}
+
+/* ---- the rest: dark and neutral in both themes. A ring of ticks around the time, a soft purple arc with a dot that leads it,
+   a glow that breathes slowly behind it. Green when it is fine to start, gold when the rest is over */
+.dock.rest{background:#121116;color:#fff}
+.dock.rest::before{background:radial-gradient(70% 45% at 50% 40%,rgb(140 116 230 / .16),transparent 70%)}
+.rt-top{grid-template-columns:44px minmax(0,1fr) 44px}
+.rt-k{justify-self:center;font-size:15px;font-weight:700;color:rgb(255 255 255 / .6)}
+.rt-undo{background:rgb(255 255 255 / .08)}
+.rt-ring{width:min(76vw,320px,46vh)}
+.rt-ring::before{content:"";position:absolute;inset:16%;border-radius:50%;background:radial-gradient(circle,rgb(140 116 230 / .28),transparent 68%);animation:rt-breathe 4s ease-in-out infinite}
+@keyframes rt-breathe{50%{transform:scale(1.12);opacity:.7}}
+.rt-ring svg{overflow:visible}
+.rt-ring .t{stroke:rgb(255 255 255 / .07);stroke-width:7}
+.rt-ring .f{stroke:#9B85F0;stroke-width:7;transition:stroke .4s}
+.rt-ring .h{fill:#fff;stroke:#9B85F0;stroke-width:4;transition:stroke .4s}
+.rt-ticks line{stroke:rgb(255 255 255 / .12);stroke-width:2.2;stroke-linecap:round;transition:stroke .3s}
+.rt-ticks line.on{stroke:rgb(255 255 255 / .62)}
+.dock.ready .rt-ring .f{stroke:#4FD1A5}.dock.ready .rt-ring .h{stroke:#4FD1A5}
+.dock.go .rt-ring .f{stroke:var(--gold)}.dock.go .rt-ring .h{stroke:var(--gold)}
+.dock.ready .rt-ring::before{background:radial-gradient(circle,rgb(79 209 165 / .22),transparent 68%)}
+.dock.go .rt-ring::before{background:radial-gradient(circle,rgb(242 176 46 / .28),transparent 68%)}
+.rt-time{font-size:clamp(60px,19vw,84px)}
+.rt-word{font-size:16px;font-weight:700;color:rgb(255 255 255 / .62)}
+.dock.ready .rt-word{color:#4FD1A5}
+.rt-adj button{min-width:84px;height:48px;border-radius:14px;background:#24222B;box-shadow:0 3px 0 #08070B;font-size:17px}
+.rt-adj button:active{transform:translateY(2px);box-shadow:0 1px 0 #08070B}
+.rt-foot .go{background:#fff;color:#121116;box-shadow:0 4px 0 #8E8A99}
+@media (prefers-reduced-motion: reduce){.rt-ring::before{animation:none}}
+
+/* ---- points for a set: they rise above the screen and stay long enough to read. A best and a run of good sets get a word */
+.gain{position:fixed;z-index:95;left:50%;top:calc(env(safe-area-inset-top,0px) + 62px);display:grid;justify-items:center;gap:6px;pointer-events:none;transform:translateX(-50%);animation:gain 1.9s cubic-bezier(.2,.8,.2,1) both}
+.gain b{font-size:38px;font-weight:800;line-height:1;color:var(--gold);text-shadow:0 3px 0 rgb(0 0 0 / .3);direction:ltr}
+.gain span{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:12px;background:var(--gold);color:var(--gold-ink);font-size:15px;font-weight:800;box-shadow:0 3px 0 var(--gold-lip)}
+.gain.run span{background:#FF6A3D;color:#fff;box-shadow:0 3px 0 #C2410C}
+.gain span svg{width:18px;height:18px;fill:currentColor;stroke:none}
+@keyframes gain{0%{opacity:0;transform:translate(-50%,14px) scale(.6)}12%{opacity:1;transform:translate(-50%,0) scale(1.14)}20%{transform:translate(-50%,0) scale(1)}78%{opacity:1;transform:translate(-50%,-4px)}100%{opacity:0;transform:translate(-50%,-30px)}}
+
+/* ---- how long there is today: one big card in the middle. A number to type, a few taps, and on */
+.pre.gate.tq{margin-top:7vh;gap:12px;padding:30px 20px 20px;border-radius:24px;box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.tq h2{margin:0 0 4px}
+.tq-in{display:flex;align-items:baseline;justify-content:center;gap:8px;width:100%;max-width:260px;padding:10px 16px;border-radius:18px;background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--accent)}
+.tq-in input{width:3.2ch;border:0;background:none;color:var(--ink);font:inherit;font-size:56px;font-weight:800;line-height:1.05;text-align:center;font-variant-numeric:tabular-nums;direction:ltr;outline:none;padding:0}
+.tq-in span{font-size:17px;font-weight:700;color:var(--ink-3)}
+.tq-in input.bad{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tq-ch{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;width:100%}
+.tq-c{min-height:50px;border:0;border-radius:14px;background:var(--surface);color:var(--ink);font-size:18px;font-weight:800;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip);direction:ltr}
+.tq-c small{font-size:13px;font-weight:700;color:var(--ink-3)}
+.tq-c.all{font-size:15px}
+.tq-c:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.tq .btn{width:100%}
+
+/* ---- today's workout before it starts, and what is missing */
+.pre.gate.eqq{margin-top:4vh;gap:12px;padding:24px 18px 18px;border-radius:24px;justify-items:stretch;text-align:start;box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.eqq h2{text-align:center}
+.eq-list{list-style:none;margin:0;padding:0;display:grid}
+.eq-list li{display:flex;align-items:center;gap:10px;padding:10px 2px;font-size:15.5px;font-weight:700}
+.eq-list li+li{border-top:1px solid var(--line)}
+.eq-list li i{width:10px;height:10px;flex:none;border-radius:4px;background:var(--tn)}
+.eq-list li span{flex:1;min-width:0}
+.eq-list li small{font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap}
+.eq-list li.sw span::after{content:"";display:inline-block;width:7px;height:7px;margin-inline-start:7px;border-radius:50%;background:var(--accent);vertical-align:middle}
+.eq-q{margin:4px 0 0;text-align:center;font-size:16px;font-weight:800}
+.eq-ch{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.eq-c{min-height:44px;padding:0 16px;border:0;border-radius:12px;background:var(--surface);color:var(--ink);font-size:15px;font-weight:700;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+.eq-c[aria-pressed="true"]{background:var(--surface-2);color:var(--ink-3);text-decoration:line-through;box-shadow:inset 0 0 0 1.5px var(--line)}
+.eq-b{display:grid;gap:8px}
+
+/* ---- the summary: three numbers that run up, the level, the bests one by one */
+.sum-st{list-style:none;margin:2px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:360px}
+.sum-st li{display:grid;gap:2px;padding:12px 4px;border-radius:16px;background:rgb(255 255 255 / .1);animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .15s both}
+.sum-st li:nth-child(2){animation-delay:.25s}.sum-st li:nth-child(3){animation-delay:.35s}
+.sum-st b{font-size:30px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+.sum-st span{font-size:13px;font-weight:600;color:rgb(255 255 255 / .7)}
+.sum-st li.up{background:rgb(79 209 165 / .16)}.sum-st li.up b{color:#5BE0B0}
+.sum-st li.xp b{color:var(--gold)}
+.sum .sum-new li{font-size:15.5px}
+
+/* round 3, phase 1 polish: the time card in the middle of the screen, a chip that reads as chosen, a bigger figure on the intro */
+#app.pre-on #pre{min-height:calc(100dvh - 150px);display:grid;align-content:center}
+.eq-c[aria-pressed="true"]{background:var(--ink);color:var(--paper);text-decoration:none;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.eq-c[aria-pressed="true"]::before{content:"✕";margin-inline-end:6px;font-size:12px;opacity:.8}
+.xi-top{align-content:center;padding-top:calc(56px + env(safe-area-inset-top,0px))}
+.xi-fig{width:min(100%,420px);border-radius:22px;margin-bottom:18px;box-shadow:0 10px 30px -18px rgba(0,0,0,.35)}
+.hw-rir{margin:2px 0 0;text-align:center;font-size:14px;font-weight:700;color:var(--ink-3)}
+.gain.pr,.gain.run{animation-duration:2.7s}
+/* the card of today's time stands in the middle without making the page longer than the screen */
+#app.pre-on #pre{position:fixed;z-index:6;top:calc(64px + env(safe-area-inset-top,0px));bottom:0;left:50%;transform:translateX(-50%);width:min(100%,560px);min-height:0;height:auto;display:flex;flex-direction:column;overflow:auto;padding:12px 16px calc(20px + env(safe-area-inset-bottom,0px));background:var(--paper)}
+#app.pre-on #pre>.pre{margin:auto 0;flex:none}
+.sum-st span{font-size:14px}
+.hw .en-name{margin:2px 0 0;text-align:start}
+/* today's workout never pushes its buttons off the screen: the list of exercises scrolls inside the card */
+#app.pre-on #pre>.pre.eqq{display:flex;flex-direction:column;max-height:100%}
+.eqq .eq-list{flex:1 1 auto;min-height:96px;overflow:auto;overscroll-behavior:contain}
+.eqq>h2,.eqq>.eq-q,.eqq>.eq-ch,.eqq>.eq-b,.eqq>#eqGo{flex:none}

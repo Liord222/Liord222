@@ -77,7 +77,7 @@ const PLAN = [
     E('fc8', 'kneeRaise', 'Hanging Knee Raises', 2, '8–15', [60, 60], 'חזרות נקיות', 0),
   ] },
   /* ---- for five workouts a week: the upper and lower days, then pushing, pulling and legs ---- */
-  { name: 'Push', t: 'פטיש', te: 'Hammer', m: 'חזה · כתפיים · טרייספס', me: 'Chest · shoulders · triceps', ex: [
+  { name: 'Push', t: 'פטיש', te: 'Hammer', m: 'חזה · כתפיים · טריספס', me: 'Chest · shoulders · triceps', ex: [
     E('pu1', 'inclineSmith', 'Incline Smith Machine Press', 3, '6–10', [120, 180], '1 חזרה לפני כשל', 2),
     E('pu2', 'shoulderPress', 'Machine Shoulder Press', 3, '8–12', [90, 120], '1 חזרה לפני כשל', 2),
     E('pu3', 'machinePress', 'Machine Chest Press', 2, '8–12', [90, 90], 'סט אחרון לכשל טכני', 3),

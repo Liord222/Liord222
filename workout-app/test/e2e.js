@@ -80,7 +80,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   const finish = async (pg) => { await list(pg); await pg.click('#finishBtn'); };
 /* "continue" in the rest timer; a tap in the first moment after the timer appears is taken for the tail of a double tap and ignored */
 const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSkip'); };
-  const more = async (pg) => { await pg.click('.ex.open .more'); await pg.waitForTimeout(250); };
+  const more = async (pg) => { await pg.click('.ex.open .how'); await pg.waitForTimeout(250); };
   const shut = async (pg) => { await pg.click('#sheet [data-close]'); await pg.waitForTimeout(250); };
   const tally2 = (pg) => pg.evaluate(() => { const t = totals(); return t.dn + '/' + t.total; });
   // the dock: type the reps, then one tap logs the set
@@ -115,27 +115,52 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
     check('a touch lifts the curtain at once', await d.evaluate(() => document.querySelector('#splash').hidden && document.querySelector('#ob').classList.contains('play')), 'touch');
     await cy.close();
   }
-  /* the purple screen of a new exercise: a page of its own, with it left on */
+  /* the steps before a workout, and the screen of a new exercise: a page of its own, with both left on */
   {
     const ci = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'he-IL' }), x = await ci.newPage(), xerr = []; x.on('pageerror', (e) => xerr.push(e.message));
-    await x.addInitScript(() => { window.__intro = true; });
+    await x.addInitScript(() => { window.__intro = true; window.__eq = true; });
     await x.goto(PREVIEW); await x.waitForTimeout(700); await x.click('#obSkip'); await x.waitForTimeout(300);
-    await x.click('#homeGo'); await x.waitForTimeout(500); await gate(x); await x.waitForTimeout(500);
-    const seen = () => x.evaluate(() => { const bx = document.querySelector('#exIntro'), r = bx.getBoundingClientRect(), L = exList(S.tab), q = (k) => (bx.querySelector(k) || {}).textContent || ''; return { on: !bx.hidden && bx.classList.contains('on'), full: r.width >= innerWidth - 1 && r.height >= innerHeight - 1, k: q('.xi-k'), t: q('.xi-t'), m: q('.xi-m'), n: q('.xi-n'), rx: q('.xi-rx'), tapLine: bx.textContent.includes('נגיעה'), open: (L.find((e) => e.id === S.open) || {}).nm, len: L.length, names: L.map((e) => e.nm) }; });
+    await x.click('#homeGo'); await x.waitForTimeout(500);
+    const tq = await x.evaluate(() => { const c = document.querySelector('#pre .tq').getBoundingClientRect(); return { v: +document.querySelector('#tqMin').value, full: timeInfo(S.tab).full, chips: [...document.querySelectorAll('#pre .tq-c')].map((q) => q.dataset.time).join(), mid: Math.abs(c.top + c.height / 2 - innerHeight / 2) < 90 }; });
+    check('before a workout one card in the middle of the screen asks how long there is today: a number to type, a few taps, and the whole of it', tq.v === tq.full && tq.chips.endsWith(',0') && tq.chips.split(',').length >= 2 && tq.mid, tq);
+    await x.fill('#tqMin', '2'); await x.click('#tqGo'); await x.waitForTimeout(200);
+    check('a time that cannot be is not taken', await x.evaluate(() => document.querySelector('#tqMin').classList.contains('bad') && !live(S.tab) && !dayOf(S.tab)), 'bad time');
+    await x.fill('#tqMin', '30'); await x.keyboard.press('Enter'); await x.waitForTimeout(450);
+    const eq = await x.evaluate(() => { const L = exList(S.tab, live(S.tab)); return { t: document.querySelector('#pre h2').textContent, rows: document.querySelectorAll('#pre .eq-list li').length, n: L.length, plan: exList(S.tab, null, true).length, go: !!document.querySelector('#eqGo'), miss: !!document.querySelector('#eqMiss'), chips: document.querySelectorAll('#pre .eq-c').length, base: L.map((e) => e.mv).join() }; });
+    check('then today\'s workout is shown, cut to that time, with two plain buttons under it', eq.t === 'האימון של היום' && eq.rows === eq.n && eq.n < eq.plan && eq.go && eq.miss && eq.chips === 0, eq);
+    await x.click('#eqMiss'); await x.waitForTimeout(250);
+    const kind = await x.evaluate(() => document.querySelector('#pre .eq-c').dataset.miss);
+    await x.click('#pre .eq-c[data-miss="' + kind + '"]'); await x.waitForTimeout(300);
+    const sw = await x.evaluate((k) => { const L = exList(S.tab, live(S.tab)).map((e) => e.mv); return { mvs: L.join(), left: L.filter((m) => eqKind(m) === k).length, dup: new Set(L).size !== L.length, n: L.length, pressed: document.querySelector('#pre .eq-c[data-miss="' + k + '"]').getAttribute('aria-pressed'), marked: document.querySelectorAll('#pre .eq-list li.sw').length }; }, kind);
+    check('something is missing today: every exercise that needs it moves to one of its kind that does not, none appears twice, and the list shows which moved', sw.left === 0 && !sw.dup && sw.n === eq.n && sw.mvs !== eq.base && sw.pressed === 'true' && sw.marked > 0, sw);
+    await x.click('#pre .eq-c[data-miss="' + kind + '"]'); await x.waitForTimeout(300);
+    check('and when it is there after all, the plan\'s own exercises are back', (await x.evaluate(() => exList(S.tab, live(S.tab)).map((e) => e.mv).join())) === eq.base, eq.base);
+    await x.click('#eqGo'); await x.waitForTimeout(600);
+    const seen = () => x.evaluate(() => { const bx = document.querySelector('#exIntro'), r = bx.getBoundingClientRect(), L = exList(S.tab, live(S.tab)), q = (k) => (bx.querySelector(k) || {}).textContent || ''; return { on: !bx.hidden && bx.classList.contains('on'), full: r.width >= innerWidth - 1 && r.height >= innerHeight - 1, k: q('.xi-k'), t: q('.xi-t'), m: q('.mus-chips'), rx: q('.xi-rx'), go: q('#xiGo'), fig: !!bx.querySelector('canvas'), open: (L.find((e) => e.id === S.open) || {}).nm, len: L.length, names: L.map((e) => e.nm) }; });
     const i0 = await seen();
-    check('a workout opens on a purple screen over all of it: "let\'s go", the first exercise by name, what it trains, how far in, and its sets, reps and rest', i0.on && i0.full && i0.k === 'מתחילים' && i0.t === i0.names[0] && !!i0.m && i0.n === '1/' + i0.len && i0.rx.includes('סטים') && i0.rx.includes('חזרות') && i0.rx.includes('מנוחה') && !i0.tapLine, i0);
-    await x.click('#exIntro'); await x.waitForTimeout(450);
-    check('a tap lets it go at once', await x.evaluate(() => document.querySelector('#exIntro').hidden), 'tap');
+    check('the first exercise comes in on a screen of its own: which one it is of how many, its drawing, its name, what it trains, its sets, reps and rest, and one button', i0.on && i0.full && i0.k === 'תרגיל 1 מתוך ' + i0.len && i0.t === i0.names[0] && !!i0.m && i0.fig && i0.rx.includes('סטים') && i0.rx.includes('חזרות') && i0.rx.includes('מנוחה') && i0.go === 'התחל', i0);
+    await x.waitForTimeout(3200); await x.click('#exIntro .xi-fig'); await x.waitForTimeout(300);
+    check('it stays until "start" is pressed: time does not take it away, and neither does a tap beside the button', (await seen()).on, 'stays');
+    await x.click('#xiGo'); await x.waitForTimeout(450);
+    check('"start" lets it go', await x.evaluate(() => document.querySelector('#exIntro').hidden), 'start');
     /* every set of the first exercise, and the rest after the last one skipped: the next one comes in the same way */
-    const firstDone = () => x.evaluate(() => firstUndone(live(S.tab), exList(S.tab)[0]) < 0), resting = () => x.evaluate(() => rest.on);
+    const firstDone = () => x.evaluate(() => firstUndone(live(S.tab), exList(S.tab, live(S.tab))[0]) < 0), resting = () => x.evaluate(() => rest.on);
     for (let k = 0; k < 8 && !(await firstDone()); k++) { if (await resting()) { await x.click('#rtSkip'); await x.waitForTimeout(250); } await x.click('#dkHit'); await x.waitForTimeout(350); }
-    check('no purple screen between the sets of one exercise', await x.evaluate(() => document.querySelector('#exIntro').hidden), 'between sets');
+    check('no such screen between the sets of one exercise', await x.evaluate(() => document.querySelector('#exIntro').hidden), 'between sets');
     await x.click('#rtSkip'); await x.waitForTimeout(500);
     const i1 = await seen();
-    check('when the rest after the last set is over, the next exercise opens under the purple screen: "new exercise", its name, 2 of the whole', i1.on && i1.k === 'תרגיל חדש' && i1.t === i1.names[1] && i1.open === i1.names[1] && i1.n === '2/' + i1.len, i1);
-    await x.waitForTimeout(2900);
-    check('and it goes by itself after a moment', await x.evaluate(() => document.querySelector('#exIntro').hidden), 'auto');
-    check('the purple screens ran clean', xerr.length === 0, xerr.join(' | '));
+    check('when the rest after the last set is over, the next exercise opens under its own screen: 2 of the whole', i1.on && i1.k === 'תרגיל 2 מתוך ' + i1.len && i1.t === i1.names[1] && i1.open === i1.names[1], i1);
+    /* the whole workout by taps: every exercise is announced once, in order, and the header says the same */
+    const order = [1];
+    for (let k = 0; k < 90; k++) {
+      const st = await x.evaluate(() => ({ intro: !document.querySelector('#exIntro').hidden, k: (document.querySelector('#exIntro .xi-k') || {}).textContent || '', rest: rest.on, hit: !!document.querySelector('#dkHit') }));
+      if (st.intro) { order.push(parseInt(st.k.replace(/^\D+/, ''), 10)); await x.click('#xiGo'); await x.waitForTimeout(300); if ((await x.evaluate(() => document.querySelector('#wkTitle .sub').textContent)) !== st.k) order.push('header says ' + (await x.evaluate(() => document.querySelector('#wkTitle .sub').textContent))); continue; }
+      if (st.rest) { await x.click('#rtSkip'); await x.waitForTimeout(400); continue; }
+      if (st.hit) { await x.click('#dkHit'); await x.waitForTimeout(350); continue; }
+      break;
+    }
+    check('through the whole workout the exercises come one after the other, each numbered in turn', order.join() === Array.from({ length: i0.len }, (_, k) => k + 1).join(), order);
+    check('these screens ran clean', xerr.length === 0, xerr.join(' | '));
     await ci.close();
   }
   /* a workout's own name, a girl's figure, the kiosk's shelves and the journey's map */
@@ -188,7 +213,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
     await x.click('#sheet [data-close]'); await x.waitForTimeout(300);
     /* a run of weeks: two weeks with a workout each, none yet this week; Eilon says what keeps it */
     await x.evaluate(() => { const now = Date.now(), sets = { [exList(week()[0])[0].id]: [{ kg: 40, reps: 8, done: true, t: now }] }; for (const k of [1, 2]) { const t = now - k * 7 * 864e5, id = 'run' + k; S.sessions[id] = { id, v: 3, w: week()[0], ts: t, end: t + 3600e3, mt: t + 3600e3, upd: t + 3600e3, ft: t, m: 'old', wk: 1, dl: 0, rir: 3, n: {}, mv: {}, sore: {}, cut: {}, fb: {}, sets: JSON.parse(JSON.stringify(sets)) }; } renderAll(); });
-    check('two weeks in a row and nothing yet this week: Eilon says one workout this week keeps the run', (await x.evaluate(() => document.querySelector('.wk-coach').textContent)).includes('2 שבועות ברצף. אימון אחד השבוע שומר על הרצף.'), await x.evaluate(() => document.querySelector('.wk-coach').textContent));
+    check('two weeks in a row and nothing yet this week: Eilon says one workout this week keeps the run', (await x.evaluate(() => document.querySelector('.wk-coach').textContent)).includes('אימון אחד השבוע שומר על רצף של 2 שבועות'), await x.evaluate(() => document.querySelector('.wk-coach').textContent));
     /* a workout whose id holds a chest: the summary shows it closed, a tap opens it, and the kiosk has the coins */
     const before = await x.evaluate(() => { const T = meNow().T; return coinsLeft(T.xp, S.cfg.me.shop, T.ch); });
     const box = await x.evaluate(() => {
@@ -200,8 +225,8 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
       return { n: chestOf(S.sessions[id]), y: tally(S.sessions[id]) };
     });
     await x.waitForTimeout(2200);
-    const c0 = await x.evaluate(() => ({ on: !!document.querySelector('#chestBtn:not(.open)'), t: document.querySelector('#chestBtn').innerText.replace(/\s+/g, ' ').trim(), kg: (document.querySelector('.sum-kg') || {}).textContent || '', to: document.querySelector('#sumTo').textContent }));
-    check('the summary of such a workout: what it lifted, as much as something heavy, how many sets to the next level, and a chest waiting to be opened', c0.on && c0.t === 'תיבת הפתעה! לוחצים כדי לפתוח' && /^הרמת היום [\d.]+ טון, יותר מ/.test(c0.kg) && /^עוד/.test(c0.to), [c0, box]);
+    const c0 = await x.evaluate(() => ({ on: !!document.querySelector('#chestBtn:not(.open)'), t: document.querySelector('#chestBtn').innerText.replace(/\s+/g, ' ').trim(), kg: document.querySelector('.sheet-in.sum').innerText.includes('טון'), st: [...document.querySelectorAll('.sum-st li span')].map((q) => q.textContent).join(), to: document.querySelector('#sumTo').textContent }));
+    check('the summary of such a workout: what it lifted, as much as something heavy, how many sets to the next level, and a chest waiting to be opened', c0.on && c0.t === 'קופסת מטבעות לחץ לפתוח' && !c0.kg && c0.st.startsWith('סטים,דקות') && /^עוד/.test(c0.to), [c0, box]);
     await x.click('#chestBtn'); await x.waitForTimeout(600);
     const c1 = await x.evaluate(() => ({ open: document.querySelector('#chestBtn').classList.contains('open'), t: document.querySelector('#chestBtn').innerText.replace(/\s+/g, ' ').trim(), lid: getComputedStyle(document.querySelector('#chestBtn .ch-lid')).transform }));
     const after = await x.evaluate(() => { const T = meNow().T; return coinsLeft(T.xp, S.cfg.me.shop, T.ch); });
@@ -280,12 +305,10 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('the plan is built in front of the lifter, from the answers', build.title === 'רגע, בונה לך תוכנית' && build.off && build.ring && build.steps === 'בוחר תרגילים לחדר כושר מלא|בונה שבוע של 4 אימונים|קובע סטים למתאמן קבוע|מכוון חזרות ומנוחות למטרות שלך|משאיר כל אימון באורך מלא', build);
   await p.evaluate(() => { window.__heard = []; const real = window.sfx; window.__sfx0 = real; window.sfx = (k) => { window.__heard.push(k); return real(k); }; });
   await p.waitForSelector('#obNext:not([disabled])', { timeout: 8000 }); await p.waitForTimeout(900); await shot('o4-plan');
-  const offer = await p.evaluate(() => ({ title: document.querySelector('#obTitle').textContent, stats: [...document.querySelectorAll('.ob-stats li')].map((x) => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent).join('|'), wks: [...document.querySelectorAll('.ob-wks li')].map((x) => x.querySelector('b').textContent).join('|'), tip: (document.querySelector('.ob-wk-tip') || {}).textContent || '', mus: [...document.querySelectorAll('.ob-wks li small')].map((x) => x.textContent).join('|'), h2: document.querySelector('.ob-plan h2').textContent, cta: document.querySelector('#obNext').textContent, fb: document.querySelector('#obFb').getAttribute('aria-checked'), eilon: !!document.querySelector('.ob-q .ob-eilon svg'), heard: window.__heard.join(), art: document.querySelectorAll('.ob-lines, .ic-tile').length }));
+  const offer = await p.evaluate(() => ({ title: document.querySelector('#obTitle').textContent, stats: [...document.querySelectorAll('.ob-stats li')].map((x) => x.querySelector('b').textContent + ' ' + x.querySelector('span').textContent).join('|'), wks: [...document.querySelectorAll('.ob-wks li')].map((x) => x.querySelector('b').textContent).join('|'), tip: (document.querySelector('.ob-wk-tip') || {}).textContent || '', mus: [...document.querySelectorAll('.ob-wks li small')].map((x) => x.textContent).join('|'), h2: document.querySelector('.ob-plan h2').textContent, cta: document.querySelector('#obNext').textContent, fb: !document.querySelector('#obFb'), eilon: !!document.querySelector('.ob-q .ob-eilon svg'), heard: window.__heard.join(), art: document.querySelectorAll('.ob-lines, .ic-tile').length }));
   await p.evaluate(() => { window.sfx = window.__sfx0; });
-  check('then it arrives with a fanfare, on the purple card: four workouts a week, each with its name and what it trains, the exercises, the sets for this experience and the real length, and no drawings', offer.title === 'התוכנית שלך מוכנה' && offer.h2 === '4 אימונים בשבוע' && offer.mus.split('|').length === 4 && offer.mus.includes('רגליים') && offer.eilon && offer.stats === '6–9 תרגילים באימון|2–3 סטים לתרגיל|50–60 דקות לאימון' && offer.wks === 'אימון 1|אימון 2|אימון 3|אימון 4' && offer.tip.includes('שם משלך') && offer.cta === 'נשמע טוב' && offer.fb === 'true' && offer.heard === 'glory' && offer.art === 0 && (await fits()), offer);
+  check('then it arrives with a fanfare, on the purple card: four workouts a week, each with its name and what it trains, the exercises, the sets for this experience and the real length, and no drawings', offer.title === 'התוכנית שלך מוכנה' && offer.h2 === '4 אימונים בשבוע' && offer.mus.split('|').length === 4 && offer.mus.includes('רגליים') && offer.eilon && offer.stats === '6–9 תרגילים באימון|2–3 סטים לתרגיל|50–60 דקות לאימון' && offer.wks === 'אימון 1|אימון 2|אימון 3|אימון 4' && offer.tip.includes('שם משלך') && offer.cta === 'נשמע טוב' && offer.fb === true && offer.heard === 'glory' && offer.art === 0 && (await fits()), offer);
   check('and a beginner would get one set less', (await p.evaluate(() => { const keep = OB.exp; OB.exp = 0; const s = planPreview().sets; OB.exp = keep; return s; })) === '2', 'beginner');
-  await p.click('#obFb'); const fbOff = await p.evaluate(() => OB.fb + ':' + document.querySelector('#obFb').getAttribute('aria-checked')); await p.click('#obFb');
-  check('whether Eilon asks how each exercise went is the lifter\'s to choose, here', fbOff === '0:false' && (await p.evaluate(() => OB.fb)) === 2, fbOff);
   check('and no personal code is asked for', !(await p.$('.pin-k')) && (await txt('#obNext')) === 'נשמע טוב', await txt('#ob'));
   await p.click('#obNext'); await p.waitForTimeout(600); await shot('o5-ready');
   const fin = await p.evaluate(() => ({ figs: document.querySelectorAll('.ob-ladder figure .av').length, caps: [...document.querySelectorAll('.ob-ladder figcaption')].map((x) => x.textContent).join('|'), discs: [...document.querySelectorAll('.ob-done .av-aura')].filter((x) => getComputedStyle(x).display !== 'none').length, cheer: document.querySelector('.ob-ladder .now .av').classList.contains('cheer'), stage: !!document.querySelector('.ob-film.fin') }));
@@ -318,25 +341,25 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('the next workout shows what it is worth', (await txt('#home .next .xp-tag')) === '+310', await txt('#home .next'));
   await shot('g0-home');
   await p.click('#homeGo'); await p.waitForTimeout(600);
-  const tgate = await p.evaluate(() => ({ on: document.querySelector('#app').classList.contains('pre-on'), title: (document.querySelector('#pre h2') || {}).textContent, tiles: [...document.querySelectorAll('#pre .pre-t')].map((x) => x.dataset.time + ':' + x.innerText.replace(/\s+/g, ' ').trim()).join('|'), dock: getComputedStyle(document.querySelector('#dock')).display, list: exList(0).length, fits: document.documentElement.scrollHeight <= innerHeight }));
-  check('before the first set the workout asks how long there is today: each choice says what it keeps, and the whole workout is one of them', tgate.on && tgate.title === 'כמה זמן יש לך היום?' && tgate.tiles === '30:35 דקות 4 תרגילים|45:45 דקות 6 תרגילים|0:55 דקות כל האימון · 8 תרגילים' && tgate.dock === 'none' && tgate.fits, tgate);
+  const tgate = await p.evaluate(() => ({ on: document.querySelector('#app').classList.contains('pre-on'), title: (document.querySelector('#pre h2') || {}).textContent, inp: (document.querySelector('#tqMin') || {}).value, tiles: [...document.querySelectorAll('#pre .tq-c')].map((x) => x.dataset.time + ':' + x.innerText.replace(/\s+/g, ' ').trim()).join('|'), dock: getComputedStyle(document.querySelector('#dock')).display, list: exList(0).length, fits: document.documentElement.scrollHeight <= innerHeight }));
+  check('before the first set the workout asks how long there is today: each choice says what it keeps, and the whole workout is one of them', tgate.on && tgate.title === 'כמה זמן יש לך היום' && tgate.tiles === '30:30|45:45|0:הכול 55' && tgate.inp === '55' && tgate.dock === 'none' && tgate.fits, tgate);
   await p.click('#pre [data-time="45"]'); await p.waitForTimeout(350);
   const cut45 = await p.evaluate(() => ({ n: exList(0).length, ids: exList(0).map((e) => e.id).join(), plan: exList(0, null, true).length, mins: minsOf(exList(0)), on: document.querySelector('#app').classList.contains('pre-on'), sub: document.querySelector('#wkTitle .sub').textContent, live: !!live(0), kept: JSON.parse(localStorage.getItem('ul4:v1')).day[0].min }));
   check('a shorter day keeps the lifts that open the workout and drops its end, for today only: the plan keeps every exercise', cut45.n === 6 && cut45.ids === 'ua1,ua2,ua3,ua4,ua5,ua6' && cut45.plan === 8 && cut45.mins <= 45 && !cut45.on && cut45.sub === 'תרגיל 1 מתוך 6' && !cut45.live && cut45.kept === 45, cut45);
   await p.click('#backBtn'); await p.waitForTimeout(300);
   check('the home card tells of the shorter day', (await txt('#home .next .meta')) === '6 תרגילים · 45 דק׳' && (await txt('#home .next .xp-tag')) === '+260', await txt('#home .next'));
   await p.click('#homeGo'); await p.waitForTimeout(450);
-  check('the question is not asked twice', !(await p.$('#pre .pre-t')) && !!(await p.$('#dkHit')), await txt('#pre'));
+  check('the question is not asked twice', !(await p.$('#pre .tq-c')) && !!(await p.$('#dkHit')), await txt('#pre'));
   await list(p); await p.click('#timeAgain'); await p.waitForTimeout(500);
-  check('but it can be asked for again from the list of the workout', (await p.$$('#pre .pre-t')).length === 3 && (await p.isHidden('#sheet')), await txt('#pre'));
+  check('but it can be asked for again from the list of the workout', (await p.$$('#pre .tq-c')).length === 3 && (await p.isHidden('#sheet')), await txt('#pre'));
   await gate(p);
   check('and the whole workout is back', (await p.evaluate(() => exList(0).length + ':' + S.day[0].min + ':' + (S.day[0].ids === null))) === '8:0:true', await p.evaluate(() => JSON.stringify(S.day)));
   check('a workout opens on one exercise, ready to log', (await p.evaluate(() => S.view)) === 'workout' && (await p.$$('#exList .ex')).length === 1 && (await txt('#wkTitle .sub')) === 'תרגיל 1 מתוך 8' && (await txt('#exList .ex-name')) === 'לחיצת חזה בשיפוע עליון בסמית׳' && !!(await p.$('#dkHit')) && (await txt('#wkTitle')).includes('אימון 1') && (await p.evaluate(() => !live(0))), [await txt('.fx-head'), await txt('#wkTitle')]);
   check('one quiet bar shows how far the workout is', (await p.getAttribute('#wkBar .bar', 'aria-label')) === '0 מתוך 21 סטים' && (await p.$$('#wkBar .bar i')).length === 1, await p.getAttribute('#wkBar .bar', 'aria-label'));
-  check('the exercise says what is asked in one line, with a cell for every set and nothing else to press', (await txt('.fx-rx')) === '6–10 חזרות · 3 חזרות לפני כשל' && (await p.$$('.ex.open .setp')).length === 3 && (await p.$$('#exList .ex.open button')).length === 8 && !(await p.$('#exList .ex-acts')) && !(await p.$('#exList .swap')), await txt('.fx-rx'));
-  const first = await p.evaluate(() => ({ T: JSON.stringify(targetOf(findEx('ua1'), 0, null)), kg: document.querySelector('#dkKg').innerText.replace(/\s+/g, ' '), ghost: document.querySelector('#dkKg').classList.contains('ghost'), cells: [...document.querySelectorAll('.ex.open .setp')].map((x) => x.innerText.replace(/\s+/g, ' ').trim()).join(), badge: document.querySelector('.dk-top .goal').textContent, steps: [...document.querySelectorAll('#dock .step')].map((x) => x.textContent + '/' + x.getAttribute('aria-label')).join('|'), pts: document.querySelectorAll('#dock .xp-tag').length, fits: document.documentElement.scrollHeight <= innerHeight, how: document.querySelector('.ex.open .how').innerText.trim() }));
-  check('an exercise that was never logged starts from a first guess, not from a dash: a weight for this lifter, in the middle of the rep range, shown as a target', first.T === '{"kg":40,"reps":8,"mode":"start","ref":null}' && first.kg === '40 ק״ג' && first.ghost && first.cells === '40 ק״ג 8 חזרות,40 ק״ג 8 חזרות,40 ק״ג 8 חזרות' && first.badge === 'משקל התחלתי', first);
-  check('the weight goes up fast and comes down fine, and each button says how far it goes; the workout fits the screen and shows no tally of points', first.steps === '−2.5/הפחת 2.5 ק״ג|+5/הוסף 5 ק״ג' && first.pts === 0 && first.fits && first.how === 'פירוט התרגיל', first);
+  check('the exercise says what is asked in one line, with a cell for every set and nothing else to press', (await txt('.fx-rx')) === '6–10 חזרות' && (await p.$$('.ex.open .setp')).length === 3 && (await p.$$('#exList .ex.open button')).length === 8 && !(await p.$('#exList .ex-acts')) && !(await p.$('#exList .swap')), await txt('.fx-rx'));
+  const first = await p.evaluate(() => ({ T: JSON.stringify(targetOf(findEx('ua1'), 0, null)), kg: document.querySelector('#dkKg').innerText.replace(/\s+/g, ' '), ghost: document.querySelector('#dkKg').classList.contains('ghost'), cells: [...document.querySelectorAll('.ex.open .setp')].map((x) => x.innerText.replace(/\s+/g, ' ').trim()).join(), badge: (document.querySelector('.dk-top .goal') || { textContent: '' }).textContent, steps: [...document.querySelectorAll('#dock .step')].map((x) => x.textContent + '/' + x.getAttribute('aria-label')).join('|'), pts: document.querySelectorAll('#dock .xp-tag').length, fits: document.documentElement.scrollHeight <= innerHeight, how: document.querySelector('.ex.open .how').innerText.trim() }));
+  check('an exercise that was never logged starts from a first guess, not from a dash: a weight for this lifter, in the middle of the rep range, shown as a target', first.T === '{"kg":40,"reps":8,"mode":"start","ref":null}' && first.kg === '40 ק״ג' && first.ghost && first.cells === 'סט 1,סט 2,סט 3' && first.badge === '', first);
+  check('the weight goes up fast and comes down fine, and each button says how far it goes; the workout fits the screen and shows no tally of points', first.steps === '−2.5/הפחת 2.5 ק״ג|+5/הוסף 5 ק״ג' && first.pts === 0 && first.fits && first.how === 'פירוט', first);
   await p.click('.ex.open .how'); await p.waitForTimeout(250);
   check('how to do it is one tap away: three cues and the name in English', (await p.$$('#sheet .cues li')).length === 3 && (await txt('#sheet .en-name')) === 'Incline Smith Machine Press', await txt('#sheet'));
   await shut(p);
@@ -366,16 +389,16 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   /* what the hand and the ear get: the shell's touch hook records each kind */
   await p.evaluate(() => { window.__felt = []; });
   await reps(p, 8); await p.evaluate(() => { window.__felt = []; }); await p.click('#dkHit'); await p.waitForTimeout(260);
-  const fly = await p.evaluate(() => { const f = document.querySelector('.fly'); return f ? f.textContent : ''; });
+  const fly = await p.evaluate(() => { const f = document.querySelector('.gain b'); return f ? f.textContent : ''; });
   await p.waitForTimeout(240);
   check('logging a set is felt as a success and heard as one soft sound, and its points fly up from the button', (await p.evaluate(() => window.__felt.join() + '|' + window.__heard.join())) === (process.env.HX === '1' ? '|set' : 'success|set') && fly === '+10' && !!(await p.$('.ex.open .setp.pop[data-i="0"]')), [await p.evaluate(() => window.__felt.join() + '|' + window.__heard.join()), fly]);
   await p.waitForTimeout(700);
-  check('(the flying points are gone again)', !(await p.$('.fly')), 'fly');
+  check('(the points stay long enough to be read)', !!(await p.$('.gain')), 'gain');
   await p.evaluate(() => { delete window.gymiHaptic; });
-  check('one tap logs the set and starts rest', (await txt('.rt-log')).includes('60 ק״ג · 8 חזרות') && !(await txt('.rt-log')).includes('×'), await txt('#dock'));
-  check('a logged set earns 10 points, and the rest shows the set, not a tally', !(await p.$('#dock .xp-tag')) && (await p.evaluate(() => meNow().T.xp)) === 10, await txt('.rt-log'));
-  const restUI = await p.evaluate(() => { const d = document.querySelector('#dock'), r = d.getBoundingClientRect(), ring = document.querySelector('.rt-ring').getBoundingClientRect(), go = document.querySelector('#rtSkip').getBoundingClientRect(); return { full: r.top === 0 && Math.round(r.height) === innerHeight && Math.round(r.width) === innerWidth, mid: Math.abs(ring.left + ring.width / 2 - innerWidth / 2) < 2 && ring.top > 60 && ring.bottom < go.top, big: ring.width > 200, time: /^\d:\d\d$/.test(document.querySelector('#rtTime').textContent), word: document.querySelector('#rtWord').textContent, next: document.querySelector('#rtState').innerText.trim(), foot: Math.round(innerHeight - go.bottom) < 40, undo: document.querySelector('#rtUndo').getAttribute('aria-label'), btns: d.querySelectorAll('button').length, undoTxt: document.querySelector('#rtUndo').innerText.trim() }; });
-  check('the rest takes the whole screen: the time in a ring in the middle, what comes next and the way on at the foot, and an arrow at the top that takes the set back', restUI.full && restUI.mid && restUI.big && restUI.time && restUI.word === 'מנוחה' && restUI.next === 'הבא: סט 2 מתוך 3' && restUI.foot && restUI.undo === 'ביטול הסט שנרשם' && restUI.undoTxt === '' && restUI.btns === 4, restUI);
+  check('one tap logs the set and starts rest', (await p.evaluate(() => rest.on && document.querySelector('.ex.open .setp[data-i="0"]').innerText.replace(/\s+/g, ' ').trim())) === '60 ק״ג 8 חזרות', await txt('.ex.open .sets'));
+  check('a logged set earns 10 points, and the rest shows the set, not a tally', !(await p.$('#dock .xp-tag')) && (await p.evaluate(() => meNow().T.xp)) === 10, await txt('#dock'));
+  const restUI = await p.evaluate(() => { const d = document.querySelector('#dock'), r = d.getBoundingClientRect(), ring = document.querySelector('.rt-ring').getBoundingClientRect(), go = document.querySelector('#rtSkip').getBoundingClientRect(); return { full: r.top === 0 && Math.round(r.height) === innerHeight && Math.round(r.width) === innerWidth, mid: Math.abs(ring.left + ring.width / 2 - innerWidth / 2) < 2 && ring.top > 60 && ring.bottom < go.top, big: ring.width > 200, time: /^\d:\d\d$/.test(document.querySelector('#rtTime').textContent), word: document.querySelector('#rtWord').textContent, ticks: document.querySelectorAll('#rtTicks line').length, foot: Math.round(innerHeight - go.bottom) < 40, undo: document.querySelector('#rtUndo').getAttribute('aria-label'), btns: d.querySelectorAll('button').length, undoTxt: document.querySelector('#rtUndo').innerText.trim() }; });
+  check('the rest takes the whole screen: the time in a ring in the middle, what comes next and the way on at the foot, and an arrow at the top that takes the set back', restUI.full && restUI.mid && restUI.big && restUI.time && restUI.word === 'מנוחה' && restUI.ticks === 60 && restUI.foot && restUI.undo === 'ביטול הסט שנרשם' && restUI.undoTxt === '' && restUI.btns === 4, restUI);
   check('the first set starts the workout and moves the bar', (await p.evaluate(() => !!live(0))) && (await p.evaluate(() => document.querySelector('#wkBar .bar i').style.width)) === '5%', await p.getAttribute('#wkBar .bar', 'aria-label'));
   await skip(p); await p.waitForTimeout(200);
   check('weight carries to the next set, with a one-tap target', (await txt('#dkKg')).startsWith('60') && (await txt('.dk-set')).includes('2') && (await txt('#dkReps')).startsWith('8') && !!(await p.$('#dkReps.ghost')), [await txt('#dkKg'), await txt('.dk-set'), await txt('#dkReps')]);
@@ -471,10 +494,10 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('the list of all exercises shows the workout at a glance: plain rows, no pictures', (await p.$$('#allList .ex')).length === 8 && (await txt('#sheet .kicker')).includes('5/21') && (await txt('#allList .ex[data-id="ua1"] .ex-rx')) === '2/3' && !!(await p.$('#allList .ex[data-id="ua2"].done .ex-n svg')) && (await txt('#allList .ex[data-id="ua3"] .ex-rx')) === '3 סטים · 8–12 חז׳' && (await p.$$('#allList .ex.cur')).length === 1 && !(await p.$('#allList canvas')) && (await p.$$('#allList .ex-head > :not(.hx)')).length === 24 && !!(await p.$('#editWk')), await txt('#sheet'));
   await p.click('#finishBtn'); await p.waitForTimeout(500);
   check('the summary says the workout is complete, with nothing in small print, and the next workout waits behind it', (await txt('#sheet')).includes('אימון 1 הושלם') && !/5\/21|ק״ג|דק׳|הבא:/.test(await txt('#sheet')) && (await p.$$('#sheet button:not(#chestBtn)')).length === 1 && (await p.evaluate(() => { const s = Object.values(S.sessions).filter((x) => x.end).sort((a, b) => b.end - a.end)[0]; return !!document.querySelector('#chestBtn') === chestOf(s) > 0; })) && /^עוד \d+ סטים לרמה \d+$|^עוד סט אחד לרמה \d+$/.test(await txt('#sumTo')) && (await cur(p)) === 'אימון 2, הבא' && (await p.evaluate(() => S.view)) === 'home', [await txt('#sheet'), await cur(p)]);
-  const sumUI = await p.evaluate(() => { const b = document.querySelector('.sheet-in.sum').getBoundingClientRect(), xp = document.querySelector('#sumXp'); return { full: b.top === 0 && Math.round(b.height) === innerHeight, big: parseFloat(getComputedStyle(xp).fontSize) >= 56, small: [...document.querySelectorAll('.sheet-in.sum *')].filter((el) => el.children.length === 0 && el.textContent.trim() && el.getClientRects().length && parseFloat(getComputedStyle(el).fontSize) < 14).map((el) => el.textContent.trim()).join('|') }; });
+  const sumUI = await p.evaluate(() => { const b = document.querySelector('.sheet-in.sum').getBoundingClientRect(), xp = document.querySelector('.sum-st b'); return { full: b.top === 0 && Math.round(b.height) === innerHeight, big: parseFloat(getComputedStyle(xp).fontSize) >= 28, small: [...document.querySelectorAll('.sheet-in.sum *')].filter((el) => el.children.length === 0 && el.textContent.trim() && el.getClientRects().length && parseFloat(getComputedStyle(el).fontSize) < 14).map((el) => el.textContent.trim()).join('|') }; });
   check('it takes the whole screen, the points are the largest thing on it, and no text is small', sumUI.full && sumUI.big && sumUI.small === '', sumUI);
   await p.waitForTimeout(900); await shot('g1a-reward');
-  check('the summary is the reward: 5 sets and the finish bonus, no level yet', (await txt('#sumXp')) === '+150' && (await txt('#sheet .sum-lv')).replace(/\s+/g, ' ').trim() === 'רמה 1 2' && (await p.isHidden('.sum-up')) && !!(await p.$('#sheet .av.cheer')) && (await p.evaluate(() => document.querySelector('#sumBar').style.width)) === '75%', await txt('#sheet'));
+  check('the summary is the reward: 5 sets and the finish bonus, no level yet', (await txt('#stXp')) === '+150' && (await txt('#stSets')) === '5' && (await txt('#sheet .sum-lv')).replace(/\s+/g, ' ').trim() === 'רמה 1 2' && (await p.isHidden('.sum-up')) && !!(await p.$('#sheet .av.cheer')) && (await p.evaluate(() => document.querySelector('#sumBar').style.width)) === '75%', await txt('#sheet'));
   check('the first finished workout is an achievement', (await txt('.sum-new')).includes('אימון ראשון') && (await p.evaluate(() => S.cfg.me.badges.first > 0)), await txt('#sheet'));
   await p.click('#sheetClose'); await p.waitForTimeout(1200);
   // ---------- the profile: the character, the level and what was earned ----------
@@ -523,7 +546,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('today greets the player by name', (await txt('#playerBtn')).includes('היי, ליאור') && (await p.evaluate(() => document.querySelector('#playerBtn .av.bust').innerHTML.includes('#1E1D24'))), await txt('#playerBtn'));
   check('with the workout finished the mark on "today" is gone', !(await p.$('#tabbar .live')), 'live');
   await p.evaluate(() => setSync('error')); await p.waitForTimeout(150);
-  check('with no connection the phone says so in one quiet line', (await p.isVisible('#syncNote')) && (await txt('#syncNote')) === 'אין חיבור, נשמר במכשיר' && (await p.evaluate(() => document.querySelector('#app').dataset.sync)) === 'off' && (await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth)), await txt('.brand'));
+  check('with no connection the phone says so in one quiet line', (await p.isVisible('#syncNote')) && (await txt('#syncNote')) === 'נשמר במכשיר בלי חיבור' && (await p.evaluate(() => document.querySelector('#app').dataset.sync)) === 'off' && (await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth)), await txt('.brand'));
   await p.evaluate(() => setSync('cloud')); await p.waitForTimeout(150);
   check('and the line goes away when the connection is back', (await p.isHidden('#syncNote')) && (await p.evaluate(() => document.querySelector('#app').dataset.sync)) === 'on', await txt('.brand'));
   await p.click('#playerBtn'); await p.waitForTimeout(200);
@@ -546,9 +569,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   await p.click('#sheet [data-set="goals"][data-v="0"]'); await p.waitForTimeout(150); await p.click('#sheet [data-set="goals"][data-v="2"]'); await p.waitForTimeout(150);
   const flat = await p.evaluate(() => { const a = findEx('ua1'), b = findEx('ua4'); return [a.reps, a.rest.join('-'), b.reps, b.rest.join('-'), S.cfg.me.goal, S.cfg.me.goals.join('+')].join(); });
   check('the goal bends the plan: for strength the heavy lifts go lower with longer rests, for fitness every range goes a step up with shorter rests, and for physique it is the plan as written', bent === '4–6,150-210,12–15,75-75,1' && high === '8–12,90-135,12–20,60-60' && flat === '6–10,120-180,12–15,75-75,0,0', [bent, high, flat]);
-  await p.click('#sheet [data-set="fb"][data-v="1"]'); await p.waitForTimeout(150);
-  check('how often Eilon asks after an exercise is a setting too', (await p.evaluate(() => S.cfg.me.fb)) === 1 && (await press('fb', 1)) === 'true' && (await press('fb', 2)) === 'false', await p.evaluate(() => S.cfg.me.fb));
-  await p.click('#sheet [data-set="fb"][data-v="2"]'); await p.waitForTimeout(150);
+  check('how often Eilon asks is no longer a setting: nothing is asked after an exercise', !(await p.$('#sheet [data-set="fb"]')), await txt('#sheet'));
   await p.click('#sheet [data-set="buzz"]'); await p.waitForTimeout(150);
   check('vibration is a switch, and it is kept on this device', (await p.getAttribute('#sheet [data-set="buzz"]', 'aria-checked')) === 'false' && (await p.getAttribute('#sheet [data-set="buzz"]', 'role')) === 'switch' && (await p.evaluate(() => [S.buzz, JSON.parse(localStorage.getItem('ul4:v1')).buzz].join())) === 'false,false', await txt('#sheet'));
   await p.click('#sheet [data-set="buzz"]'); await p.waitForTimeout(150);
@@ -582,44 +603,46 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('second device: the same player, level and character', (await t2('#playerBtn')).includes('היי, ליאור') && (await q.evaluate(() => [meNow().T.xp, S.cfg.me.look.shirt, S.cfg.me.badges.first > 0].join())) === '150,2,true', await t2('#playerBtn'));
   check('second device: the note arrived with the settings', (await q.evaluate(() => S.cfg.notes.inclineSmith || '')).includes('מושב'), 'note');
   await q.click('.tab[data-tab="0"]'); await q.waitForTimeout(450);
-  check('on a second device too, the workout first asks how long there is today', (await t2('#pre h2')) === 'כמה זמן יש לך היום?' && !(await q.isVisible('#dock')), await t2('#pre'));
+  check('on a second device too, the workout first asks how long there is today', (await t2('#pre h2')) === 'כמה זמן יש לך היום' && !(await q.isVisible('#dock')), await t2('#pre'));
   await gate(q);
-  check('recovery check is one question that takes the screen before the workout', (await t2('#pre')).includes('השרירים התאוששו?') && !(await q.$('#pre [data-mu]')) && !(await q.isVisible('#exList')) && !(await q.isVisible('#dock')), await t2('#pre'));
+  check('recovery check is one question that takes the screen before the workout', (await t2('#pre')).includes('השרירים התאוששו') && !(await t2('#pre')).includes('?') && !(await q.$('#pre [data-mu]')) && !(await q.isVisible('#exList')) && !(await q.isVisible('#dock')), await t2('#pre'));
   await q.click('#preEdit'); await q.waitForTimeout(200);
   check('"not quite" opens the muscles one by one', (await t2('#pre')).includes('חזה') && (await t2('#pre')).includes('עדיין תפוס'), await t2('#pre'));
   await q.click('#preAll'); await q.waitForTimeout(250);
   check('once answered the question steps aside and the first exercise shows', !(await q.isVisible('#pre')) && (await q.isVisible('#exList')) && (await q.isVisible('#dkHit')) && (await q.evaluate(() => JSON.stringify(preOf(0)))) === '{"chest":1,"back":1}', await q.evaluate(() => JSON.stringify(preOf(0))));
-  check('week 2 asks for one rep closer to failure', (await q.evaluate(() => { const P = phase(0, null); return P.wk + ':' + P.rir; })) === '2:2' && (await t2('.fx-rx')).includes('2 חזרות לפני כשל'), await t2('.fx-rx'));
+  await q.click('.ex.open .how'); await q.waitForTimeout(250);
+  check('week 2 asks for one rep closer to failure, and the details of the exercise say so', (await q.evaluate(() => { const P = phase(0, null); return P.wk + ':' + P.rir; })) === '2:2' && (await t2('#sheet .hw-rir')) === '2 חזרות לפני כשל' && (await t2('.fx-rx')) === '6–10 חזרות', await t2('#sheet .hw-rir'));
+  await shut(q);
   await more(q);
   check('second device: last time shown', (await t2('#sheet .prev-line')).includes('60 ק״ג · 10 חזרות'), await t2('#sheet'));
   await shut(q);
   await shot('g2-target', q);
-  check('beat weight: top of the range last time moves the load up', (await t2('#dkKg')).startsWith('62.5') && (await t2('#dkReps')).startsWith('9') && (await t2('.dk-top .goal')) === 'יותר משקל' && (await t2('.ex.open .setp.cur')).replace(/\s+/g, '').includes('62.5ק״ג9חזרות') && !(await t2('.dk-set')).includes('62.5'), [await t2('#dkKg'), await t2('.dk-top'), await t2('.ex.open .sets')]);
+  check('beat weight: top of the range last time moves the load up', (await t2('#dkKg')).startsWith('62.5') && (await t2('#dkReps')).startsWith('9') && (await t2('.dk-top .goal')) === 'יותר משקל' && (await t2('.ex.open .setp.cur')).replace(/\s+/g, '') === 'סט1' && !(await t2('.dk-set')).includes('62.5'), [await t2('#dkKg'), await t2('.dk-top'), await t2('.ex.open .sets')]);
   await q.click('#dkWhy'); await q.waitForTimeout(150);
-  check('a tap on the goal says why, and another tap puts it away', (await t2('.dk-why')).includes('הגעת לראש טווח החזרות, אז המשקל עולה'), await t2('#dock'));
+  check('a tap on the goal says why, and another tap puts it away', (await t2('.dk-why')).includes('הגעת לראש הטווח אז המשקל עולה'), await t2('#dock'));
   await q.click('#dkWhy'); await q.waitForTimeout(150);
   check('(the reason is gone again)', !(await q.$('.dk-why')), await t2('#dock'));
   await q.click('#dkHit'); await q.waitForTimeout(1500);
   const cB = sess().find((x) => !x.end);
   check('one tap on the check logs exactly the target', !!cB && cB.sets.ua1[0].kg === 62.5 && cB.sets.ua1[0].reps === 9 && cB.sets.ua1[0].tk === 62.5 && cB.sets.ua1[0].tr === 9 && cB.wk === 2 && cB.rir === 2, cB && cB.sets.ua1);
   check('live sync back to the first device', !!(await p.$('.tab.live')) && (await cur(p)).endsWith('באמצע'), await cur(p));
-  check('a personal best is worth 30 more, and the rest says so in gold', !!(await q.$('.rt-log.pr')) && (await t2('.rt-log')).includes('שיא אישי') && (await q.evaluate(() => meNow().T.xp)) === 190, await t2('.rt-log'));
+  check('a personal best is worth 30 more, and the rest says so in gold', !!(await q.$('.gain.pr')) && (await t2('.gain')).includes('שיא חדש') && (await q.evaluate(() => meNow().T.xp)) === 190, await t2('.gain'));
   await skip(q); await q.waitForTimeout(100);
   await more(q); await q.click('#moreSame'); await q.waitForTimeout(400);
   check('"log the rest at target" fills the remaining sets', (await q.evaluate(() => doneCount(live(0), findEx('ua1')))) === 3, await q.evaluate(() => doneCount(live(0), findEx('ua1'))));
   check('crossing 200 points is a level-up, said at once', (await q.evaluate(() => [meNow().T.xp, S.lvl, document.querySelector('#toast').hidden].join())) === '210,2,false' && (await t2('#toast')) === 'רמה 2!', [await q.evaluate(() => meNow().T.xp), await t2('#toast')]);
-  check('a finished exercise asks one question', (await q.$$('.fb-dock [data-fb]')).length === 3 && (await t2('.fb-dock')).includes('כבד מדי') && (await t2('.fb-dock')).includes('משהו כאב לי') && (await t2('.fb-dock')).includes('איך היה? לחיצת חזה בשיפוע עליון בסמית׳') && !(await q.$('#fbSkip')) && !!(await q.$('#dkNext')), await t2('#dock'));
+  check('a finished exercise asks nothing', !(await q.$('.fb-dock')) && !(await q.$('#dock [data-fb]')), await t2('#dock'));
   await p.waitForTimeout(400);
   check('the first device follows the level without a fanfare of its own', (await p.evaluate(() => [S.lvl, document.querySelector('#toast').hidden].join())) === '2,true', await p.evaluate(() => S.lvl));
   await shot('g3-feedback', q);
-  await q.click('.fb-dock [data-fb="load"][data-v="1"]'); await q.waitForTimeout(1400);
+  await q.waitForTimeout(1400);
   const fbB = (sess().find((x) => !x.end) || {}).fb;
-  check('feedback saved and the panel closes', !(await q.$('.fb-dock')) && !!fbB && fbB.ua1.load === 1 && fbB.ua1.pain === 0, fbB);
+  check('and no answer is kept for it', !(await q.$('.fb-dock')) && (!fbB || !fbB.ua1), fbB);
   check('the finished exercise made way for the next one', (await q.evaluate(() => S.open)) === 'ua2' && (await t2('#wkTitle .sub')) === 'תרגיל 2 מתוך 8' && (await q.evaluate(() => document.querySelector('#wkBar .bar i').style.width)) === '14%', await t2('#wkTitle'));
   await q.click('#exPrev'); await q.waitForTimeout(350);
   check('a finished exercise offers the next one', (await t2('#dock')).includes('התרגיל הושלם') && !!(await q.$('#dkNext')), await t2('#dock'));
   await more(q);
-  check('and keeps its answer for changing, under "more"', (await q.getAttribute('#sheet [data-fb="load"][data-v="1"]', 'aria-pressed')) === 'true' && (await t2('#sheet')).includes('משהו כאב לי') && !(await q.$('#moreSame')), await t2('#sheet'));
+  check('and its details have a place to say that something hurts', !(await q.$('#sheet [data-fb="load"]')) && (await t2('#sheet')).includes('משהו כואב') && (await q.$$('#sheet [data-fb="pain"]')).length === 2 && !(await q.$('#moreSame')), await t2('#sheet'));
   await shut(q);
   await q.click('#dkNext'); await q.waitForTimeout(350);
   check('"next exercise" moves on to the first one with sets left', (await q.evaluate(() => S.open)) === 'ua2' && !!(await q.$('#dkHit')), await q.evaluate(() => S.open));
@@ -638,10 +661,10 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   await go(q, 'ua5');
   check('the list jumps straight to an exercise', (await q.evaluate(() => S.open)) === 'ua5' && (await t2('#wkTitle .sub')) === 'תרגיל 5 מתוך 8' && (await q.isHidden('#sheet')), await t2('.fx-head'));
   await more(q);
-  check('"more" opens on what can be done with the exercise: swap it, skip it today, ask Eilon', (await q.evaluate(() => [...document.querySelectorAll('#sheet .mr-row')].map((x) => x.id + ':' + x.querySelector('b').textContent).join('|'))) === 'moreSwap:החלף תרגיל|moreSkip:דלג עליו היום|moreAsk:שאל את אילון', await t2('#sheet'));
-  await q.click('#moreSwap'); await q.waitForTimeout(450); await shot('g4-swap', q);
+  check('"more" opens on what can be done with the exercise: swap it, skip it today, ask Eilon', (await q.evaluate(() => [...document.querySelectorAll('#sheet .mr-row')].map((x) => x.id + ':' + x.querySelector('b').textContent).join('|'))) === 'moreSkip:דלג עליו היום|moreAsk:שאל את אילון', await t2('#sheet'));
+  await shut(q); await q.click('.ex.open .swp'); await q.waitForTimeout(450); await shot('g4-swap', q);
   const swNames = await q.evaluate(() => [...document.querySelectorAll('.sw-opt .sw-t b')].map((x) => x.textContent));
-  check('swap offers only the same movement pattern', swNames.length === 2 && swNames.includes('לחיצת חזה בשיפוע עם משקולות יד') && swNames.includes('לחיצת חזה בשיפוע עליון בסמית׳') && (await t2('.sw-opt .sw-t')).includes('משקולות יד') && !(await t2('#sheet .sw-list')).match(/[A-Za-z]{4}/) && (await t2('#sheet h2')) === 'במה להחליף?' && (await t2('#sheet .sw-hero .k')) === 'לחיצת חזה במכונה' && !!(await q.$('#sheet .sw-hero.card.next')) && (await q.$$('#sheet .sw-opt .sw-pic canvas')).length === 2, swNames);
+  check('swap offers only the same movement pattern', swNames.length === 2 && swNames.includes('לחיצת חזה בשיפוע עם משקולות יד') && swNames.includes('לחיצת חזה בשיפוע עליון בסמית׳') && (await t2('.sw-opt .sw-t')).includes('משקולות יד') && !(await t2('#sheet .sw-list')).match(/[A-Za-z]{4}/) && (await t2('#sheet h2')) === 'במה להחליף' && (await t2('#sheet .sw-hero .k')) === 'לחיצת חזה במכונה' && !!(await q.$('#sheet .sw-hero.card.next')) && (await q.$$('#sheet .sw-opt .sw-pic canvas')).length === 2, swNames);
   check('the swap sheet opens quiet: the suggestions, and nothing to answer yet', !(await q.$('#sheet .mu-row')) && !(await q.$('#sheet .sw-b')) && (await q.$$('#sheet .sw-list button')).length === 2 && !(await q.$('#sheet .tagx')), await t2('#sheet'));
   await q.click('.sw-row[data-sel="inclineDb"]'); await q.waitForTimeout(250);
   check('a tap on an exercise asks the one thing a change needs: today only, or for good', (await q.$$('#sheet .sw-b .btn')).length === 2 && (await t2('#sheet .sw-b')).replace(/\s+/g, ' ').trim() === 'רק היום קבוע' && (await q.getAttribute('.sw-row[data-sel="inclineDb"]', 'aria-expanded')) === 'true', await t2('#sheet'));
@@ -655,7 +678,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
 
   // ---------- change exercises freely: any exercise by its muscle, then add, move and remove in the plan ----------
   const cfgKey = 'data/users/u_test/cfg';
-  await go(q, 'ua6'); await more(q); await q.click('#moreSwap'); await q.waitForTimeout(450);
+  await go(q, 'ua6'); await q.click('.ex.open .swp'); await q.waitForTimeout(450);
   check('the picker opens on the suggested swaps', !(await q.$('#sheet .mu-row')) && (await q.$$('.sw-opt')).length === 2 && (await t2('.sw-more')).includes('תרגילים אחרים') && (await t2('.sw-more')).includes('שאל את אילון'), await t2('#sheet'));
   await q.click('.sw-more [data-pick]'); await q.waitForTimeout(250);
   check('"other exercises" brings every muscle, starting from the one in hand', (await q.getAttribute('.mu-row [data-pick="triceps"]', 'aria-pressed')) === 'true' && (await q.$$('.mu-row [data-pick]')).length === 12 && !(await q.$('.sw-more [data-pick]')), await t2('.mu-row'));
@@ -726,7 +749,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   // ---------- history-driven checks on the first device: seed a past Lower A, then train it ----------
   await finish(q); await q.waitForTimeout(1300); await shot('g5b-levelup', q);
   await q.waitForTimeout(900);
-  check('the summary celebrates the level that was reached in this workout: the bar runs out, the screen says it, and the bar starts again', (await t2('#sumXp')) === '+160' && (await t2('.sum-up')) === 'עלית לרמה 2' && (await q.evaluate(() => document.querySelector('#sumUp').classList.contains('show'))) && (await t2('#sheet .sum-lv')).replace(/\s+/g, ' ').trim() === 'רמה 2 3' && !!(await q.$('#sumAv .av.flex')) && (await q.evaluate(() => document.querySelector('#sumBar').style.width)) === '46%', await t2('#sheet'));
+  check('the summary celebrates the level that was reached in this workout: the bar runs out, the screen says it, and the bar starts again', !(await q.$('#stXp')) && /^\+\d+(\.\d)?%$/.test(await t2('#stPct')) && (await t2('.sum-st')).includes('מהפעם הקודמת') && (await q.evaluate(() => { const s = sorted().find((x) => x.end); return tally(s).xp; })) === 160 && (await t2('.sum-up')) === 'עלית לרמה 2' && (await q.evaluate(() => document.querySelector('#sumUp').classList.contains('show'))) && (await t2('#sheet .sum-lv')).replace(/\s+/g, ' ').trim() === 'רמה 2 3' && !!(await q.$('#sumAv .av.flex')) && (await q.evaluate(() => document.querySelector('#sumBar').style.width)) === '46%', await t2('#sheet'));
   await q.click('#sheetClose'); await q.waitForTimeout(1200);
   await p.evaluate(() => {
     const day = 864e5, t0 = Date.now() - 4 * day, R = (kg, reps) => ({ kg, reps, done: true, t: t0 + 1000, tk: kg, tr: reps });
@@ -739,7 +762,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('recovery check lists the muscles of this workout', (await txt('#pre')).includes('ארבע ראשי') && (await txt('#pre')).includes('ירך אחורית') && (await txt('#pre')).includes('שוקיים'), await txt('#pre'));
   const rx = (id) => p.evaluate((i) => { const e = findEx(i); return e.sets + '×' + e.reps; }, id);
   await p.click('#pre [data-mu="quads"][data-v="2"]'); await p.waitForTimeout(250);
-  check('still sore: one set off and one more rep in reserve', (await rx('la3')) === '2×10–15' && (await rx('la1')) === '3×6–10' && (await txt('#pre')).includes('סט פחות: לחיצת רגליים') && (await txt('#pre')).includes('חזרה פחות לארבע ראשי') && (await p.evaluate(() => rirOf(findEx('la1'), live(1)))) === 3, [await rx('la3'), await txt('#pre')]);
+  check('still sore: one set off and one more rep in reserve', (await rx('la3')) === '2×10–15' && (await rx('la1')) === '3×6–10' && (await txt('#pre')).includes('סט פחות לחיצת רגליים') && (await txt('#pre')).includes('חזרה פחות לארבע ראשי') && (await p.evaluate(() => rirOf(findEx('la1'), live(1)))) === 3, [await rx('la3'), await txt('#pre')]);
   await p.click('#pre [data-mu="hams"][data-v="0"]'); await p.waitForTimeout(250);
   check('never sore after easy work: one set added', (await rx('la2')) === '4×8–10' && (await txt('#pre')).includes('סט נוסף'), [await rx('la2'), await txt('#pre')]);
   await p.click('#pre [data-mu="calves"][data-v="1"]'); await p.click('#pre [data-mu="abs"][data-v="1"]'); await p.waitForTimeout(250);
@@ -747,9 +770,9 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   await p.click('#preDone'); await p.waitForTimeout(400);
   check('"continue" closes the recovery step with the answers kept', !(await p.isVisible('#pre')) && (await p.isVisible('#dkHit')) && (await rx('la3')) === '2×10–15' && (await rx('la2')) === '4×8–10', [await rx('la3'), await rx('la2')]);
   // sore quads hold last week's performance instead of adding a rep
-  check('sore muscle holds the target', (await txt('#dkKg')).startsWith('100') && (await txt('#dkReps')).startsWith('8') && (await txt('.dk-top .goal')) === 'כמו בפעם הקודמת', await txt('.dk-top'));
+  check('sore muscle holds the target', (await txt('#dkKg')).startsWith('100') && (await txt('#dkReps')).startsWith('8') && !(await p.$('.dk-top .goal')) && (await p.evaluate(() => targetOf(findEx(S.open), 0, live(S.tab)).mode)) === 'hold', await txt('.dk-top'));
   await log(p, 12); await p.waitForTimeout(500);
-  check('calibration: far more reps than predicted re-aims the next set', (await txt('.rt-state')).includes('מעלים ל-') && (await p.evaluate(() => { const T = targetOf(findEx('la1'), 1, live(1)); return T.mode + ':' + T.kg; })).startsWith('cal:1'), [await txt('.rt-state'), await p.evaluate(() => JSON.stringify(targetOf(findEx('la1'), 1, live(1))))]);
+  check('calibration: far more reps than predicted re-aims the next set', (await p.evaluate(() => { const T = targetOf(findEx('la1'), 1, live(1)); return T.mode + ':' + T.kg; })).startsWith('cal:1'), [await txt('#dock'), await p.evaluate(() => JSON.stringify(targetOf(findEx('la1'), 1, live(1))))]);
   await skip(p); await p.waitForTimeout(200); await shot('g7-cal');
   const calKg = await p.evaluate(() => targetOf(findEx('la1'), 1, live(1)).kg);
   check('calibrated weight is rounded to the equipment step', calKg % 5 === 0 && calKg > 100 && (await txt('#dkKg')).startsWith(String(calKg)) && (await txt('.dk-top .goal')) === 'משקל מעודכן', [calKg, await txt('#dkKg'), await txt('.dk-top')]);
@@ -757,14 +780,15 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   const dn = await p.evaluate(() => targetOf(findEx('la1'), 2, live(1)));
   check('down-set: under the range drops the load 10%', dn.mode === 'down' && dn.kg <= calKg * 0.9 && dn.kg % 5 === 0 && dn.reps >= 6 && dn.reps <= 10 && (await txt('.dk-top .goal')) === 'פחות משקל', dn);
   await p.click('#dkHit'); await p.waitForTimeout(500);
-  check('the question is a card in the rest screen, with pain as a quiet chip', (await txt('.dock.rest .fb-dock')).includes('משהו כאב לי') && (await txt('.dock.rest .fb-dock')).includes('האק סקוואט') && (await p.$$('.dock.rest .fb-dock .fb-o')).length === 3, await txt('#dock'));
-  await p.click('.fb-dock [data-painask]'); await p.waitForTimeout(150); await p.click('.fb-dock [data-fb="pain"][data-v="2"]'); await p.waitForTimeout(400);
-  const cut = await p.evaluate(() => ({ cut: live(1).cut, la3: findEx('la3').sets, off: findEx('la3').cut, card: document.querySelector('.fb-dock .fb-stop') ? document.querySelector('.fb-dock .fb-stop').innerText : '', asked: document.querySelectorAll('.fb-dock [data-fb="load"]').length }));
-  check('strong pain stops that muscle for today and offers a gentler movement, in a few calm words', cut.cut.la3 === 'la1' && cut.la3 === 0 && cut.off && cut.card.includes('עוצרים להיום') && cut.card.includes('גובלט סקוואט') && cut.card.includes('נוח יותר למפרקים') && cut.card.includes('כדאי להיבדק') && cut.asked === 0, cut);
-  await p.waitForTimeout(1500); await shot('g8-pain'); await p.click('.fb-dock [data-swapto]'); await p.waitForTimeout(300);
-  check('accepting the suggestion swaps from the next workout', (await p.evaluate(() => S.cfg.swap.la1)) === 'gobletSquat' && (await txt('.fb-dock .fb-stop')).includes('מהאימון הבא') && !(await p.$('.fb-dock [data-swapto]')) && (await p.evaluate(() => findEx('la1').mv)) === 'hackSquat', await p.evaluate(() => S.cfg.swap));
-  await p.click('#rtSkip'); await p.waitForTimeout(400);
-  check('going on from the rest closes the note and leaves the answer in place', !(await p.$('.fb-dock')) && (await p.evaluate(() => live(1).fb.la1.pain)) === 2, await txt('#dock'));
+  check('the rest asks nothing', !(await p.$('.dock.rest .fb-dock')) && !(await p.$('#dock [data-fb]')), await txt('#dock'));
+  await p.click('#rtSkip'); await p.waitForTimeout(400); await go(p, 'la1'); await p.click('.ex.open .how'); await p.waitForTimeout(300);
+  await p.click('#sheet [data-fb="pain"][data-v="2"]'); await p.waitForTimeout(400);
+  const cut = await p.evaluate(() => ({ cut: live(1).cut, la3: findEx('la3').sets, off: findEx('la3').cut, card: document.querySelector('#sheet .fb-stop') ? document.querySelector('#sheet .fb-stop').innerText : '', asked: document.querySelectorAll('#sheet [data-fb="load"]').length }));
+  check('strong pain stops that muscle for today and offers a gentler movement, in a few calm words', cut.cut.la3 === 'la1' && cut.la3 === 0 && cut.off && cut.card.includes('היום עוצרים') && cut.card.includes('גובלט סקוואט') && cut.card.includes('נוח יותר למפרקים') && cut.card.includes('כדאי להיבדק') && cut.asked === 0, cut);
+  await p.waitForTimeout(1500); await shot('g8-pain'); await p.click('#sheet [data-swapto]'); await p.waitForTimeout(300);
+  check('accepting the suggestion swaps from the next workout', (await p.evaluate(() => S.cfg.swap.la1)) === 'gobletSquat' && (await txt('#sheet .fb-stop')).includes('מהאימון הבא') && !(await p.$('#sheet [data-swapto]')) && (await p.evaluate(() => findEx('la1').mv)) === 'hackSquat', await p.evaluate(() => S.cfg.swap));
+  await shut(p);
+  check('closing the details leaves the answer in place', !(await p.$('.fb-dock')) && (await p.evaluate(() => live(1).fb.la1.pain)) === 2, await txt('#dock'));
   await go(p, 'la5');
 
   // ---------- fatigue: two workouts in a row short of target for two muscles -> deload offer ----------
@@ -782,7 +806,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   await p.click('#dlYes'); await p.waitForTimeout(400);
   const dl = await p.evaluate(() => { const P = phaseNext(1), e = findEx('la4', null), T = targetOf(e, 0, null); return { dl: P.dl, rir: P.rir, sets: planned(1, {}).la4, kg: T.kg, mode: T.mode, early: S.cfg.meso.early > 0 }; });
   check('deload week: half the sets, 15% lighter, far from failure', dl.dl && dl.rir === 4 && dl.sets === 2 && dl.kg === 30 && dl.mode === 'deload' && dl.early, dl);
-  check('no recovery questions in a deload week', !(await p.$('#pre .pre')), await txt('#pre'));
+  check('no recovery questions in a deload week', !(await p.$('#preAll')) && !(await p.$('#pre [data-mu]')), await txt('#pre'));
   check('today says it is an easy week', (await txt('#home .week h2')) === 'שבוע קל' && (await p.evaluate(() => phaseNext(1).dl)), await txt('#home .week'));
 
   // ---------- mesocycle summary ----------

@@ -1849,6 +1849,156 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .ob-q:not(.big){background:#6D3FE0;box-shadow:0 4px 0 #4B27B8}
 .pl-more .ms-act{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
 @media (max-width:360px){.menu.adv-g .stp button{width:36px;height:36px}.menu.adv-g .stp b{min-width:28px}.menu.adv-g .m-row{gap:10px}}
+
+/* ==================================================================== round 3, phase 1: the workout, lighter and calmer
+   ---- the colour of a muscle: soft, and only where it names the muscle (its chip, the new exercise's screen, a dot in a list) */
+.tn-chest{--tn:#E8613A;--tn-bg:#FDEEE8;--tn-ink:#9A3412}
+.tn-back{--tn:#2F7FE0;--tn-bg:#E8F1FC;--tn-ink:#164A8C}
+.tn-sh{--tn:#E39A12;--tn-bg:#FCF2DE;--tn-ink:#7A4E05}
+.tn-arm{--tn:#D9487A;--tn-bg:#FCEAF1;--tn-ink:#8E2450}
+.tn-leg{--tn:#3F9B2A;--tn-bg:#EBF6E5;--tn-ink:#2B6418}
+.tn-core{--tn:#14A07E;--tn-bg:#E2F6F0;--tn-ink:#0B6650}
+:root[data-theme="dark"] .tn-chest{--tn-bg:#3A2219;--tn-ink:#FFB59A}
+:root[data-theme="dark"] .tn-back{--tn-bg:#172A44;--tn-ink:#9CC7FF}
+:root[data-theme="dark"] .tn-sh{--tn-bg:#3A2C10;--tn-ink:#FFD48A}
+:root[data-theme="dark"] .tn-arm{--tn-bg:#3B1A28;--tn-ink:#FFA9C8}
+:root[data-theme="dark"] .tn-leg{--tn-bg:#1E3317;--tn-ink:#A9E08F}
+:root[data-theme="dark"] .tn-core{--tn-bg:#11332B;--tn-ink:#8EE6CF}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .tn-chest{--tn-bg:#3A2219;--tn-ink:#FFB59A}
+  :root:not([data-theme="light"]) .tn-back{--tn-bg:#172A44;--tn-ink:#9CC7FF}
+  :root:not([data-theme="light"]) .tn-sh{--tn-bg:#3A2C10;--tn-ink:#FFD48A}
+  :root:not([data-theme="light"]) .tn-arm{--tn-bg:#3B1A28;--tn-ink:#FFA9C8}
+  :root:not([data-theme="light"]) .tn-leg{--tn-bg:#1E3317;--tn-ink:#A9E08F}
+  :root:not([data-theme="light"]) .tn-core{--tn-bg:#11332B;--tn-ink:#8EE6CF}
+}
+.mus-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0}
+.mus-chips span{padding:4px 10px;border-radius:9px;background:var(--surface-2);color:var(--ink-2);font-size:13px;font-weight:700;line-height:1.35}
+.mus-chips span.p{background:var(--tn-bg);color:var(--tn-ink)}
+.ex-body>.mus-chips{margin:2px 0 0}
+
+/* ---- the demo's two corner buttons: details, and a plain swap */
+.st-btn.swp{inset-inline-end:10px}
+.st-btn span{font-size:13.5px;font-weight:700}
+
+/* ---- a set still ahead says only which set it is */
+.setp .hint{font-size:14px;font-weight:700;color:var(--ink-3)}
+.setp.cur .hint{color:var(--accent-ink)}
+
+/* ---- a new exercise: a light screen, the colour of its muscle on top with the figure doing it, and Start. It stays until Start */
+.xi{background:var(--paper);color:var(--ink);cursor:default;align-items:stretch;place-items:stretch;padding:0}
+.xi::before{display:none}
+.xi .xi-in{display:grid;grid-template-rows:minmax(0,1fr) auto;width:100%;max-width:520px;height:100%;margin:0 auto;gap:0;justify-items:stretch}
+.xi-top{position:relative;display:grid;align-content:end;justify-items:center;gap:8px;padding:calc(18px + env(safe-area-inset-top,0px)) 18px 0;background:var(--tn-bg);border-radius:0 0 28px 28px;overflow:hidden;min-height:0}
+.xi .xi-k{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));inset-inline-start:16px;margin:0;padding:5px 12px;border-radius:10px;background:var(--surface);color:var(--tn-ink);font-size:13.5px;font-weight:800;letter-spacing:0;text-transform:none;animation:xi-up .35s ease both}
+.xi-fig{width:min(100%,360px);aspect-ratio:var(--stage-ar,1.25);max-height:100%;margin-bottom:-2px;border-radius:22px 22px 0 0;overflow:hidden;background:var(--surface);animation:xi-up .4s cubic-bezier(.2,.8,.2,1) .05s both}
+.xi-fig canvas{display:block;width:100%;height:100%}
+.xi-body{display:grid;justify-items:center;gap:12px;padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px));text-align:center}
+.xi .xi-t{margin:0;font-size:26px;font-weight:800;line-height:1.15;letter-spacing:-.02em;text-wrap:balance;animation:xi-up .35s ease .08s both}
+.xi .mus-chips{animation:xi-up .35s ease .12s both}
+.xi .xi-rx{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:400px;margin:0;padding:0;list-style:none;animation:xi-up .35s ease .16s both}
+.xi .xi-rx li{display:grid;gap:1px;padding:10px 4px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.xi .xi-rx b{font-size:20px;font-weight:800;direction:ltr;font-variant-numeric:tabular-nums}
+.xi .xi-rx span{font-size:13px;font-weight:600;color:var(--ink-3)}
+.xi #xiGo{width:100%;max-width:400px;margin-top:4px;animation:xi-up .35s ease .2s both}
+@keyframes xi-up{from{opacity:0;transform:translateY(10px)}}
+@media (max-height:640px){.xi .xi-t{font-size:22px}.xi-body{gap:9px;padding-top:12px}.xi .xi-rx li{padding:7px 4px}}
+@media (prefers-reduced-motion: reduce){.xi .xi-k,.xi-fig,.xi .xi-t,.xi .mus-chips,.xi .xi-rx,.xi #xiGo{animation:none}}
+
+/* ---- the rest: dark and neutral in both themes. A ring of ticks around the time, a soft purple arc with a dot that leads it,
+   a glow that breathes slowly behind it. Green when it is fine to start, gold when the rest is over */
+.dock.rest{background:#121116;color:#fff}
+.dock.rest::before{background:radial-gradient(70% 45% at 50% 40%,rgb(140 116 230 / .16),transparent 70%)}
+.rt-top{grid-template-columns:44px minmax(0,1fr) 44px}
+.rt-k{justify-self:center;font-size:15px;font-weight:700;color:rgb(255 255 255 / .6)}
+.rt-undo{background:rgb(255 255 255 / .08)}
+.rt-ring{width:min(76vw,320px,46vh)}
+.rt-ring::before{content:"";position:absolute;inset:16%;border-radius:50%;background:radial-gradient(circle,rgb(140 116 230 / .28),transparent 68%);animation:rt-breathe 4s ease-in-out infinite}
+@keyframes rt-breathe{50%{transform:scale(1.12);opacity:.7}}
+.rt-ring svg{overflow:visible}
+.rt-ring .t{stroke:rgb(255 255 255 / .07);stroke-width:7}
+.rt-ring .f{stroke:#9B85F0;stroke-width:7;transition:stroke .4s}
+.rt-ring .h{fill:#fff;stroke:#9B85F0;stroke-width:4;transition:stroke .4s}
+.rt-ticks line{stroke:rgb(255 255 255 / .12);stroke-width:2.2;stroke-linecap:round;transition:stroke .3s}
+.rt-ticks line.on{stroke:rgb(255 255 255 / .62)}
+.dock.ready .rt-ring .f{stroke:#4FD1A5}.dock.ready .rt-ring .h{stroke:#4FD1A5}
+.dock.go .rt-ring .f{stroke:var(--gold)}.dock.go .rt-ring .h{stroke:var(--gold)}
+.dock.ready .rt-ring::before{background:radial-gradient(circle,rgb(79 209 165 / .22),transparent 68%)}
+.dock.go .rt-ring::before{background:radial-gradient(circle,rgb(242 176 46 / .28),transparent 68%)}
+.rt-time{font-size:clamp(60px,19vw,84px)}
+.rt-word{font-size:16px;font-weight:700;color:rgb(255 255 255 / .62)}
+.dock.ready .rt-word{color:#4FD1A5}
+.rt-adj button{min-width:84px;height:48px;border-radius:14px;background:#24222B;box-shadow:0 3px 0 #08070B;font-size:17px}
+.rt-adj button:active{transform:translateY(2px);box-shadow:0 1px 0 #08070B}
+.rt-foot .go{background:#fff;color:#121116;box-shadow:0 4px 0 #8E8A99}
+@media (prefers-reduced-motion: reduce){.rt-ring::before{animation:none}}
+
+/* ---- points for a set: they rise above the screen and stay long enough to read. A best and a run of good sets get a word */
+.gain{position:fixed;z-index:95;left:50%;top:calc(env(safe-area-inset-top,0px) + 62px);display:grid;justify-items:center;gap:6px;pointer-events:none;transform:translateX(-50%);animation:gain 1.9s cubic-bezier(.2,.8,.2,1) both}
+.gain b{font-size:38px;font-weight:800;line-height:1;color:var(--gold);text-shadow:0 3px 0 rgb(0 0 0 / .3);direction:ltr}
+.gain span{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:12px;background:var(--gold);color:var(--gold-ink);font-size:15px;font-weight:800;box-shadow:0 3px 0 var(--gold-lip)}
+.gain.run span{background:#FF6A3D;color:#fff;box-shadow:0 3px 0 #C2410C}
+.gain span svg{width:18px;height:18px;fill:currentColor;stroke:none}
+@keyframes gain{0%{opacity:0;transform:translate(-50%,14px) scale(.6)}12%{opacity:1;transform:translate(-50%,0) scale(1.14)}20%{transform:translate(-50%,0) scale(1)}78%{opacity:1;transform:translate(-50%,-4px)}100%{opacity:0;transform:translate(-50%,-30px)}}
+
+/* ---- how long there is today: one big card in the middle. A number to type, a few taps, and on */
+.pre.gate.tq{margin-top:7vh;gap:12px;padding:30px 20px 20px;border-radius:24px;box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.tq h2{margin:0 0 4px}
+.tq-in{display:flex;align-items:baseline;justify-content:center;gap:8px;width:100%;max-width:260px;padding:10px 16px;border-radius:18px;background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--accent)}
+.tq-in input{width:3.2ch;border:0;background:none;color:var(--ink);font:inherit;font-size:56px;font-weight:800;line-height:1.05;text-align:center;font-variant-numeric:tabular-nums;direction:ltr;outline:none;padding:0}
+.tq-in span{font-size:17px;font-weight:700;color:var(--ink-3)}
+.tq-in input.bad{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tq-ch{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;width:100%}
+.tq-c{min-height:50px;border:0;border-radius:14px;background:var(--surface);color:var(--ink);font-size:18px;font-weight:800;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip);direction:ltr}
+.tq-c small{font-size:13px;font-weight:700;color:var(--ink-3)}
+.tq-c.all{font-size:15px}
+.tq-c:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.tq .btn{width:100%}
+
+/* ---- today's workout before it starts, and what is missing */
+.pre.gate.eqq{margin-top:4vh;gap:12px;padding:24px 18px 18px;border-radius:24px;justify-items:stretch;text-align:start;box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
+.eqq h2{text-align:center}
+.eq-list{list-style:none;margin:0;padding:0;display:grid}
+.eq-list li{display:flex;align-items:center;gap:10px;padding:10px 2px;font-size:15.5px;font-weight:700}
+.eq-list li+li{border-top:1px solid var(--line)}
+.eq-list li i{width:10px;height:10px;flex:none;border-radius:4px;background:var(--tn)}
+.eq-list li span{flex:1;min-width:0}
+.eq-list li small{font-size:13px;font-weight:600;color:var(--ink-3);white-space:nowrap}
+.eq-list li.sw span::after{content:"";display:inline-block;width:7px;height:7px;margin-inline-start:7px;border-radius:50%;background:var(--accent);vertical-align:middle}
+.eq-q{margin:4px 0 0;text-align:center;font-size:16px;font-weight:800}
+.eq-ch{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.eq-c{min-height:44px;padding:0 16px;border:0;border-radius:12px;background:var(--surface);color:var(--ink);font-size:15px;font-weight:700;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+.eq-c[aria-pressed="true"]{background:var(--surface-2);color:var(--ink-3);text-decoration:line-through;box-shadow:inset 0 0 0 1.5px var(--line)}
+.eq-b{display:grid;gap:8px}
+
+/* ---- the summary: three numbers that run up, the level, the bests one by one */
+.sum-st{list-style:none;margin:2px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:360px}
+.sum-st li{display:grid;gap:2px;padding:12px 4px;border-radius:16px;background:rgb(255 255 255 / .1);animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .15s both}
+.sum-st li:nth-child(2){animation-delay:.25s}.sum-st li:nth-child(3){animation-delay:.35s}
+.sum-st b{font-size:30px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+.sum-st span{font-size:13px;font-weight:600;color:rgb(255 255 255 / .7)}
+.sum-st li.up{background:rgb(79 209 165 / .16)}.sum-st li.up b{color:#5BE0B0}
+.sum-st li.xp b{color:var(--gold)}
+.sum .sum-new li{font-size:15.5px}
+
+/* round 3, phase 1 polish: the time card in the middle of the screen, a chip that reads as chosen, a bigger figure on the intro */
+#app.pre-on #pre{min-height:calc(100dvh - 150px);display:grid;align-content:center}
+.eq-c[aria-pressed="true"]{background:var(--ink);color:var(--paper);text-decoration:none;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.eq-c[aria-pressed="true"]::before{content:"✕";margin-inline-end:6px;font-size:12px;opacity:.8}
+.xi-top{align-content:center;padding-top:calc(56px + env(safe-area-inset-top,0px))}
+.xi-fig{width:min(100%,420px);border-radius:22px;margin-bottom:18px;box-shadow:0 10px 30px -18px rgba(0,0,0,.35)}
+.hw-rir{margin:2px 0 0;text-align:center;font-size:14px;font-weight:700;color:var(--ink-3)}
+.gain.pr,.gain.run{animation-duration:2.7s}
+/* the card of today's time stands in the middle without making the page longer than the screen */
+#app.pre-on #pre{position:fixed;z-index:6;top:calc(64px + env(safe-area-inset-top,0px));bottom:0;left:50%;transform:translateX(-50%);width:min(100%,560px);min-height:0;height:auto;display:flex;flex-direction:column;overflow:auto;padding:12px 16px calc(20px + env(safe-area-inset-bottom,0px));background:var(--paper)}
+#app.pre-on #pre>.pre{margin:auto 0;flex:none}
+.sum-st span{font-size:14px}
+.hw .en-name{margin:2px 0 0;text-align:start}
+/* today's workout never pushes its buttons off the screen: the list of exercises scrolls inside the card */
+#app.pre-on #pre>.pre.eqq{display:flex;flex-direction:column;max-height:100%}
+.eqq .eq-list{flex:1 1 auto;min-height:96px;overflow:auto;overscroll-behavior:contain}
+.eqq>h2,.eqq>.eq-q,.eqq>.eq-ch,.eqq>.eq-b,.eqq>#eqGo{flex:none}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -1921,7 +2071,7 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
   <input type="file" id="lkFile" accept="image/*" hidden>
   <div class="toast" id="toast" role="status" hidden></div>
   <div class="sr" id="srSay" aria-live="polite"></div>
-  <div class="xi" id="exIntro" role="status" aria-live="polite" hidden></div>
+  <div class="xi" id="exIntro" hidden></div>
   <div class="tour" id="tour" role="dialog" aria-modal="true" hidden></div>
   <div class="ob" id="ob" role="dialog" aria-modal="true" aria-labelledby="obTitle" hidden></div>
   <div class="splash" id="splash" hidden><div class="splash-in" role="img" aria-label="gymi by Lior Dahan"><span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span><small aria-hidden="true">by Lior Dahan</small></div></div>
@@ -2008,7 +2158,7 @@ const PLAN = [
     E('fc8', 'kneeRaise', 'Hanging Knee Raises', 2, '8–15', [60, 60], 'חזרות נקיות', 0),
   ] },
   /* ---- for five workouts a week: the upper and lower days, then pushing, pulling and legs ---- */
-  { name: 'Push', t: 'פטיש', te: 'Hammer', m: 'חזה · כתפיים · טרייספס', me: 'Chest · shoulders · triceps', ex: [
+  { name: 'Push', t: 'פטיש', te: 'Hammer', m: 'חזה · כתפיים · טריספס', me: 'Chest · shoulders · triceps', ex: [
     E('pu1', 'inclineSmith', 'Incline Smith Machine Press', 3, '6–10', [120, 180], '1 חזרה לפני כשל', 2),
     E('pu2', 'shoulderPress', 'Machine Shoulder Press', 3, '8–12', [90, 120], '1 חזרה לפני כשל', 2),
     E('pu3', 'machinePress', 'Machine Chest Press', 2, '8–12', [90, 90], 'סט אחרון לכשל טכני', 3),
@@ -2071,7 +2221,7 @@ const MUSCLE = {
   delts: { he: 'כתף אמצעית ואחורית', en: 'Side and rear delts', mev: 8, mrv: 26 },
   fdelt: { he: 'כתף קדמית', en: 'Front delts', mev: 0, mrv: 12 },
   biceps: { he: 'ביספס', en: 'Biceps', mev: 8, mrv: 26 },
-  triceps: { he: 'טרייספס', en: 'Triceps', mev: 6, mrv: 18 },
+  triceps: { he: 'טריספס', en: 'Triceps', mev: 6, mrv: 18 },
   quads: { he: 'ארבע ראשי', en: 'Quads', mev: 8, mrv: 20 },
   hams: { he: 'ירך אחורית', en: 'Hamstrings', mev: 6, mrv: 20 },
   glutes: { he: 'ישבן', en: 'Glutes', mev: 0, mrv: 16 },
@@ -2096,13 +2246,13 @@ const INC_CHOICES = [0.5, 1, 1.25, 2, 2.5, 5, 10];
    eq = equipment, c = three form cues. inv: more weight means more help. bw: bodyweight. jf: easy on the joints.
    en + an: a swap option, shown with the demo of the closest movement in the plan. */
 const LIB = {
-  inclineSmith: { he: 'לחיצת חזה בשיפוע עליון בסמית׳', m: 'חזה עליון · כתף קדמית · טרייספס', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'smith', c: ['ספסל בשיפוע 30–45°, שכמות אסופות לאחור ולמטה', 'הורד את המוט לחזה העליון בשליטה', 'דחוף למעלה בלי לנעול מרפקים בכוח'] },
+  inclineSmith: { he: 'לחיצת חזה בשיפוע עליון בסמית׳', m: 'חזה עליון · כתף קדמית · טריספס', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'smith', c: ['ספסל בשיפוע 30–45°, שכמות אסופות לאחור ולמטה', 'הורד את המוט לחזה העליון בשליטה', 'דחוף למעלה בלי לנעול מרפקים בכוח'] },
   assistedPullup: { he: 'מתח בסיוע (גרביטון)', m: 'רחב גבי · ביספס · גב עליון', p: 'back', s: ['biceps'], pat: 'vpull', eq: 'machine', inv: true, c: ['אחיזה מעט רחבה מהכתפיים', 'התחל מהשכמות ומשוך מרפקים למטה לכיוון הצלעות', 'ירידה איטית עד יישור כמעט מלא'] },
   chestRow: { he: 'חתירה בתמיכת חזה', m: 'רחב גבי · אמצע הגב · ביספס', p: 'back', s: ['biceps', 'delts'], pat: 'hpull', eq: 'plates', jf: true, c: ['החזה צמוד לכרית לאורך כל החזרה', 'משוך מרפקים לאחור לכיוון הירכיים', 'עצור שנייה בכיווץ וחזור עד מתיחה מלאה'] },
   /* near: the demo draws the seated raise, close to this one but not it (the chest is not on a bench) */
   latRaise: { near: 1, he: 'הרחקות לצדדים בתמיכת חזה', m: 'כתף אמצעית', p: 'delts', s: [], pat: 'raise', eq: 'db', c: ['חזה על ספסל משופע, בלי תנופה מהגוף', 'הרם לצדדים עד גובה הכתפיים, מרפק מעט כפוף', 'הובל עם המרפקים והורד לאט'] },
-  machinePress: { he: 'לחיצת חזה במכונה', m: 'חזה · טרייספס · כתף קדמית', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'machine', jf: true, c: ['כוונן מושב כך שהידיות בגובה אמצע החזה', 'שכמות צמודות למשענת', 'דחוף קדימה וחזור לאט עד מתיחה בחזה'] },
-  pushdown: { he: 'פשיטת מרפקים בפולי עליון', m: 'טרייספס', p: 'triceps', s: [], pat: 'ext', eq: 'cable', jf: true, c: ['מרפקים צמודים לגוף ולא זזים', 'ישר עד הסוף וכווץ', 'עלה בשליטה עד שהאמות מעט מעל קו המרפק'] },
+  machinePress: { he: 'לחיצת חזה במכונה', m: 'חזה · טריספס · כתף קדמית', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'machine', jf: true, c: ['כוונן מושב כך שהידיות בגובה אמצע החזה', 'שכמות צמודות למשענת', 'דחוף קדימה וחזור לאט עד מתיחה בחזה'] },
+  pushdown: { he: 'פשיטת מרפקים בפולי עליון', m: 'טריספס', p: 'triceps', s: [], pat: 'ext', eq: 'cable', jf: true, c: ['מרפקים צמודים לגוף ולא זזים', 'ישר עד הסוף וכווץ', 'עלה בשליטה עד שהאמות מעט מעל קו המרפק'] },
   dbCurl: { he: 'כפיפת מרפקים עם משקולות יד', m: 'ביספס', p: 'biceps', s: [], pat: 'curl', eq: 'db', c: ['מרפקים צמודים לצד הגוף', 'כף היד פונה למעלה, עלה בלי תנופה מהגב', 'הורד לאט עד יישור מלא'] },
   cableCrunch: { he: 'כפיפות בטן בכבל', m: 'בטן ישרה', p: 'abs', s: [], pat: 'flex', eq: 'cable', c: ['על הברכיים, החבל צמוד לצידי הראש', 'עגל את הגב וקרב צלעות לאגן, הירכיים נשארות במקום', 'חזור לאט עד מתיחה בבטן'] },
   hackSquat: { he: 'האק סקוואט', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'squat', eq: 'plates', c: ['גב ואגן צמודים לכרית, כפות רגליים ברוחב כתפיים', 'רד בשליטה עד עומק נוח, ברכיים בכיוון האצבעות', 'דחוף דרך כל כף הרגל'] },
@@ -2112,10 +2262,10 @@ const LIB = {
   standingCalf: { he: 'הרמות עקבים בעמידה', m: 'תאומים (שוק)', p: 'calves', s: [], pat: 'calf', eq: 'machine', c: ['כריות כף הרגל על קצה המדרגה', 'רד למתיחה מלאה ועצור רגע', 'עלה גבוה על הבהונות, ברכיים כמעט ישרות'] },
   pallof: { he: 'פאלוף פרס (נגד סיבוב)', m: 'ליבה · אלכסונים', p: 'abs', s: [], pat: 'antirot', eq: 'cable', c: ['עמוד בניצב לכבל, ידיים מול עצם החזה', 'דחוף ישר קדימה והתנגד למשיכה לצד', 'אגן וכתפיים נשארים פונים קדימה, נשימה רגועה'] },
   cableRow: { he: 'חתירה בכבל בישיבה', m: 'רחב גבי · אמצע הגב · ביספס', p: 'back', s: ['biceps', 'delts'], pat: 'hpull', eq: 'cable', jf: true, c: ['גב זקוף וחזה פתוח', 'משוך את הידית לבטן, מרפקים קרוב לגוף', 'שחרר קדימה בשליטה בלי לעגל גב תחתון'] },
-  shoulderPress: { he: 'לחיצת כתפיים במכונה', m: 'כתפיים · טרייספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'machine', jf: true, c: ['גב צמוד למשענת, ידיות בגובה הכתפיים', 'דחוף למעלה בלי לקשת גב תחתון', 'הורד לאט עד גובה האוזניים'] },
+  shoulderPress: { he: 'לחיצת כתפיים במכונה', m: 'כתפיים · טריספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'machine', jf: true, c: ['גב צמוד למשענת, ידיות בגובה הכתפיים', 'דחוף למעלה בלי לקשת גב תחתון', 'הורד לאט עד גובה האוזניים'] },
   reversePec: { he: 'פרפר הפוך', m: 'כתף אחורית · אמצע הגב', p: 'delts', s: ['back'], pat: 'rearfly', eq: 'machine', jf: true, c: ['חזה צמוד לכרית, ידיים בגובה הכתפיים', 'פתח לצדדים בקשת רחבה, מרפק מעט כפוף', 'בלי להרים כתפיים לאוזניים, חזרה איטית'] },
   hammerCurl: { he: 'כפיפת פטישים', m: 'ברכיאליס · ביספס · אמה', p: 'biceps', s: [], pat: 'curl', eq: 'db', jf: true, c: ['כף היד פונה פנימה לאורך כל הדרך', 'מרפקים צמודים לגוף', 'עלה עד גובה הכתף והורד לאט'] },
-  ohTriceps: { he: 'פשיטת מרפקים מעל הראש', m: 'טרייספס (ראש ארוך)', p: 'triceps', s: [], pat: 'ext', eq: 'cable', c: ['מרפקים פונים קדימה וקרובים לראש', 'הורד מאחורי הראש עד מתיחה מלאה', 'ישר למעלה, הזרוע העליונה לא זזה'] },
+  ohTriceps: { he: 'פשיטת מרפקים מעל הראש', m: 'טריספס (ראש ארוך)', p: 'triceps', s: [], pat: 'ext', eq: 'cable', c: ['מרפקים פונים קדימה וקרובים לראש', 'הורד מאחורי הראש עד מתיחה מלאה', 'ישר למעלה, הזרוע העליונה לא זזה'] },
   kneeRaise: { he: 'הרמות ברכיים בתלייה', m: 'בטן תחתונה · כופפי ירך', p: 'abs', s: [], pat: 'flex', eq: 'bw', bw: true, c: ['תלייה יציבה, בלי נדנוד', 'הרם ברכיים לחזה וגלגל את האגן למעלה', 'הורד לאט, אל תיתן לרגליים ליפול'] },
   bulgarian: { he: 'סקוואט בולגרי', m: 'ארבע ראשי · ישבן', p: 'quads', s: ['glutes'], pat: 'lunge', eq: 'db', c: ['רגל אחורית על ספסל, רוב המשקל על הרגל הקדמית', 'רד ישר למטה, ברך קדמית בכיוון האצבעות', 'דחוף דרך העקב הקדמי'] },
   hipThrust: { he: 'היפ ת׳ראסט', m: 'ישבן · ירך אחורית', p: 'glutes', s: ['hams'], pat: 'thrust', eq: 'bar', c: ['שכמות על ספסל, כפות רגליים ברוחב אגן', 'דחוף אגן למעלה עד קו ישר מכתף לברך', 'סנטר לחזה ועצירה קצרה למעלה'] },
@@ -2124,9 +2274,9 @@ const LIB = {
   seatedCalf: { he: 'הרמות עקבים בישיבה', m: 'סוליאוס (שוק)', p: 'calves', s: [], pat: 'calf', eq: 'plates', jf: true, c: ['כרית מעל הברכיים, כריות כף הרגל על המדרגה', 'רד למתיחה מלאה', 'עלה גבוה ועצור רגע למעלה'] },
 
   /* swap options */
-  inclineDb: { en: 'Incline Dumbbell Press', an: 'inclineSmith', he: 'לחיצת חזה בשיפוע עם משקולות יד', m: 'חזה עליון · כתף קדמית · טרייספס', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'db', jf: true, c: ['ספסל בשיפוע 30–45°, משקולות מעל החזה העליון', 'הורד לאט עד מתיחה בחזה, מרפקים בזווית של כ-45° מהגוף', 'דחוף למעלה ומעט פנימה, בלי להקיש את המשקולות'] },
-  dbShoulderPress: { en: 'Dumbbell Shoulder Press', an: 'shoulderPress', he: 'לחיצת כתפיים עם משקולות יד', m: 'כתפיים · טרייספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'db', jf: true, c: ['ישיבה עם גב נתמך, משקולות בגובה האוזניים', 'דחוף למעלה בלי לקשת גב תחתון', 'הורד לאט עד שהמרפקים מעט מתחת לקו הכתפיים'] },
-  smithShoulder: { en: 'Smith Machine Shoulder Press', an: 'shoulderPress', he: 'לחיצת כתפיים בסמית׳', m: 'כתפיים · טרייספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'smith', c: ['ספסל כמעט זקוף, המוט יורד מול הפנים', 'אחיזה מעט רחבה מהכתפיים', 'הורד עד גובה הסנטר ודחוף בלי לנעול בכוח'] },
+  inclineDb: { en: 'Incline Dumbbell Press', an: 'inclineSmith', he: 'לחיצת חזה בשיפוע עם משקולות יד', m: 'חזה עליון · כתף קדמית · טריספס', p: 'chest', s: ['fdelt', 'triceps'], pat: 'hpress', eq: 'db', jf: true, c: ['ספסל בשיפוע 30–45°, משקולות מעל החזה העליון', 'הורד לאט עד מתיחה בחזה, מרפקים בזווית של כ-45° מהגוף', 'דחוף למעלה ומעט פנימה, בלי להקיש את המשקולות'] },
+  dbShoulderPress: { en: 'Dumbbell Shoulder Press', an: 'shoulderPress', he: 'לחיצת כתפיים עם משקולות יד', m: 'כתפיים · טריספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'db', jf: true, c: ['ישיבה עם גב נתמך, משקולות בגובה האוזניים', 'דחוף למעלה בלי לקשת גב תחתון', 'הורד לאט עד שהמרפקים מעט מתחת לקו הכתפיים'] },
+  smithShoulder: { en: 'Smith Machine Shoulder Press', an: 'shoulderPress', he: 'לחיצת כתפיים בסמית׳', m: 'כתפיים · טריספס', p: 'fdelt', s: ['delts', 'triceps'], pat: 'vpress', eq: 'smith', c: ['ספסל כמעט זקוף, המוט יורד מול הפנים', 'אחיזה מעט רחבה מהכתפיים', 'הורד עד גובה הסנטר ודחוף בלי לנעול בכוח'] },
   latPulldown: { en: 'Lat Pulldown', an: 'assistedPullup', he: 'משיכת פולי עליון', m: 'רחב גבי · ביספס · גב עליון', p: 'back', s: ['biceps'], pat: 'vpull', eq: 'cable', jf: true, c: ['ירכיים נעולות מתחת לכרית, חזה מורם', 'משוך את המוט לחזה העליון, מרפקים למטה ולאחור', 'שחרר לאט עד יישור כמעט מלא'] },
   neutralPulldown: { en: 'Neutral-Grip Pulldown', an: 'assistedPullup', he: 'משיכת פולי עליון באחיזה ניטרלית', m: 'רחב גבי · ביספס · גב עליון', p: 'back', s: ['biceps'], pat: 'vpull', eq: 'cable', jf: true, c: ['ידיות מקבילות, כפות הידיים זו מול זו', 'משוך לחזה ושמור מרפקים קרוב לגוף', 'חזרה איטית עד מתיחה ברחב הגבי'] },
   machineRow: { en: 'Machine Row', an: 'chestRow', he: 'חתירה במכונה', m: 'רחב גבי · אמצע הגב · ביספס', p: 'back', s: ['biceps', 'delts'], pat: 'hpull', eq: 'machine', jf: true, c: ['חזה צמוד לכרית, הידיות מול הצלעות התחתונות', 'משוך מרפקים לאחור וכווץ שכמות', 'שחרר לאט עד מתיחה מלאה'] },
@@ -2134,7 +2284,7 @@ const LIB = {
   machineLatRaise: { en: 'Machine Lateral Raise', an: 'latRaise', he: 'הרחקות לצדדים במכונה', m: 'כתף אמצעית', p: 'delts', s: [], pat: 'raise', eq: 'machine', jf: true, c: ['מרפקים צמודים לכריות, גב זקוף', 'הרם עם המרפקים עד גובה הכתפיים', 'הורד בשליטה בלי להניח את המשקל'] },
   cableRearFly: { en: 'Cable Rear Delt Fly', an: 'reversePec', he: 'פרפר הפוך בכבלים', m: 'כתף אחורית · אמצע הגב', p: 'delts', s: ['back'], pat: 'rearfly', eq: 'cable', jf: true, c: ['כבלים מוצלבים בגובה הכתפיים', 'פתח לצדדים בקשת רחבה, מרפק מעט כפוף', 'חזור לאט בלי להרים כתפיים'] },
   dbRearFly: { en: 'Chest-Supported Rear Delt Raise', an: 'reversePec', he: 'הרחקה אחורית בתמיכת חזה', m: 'כתף אחורית · אמצע הגב', p: 'delts', s: ['back'], pat: 'rearfly', eq: 'db', c: ['חזה על ספסל משופע, משקולות תלויות מתחת לכתפיים', 'הרם לצדדים עם מרפק מעט כפוף', 'עצור רגע למעלה והורד לאט'] },
-  crossPushdown: { en: 'Single-Arm Cable Pushdown', an: 'pushdown', he: 'פשיטת מרפק ביד אחת בכבל', m: 'טרייספס', p: 'triceps', s: [], pat: 'ext', eq: 'cable', jf: true, c: ['מרפק צמוד לגוף, יד אחת על הידית', 'ישר עד הסוף וכווץ', 'עלה לאט עד שהאמה מעט מעל קו המרפק'] },
+  crossPushdown: { en: 'Single-Arm Cable Pushdown', an: 'pushdown', he: 'פשיטת מרפק ביד אחת בכבל', m: 'טריספס', p: 'triceps', s: [], pat: 'ext', eq: 'cable', jf: true, c: ['מרפק צמוד לגוף, יד אחת על הידית', 'ישר עד הסוף וכווץ', 'עלה לאט עד שהאמה מעט מעל קו המרפק'] },
   cableCurl: { en: 'Cable Curl', an: 'dbCurl', he: 'כפיפת מרפקים בכבל', m: 'ביספס', p: 'biceps', s: [], pat: 'curl', eq: 'cable', jf: true, c: ['פולי תחתון, מרפקים צמודים לגוף', 'כופף עד הסוף בלי להזיז את הזרוע העליונה', 'הורד לאט ושמור על מתח רציף בכבל'] },
   preacher: { en: 'Preacher Curl Machine', an: 'dbCurl', he: 'כפיפת מרפקים במכונת פריצ׳ר', m: 'ביספס', p: 'biceps', s: [], pat: 'curl', eq: 'machine', c: ['בית השחי צמוד לקצה הכרית', 'כופף עד הסוף וכווץ', 'הורד לאט עד יישור כמעט מלא'] },
   machineCrunch: { en: 'Ab Crunch Machine', an: 'cableCrunch', he: 'כפיפות בטן במכונה', m: 'בטן ישרה', p: 'abs', s: [], pat: 'flex', eq: 'machine', jf: true, c: ['כוונן את המושב כך שהציר מול אמצע הבטן', 'עגל את הגב וקרב צלעות לאגן', 'חזור לאט עד מתיחה בבטן'] },
@@ -2159,12 +2309,12 @@ const animOf = (mv) => (isMv(mv) && LIB[mv].an) || mv;
 
 /* English for the muscle lines and the form cues, by their Hebrew text */
 const EN_TEXT = {
-  'חזה עליון · כתף קדמית · טרייספס': 'Upper chest · front delts · triceps',
+  'חזה עליון · כתף קדמית · טריספס': 'Upper chest · front delts · triceps',
   'רחב גבי · ביספס · גב עליון': 'Lats · biceps · upper back',
   'רחב גבי · אמצע הגב · ביספס': 'Lats · mid back · biceps',
   'כתף אמצעית': 'Side delts',
-  'חזה · טרייספס · כתף קדמית': 'Chest · triceps · front delts',
-  'טרייספס': 'Triceps',
+  'חזה · טריספס · כתף קדמית': 'Chest · triceps · front delts',
+  'טריספס': 'Triceps',
   'ביספס': 'Biceps',
   'בטן ישרה': 'Abs',
   'ארבע ראשי · ישבן': 'Quads · glutes',
@@ -2172,10 +2322,10 @@ const EN_TEXT = {
   'ירך אחורית': 'Hamstrings',
   'תאומים (שוק)': 'Calves (gastrocnemius)',
   'ליבה · אלכסונים': 'Core · obliques',
-  'כתפיים · טרייספס': 'Shoulders · triceps',
+  'כתפיים · טריספס': 'Shoulders · triceps',
   'כתף אחורית · אמצע הגב': 'Rear delts · mid back',
   'ברכיאליס · ביספס · אמה': 'Brachialis · biceps · forearms',
-  'טרייספס (ראש ארוך)': 'Triceps (long head)',
+  'טריספס (ראש ארוך)': 'Triceps (long head)',
   'בטן תחתונה · כופפי ירך': 'Lower abs · hip flexors',
   'ישבן · ירך אחורית': 'Glutes · hamstrings',
   'ארבע ראשי': 'Quads',
@@ -4024,7 +4174,7 @@ const writers = new Map();
 const W = (id) => { let w = writers.get(id); if (!w) { w = { timer: 0, busy: false, again: false, fail: 0 }; writers.set(id, w); } return w; };
 function setSync(state) {
   if (state) S.syncState = state;
-  const off = say('אין חיבור, נשמר במכשיר', 'Offline, saved on this device'), t = { cloud: say('נשמר בחשבון Claude', 'Saved to your Claude account'), local: say('נשמר במכשיר הזה', 'Saved on this device'), slow: off, error: off }[S.syncState];
+  const off = say('נשמר במכשיר בלי חיבור', 'Offline, saved on this device'), t = { cloud: say('נשמר בחשבון Claude', 'Saved to your Claude account'), local: say('נשמר במכשיר הזה', 'Saved on this device'), slow: off, error: off }[S.syncState];
   if (t) { S.syncT = t; $('#syncNote').textContent = t; const n = $('#syncNote2'); if (n) n.textContent = t; $('#app').dataset.sync = S.syncState === 'slow' || S.syncState === 'error' ? 'off' : 'on'; }
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }
@@ -4405,14 +4555,14 @@ function badge(T, e) {
 /* why the target is what it is, in one sentence */
 function whyText(T, e) {
   const last = T.ref ? '<bdi>' + rowWords(T.ref) + '</bdi>' : '', inv = LIB[e.mv].inv;
-  if (T.mode === 'reps') return last ? say('בפעם הקודמת עשית ' + last + '. היום מנסים יותר חזרות.', 'Last time you did ' + last + '. Today, more reps.') : say('היום מנסים יותר חזרות.', 'Today, more reps.');
-  if (T.mode === 'weight') return inv ? say('הגעת לראש טווח החזרות, אז הסיוע יורד.', 'You reached the top of the rep range, so the help comes down.') : say('הגעת לראש טווח החזרות, אז המשקל עולה.', 'You reached the top of the rep range, so the weight goes up.');
-  if (T.mode === 'hold') return last ? say('חוזרים על מה שעשית בפעם הקודמת: ' + last + '.', 'Repeat what you did last time: ' + last + '.') : say('ממשיכים עם מה שעשית בסט הקודם.', 'Carry on with what you did in the last set.');
-  if (T.mode === 'start') return T.kg == null ? say('פעם ראשונה בתרגיל הזה: מתחילים באמצע טווח החזרות.', 'First time on this exercise: start in the middle of the rep range.') : say('עוד אין היסטוריה לתרגיל הזה, אז זו הערכה ראשונה לפי הניסיון שלך. אפשר לשנות אותה למשקל שמתאים לך.', 'There is no history for this exercise yet, so this is a first guess from your experience. Move it to the weight that fits you.');
-  if (T.mode === 'base') return say('סבב חדש מתחיל קל יותר, אז היעד נמוך.', 'A new round starts easier, so the target is lower.');
-  if (T.mode === 'deload') return say('שבוע קל: פחות עומס, כדי להתאושש.', 'Easy week: less load, to recover.');
-  if (T.mode === 'down') return inv ? say('הסט הקודם ירד מתחת לטווח, אז מוסיפים סיוע.', 'The last set fell under the range, so the help goes up.') : say('הסט הקודם ירד מתחת לטווח, אז מורידים משקל.', 'The last set fell under the range, so the weight comes down.');
-  if (T.mode === 'cal') return say('עשית הרבה יותר מהיעד, אז המשקל מתעדכן.', 'You did far more than the target, so the weight is updated.');
+  if (T.mode === 'reps') return last ? say('בפעם הקודמת עשית ' + last + '<br>היום מנסים יותר חזרות', 'Last time you did ' + last + '. Today, more reps.') : say('היום מנסים יותר חזרות', 'Today, more reps.');
+  if (T.mode === 'weight') return inv ? say('הגעת לראש הטווח אז הסיוע יורד', 'You reached the top of the rep range, so the help comes down.') : say('הגעת לראש הטווח אז המשקל עולה', 'You reached the top of the rep range, so the weight goes up.');
+  if (T.mode === 'hold') return last ? say('חוזרים על הפעם הקודמת<br>' + last, 'Repeat what you did last time: ' + last + '.') : say('ממשיכים כמו בסט הקודם', 'Carry on with what you did in the last set.');
+  if (T.mode === 'start') return T.kg == null ? say('פעם ראשונה בתרגיל הזה<br>מתחילים באמצע הטווח', 'First time on this exercise: start in the middle of the rep range.') : say('זו הערכה ראשונה לפי הניסיון שלך<br>אפשר לשנות למשקל שמתאים לך', 'There is no history for this exercise yet, so this is a first guess from your experience. Move it to the weight that fits you.');
+  if (T.mode === 'base') return say('סבב חדש מתחיל קל יותר', 'A new round starts easier, so the target is lower.');
+  if (T.mode === 'deload') return say('שבוע קל עם פחות עומס כדי להתאושש', 'Easy week: less load, to recover.');
+  if (T.mode === 'down') return inv ? say('הסט הקודם היה מתחת לטווח אז מוסיפים סיוע', 'The last set fell under the range, so the help goes up.') : say('הסט הקודם היה מתחת לטווח אז מורידים משקל', 'The last set fell under the range, so the weight comes down.');
+  if (T.mode === 'cal') return say('עשית הרבה יותר מהיעד אז המשקל מתעדכן', 'You did far more than the target, so the weight is updated.');
   return '';
 }
 /* the exercise on screen: the one that was opened, else the first that still has a set to do, else the first */
@@ -4493,13 +4643,13 @@ function weekModel(nu) {
 /* the coach, under the week: where it stands, in a few words */
 function coachSays(Wm, easy) {
   const left = Wm.items.length - Wm.dn;
-  if (Wm.on) return say('יש אימון באמצע. ממשיכים מאיפה שעצרת?', 'A workout is under way. Pick up where you stopped?');
-  if (Wm.first) return say('האימון הראשון מחכה. אני איתך בכל סט.', 'Your first workout is waiting. I\'m with you every set.');
-  if (easy) return say('שבוע קל: פחות סטים, רחוק מכשל. הגוף בונה עכשיו.', 'Easy week: fewer sets, far from failure. This is when the body builds.');
+  if (Wm.on) return say('ממשיכים את האימון מאיפה שעצרת', 'A workout is under way. Pick up where you stopped?');
+  if (Wm.first) return say('האימון הראשון שלך מחכה', 'Your first workout is waiting. I\'m with you every set.');
+  if (easy) return say('שבוע קל כדי שהגוף יתאושש', 'Easy week: fewer sets, far from failure. This is when the body builds.');
   const run = streakOpen(Object.values(S.sessions), S.cfg.me.arch, Date.now());
-  if (run) return say(run + ' שבועות ברצף. אימון אחד השבוע שומר על הרצף.', run + ' weeks in a row. One workout this week keeps the run going.');
-  if (!Wm.dn) return say('שבוע חדש. מתחילים חזק.', 'A new week. Start strong.');
-  if (left === 1) return say('עוד אימון אחד וסגרת את השבוע!', 'One more workout and the week is yours!');
+  if (run) return say('אימון אחד השבוע שומר על רצף של ' + run + ' שבועות', run + ' weeks in a row. One workout this week keeps the run going.');
+  if (!Wm.dn) return say('שבוע חדש בוא נתחיל חזק', 'A new week. Start strong.');
+  if (left === 1) return say('עוד אימון אחד וסגרת את השבוע', 'One more workout and the week is yours!');
   return say('עוד ' + left + ' אימונים לסגירת השבוע', left + ' more workouts to close the week');
 }
 function weekHTML(Wm, easy) {
@@ -4542,7 +4692,8 @@ function updateProgress() {
 function renderHero() {
   const list = exList(S.tab), cur = $('#app').classList.contains('pre-on') ? null : shown(), i = cur ? list.findIndex((x) => x.id === cur.id) : -1;
   $('#app').dataset.w = posOf(S.tab) % 5;
-  $('#wkTitle').innerHTML = '<b>' + wkName(S.tab) + '</b><span class="sub">' + (i >= 0 ? say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length : wkOrd(S.tab)) + '</span>';
+  const sub = i >= 0 ? say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length : ownName(S.tab) ? wkOrd(S.tab) : '';
+  $('#wkTitle').innerHTML = '<b>' + wkName(S.tab) + '</b>' + (sub ? '<span class="sub">' + sub + '</span>' : '');
   $('#hero').innerHTML = bannerHTML();
   updateProgress();
 }
@@ -4567,9 +4718,9 @@ function setsHTML(e) {
     const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + rowWords(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + rowWords(T) : '');
     const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
-      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + (T ? setVal(T) : '–') + '</span>') + '</button>';
+      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
   }
-  if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב.', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב.', 'Off today because of pain.')) + '</p>';
+  if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב', 'Off today because of pain.')) + '</p>';
   return h;
 }
 /* strength trend for one movement in its slot: the best set of each past workout */
@@ -4592,11 +4743,12 @@ function trendHTML(e) {
 }
 /* one question about the exercise that was just finished: three answers to tap. Pain is a quiet chip under them, which opens two more */
 const LOAD = () => [say('קל מדי', 'Too easy'), say('בדיוק', 'Just right'), say('כבד מדי', 'Too heavy')];
-function fbHTML(e, s) {
-  const f = (s && s.fb && s.fb[e.id]) || {}, hurt = S.fbPain === e.id || f.pain > 0;
+function fbHTML(e, s, painOnly) {
+  const f = (s && s.fb && s.fb[e.id]) || {}, hurt = painOnly || S.fbPain === e.id || f.pain > 0;
+  if (painOnly) f.pain = f.pain || 0;
   const opt = (key, v, t) => '<button type="button" class="fb-o" data-fb="' + key + '" data-v="' + v + '" aria-pressed="' + (f[key] === v) + '">' + t + '</button>';
   return '<div class="fbk" data-ex="' + e.id + '">' +
-    (f.pain === 2 ? '' : '<div class="fb-row" role="group" aria-label="' + say('איך היה', 'How was it') + '">' + LOAD().map((t, v) => opt('load', v, t)).join('') + '</div>') +
+    (f.pain === 2 || painOnly ? '' : '<div class="fb-row" role="group" aria-label="' + say('איך היה', 'How was it') + '">' + LOAD().map((t, v) => opt('load', v, t)).join('') + '</div>') +
     (hurt ? '<div class="fb-row pain" role="group" aria-label="' + say('כאב', 'Pain') + '">' + opt('pain', 1, say('כאב קל', 'Mild pain')) + opt('pain', 2, say('כאב חזק', 'Strong pain')) + '</div>'
       : '<button class="fb-pain" type="button" data-painask="' + e.id + '">' + say('משהו כאב לי', 'Something hurt') + '</button>') + '</div>';
 }
@@ -4604,22 +4756,27 @@ function fbHTML(e, s) {
 function painNote(e, s) {
   const f = s && s.fb && s.fb[e.id]; if (!f || f.pain !== 2) return '';
   const alt = gentleAlt(e), set = alt && S.cfg.swap[e.id] === alt, mu = LIB[e.mv].p;
-  return '<div class="fb-stop"><b>' + say(MUSCLE[mu].he + ': עוצרים להיום', muName(mu) + ': stopping for today') + '</b>' +
-    (!alt ? '' : set ? '<p>' + say('מהאימון הבא: ', 'From next workout: ') + mvName(alt) + '</p>'
-      : '<p>' + (LIB[alt].jf ? say('נוח יותר למפרקים: ', 'Easier on the joints: ') : say('אפשר במקום: ', 'Instead, you could do: ')) + mvName(alt) + '</p><button class="btn" type="button" data-swapto="' + e.id + ':' + alt + '">' + say('להחליף מהאימון הבא', 'Swap from next workout') + '</button>') +
-    '<p class="fine">' + say('אם הכאב נמשך, כדאי להיבדק.', 'If the pain goes on, have it checked.') + '</p></div>';
+  return '<div class="fb-stop"><b>' + say('היום עוצרים עם ' + MUSCLE[mu].he, muName(mu) + ': stopping for today') + '</b>' +
+    (!alt ? '' : set ? '<p>' + say('מהאימון הבא ', 'From next workout: ') + mvName(alt) + '</p>'
+      : '<p>' + (LIB[alt].jf ? say('נוח יותר למפרקים ', 'Easier on the joints: ') : say('אפשר במקום ', 'Instead, you could do: ')) + mvName(alt) + '</p><button class="btn" type="button" data-swapto="' + e.id + ':' + alt + '">' + say('להחליף מהאימון הבא', 'Swap from next workout') + '</button>') +
+    '<p class="fine">' + say('אם הכאב נמשך כדאי להיבדק', 'If the pain goes on, have it checked.') + '</p></div>';
 }
 /* what is asked in this exercise, as one line of plain text. How many sets there are is what the row of sets shows */
 function rxLine(e, s) {
   const rir = rirOf(e, s);
-  return Ltr(e.reps) + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '') + ' · ' + (rir == null ? e.int : rirText(rir));
+  return Ltr(e.reps) + say(' חזרות', ' reps') + (e.suf ? ' ' + e.suf : '');
 }
+/* the muscles an exercise works, as chips: the main one in its colour, the helpers grey */
+const TONE = { chest: 'chest', back: 'back', delts: 'sh', fdelt: 'sh', biceps: 'arm', triceps: 'arm', quads: 'leg', hams: 'leg', glutes: 'leg', calves: 'leg', abs: 'core' };
+const toneOf = (mu) => TONE[mu] || 'core';
+const musOf = (mv) => { const L = LIB[mv]; return [L.p].concat(L.s || []).filter((k, j, a) => MUSCLE[k] && a.indexOf(k) === j).slice(0, 3); };
+const musChips = (mv) => '<p class="mus-chips tn-' + toneOf(LIB[mv].p) + '">' + musOf(mv).map((k, j) => '<span' + (j ? '' : ' class="p"') + '>' + muName(k) + '</span>').join('') + '</p>';
 /* the demo, with the two things that are a tap away on its corners (the details of the exercise, and everything else), then the sets */
 function bodyHTML(e) {
   return '<div class="stage-box"><button class="stage-wrap" type="button" aria-pressed="' + !player.playing + '"><canvas class="stage" aria-hidden="true"></canvas><span class="stage-play" aria-hidden="true">' + ICON.go + '</span></button>' +
-    '<button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט התרגיל', 'Exercise details') + '</span></button>' +
-    '<button class="st-btn more" type="button" aria-label="' + say('עוד: החלפה, הערה, היסטוריה', 'More: swap, note, history') + '">' + ICON.dots + '</button></div>' +
-    '<p class="muscles"><i></i><span>' + mvMus(e.mv) + '</span></p>' +
+    '<button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט', 'Details') + '</span></button>' +
+    '<button class="st-btn swp" type="button">' + ICON.swap + '<span>' + say('החלף תרגיל', 'Swap') + '</span></button></div>' +
+    musChips(e.mv) +
     '<div class="sets">' + setsHTML(e) + '</div>';
 }
 /* the exercise on screen: its name and what is asked, the demo, and the sets */
@@ -4632,19 +4789,7 @@ function focusHTML(e, i, n) {
     '<div class="ex-body" id="body-' + e.id + '">' + bodyHTML(e) + '</div></li>';
 }
 /* ---- one tap away: the details of the exercise. What is asked, the muscles it works, and how it is done ---- */
-function openHow(id) {
-  const e = findEx(id), sh = $('#sheet'); if (!e) return;
-  const s = live(S.tab), fact = (v, t) => '<li><b>' + v + '</b><span>' + t + '</span></li>';
-  S.sheet = 'how';
-  sh.innerHTML = '<div class="sheet-in hw" role="dialog" aria-modal="true" aria-label="' + say('פירוט התרגיל', 'Exercise details') + '"><div class="ed-h"><div><p class="kicker">' + say('פירוט התרגיל', 'Exercise details') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<ul class="hw-facts">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), say('חזרות', 'reps')) + fact(restText(e), say('מנוחה', 'rest')) + '</ul>' +
-    '<p class="muscles"><i></i><span>' + mvMus(e.mv) + '</span></p>' +
-    '<h3 class="hw-h">' + say('איך עושים', 'How to do it') + '</h3>' +
-    '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c.replace(/\d+(?:[.,]\d+)?(?:\s?[–\-×]\s?\d+(?:[.,]\d+)?)+°?/g, (m) => Ltr(m)) + '</li>').join('') + '</ul>' +
-    '<p class="hw-rx">' + rxLine(e, s) + '</p>' +
-    (e.a !== e.mv || LIB[e.mv].near ? '<p class="fine">' + say('ההדמיה מראה תנועה דומה.', 'The demo shows a similar movement.') + '</p>' : '') + (LANG === 'he' ? '<p class="en-name" lang="en">' + Ltr(esc(e.name)) + '</p>' : '') + '</div>';
-  sh.hidden = false;
-}
+function openHow(id) { openMore(id); }
 /* ---- one tap away: the lifter's note, what happened before, and the less common actions ---- */
 function renderMore() {
   const e = S.open && findEx(S.open), sh = $('#sheet'); if (!e) { closeSheet(); return; }
@@ -4652,14 +4797,19 @@ function renderMore() {
   const dl = phase(S.tab, s).dl, inPlan = planIds(S.tab).includes(e.id), started = rowsOf(s, e.id).some(isDone), alone = exList(S.tab, s).length < 2;
   const hist = (ref && !ref.other ? '<p class="prev-line">' + say('פעם קודמת', 'Last time') + ' (' + ago(ref.ts) + '): ' + rowsOf(S.sessions[ref.sid], e.id).filter(isDone).map((x) => '<bdi>' + rowWords(x) + '</bdi>').join(' · ') + '</p>' : '') + tr;
   const row = (id, ic, t, sub) => '<button class="mr-row" id="' + id + '" type="button"><i aria-hidden="true">' + ic + '</i><span><b>' + t + '</b>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + ICON.fwd + '</button>';
-  sh.innerHTML = '<div class="sheet-in mr" role="dialog" aria-modal="true" aria-label="' + say('עוד', 'More') + '"><div class="ed-h"><div><p class="kicker">' + say('עוד', 'More') + '</p><h2>' + e.nm + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
-    '<div class="mr-rows">' + row('moreSwap', ICON.swap, say('החלף תרגיל', 'Swap exercise'), say('תרגיל אחר לאותו שריר', 'Another exercise for the same muscle')) +
+  const fact = (v, t) => '<li><b>' + v + '</b><span>' + t + '</span></li>';
+  sh.innerHTML = '<div class="sheet-in mr hw" role="dialog" aria-modal="true" aria-label="' + say('פירוט התרגיל', 'Exercise details') + '"><div class="ed-h"><div><p class="kicker">' + say('פירוט התרגיל', 'Exercise details') + '</p><h2>' + e.nm + '</h2>' + (LANG === 'he' ? '<p class="en-name" lang="en">' + Ltr(esc(e.name)) + '</p>' : '') + '</div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
+    '<ul class="hw-facts">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), say('חזרות', 'reps')) + fact(restText(e), say('מנוחה', 'rest')) + '</ul>' + (function () { const r = rirOf(e, s); return '<p class="hw-rir">' + (r == null ? e.int : rirText(r)) + '</p>'; })() + musChips(e.mv) +
+    '<h3 class="hw-h">' + say('איך עושים', 'How to do it') + '</h3>' +
+    '<ul class="cues">' + mvCues(e.mv).map((c) => '<li>' + c.replace(/\d+(?:[.,]\d+)?(?:\s?[–\-×]\s?\d+(?:[.,]\d+)?)+°?/g, (m) => Ltr(m)) + '</li>').join('') + '</ul>' +
+    (e.a !== e.mv || LIB[e.mv].near ? '<p class="fine">' + say('ההדמיה מראה תנועה דומה', 'The demo shows a similar movement.') + '</p>' : '') +
+    '<div class="mr-rows">' +
     (started || alone ? '' : row('moreSkip', ICON.x, say('דלג עליו היום', 'Skip it today'), say('התוכנית לא משתנה', 'The plan stays as it is'))) +
     row('moreAsk', ICON.info, say('שאל את אילון', 'Ask Eilon'), say('על התרגיל הזה', 'About this exercise')) + '</div>' +
-    '<label class="note"><span>' + say('הערה שנשארת עם התרגיל', 'A note that stays with this exercise') + '</span><textarea class="note-in" rows="2" maxlength="200" placeholder="' + say('גובה מושב, קצב, דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>' +
+    '<label class="note"><span>' + say('הערה שנשארת עם התרגיל', 'A note that stays with this exercise') + '</span><textarea class="note-in" rows="2" maxlength="200" placeholder="' + say('גובה מושב או דגש', 'Seat height, tempo, a cue') + '">' + esc(S.cfg.notes[e.mv] || '') + '</textarea></label>' +
     (e.cut || dl || !inPlan ? '' : '<div class="m-row"><span>' + say('סטים בתרגיל', 'Sets in this exercise') + '</span><div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (e.n0 <= Math.max(1, doneTop(s, e.id)) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div></div>') +
-    '<section><h3>' + say('היסטוריה', 'History') + '</h3>' + (hist || '<p class="empty-note">' + say('עוד אין היסטוריה לתרגיל הזה.', 'No history for this exercise yet.') + '</p>') + '</section>' +
-    (rated ? '<section><h3>' + say('איך היה?', 'How was it?') + '</h3>' + fbHTML(e, s) + painNote(e, s) + '</section>' : '') +
+    '<section><h3>' + say('היסטוריה', 'History') + '</h3>' + (hist || '<p class="empty-note">' + say('עוד אין היסטוריה לתרגיל הזה', 'No history for this exercise yet.') + '</p>') + '</section>' +
+    (rated ? '<section><h3>' + say('משהו כואב', 'Something hurts') + '</h3>' + fbHTML(e, s, true) + painNote(e, s) + '</section>' : '') +
     (fill ? '<div class="mr-acts"><button class="btn" id="moreSame" type="button">' + say('רשום את כל הסטים לפי היעד', 'Log every set at its target') + '</button></div>' : '') + '</div>';
 }
 function openMore(id) { if (!findEx(id)) return; S.sheet = 'more'; renderMore(); $('#sheet').hidden = false; }
@@ -4695,7 +4845,7 @@ function renderHistory() {
   renderGains(); renderBackup();
   /* each finished workout is one row; a tap opens it for fixing, moving to another day or deleting */
   $('#history').innerHTML = '<h2 class="sec">' + say('אימונים אחרונים', 'Recent workouts') + '</h2>' + (list.length ? '<ul class="rows">' + list.map((x) => { const mn = Math.max(1, Math.round((x.end - x.ts) / 60000)); return '<li class="tap"><button class="row-b" type="button" data-edit="' + x.id + '" aria-label="' + wkFull(x.w) + say(', עריכה', ', edit') + '"><span class="h-t">' + wkName(x.w) + '</span><span class="h-s">' + df.format(new Date(x.ts)) + ' · ' + cnt(setsDone(x), 'סטים', 'סט אחד', 'sets', 'set') + (mn < 300 ? ' · ' + mn + say(' דק׳', ' min') : '') + '</span>' + ICON.fwd + '</button></li>'; }).join('') + '</ul>' + (all.length > list.length ? '<button class="link" id="histMore" type="button">' + say('עוד אימונים', 'More workouts') + '</button>' : '')
-    : '<p class="empty-note">' + say('האימונים שתסיים יופיעו כאן.', 'Workouts you finish will show up here.') + '</p>');
+    : '<p class="empty-note">' + say('האימונים שתסיים יופיעו כאן', 'Workouts you finish will show up here.') + '</p>');
 }
 /* one file with every workout and the settings: saved from here, or read back in */
 function renderBackup() {
@@ -4706,8 +4856,8 @@ function renderBackup() {
 }
 async function exportBackup() {
   if (!S.dl) return;
-  try { await S.dl.save({ filename: 'gymi-backup-' + isoDay(new Date()) + '.json', data: backupData() }); S.backupNote = say('הגיבוי נשמר.', 'The backup was saved.'); }
-  catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') S.backupNote = say('השמירה נכשלה.', 'Saving failed.'); }
+  try { await S.dl.save({ filename: 'gymi-backup-' + isoDay(new Date()) + '.json', data: backupData() }); S.backupNote = say('הגיבוי נשמר', 'The backup was saved.'); }
+  catch (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') S.backupNote = say('השמירה נכשלה', 'Saving failed.'); }
   renderBackup();
 }
 function importBackup(file) {
@@ -4716,11 +4866,11 @@ function importBackup(file) {
   rd.onload = () => {
     const r = restoreData(String(rd.result || ''));
     if (r) { sweep(); meSync(); if (!S.touched) S.tab = nextUp().next; S.open = null; if ((S.cfg.lang || autoLang()) !== LANG) applyLang(); }
-    const kept = r && r.kept ? say('ההגדרות שבמכשיר הזה חדשות יותר מאלה שבקובץ, ולכן הן נשארו.', "This device's settings are newer than the file's, so they were kept.") : '';
-    S.backupNote = !r ? say('זה לא קובץ גיבוי של gymi.', 'This is not a gymi backup file.') : r.n ? (r.n === 1 ? say('אימון אחד שוחזר.', '1 workout was restored.') : r.n + say(' אימונים שוחזרו.', ' workouts were restored.')) + (kept && ' ' + kept) : kept || (r.cfg ? say('ההגדרות שוחזרו.', 'The settings were restored.') : say('אין בקובץ שום דבר חדש.', 'Nothing new in this file.'));
+    const kept = r && r.kept ? say('ההגדרות במכשיר חדשות יותר אז הן נשארו', "This device's settings are newer than the file's, so they were kept.") : '';
+    S.backupNote = !r ? say('זה לא קובץ גיבוי של gymi', 'This is not a gymi backup file.') : r.n ? (r.n === 1 ? say('אימון אחד שוחזר', '1 workout was restored.') : r.n + say(' אימונים שוחזרו', ' workouts were restored.')) + (kept && '<br>' + kept) : kept || (r.cfg ? say('ההגדרות שוחזרו', 'The settings were restored.') : say('אין בקובץ שום דבר חדש', 'Nothing new in this file.'));
     renderAll();
   };
-  rd.onerror = () => { S.backupNote = say('הקובץ לא נקרא.', 'The file could not be read.'); renderBackup(); };
+  rd.onerror = () => { S.backupNote = say('הקובץ לא נקרא', 'The file could not be read.'); renderBackup(); };
   rd.readAsText(file);
 }
 /* progress: how the best set of each movement moved since the mesocycle began */
@@ -4728,7 +4878,7 @@ function renderGains() {
   const M = S.cfg.meso, R = mesoSummary(M.id), sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
   $('#progCap').textContent = say('סבב ', 'Round ') + M.n + (R.n ? ' · ' + R.n + (R.n === 1 ? say(' אימון', ' workout') : say(' אימונים', ' workouts')) : '');
   $('#gains').innerHTML = '<div class="sec-h"><h2 class="sec">' + say('הכוח שלך', 'Your strength') + '</h2>' + (R.n ? '<button class="go-link" type="button" data-sum="' + M.id + '">' + say('סיכום הסבב', 'Round summary') + ICON.fwd + '</button>' : '') + '</div>' + (R.gains.length ? '<ul class="rows">' + R.gains.slice(0, 5).map((g) => '<li><span class="g-t">' + mvName(g.mv) + '</span><span class="g-s">' + Ltr(fmtRow(g.first)) + arrow() + Ltr(fmtRow(g.best)) + '</span><span class="g-d ' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</span></li>').join('') + '</ul>'
-    : '<p class="empty-note">' + say('השינוי יופיע אחרי שני אימונים.', 'The change shows after two workouts.') + '</p>');
+    : '<p class="empty-note">' + say('השינוי יופיע אחרי שני אימונים', 'The change shows after two workouts.') + '</p>');
 }
 /* in the list of all exercises: mark the one on screen */
 function markCur() { const cur = shown(); $$('#allList .ex').forEach((li) => li.classList.toggle('cur', !!cur && cur.id === li.dataset.id)); }
@@ -4756,6 +4906,8 @@ function stepEx(d) {
   if (!n) return;
   S.touched = true; S.edit = null; S.why = false; openEx(n.id, true, d); renderDock();
 }
+/* the next exercise that still has a set to do, after a given one */
+function nextAfter(id) { const s = live(S.tab), list = exList(S.tab, s), i = list.findIndex((x) => x.id === id), left = (x) => firstUndone(s, x) >= 0; return list.slice(i + 1).find(left) || list.find(left) || null; }
 /* the next exercise that still has a set to do, after the one on screen */
 function nextOpen() { const s = live(S.tab), list = exList(S.tab, s), i = list.findIndex((x) => x.id === S.open), left = (x) => firstUndone(s, x) >= 0; return list.slice(i + 1).find(left) || list.find(left) || null; }
 /* refresh the exercise on screen after its sets changed, without rebuilding the stage */
@@ -4776,7 +4928,7 @@ function renderListSheet() {
     '<ol class="ex-list" id="allList">' + list.map((e, i) => rowHTML(e, i, s)).join('') + '</ol>' +
     '<div class="ls-links"><button class="link" id="editWk" type="button">' + say('עריכת האימון', 'Edit this workout') + '</button>' + ((!s || !hasDone(s)) && timeChoices(S.tab) ? '<button class="link" id="timeAgain" type="button">' + say('אורך האימון היום', 'Today\'s length') + '</button>' : '') + ((!s || !hasDone(s)) && !P.dl && preMuscles(S.tab).length ? '<button class="link" id="preAgain" type="button">' + say('שאלת ההתאוששות', 'Recovery check') + '</button>' : '') + '</div>' +
     (s ? '<div class="ls-act"><button class="btn big" id="finishBtn" type="button"' + (hasDone(s) ? '' : ' disabled') + '>' + say('סיים אימון', 'Finish workout') + '</button>' +
-      (S.resetAsk ? '<span class="confirm"><span>' + say('למחוק את הרישום של האימון?', 'Clear what was logged in this workout?') + '</span><button class="btn danger" id="resetYes" type="button">' + say('כן, נקה', 'Yes, clear') + '</button><button class="btn" id="resetNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>' : '<button class="link" id="resetBtn" type="button">' + say('נקה רישום', 'Clear the log') + '</button>') + '</div>' : '') + '</div>';
+      (S.resetAsk ? '<span class="confirm"><span>' + say('למחוק את הרישום של האימון', 'Clear what was logged in this workout?') + '</span><button class="btn danger" id="resetYes" type="button">' + say('כן נקה', 'Yes, clear') + '</button><button class="btn" id="resetNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>' : '<button class="link" id="resetBtn" type="button">' + say('נקה רישום', 'Clear the log') + '</button>') + '</div>' : '') + '</div>';
   $('.sheet-in', sh).scrollTop = top; markCur();
 }
 function openList() { S.sheet = 'list'; S.resetAsk = false; renderListSheet(); $('#sheet').hidden = false; }
@@ -4800,7 +4952,9 @@ function listSheetClick(ev, id) {
 function refreshOpenSets() { const e = S.open && findEx(S.open), li = e && $('#exList .ex.open .sets'); if (li) li.innerHTML = setsHTML(e); }
 
 /* ================================================================== dock: log a set with one tap, rest timer */
-const rest = { on: false, start: 0, min: 0, max: 0, iv: 0, minHit: false, ended: 0, label: null, last: null };
+const rest = { on: false, start: 0, min: 0, max: 0, iv: 0, minHit: false, ended: 0, label: null, last: null, lit: -1 };
+/* the 60 ticks around the rest ring, one for each second of a minute's turn */
+const RT_TICKS = Array.from({ length: 60 }, (_, k) => { const a = (k / 60) * 2 * Math.PI, c = Math.cos(a), s = Math.sin(a); return '<line x1="' + (100 + 93 * c).toFixed(1) + '" y1="' + (100 + 93 * s).toFixed(1) + '" x2="' + (100 + (k % 5 ? 98 : 99.5) * c).toFixed(1) + '" y2="' + (100 + (k % 5 ? 98 : 99.5) * s).toFixed(1) + '"/>'; }).join('');
 let actx = null, wake = null, logBusy = false;
 function primeAudio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { actx = null; } }
 function beep(n) {
@@ -4860,7 +5014,7 @@ function numsHTML(kg, reps, ghostKg, ghostReps, mv) {
 function fbPanel(s) {
   const e = S.fbFor && s ? exList(S.tab, s).find((x) => x.id === S.fbFor) : null;
   if (!e) { S.fbFor = null; return ''; }
-  return '<div class="fb-dock"><div class="fb-h"><b>' + say('איך היה?', 'How was it?') + '</b><span>' + e.nm + '</span></div>' + fbHTML(e, s) + painNote(e, s) + '</div>';
+  return '<div class="fb-dock"><div class="fb-h"><b>' + say('איך היה', 'How was it?') + '</b><span>' + e.nm + '</span></div>' + fbHTML(e, s) + painNote(e, s) + '</div>';
 }
 /* a question that was left unanswered is not kept */
 function dropFb() {
@@ -4884,13 +5038,12 @@ function renderDock() {
   if (rest.on) {
     /* the rest takes the whole screen: the time in the middle, what was just logged above it (and a way to take it back),
        the question about a finished exercise, and at the foot what comes next and the way on */
-    const L = rest.last; cls += ' rest';
-    h = '<div class="rt-top"><button class="rt-undo" id="rtUndo" type="button" aria-label="' + say('ביטול הסט שנרשם', 'Take back the set that was logged') + '"' + (L ? '' : ' hidden') + '>' + ICON.undo + '</button>' +
-      (L ? '<span class="rt-log' + (L.pr ? ' pr' : '') + '">' + (L.pr ? glyph('star') : ICON.check) + '<b><bdi>' + rowWords(L) + '</bdi></b>' + (L.pr ? '<i>' + say('שיא אישי', 'Personal best') + '</i>' : '') + '</span>' : '<span></span>') + '<span class="rt-sp"></span></div>' +
-      '<div class="rt"><div class="rt-ring"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="t" cx="100" cy="100" r="90"/><circle class="f" id="rtFill" cx="100" cy="100" r="90" pathLength="100"/></svg>' +
+    const L = rest.last; cls += ' rest'; rest.lit = -1;
+    h = '<div class="rt-top"><button class="rt-undo" id="rtUndo" type="button" aria-label="' + say('ביטול הסט שנרשם', 'Take back the set that was logged') + '"' + (L ? '' : ' hidden') + '>' + ICON.undo + '</button><span class="rt-k">' + say('מנוחה', 'Rest') + '</span><span class="rt-sp"></span></div>' +
+      '<div class="rt"><div class="rt-ring"><svg viewBox="0 0 200 200" aria-hidden="true"><g class="rt-ticks" id="rtTicks">' + RT_TICKS + '</g><circle class="t" cx="100" cy="100" r="82"/><circle class="f" id="rtFill" cx="100" cy="100" r="82" pathLength="100"/><circle class="h" id="rtHead" cx="182" cy="100" r="7"/></svg>' +
       '<div class="rt-mid"><div class="rt-time" id="rtTime">0:00</div><div class="rt-word" id="rtWord"></div></div></div>' +
       '<div class="rt-adj"><button type="button" id="rtMinus" aria-label="' + say('הפחת 15 שניות', '15 seconds less') + '">' + Ltr('−15') + '</button><button type="button" id="rtPlus" aria-label="' + say('הוסף 15 שניות', '15 seconds more') + '">' + Ltr('+15') + '</button></div></div>' +
-      fbp + '<div class="rt-foot"><div class="rt-state" id="rtState"></div><button type="button" id="rtSkip" class="go">' + say('המשך', 'Continue') + '</button></div>';
+      '<div class="rt-foot"><button type="button" id="rtSkip" class="go">' + say('המשך', 'Continue') + '</button></div>';
   } else if (fbp && (S.fbFor === S.open || !anyLeft(s))) {
     /* no rest is running: the question stands above the way on, and never in its way */
     S.edit = null;
@@ -4906,7 +5059,7 @@ function renderDock() {
     if (cur) {
       /* the numbers of the target are the ones in the two boxes; the line above them only says which set this is */
       const e = cur.e, i = cur.i, T = targetOf(e, i, s), d = draftGet(e.id, i), note = S.cfg.notes[e.mv], why = S.why && T ? whyText(T, e) : '';
-      h = '<div class="dk-top"><span class="dk-set">' + say('סט ', 'Set ') + '<b>' + (i + 1) + '</b>' + say(' מתוך ', ' of ') + e.sets + '</span>' + (T ? badge(T, e) : '') + '</div>' +
+      h = '<div class="dk-top"><span class="dk-set">' + say('סט ', 'Set ') + '<b>' + (i + 1) + '</b>' + say(' מתוך ', ' of ') + e.sets + '</span>' + (T && ['reps', 'weight', 'down', 'cal'].includes(T.mode) ? badge(T, e) : '') + '</div>' +
         (why ? '<p class="dk-why">' + why + '</p>' : '') +
         (note ? '<p class="dk-note">' + ICON.pin + '<span>' + esc(note) + '</span></p>' : '') +
         numsHTML(curKg(e, i, s, T), curReps(e, i, s, T), !!T && !(d && d.kg !== undefined), !!T && !(d && d.reps != null), e.mv) +
@@ -4987,19 +5140,13 @@ function writeRow(e, i, kg, reps) {
   touch(s); return pr;
 }
 /* the exercise is finished: ask how it went, once */
-function askFb(e, s) {
-  /* never; or only about the heavy lifts that open a workout; or about every exercise */
-  const want = S.cfg.me.fb == null ? 2 : S.cfg.me.fb;
-  if (want === 0 || (want === 1 && !(e.rest[0] >= 120))) return;
-  const fb = s.fb || (s.fb = {});
-  if (fb[e.id] && fb[e.id].load != null) return;
-  if (!fb[e.id]) { fb[e.id] = { pain: 0, pump: null, load: null }; s.ft = Date.now(); touch(s); }
-  S.fbFor = e.id; S.fbPain = null;
-}
+function askFb() { /* nothing is asked after an exercise any more (round 3): pain is told from the exercise's details */ }
 function commitSet(e, i, kg, reps) {
+  const s0 = ensure(wkOf(e.id)), T0 = targetOf(e, i, s0), good = !!T0 && T0.reps != null && reps >= T0.reps && (T0.kg == null || kg == null || kg >= T0.kg);
   const lv0 = S.lvl, pr = writeRow(e, i, kg, reps), s = live(S.tab), list = exList(S.tab, s), left = (x) => firstUndone(s, x) >= 0;
   e = list.find((x) => x.id === e.id);
-  sfx(pr ? 'pr' : 'set'); if (pr) haptic('pr'); flyPoints($('#dkHit'), XP.set + (pr ? XP.pr : 0));
+  S.combo = good || pr ? (S.combo || 0) + 1 : 0;
+  sfx(pr ? 'pr' : 'set'); if (pr) haptic('pr'); popGain(XP.set + (pr ? XP.pr : 0), pr, S.combo);
   S.justDone = { ex: e.id, i, t: Date.now() };
   delete S.drafts[e.id]; refreshEx(e); renderTabs(); renderHistory(); renderPre(); markLive();
   renderMe(); bump(lv0);
@@ -5009,7 +5156,7 @@ function commitSet(e, i, kg, reps) {
   let nxt = e, label;
   if (left(e)) {
     const ni = firstUndone(s, e), T = targetOf(e, ni, s), inv = LIB[e.mv].inv, n = e.sets;
-    label = () => say('סט ', 'Set ') + (ni + 1) + say(' מתוך ', ' of ') + n + (T && T.mode === 'down' ? ' · ' + (inv ? say('מוסיפים סיוע: ', 'More help: ') : say('מורידים ל-', 'Down to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : T && T.mode === 'cal' ? ' · ' + (inv ? say('פחות סיוע: ', 'Less help: ') : say('מעלים ל-', 'Up to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : '');
+    label = () => say('סט ', 'Set ') + (ni + 1) + say(' מתוך ', ' of ') + n + (T && T.mode === 'down' ? ' · ' + (inv ? say('מוסיפים סיוע ', 'More help: ') : say('מורידים ל-', 'Down to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : T && T.mode === 'cal' ? ' · ' + (inv ? say('פחות סיוע ', 'Less help: ') : say('מעלים ל-', 'Up to ')) + fmtKg(T.kg) + say(' ק״ג', ' kg') : '');
   } else { nxt = list.slice(list.indexOf(e) + 1).find(left) || list.find(left); const id = nxt.id; label = () => { const x = findEx(id); return x ? x.nm : ''; }; }
   startRest(e.rest[0], e.rest[1], label, { ex: e.id, i, kg, reps, pr });
   /* the exercise is finished: the next one slides in while the rest runs */
@@ -5032,26 +5179,30 @@ function fillTargets(e) {
 function startRest(min, max, label, last) {
   clearInterval(rest.iv);
   Object.assign(rest, { on: true, start: Date.now(), min, max, minHit: false, ended: 0, label, last });
-  S.edit = null; renderDock(); rest.iv = setInterval(tickRest, 200);
+  S.edit = null; renderDock(); rest.iv = setInterval(tickRest, 100);
 }
 function tickRest() {
   if (!rest.on) return;
   const el = (Date.now() - rest.start) / 1000, left = Math.max(0, rest.max - el), d = $('#dock'), tm = $('#rtTime');
   if (!tm) return;
-  tm.textContent = mmss(Math.ceil(left)); $('#rtFill').style.strokeDashoffset = String(Math.min(100, (el / rest.max) * 100));
+  tm.textContent = mmss(Math.ceil(left));
+  const fr = rest.max > 0 ? Math.max(0, Math.min(1, left / rest.max)) : 0, a = fr * 2 * Math.PI, hd = $('#rtHead');
+  $('#rtFill').style.strokeDashoffset = String(((1 - fr) * 100).toFixed(2));
+  if (hd) { hd.setAttribute('cx', (100 + 82 * Math.cos(a)).toFixed(1)); hd.setAttribute('cy', (100 + 82 * Math.sin(a)).toFixed(1)); }
+  const lit = Math.ceil(fr * 60), tk = $('#rtTicks');
+  if (tk && lit !== rest.lit) { rest.lit = lit; [...tk.children].forEach((x, k) => x.classList.toggle('on', k < lit)); }
   if (rest.min < rest.max && !rest.minHit && el >= rest.min && left > 0) { rest.minHit = true; beep(1); }
   if (left <= 0 && !rest.ended) { rest.ended = Date.now(); beep(2); haptic('heavy'); }
   d.classList.toggle('ready', rest.minHit && !rest.ended); d.classList.toggle('go', !!rest.ended);
   const word = rest.ended ? say('קדימה', 'Go') : rest.minHit ? say('אפשר להתחיל', 'Ready when you are') : say('מנוחה', 'Rest');
   $('#rtWord').textContent = word;
-  $('#rtState').innerHTML = '<b>' + word + '</b><span>' + say('הבא: ', 'Next: ') + esc(rest.label ? rest.label() : '') + '</span>';
   if (rest.ended && Date.now() - rest.ended > 4000) stopRest();
 }
 function stopRest() {
   const L = rest.on ? rest.last : null;
   clearTimeout(S.slideT); clearInterval(rest.iv); rest.on = false; rest.last = null; if (S.fbFor && anyLeft(live(S.tab))) dropFb();
   /* the rest after the last set of an exercise is over: the next exercise opens, under its own purple screen */
-  const done = L && findEx(L.ex), s = live(S.tab), nxt = done && s && firstUndone(s, done) < 0 ? nextOpen() : null;
+  const done = L && findEx(L.ex), s = live(S.tab), nxt = done && s && firstUndone(s, done) < 0 ? nextAfter(done.id) : null;
   if (nxt && S.view === 'workout') { if (S.open !== nxt.id) openEx(nxt.id, true, 1); exIntro(nxt); }
   renderDock(); refreshOpenSets();
 }
@@ -5061,21 +5212,22 @@ const XI = { t: 0, g: 0 };
 function exIntro(e, first) {
   const box = $('#exIntro'); if (!box || !e || window.__intro === false) return;
   const list = exList(S.tab), i = list.findIndex((x) => x.id === e.id); if (i < 0) return;
-  const L = LIB[e.mv], mus = [L.p].concat(L.s || []).filter((k) => MUSCLE[k]).slice(0, 3).map(muName).join(' · ');
-  const chip = (b, t) => '<span><b>' + b + '</b>' + t + '</span>';
-  box.innerHTML = '<div class="xi-in"><p class="xi-k">' + (first ? say('מתחילים', 'Let\'s go') : say('תרגיל חדש', 'New exercise')) + '</p>' +
-    '<div class="xi-ring" aria-hidden="true"><i class="xi-wave"></i><i class="xi-wave b"></i><svg viewBox="0 0 120 120"><circle class="t" cx="60" cy="60" r="52"/><circle class="f" cx="60" cy="60" r="52" pathLength="100" style="--to:' + (100 - Math.round(((i + 1) / list.length) * 100)) + '"/></svg>' +
-    '<span class="xi-n">' + Ltr((i + 1) + '<small>/' + list.length + '</small>') + '</span></div>' +
-    '<h2 class="xi-t">' + e.nm + '</h2><p class="xi-m">' + mus + '</p>' +
-    '<p class="xi-rx">' + chip(e.sets, say(' סטים', ' sets')) + chip(Ltr(e.reps), say(' חזרות', ' reps')) + chip(Ltr(restPlain(e)), say(' מנוחה', ' rest')) + '</p>' +
-    '<i class="xi-bar" aria-hidden="true"></i></div>';
+  const fact = (b, t) => '<li><b>' + b + '</b><span>' + t + '</span></li>';
+  box.className = 'xi tn-' + toneOf(LIB[e.mv].p);
+  box.innerHTML = '<div class="xi-in" role="dialog" aria-modal="true" aria-labelledby="xiT"><div class="xi-top"><p class="xi-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p>' +
+    '<div class="xi-fig"><canvas class="stage" id="xiCv" aria-hidden="true"></canvas></div></div>' +
+    '<div class="xi-body"><h2 class="xi-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
+    '<ul class="xi-rx">' + fact(e.sets, say('סטים', 'sets')) + fact(Ltr(e.reps), say('חזרות', 'reps')) + fact(Ltr(restPlain(e)), say('מנוחה', 'rest')) + '</ul>' +
+    '<button class="btn primary big" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
   box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
+  startPlayer($('#xiCv'), e.a, box);
   haptic('step'); sfx('next');
-  clearTimeout(XI.t); XI.t = setTimeout(exIntroOff, reduced ? 1400 : 2300);
+  clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
 }
 function exIntroOff() {
   const box = $('#exIntro'); clearTimeout(XI.t); if (!box || box.hidden) return;
   box.classList.add('out'); box.classList.remove('on'); clearTimeout(XI.g);
+  const st = $('#exList .stage'), cur = shown(); if (st && cur) startPlayer(st, cur.a, $('#exList'));
   XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 280);
 }
 function nudgeRest(d) {
@@ -5114,35 +5266,63 @@ const CHEST_SVG = '<svg class="chest" viewBox="0 0 96 80" aria-hidden="true"><el
 function openChest(b) {
   if (!b || b.classList.contains('open')) return;
   const n = +b.dataset.n || 0;
-  b.classList.add('open'); b.setAttribute('aria-label', say('בתיבה: ', 'In the chest: ') + n + say(' מטבעות לקיוסק', ' coins for the kiosk'));
+  b.classList.add('open'); b.setAttribute('aria-label', say('בקופסה ', 'In the chest: ') + n + say(' מטבעות לקיוסק', ' coins for the kiosk'));
   b.querySelector('.ch-t').innerHTML = '<b class="ch-n">' + COIN + '<bdi>+' + n + '</bdi></b><small>' + say('מטבעות לקיוסק', 'coins for the kiosk') + '</small>';
   feel('coin', 'success');
   const c = $('#confetti'); if (c) confetti(c, 40);
   markShop();
 }
+/* how long a finished workout took: from a minute before its first set to its end */
+function durMins(s) {
+  const ts = []; for (const k in s.sets || {}) for (const r of s.sets[k] || []) if (isDone(r) && r.t) ts.push(r.t);
+  const a = ts.length ? Math.min.apply(null, ts) - 60e3 : s.ts || s.end;
+  return Math.max(1, Math.min(300, Math.round((s.end - a) / 60e3)));
+}
+/* how much stronger than the last time this workout was done: the best set of each exercise both had, on average, in percent */
+function betterPct(s) {
+  const prev = sorted().find((x) => x.id !== s.id && x.w === s.w && x.end && x.end < s.end && hasDone(x)); if (!prev) return null;
+  let sum = 0, n = 0;
+  for (const pe of sessSlots(s)) {
+    const mv = moveOf(pe, s); if (moveOf(pe, prev) !== mv) continue;
+    const L = LIB[mv], top = (x) => rowsOf(x, pe.id).filter((r) => isDone(r) && r.reps != null).reduce((m, r) => Math.max(m, score(L, r.kg, r.reps)), 0), a = top(prev), b = top(s);
+    if (a > 0 && b > 0) { sum += (b - a) / a; n++; }
+  }
+  return n ? Math.round((sum / n) * 1000) / 10 : null;
+}
+/* a number that runs up to its value */
+function runUp(el, to, pre, suf, ms) {
+  if (!el) return;
+  const fmt = (v) => (pre || '') + (to % 1 ? v.toFixed(1) : Math.round(v)) + (suf || '');
+  if (reduced) { el.textContent = fmt(to); return; }
+  const t0 = performance.now(), step = (now) => { const k = Math.min(1, (now - t0) / (ms || 800)); el.textContent = fmt(to * (1 - Math.pow(1 - k, 3))); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
+  el.textContent = fmt(0); requestAnimationFrame(step);
+}
 function showSummary(s, R) {
-  const y = R.y, up = R.to.lvl > R.from.lvl, opened = up ? rewardsBetween(R.from.lvl, R.to.lvl) : [], like = liftedLike(y.kg), box = chestOf(s);
+  const y = R.y, up = R.to.lvl > R.from.lvl, opened = up ? rewardsBetween(R.from.lvl, R.to.lvl) : [], box = chestOf(s), mins = durMins(s), pct = betterPct(s), better = pct != null && pct >= 1;
+  const prs = exList(s.w, s).filter((e) => rowsOf(s, e.id).some((r) => isDone(r) && r.pr)).map((e) => e.nm);
   const chip = (cls, ic, t) => '<li class="' + cls + '">' + ic + '<b>' + t + '</b></li>';
-  const chips = (y.prs ? [chip('gold', glyph('star'), y.prs === 1 ? say('שיא אישי', 'A personal best') : y.prs + say(' שיאים אישיים', ' personal bests'))] : [])
-    .concat(opened.map((r) => chip('', glyph('gift'), say('נפתח: ', 'Unlocked: ') + nm(r))), R.got.map((id) => { const b = BADGES.find((x) => x.id === id); return chip('', glyph(b.ic), say('הישג: ', 'Achievement: ') + nm(b)); }));
+  const chips = prs.slice(0, 3).map((n) => chip('gold', glyph('star'), say('שיא חדש ב', 'New best · ') + n))
+    .concat(opened.map((r) => chip('', glyph('gift'), say('נפתח ', 'Unlocked ') + nm(r))), R.got.map((id) => { const b = BADGES.find((x) => x.id === id); return chip('', glyph(b.ic), say('הישג ', 'Achievement ') + nm(b)); }));
+  const tile = (id, v, t, cls) => '<li' + (cls ? ' class="' + cls + '"' : '') + '><b id="' + id + '" dir="ltr">' + v + '</b><span>' + t + '</span></li>';
   const sh = $('#sheet'); S.sheet = 'sum';
   sh.innerHTML = '<div class="sheet-in sum w' + s.w + '" role="dialog" aria-modal="true" aria-label="' + say('סיכום אימון', 'Workout summary') + '"><canvas class="confetti" id="confetti" aria-hidden="true"></canvas>' +
-    '<p class="sum-k">' + wkOrd(s.w) + say(' הושלם', ' complete') + (s.dl ? say(' · שבוע קל', ' · easy week') : '') + '</p>' +
+    '<p class="sum-k">' + wkName(s.w) + say(' הושלם', ' complete') + (s.dl ? say(' · שבוע קל', ' · easy week') : '') + '</p>' +
     '<div class="sum-av" id="sumAv">' + avatar(up ? R.from.lvl : R.to.lvl, {}) + '</div>' +
-    '<h2 class="sum-xp"><bdi dir="ltr" id="sumXp">+' + nf(y.xp) + '</bdi><small>' + say('נקודות', 'points') + '</small></h2>' +
+    '<ul class="sum-st">' + tile('stSets', y.sets, y.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + tile('stMin', mins, mins === 1 ? say('דקה', 'minute') : say('דקות', 'minutes')) +
+      (better ? tile('stPct', '+' + pct + '%', say('מהפעם הקודמת', 'on last time'), 'up') : tile('stXp', '+' + y.xp, say('נקודות', 'points'), 'xp')) + '</ul>' +
     '<p class="sum-up" id="sumUp"' + (up ? '' : ' hidden') + '>' + glyph('star') + '<span>' + say('עלית לרמה ', 'You reached level ') + R.to.lvl + '</span></p>' +
     '<div class="sum-lv"><b class="lv-badge" id="sumLv">' + say('רמה ', 'Level ') + (up ? R.from.lvl : R.to.lvl) + '</b><span class="xpbar"><i id="sumBar" style="width:' + pctOf(R.from) + '%"></i></span><b class="sum-nx" id="sumNx">' + ((up ? R.from.lvl : R.to.lvl) + 1) + '</b></div>' +
     '<p class="sum-to" id="sumTo">' + say('עוד ' + cnt(setsToNext(R.to), 'סטים', 'סט אחד', 'sets', 'set') + ' לרמה ', cnt(setsToNext(R.to), 'סטים', 'סט אחד', 'sets', 'set') + ' to level ') + (R.to.lvl + 1) + '</p>' +
     (chips.length ? '<ul class="sum-new">' + chips.join('') + '</ul>' : '') +
-    (like ? '<p class="sum-kg">' + glyph('plate') + '<span>' + say('הרמת היום ', 'You lifted ') + '<b><bdi>' + tons(y.kg) + '</bdi>' + say(' טון', ' tons') + '</b>' + say(', יותר מ' + like.he, ' today, more than ' + like.en) + '</span></p>' : '') +
-    (box ? '<button class="sum-chest" id="chestBtn" type="button" data-n="' + box + '" aria-label="' + say('תיבת הפתעה. לפתוח', 'A surprise chest. Open it') + '">' + CHEST_SVG + '<span class="ch-t"><b>' + say('תיבת הפתעה!', 'A surprise chest!') + '</b><small>' + say('לוחצים כדי לפתוח', 'Tap to open it') + '</small></span></button>' : '') +
+    (box ? '<button class="sum-chest" id="chestBtn" type="button" data-n="' + box + '" aria-label="' + say('קופסת מטבעות לפתוח', 'A box of coins, open it') + '">' + CHEST_SVG + '<span class="ch-t"><b>' + say('קופסת מטבעות', 'A box of coins') + '</b><small>' + say('לחץ לפתוח', 'Tap to open') + '</small></span></button>' : '') +
     '<button class="btn primary big" id="sheetClose" type="button">' + say('המשך', 'Continue') + '</button></div>';
   sh.hidden = false; $('#sheetClose').focus();
   const av = () => $('#sumAv .av'), bar = () => $('#sumBar'), later = (ms, fn) => setTimeout(() => { if (S.sheet === 'sum' && $('#sumBar')) fn(); }, reduced ? 0 : ms);
-  countUp($('#sumXp'), y.xp);
+  runUp($('#stSets'), y.sets, '', '', 700); runUp($('#stMin'), mins, '', '', 800);
+  if (better) runUp($('#stPct'), pct, '+', '%', 1000); else runUp($('#stXp'), y.xp, '+', '', 1000);
   if (av()) av().classList.add('cheer');
   if (!up) {
-    confetti($('#confetti'), 50); feel('done');
+    confetti($('#confetti'), 40); feel('done');
     later(350, () => { bar().style.width = pctOf(R.to) + '%'; });
     return;
   }
@@ -5153,14 +5333,14 @@ function showSummary(s, R) {
     const box = $('#sumAv'); box.innerHTML = avatar(R.to.lvl, { flex: true }); box.classList.add('pump');
     $('#sumLv').textContent = say('רמה ', 'Level ') + R.to.lvl; $('#sumLv').classList.add('pop'); $('#sumNx').textContent = R.to.lvl + 1; $('#sumUp').classList.add('show');
     bar().style.transition = 'none'; bar().style.width = '0%'; void bar().offsetWidth; bar().style.transition = ''; bar().style.width = pctOf(R.to) + '%';
-    confetti($('#confetti'), 120); chime(); haptic('heavy');
+    confetti($('#confetti'), 80); chime(); haptic('heavy');
   });
 }
 function finishWorkout() {
   const s = live(S.tab); if (!s || !hasDone(s)) return;
   clearInterval(rest.iv); rest.on = false; rest.last = null;
   s.end = Date.now(); s.mt = s.end; touch(s); letSleep();
-  S.edit = null; S.drafts = {}; S.resetAsk = false; S.open = null; S.fbFor = null; S.preSkip = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; S.tab = nextUp().next;
+  S.edit = null; S.drafts = {}; S.resetAsk = false; S.open = null; S.fbFor = null; S.preSkip = null; S.preOpen = false; S.banner = ''; S.bannerKind = ''; S.combo = 0; S.eqAsk = null; S.tab = nextUp().next;
   /* the level this workout started from: everything counted so far, without its own points */
   const y = tally(s), got = meSync(), P = meNow(), was = (S.reopened && S.reopened[s.id]) || 0, R = { y, from: levelOf(P.T.xp - y.xp + was), to: P.L, got };
   if (S.reopened) delete S.reopened[s.id];
@@ -5178,7 +5358,7 @@ function deleteSession(id) {
 }
 const isoDay = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 function editorActions(s) {
-  if (S.edDel) return '<span class="confirm"><span>' + say('למחוק את האימון?', 'Delete this workout?') + '</span><button class="btn danger" id="edDelYes" type="button">' + say('כן, מחק', 'Yes, delete') + '</button><button class="btn" id="edDelNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
+  if (S.edDel) return '<span class="confirm"><span>' + say('למחוק את האימון', 'Delete this workout?') + '</span><button class="btn danger" id="edDelYes" type="button">' + say('כן מחק', 'Yes, delete') + '</button><button class="btn" id="edDelNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
   return '<button class="btn danger" id="edDelAsk" type="button">' + say('מחק אימון', 'Delete workout') + '</button>' + (!live(s.w) && Date.now() - s.end < 12 * HOUR ? '<button class="btn" id="edReopen" type="button">' + say('המשך את האימון', 'Continue this workout') + '</button>' : '') + '<button class="btn primary" id="edDone" type="button">' + say('סיום', 'Done') + '</button>';
 }
 function openEditor(id, all) {
@@ -5293,7 +5473,7 @@ function holdFocus(box) {
   }, true);
 }
 function wireApp() {
-  $('#exIntro').addEventListener('click', exIntroOff);
+  $('#exIntro').addEventListener('click', (ev) => { if (ev.target.closest('#xiGo')) exIntroOff(); });
   for (const id of ['#dock', '#sheet', '#ob']) holdFocus($(id));
   $('#tabbar').addEventListener('click', (ev) => {
     const b = ev.target.closest('button[data-view]'); if (!b) return;
@@ -5316,8 +5496,8 @@ function wireApp() {
     if (nav) { stepEx(nav.id === 'exNext' ? 1 : -1); return; }
     /* a tap on the demo stops it and starts it again */
     if (ev.target.closest('.stage-wrap')) { setPlaying(!player.playing); return; }
-    if (ev.target.closest('.how')) { openHow(e.id); return; }
-    if (ev.target.closest('.more')) { openMore(e.id); return; }
+    if (ev.target.closest('.how')) { openMore(e.id); return; }
+    if (ev.target.closest('.swp')) { openSwap(e.id); return; }
     const p = ev.target.closest('.setp');
     if (p) {
       /* a done set opens for editing; the others only bring the bar back to the next set */
@@ -5440,7 +5620,7 @@ function wireApp() {
   sheet.addEventListener('click', (ev) => {
     const id = (ev.target.closest('button') || {}).id;
     /* a double tap on Finish: the second tap lands on the summary that has just opened, which must be seen */
-    if (ev.detail !== 0 && Date.now() - (S.sumAt || 0) < 400) return;
+    if (ev.detail !== 0 && Date.now() - (S.sumAt || 0) < 250) return;
     if (id === 'chestBtn') { openChest(ev.target.closest('button')); return; }
     if (ev.target === sheet || id === 'sheetClose' || id === 'edDone' || ev.target.closest('[data-close]')) { closeSheet(); return; }
     if (listSheetClick(ev, id) || exSheetClick(ev, id) || coachSheetClick(ev, id) || meSheetClick(ev)) return;
@@ -5569,6 +5749,15 @@ function haptic(kind) {
 /* sound and touch together, for the moments that earn both */
 function feel(kind, touch) { sfx(kind); haptic(touch || (kind === 'set' ? 'success' : kind === 'pr' ? 'pr' : 'heavy')); }
 /* points that fly up from where they were earned */
+function popGain(n, pr, combo) {
+  if (!(n > 0) || reduced) return;
+  for (const o of $$('.gain')) o.remove();
+  const f = document.createElement('div'), run = !pr && combo >= 3 && combo % 3 === 0;
+  f.className = 'gain' + (pr ? ' pr' : run ? ' run' : ''); f.setAttribute('aria-hidden', 'true');
+  f.innerHTML = '<b>' + Ltr('+' + n) + '</b>' + (pr ? '<span>' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : run ? '<span>' + glyph('flame') + say(combo + ' סטים ברצף', combo + ' in a row') + '</span>' : '');
+  document.body.appendChild(f); setTimeout(() => f.remove(), pr || run ? 2800 : 2000);
+  if (run) haptic('heavy');
+}
 function flyPoints(el, n) {
   if (!el || !(n > 0) || reduced) return;
   const r = el.getBoundingClientRect(), f = document.createElement('span');
@@ -5617,7 +5806,7 @@ function soreEffects(w, sore) {
   const P = phaseNext(w), out = [];
   if (P.dl) return out;
   const a = planned(w, {}), b = planned(w, sore), s = live(w);
-  for (const pe of planSlots(w)) { const d = b[pe.id] - a[pe.id]; if (d) out.push((d > 0 ? say('סט נוסף: ', 'One more set: ') : say('סט פחות: ', 'One set less: ')) + findEx(pe.id, s).nm); }
+  for (const pe of planSlots(w)) { const d = b[pe.id] - a[pe.id]; if (d) out.push((d > 0 ? say('סט נוסף ', 'One more set: ') : say('סט פחות ', 'One set less: ')) + findEx(pe.id, s).nm); }
   for (const mu of Object.keys(sore)) if (sore[mu] === 2) out.push(say('חזרה פחות ל' + MUSCLE[mu].he, 'One rep less for ' + muLow(mu)));
   return out;
 }
@@ -5637,37 +5826,70 @@ function timeChoices(w) {
    First: how long is there today? One tap, and the workout is cut to it for today (see setDay); the whole workout is one of the taps.
    Then: did the muscles recover from their last workout? One tap says yes. "Not quite" opens the muscles one by one: still sore
    takes a set off and stops a rep earlier; never sore after easy work adds a set */
+function timeInfo(w) { const full = workMins(exList(w, null, true)); return { full, opts: [30, 45, 60].filter((m) => m <= full - 5) }; }
 function renderPre() {
-  const box = $('#pre'), w = S.tab, s = live(w), TC = (s && S.timeAsk !== w) || (s && hasDone(s)) || dayOf(w) ? null : timeChoices(w);
+  const box = $('#pre'), w = S.tab, s = live(w), TC = (s && S.timeAsk !== w) || (s && hasDone(s)) || dayOf(w) ? null : timeInfo(w);
   if (TC) {
-    const usual = S.cfg.me.time, tile = (v, mins, n, cls, tag) => '<button class="pre-t' + cls + '" type="button" data-time="' + v + '"><b>' + Ltr(mins) + '</b><span>' + say('דקות', 'minutes') + '</span><small>' + (tag ? tag + ' · ' : '') + cnt(n, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + '</small></button>';
+    const v0 = S.cfg.me.time > 0 && S.cfg.me.time < TC.full ? S.cfg.me.time : TC.full;
     $('#app').classList.add('pre-on');
     if (box.hidden) S.preAt = Date.now();
     box.hidden = false;
-    box.innerHTML = '<div class="pre gate time"><span class="pre-ic" aria-hidden="true">' + ICON.clock + '</span><h2>' + say('כמה זמן יש לך היום?', 'How much time do you have today?') + '</h2><p>' + say('אתאים את האימון לזמן שלך', 'I will fit the workout to your time') + '</p>' +
-      '<div class="pre-times" role="group" aria-label="' + say('אורך האימון היום', 'Today\'s length') + '">' + TC.opts.map((o) => tile(o.m, o.mins, o.n, usual === o.m ? ' usual' : '', '')).join('') + tile(0, TC.full, TC.n, ' full', say('כל האימון', 'The whole workout')) + '</div></div>';
+    box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic" aria-hidden="true">' + ICON.clock + '</span><h2 id="tqT">' + say('כמה זמן יש לך היום', 'How much time do you have today') + '</h2>' +
+      '<label class="tq-in"><input id="tqMin" type="text" inputmode="numeric" maxlength="3" autocomplete="off" value="' + v0 + '" aria-label="' + say('דקות', 'Minutes') + '"><span>' + say('דקות', 'minutes') + '</span></label>' +
+      '<div class="tq-ch" role="group" aria-label="' + say('אורך האימון היום', 'Today\'s length') + '">' + TC.opts.map((m) => '<button type="button" class="tq-c" data-time="' + m + '">' + m + '</button>').join('') +
+      '<button type="button" class="tq-c all" data-time="0">' + say('הכול', 'All') + ' <small>' + TC.full + '</small></button></div>' +
+      '<button class="btn primary big" id="tqGo" type="button">' + say('המשך', 'Continue') + '</button></div>';
     return;
   }
   const mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
   const sore = soreOf(w, s), left = mus.filter((m) => sore[m] == null).length, fx = soreEffects(w, sore), on = mus.length > 0 && S.preSkip !== w && (left > 0 || !!S.preOpen);
+  /* last before the first exercise: today's workout, and whether something it needs is missing */
+  const eqOn = !on && S.eqAsk === w && !(s && hasDone(s)), any = on || eqOn;
   const was = $('#app').classList.contains('pre-on');
-  $('#app').classList.toggle('pre-on', on);
-  /* the questions before the workout were answered: the first exercise comes in under the purple screen */
-  if (was && !on && S.view === 'workout' && !(s && hasDone(s))) setTimeout(() => exIntro(shown(), true), 60);
-  if (on && box.hidden) S.preAt = Date.now();
-  box.hidden = !on;
-  if (!on) { box.innerHTML = ''; S.preOpen = false; return; }
+  $('#app').classList.toggle('pre-on', any);
+  /* the questions before the workout were answered: the first exercise comes in on its own screen */
+  if (was && !any && S.view === 'workout' && !(s && hasDone(s))) setTimeout(() => exIntro(shown(), true), 60);
+  if (any && box.hidden) S.preAt = Date.now();
+  box.hidden = !any;
+  if (!any) { box.innerHTML = ''; S.preOpen = false; return; }
+  if (eqOn) { box.innerHTML = eqHTML(w); return; }
   if (!S.preOpen) {
-    box.innerHTML = '<div class="pre gate"><h2>' + say('השרירים התאוששו?', 'Have your muscles recovered?') + '</h2><p>' + say('מהאימון הקודם שלהם', 'Since they were last trained') + '</p>' +
-      '<div class="pre-q"><button class="btn primary big" id="preAll" type="button">' + say('כן, הכול טוב', 'Yes, all good') + '</button><button class="btn big" id="preEdit" type="button">' + say('לא לגמרי', 'Not quite') + '</button></div>' +
+    box.innerHTML = '<div class="pre gate"><h2>' + say('השרירים התאוששו', 'Have your muscles recovered') + '</h2>' +
+      '<div class="pre-q"><button class="btn primary big" id="preAll" type="button">' + say('כן הכול טוב', 'Yes, all good') + '</button><button class="btn big" id="preEdit" type="button">' + say('לא לגמרי', 'Not quite') + '</button></div>' +
       '<button class="link" id="preSkip" type="button">' + say('דלג', 'Skip') + '</button></div>';
     return;
   }
-  box.innerHTML = '<div class="pre"><div class="pre-h"><b>' + say('מה עדיין תפוס?', 'What is still sore?') + '</b><button class="link" id="preAll" type="button">' + say('הכול החלים', 'All recovered') + '</button></div>' +
+  box.innerHTML = '<div class="pre"><div class="pre-h"><b>' + say('מה עדיין תפוס', 'What is still sore?') + '</b><button class="link" id="preAll" type="button">' + say('הכול החלים', 'All recovered') + '</button></div>' +
     mus.map((m) => '<div class="pre-row"><span>' + muName(m) + '</span><div class="seg" role="group" aria-label="' + muName(m) + '">' + SORE().map((t, v) => '<button type="button" data-mu="' + m + '" data-v="' + v + '" aria-pressed="' + (sore[m] === v) + '">' + t + '</button>').join('') + '</div></div>').join('') +
     (fx.length ? '<p class="pre-fx">' + fx.join(' · ') + '</p>' : '') + '<button class="btn primary big" id="preDone" type="button">' + say('המשך', 'Continue') + '</button></div>';
 }
 function afterPre() { renderPre(); renderHero(); renderList(); updateProgress(); renderDock(); }
+/* ---- something the workout needs is missing today (a machine taken, no cables): each exercise that needs it moves to one of the
+   same kind that does not, for today only. Nothing about machines is asked in the opening; it is asked here, when it matters ---- */
+const EQK = [['bar', ['bar'], () => say('מוט', 'Barbell')], ['smith', ['smith'], () => say('סמית׳', 'Smith machine')], ['mach', ['machine', 'plates'], () => say('מכונות', 'Machines')], ['cable', ['cable'], () => say('כבלים', 'Cables')], ['db', ['db'], () => say('משקולות', 'Dumbbells')]];
+const eqKind = (mv) => { const q = LIB[mv] && LIB[mv].eq, k = EQK.find((x) => x[1].includes(q)); return k ? k[0] : null; };
+const baseMv = (id) => (S.cfg.swap && S.cfg.swap[id]) || planEx(id).a;
+function eqHTML(w) {
+  const s = live(w), list = exList(w, s), miss = (S.miss && S.miss[w]) || [], kinds = EQK.filter((k) => list.some((e) => eqKind(baseMv(e.id)) === k[0]));
+  return '<div class="pre gate eqq"><h2>' + say('האימון של היום', 'Today\'s workout') + '</h2>' +
+    '<ol class="eq-list">' + list.map((e) => '<li class="tn-' + toneOf(LIB[e.mv].p) + (e.mv !== baseMv(e.id) ? ' sw' : '') + '"><i aria-hidden="true"></i><span>' + e.nm + '</span><small>' + cnt(e.sets, 'סטים', 'סט אחד', 'sets', 'set') + '</small></li>').join('') + '</ol>' +
+    (S.eqOpen && kinds.length ? '<p class="eq-q">' + say('מה חסר היום', 'What is missing today') + '</p><div class="eq-ch">' + kinds.map((k) => '<button type="button" class="eq-c" data-miss="' + k[0] + '" aria-pressed="' + miss.includes(k[0]) + '">' + k[2]() + '</button>').join('') + '</div>' +
+      '<button class="btn primary big" id="eqGo" type="button">' + say('מתחילים', 'Start') + '</button>'
+      : '<div class="eq-b"><button class="btn primary big" id="eqGo" type="button">' + say('מתחילים', 'Start') + '</button>' + (kinds.length ? '<button class="btn big" id="eqMiss" type="button">' + say('חסר משהו', 'Something is missing') + '</button>' : '') + '</div>') + '</div>';
+}
+function applyMiss(w) {
+  const miss = (S.miss && S.miss[w]) || [], s = ensure(w), slots = sessSlots(s);
+  /* an exercise that stays as it is keeps its movement; a swap never lands on one already in the workout */
+  const used = new Set(slots.map((pe) => baseMv(pe.id)).filter((m) => !miss.includes(eqKind(m))));
+  for (const pe of slots) {
+    const base = baseMv(pe.id); let mv = base;
+    if (miss.includes(eqKind(base))) {
+      const ok = (k) => !miss.includes(eqKind(k)) && !used.has(k);
+      mv = sameKind(base).find(ok) || Object.keys(LIB).filter((k) => k !== base && LIB[k].p === LIB[base].p && ok(k)).sort((a, b) => (LIB[b].pat === LIB[base].pat) - (LIB[a].pat === LIB[base].pat))[0] || base;
+    }
+    used.add(mv); swapTo(pe.id, mv, false);
+  }
+}
 
 /* ---- the exercise picker: change the exercise of a slot, or add one to a workout.
    For a change, movements of the same kind come first: they keep the slot's numbers and history; every other one waits behind
@@ -5691,11 +5913,11 @@ function renderPick() {
   };
   const mus = Object.keys(MUSCLE).filter((k) => Object.keys(LIB).some((m) => LIB[m].p === k)), chips = (swap ? [['rec', say('מומלץ', 'Suggested')]] : []).concat(mus.map((k) => [k, muName(k)]));
   const list = pickOptions(P);
-  sh.innerHTML = '<div class="sheet-in sw" role="dialog" aria-modal="true" aria-label="' + (swap ? say('החלפת תרגיל', 'Swap exercise') : say('הוספת תרגיל', 'Add exercise')) + '"><div class="card next w' + w + ' sw-hero"><div class="next-top"><p class="k">' + (swap ? e.nm : say('הוספת תרגיל · ', 'Add exercise · ') + wkName(w)) + '</p><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div><h2>' + (swap ? say('במה להחליף?', 'Swap it for what?') : say('מה מוסיפים?', 'What to add?')) + '</h2>' +
-    (swap ? '<p class="meta">' + (rec ? say('אותו שריר, אותה תנועה. ההיסטוריה נשמרת.', 'Same muscle, same movement. History is kept.') : say('תרגיל מסוג אחר מקבל סטים וחזרות שמתאימים לו.', 'A different kind of exercise gets sets and reps that suit it.')) + (started ? say(' ההחלפה תחול מהאימון הבא.', ' The change starts next workout.') : '') + '</p>' : '') + '</div>' +
+  sh.innerHTML = '<div class="sheet-in sw" role="dialog" aria-modal="true" aria-label="' + (swap ? say('החלפת תרגיל', 'Swap exercise') : say('הוספת תרגיל', 'Add exercise')) + '"><div class="card next w' + w + ' sw-hero"><div class="next-top"><p class="k">' + (swap ? e.nm : say('הוספת תרגיל · ', 'Add exercise · ') + wkName(w)) + '</p><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div><h2>' + (swap ? say('במה להחליף', 'Swap it for what?') : say('מה מוסיפים', 'What to add?')) + '</h2>' +
+    (swap ? '<p class="meta">' + (rec ? say('אותו שריר ואותה תנועה', 'Same muscle, same movement. History is kept.') : say('תרגיל אחר מקבל סטים וחזרות משלו', 'A different kind of exercise gets sets and reps that suit it.')) + (started ? say('<br>ההחלפה מהאימון הבא', ' The change starts next workout.') : '') + '</p>' : '') + '</div>' +
     (rec ? '' : '<div class="mu-row" role="group" aria-label="' + say('סינון לפי שריר', 'Filter by muscle') + '">' + chips.map((c) => '<button type="button" data-pick="' + c[0] + '" aria-pressed="' + (c[0] === P.mu) + '">' + c[1] + '</button>').join('') + '</div>') +
-    (list.length ? '<ul class="sw-list">' + list.map(opt).join('') + '</ul>' : '<p class="ms-sub">' + say('אין כאן תרגילים נוספים.', 'No other exercises here.') + '</p>') +
-    (swap ? '<div class="sw-more">' + (rec ? '<button class="link" type="button" data-pick="' + LIB[pe.a].p + '">' + say('תרגילים אחרים', 'Other exercises') + '</button>' : '') + '<button class="link" id="swAsk" type="button">' + say('מכשיר אחר? שאל את אילון', 'Another machine? Ask Eilon') + '</button></div>' : '') + '</div>';
+    (list.length ? '<ul class="sw-list">' + list.map(opt).join('') + '</ul>' : '<p class="ms-sub">' + say('אין כאן תרגילים נוספים', 'No other exercises here.') + '</p>') +
+    (swap ? '<div class="sw-more">' + (rec ? '<button class="link" type="button" data-pick="' + LIB[pe.a].p + '">' + say('תרגילים אחרים', 'Other exercises') + '</button>' : '') + '<button class="link" id="swAsk" type="button">' + say('שאל את אילון על מכשיר אחר', 'Another machine? Ask Eilon') + '</button></div>' : '') + '</div>';
   $('.sheet-in', sh).scrollTop = top; sh.hidden = false; drawThumbs();
   /* the chosen muscle stays in sight in its row, and so do the buttons of the chosen exercise */
   const mu = $('.mu-row [aria-pressed="true"]', sh); if (mu && mu.scrollIntoView) mu.scrollIntoView({ inline: 'center', block: 'nearest' });
@@ -5719,8 +5941,8 @@ function volHTML(dl) {
 function builderHTML(w) {
   const s = live(w), dl = phase(w, s).dl, ids = planIds(w), ed = S.blEdit === w;
   const nm0 = ownName(w);
-  return '<label class="bl-name"><span>' + say('שם האימון', 'Name of the workout') + '</span><input id="wkNameIn" data-w="' + w + '" type="text" maxlength="18" autocomplete="off" enterkeyhint="done" placeholder="' + esc(wkOrd(w)) + '" value="' + esc(nm0) + '"><small>' + say('אפשר לתת לו שם משלך, למשל "יום חזה"', 'Give it a name of your own, like "Chest day"') + '</small></label>' +
-    (dl ? '<p class="ms-sub">' + say('שבוע קל: חצי מהסטים.', 'Easy week: half the sets.') + '</p>' : '') + '<div class="bl-w">' + exList(w, s, true).map((e) => {
+  return '<label class="bl-name"><span>' + say('שם האימון', 'Name of the workout') + '</span><input id="wkNameIn" data-w="' + w + '" type="text" maxlength="18" autocomplete="off" enterkeyhint="done" placeholder="' + esc(wkOrd(w)) + '" value="' + esc(nm0) + '"><small>' + say('אפשר לתת לו שם משלך', 'Give it a name of your own, like "Chest day"') + '</small></label>' +
+    (dl ? '<p class="ms-sub">' + say('שבוע קל עם חצי מהסטים', 'Easy week: half the sets.') + '</p>' : '') + '<div class="bl-w">' + exList(w, s, true).map((e) => {
     const k = ids.indexOf(e.id);
     return '<div class="bl-row"><span class="bl-n"><b>' + e.nm + '</b><small>' + muName(LIB[e.mv].p) + ' · ' + Ltr(e.reps) + '</small></span>' +
       (k < 0 ? '<small class="bl-once">' + say('רק היום', 'Today only') + '</small>'
@@ -5736,8 +5958,8 @@ function renderMeso() {
   const x = '<button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button>';
   const page = (title, body) => '<div class="sheet-in ms pg" data-pg="' + pg + '" role="dialog" aria-modal="true" aria-label="' + title + '"><div class="ed-h"><button class="fx-nav" type="button" data-msp="" aria-label="' + say('חזרה לתוכנית', 'Back to the plan') + '">' + ICON.back + '</button><div><h2>' + title + '</h2></div>' + x + '</div>' + body + '</div>';
   if (pg === 'ex') sh.innerHTML = page(wkName(S.msW), builderHTML(S.msW));
-  else if (pg === 'vol') sh.innerHTML = page(say('סטים בשבוע לפי שריר', 'Sets a week by muscle'), '<p>' + say('הרצועה הבהירה היא הטווח המומלץ.', 'The light band is the suggested range.') + '</p><div class="vol">' + volHTML(P.dl) + '</div>');
-  else if (pg === 'inc') sh.innerHTML = page(say('קפיצת משקל', 'Weight step'), '<p>' + say('בכמה המשקל עולה בכל פעם, לפי הציוד.', 'How much the weight goes up each time, by equipment.') + '</p><div class="inc">' + Object.keys(EQUIP).map((k) => '<label class="inc-row"><span>' + eqName(k) + '</span><select data-inc="' + k + '">' + INC_CHOICES.map((v) => '<option value="' + v + '"' + (v === (+S.cfg.inc[k] || EQUIP[k].inc) ? ' selected' : '') + '>' + v + say(' ק״ג', ' kg') + '</option>').join('') + '</select></label>').join('') + '</div>');
+  else if (pg === 'vol') sh.innerHTML = page(say('סטים בשבוע לפי שריר', 'Sets a week by muscle'), '<p>' + say('הרצועה הבהירה היא הטווח המומלץ', 'The light band is the suggested range.') + '</p><div class="vol">' + volHTML(P.dl) + '</div>');
+  else if (pg === 'inc') sh.innerHTML = page(say('קפיצת משקל', 'Weight step'), '<p>' + say('בכמה המשקל עולה בכל פעם', 'How much the weight goes up each time, by equipment.') + '</p><div class="inc">' + Object.keys(EQUIP).map((k) => '<label class="inc-row"><span>' + eqName(k) + '</span><select data-inc="' + k + '">' + INC_CHOICES.map((v) => '<option value="' + v + '"' + (v === (+S.cfg.inc[k] || EQUIP[k].inc) ? ' selected' : '') + '>' + v + say(' ק״ג', ' kg') + '</option>').join('') + '</select></label>').join('') + '</div>');
   else {
     let strip = '';
     for (let k = 1; k <= W; k++) { const d = k === W, cur = P.dl ? d : k === P.wk; strip += '<li class="' + (cur ? 'cur' : '') + (d ? ' dl' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><i class="wv" style="--h:' + (d ? 22 : Math.round(34 + 66 * (k - 1) / Math.max(1, W - 2))) + '%" aria-hidden="true"></i><small>' + say('שבוע ', 'Week ') + k + '</small><b>' + (d ? say('שבוע קל', 'Easy week') : ((r) => (r === 0 ? say('עד כשל', 'To failure') : r === 1 ? say('חזרה אחת', '1 rep') : r + say(' חזרות', ' reps')))(rirFor(k, W))) + '</b></li>'; }
@@ -5745,23 +5967,23 @@ function renderMeso() {
     /* the last mesocycle is complete and the next workout opens a new one: nothing to steer until then */
     const over = mesoDone(M), off = P.dl ? 0 : volWarn(), ask = (q, yes, id) => '<span class="confirm"><span>' + q + '</span><button class="btn primary" id="' + id + '" type="button">' + yes + '</button><button class="btn" id="msNo" type="button">' + say('ביטול', 'Cancel') + '</button></span>';
     let act;
-    if (over) act = '<p class="ms-sub">' + say('סבב ', 'Round ') + M.n + say(' הושלם. האימון הבא פותח את סבב ', ' is complete. The next workout opens round ') + (M.n + 1) + '.</p>';
-    else if (S.msAsk === 'dl') act = ask(say('להתחיל שבוע קל? אחריו מתחיל סבב חדש.', 'Start an easy week? A new round starts after it.'), say('כן, שבוע קל', 'Yes, easy week'), 'msDlYes');
-    else if (S.msAsk === 'new') act = ask(say('להתחיל סבב חדש משבוע 1?', 'Start a new round from week 1?'), say('כן, סבב חדש', 'Yes, new round'), 'msNewYes');
+    if (over) act = '<p class="ms-sub">' + say('סבב ', 'Round ') + M.n + say(' הושלם<br>האימון הבא פותח את סבב ', ' is complete. The next workout opens round ') + (M.n + 1) + '</p>';
+    else if (S.msAsk === 'dl') act = ask(say('להתחיל שבוע קל ואחריו סבב חדש', 'Start an easy week? A new round starts after it.'), say('כן שבוע קל', 'Yes, easy week'), 'msDlYes');
+    else if (S.msAsk === 'new') act = ask(say('להתחיל סבב חדש משבוע 1', 'Start a new round from week 1?'), say('כן סבב חדש', 'Yes, new round'), 'msNewYes');
     else act = (M.early ? '<button class="btn adv-b" id="msDlOff" type="button">' + glyph('loop') + say('בטל שבוע קל', 'Cancel the easy week') + '</button>' : P.dl ? '' : '<button class="btn adv-b" id="msDl" type="button">' + glyph('loop') + say('שבוע קל עכשיו', 'Easy week now') + '</button>') + '<button class="btn adv-b" id="msNew" type="button">' + glyph('flag') + say('סבב חדש', 'New round') + '</button>';
-    const back = S.msAsk === 'plan' ? ask(say('להחזיר את רשימת התרגילים המקורית?', 'Bring back the original list of exercises?'), say('כן, אפס', 'Yes, reset'), 'planResetYes')
+    const back = S.msAsk === 'plan' ? ask(say('להחזיר את רשימת התרגילים המקורית', 'Bring back the original list of exercises?'), say('כן אפס', 'Yes, reset'), 'planResetYes')
       : planChanged() ? '<button class="link" id="planReset" type="button">' + say('איפוס תרגילים', 'Reset exercises') + '</button>' : '';
     /* the plan, plainly: the workouts of the week, each a tap away from its list of exercises. What steers the round (how close to failure each
        week goes, the sets a muscle gets, the weight steps, an easy week, a new round) waits folded under "Advanced" */
     const adv = !!S.msAdv || S.msAsk === 'dl' || S.msAsk === 'new';
     const card = (w) => '<li><button class="pl-card ' + wkTone(w) + '" type="button" data-msw="' + w + '"><span class="pl-ic" aria-hidden="true">' + (posOf(w) + 1) + '</span><span class="pl-t"><b>' + wkName(w) + '</b><small>' + wkMus(w) + ' · ' + cnt(planIds(w).length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + ' · ' + minsOf(exList(w, null, true)) + say(' דק׳', ' min') + '</small></span>' + ICON.fwd + '</button></li>';
     sh.innerHTML = '<div class="sheet-in ms" data-pg="menu" role="dialog" aria-modal="true" aria-label="' + say('התוכנית שלי', 'My plan') + '"><div class="ed-h"><div><p class="kicker">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + week().length + say(' אימונים בשבוע', ' workouts a week') + '</h2></div>' + x + '</div>' +
-      '<p class="pl-sub">' + say('לוחצים על אימון כדי להוסיף, להחליף או להוריד תרגילים.', 'Tap a workout to add, swap or remove exercises.') + '</p>' +
+      '<p class="pl-sub">' + say('לוחצים על אימון כדי לשנות תרגילים', 'Tap a workout to add, swap or remove exercises.') + '</p>' +
       '<ul class="pl-cards" aria-label="' + say('האימונים', 'The workouts') + '">' + week().map(card).join('') + '</ul>' + (back ? '<div class="ms-act">' + back + '</div>' : '') +
       '<button class="pl-adv" id="msAdv" type="button" aria-expanded="' + adv + '"><span>' + say('הגדרות מתקדמות', 'Advanced settings') + '</span>' + (off && !adv ? '<i class="pl-dot" title="' + say('יש מה לבדוק', 'Something to look at') + '"></i>' : '') + ICON.down + '</button>' +
       (!adv ? '' : '<div class="pl-more"><section class="adv-round"><p class="kicker">' + say('הסבב שלך', 'Your round') + '</p><h3>' + say('סבב ', 'Round ') + P.n + (M.early && !over ? say(' · שבוע קל מוקדם', ' · early easy week') : '') + ' · ' + (P.dl ? say('שבוע קל', 'Easy week') : say('שבוע ', 'Week ') + P.wk + say(' מתוך ', ' of ') + W) + '</h3>' +
       '<ol class="wk-strip">' + strip + '</ol>' +
-      '<p>' + say('כל שבוע חזרה אחת קרוב יותר לכשל. האחרון קל.', 'Each week one rep closer to failure. The last is easy.') + '</p></section>' +
+      '<p>' + say('כל שבוע קצת יותר קשה והאחרון קל', 'Each week one rep closer to failure. The last is easy.') + '</p></section>' +
       '<p class="st-t">' + say('הגדרות הסבב', 'Round settings') + '</p>' +
       '<ul class="menu adv-g" aria-label="' + say('הסבב', 'The round') + '">' + row('data-msp="vol"', say('סטים בשבוע לפי שריר', 'Sets a week by muscle'), off ? cnt(off, 'שרירים מחוץ לטווח', 'שריר אחד מחוץ לטווח', 'muscles out of range', 'muscle out of range') : '', true, 'bolt') + row('data-msp="inc"', say('קפיצת משקל', 'Weight step'), '', false, 'plate', 'gold') +
       '<li class="m-row"><span class="st-i calm" aria-hidden="true">' + glyph('cal') + '</span><span>' + say('שבועות בסבב', 'Weeks in a round') + '</span><div class="stp"><button type="button" data-weeks="' + (W - 1) + '" aria-label="' + say('שבוע פחות', 'One week less') + '"' + (W <= 4 ? ' disabled' : '') + '>−</button><b>' + W + '</b><button type="button" data-weeks="' + (W + 1) + '" aria-label="' + say('שבוע נוסף', 'One week more') + '"' + (W >= 7 ? ' disabled' : '') + '>+</button></div></li>' +
@@ -5777,15 +5999,15 @@ const xpLine = (R) => (R ? '<p class="xp-line"><span class="xp-tag">' + Ltr('+' 
 function showMesoSummary(id, justDone, R) {
   const M = mesoSummary(id), n = +String(id).slice(1) || 1, sh = $('#sheet'), avg = M.gains.length ? M.gains.reduce((a, g) => a + g.pct, 0) / M.gains.length : null;
   const sign = (p) => Ltr((p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%');
-  let body = '<p>' + say('עוד אין אימונים בסבב הזה.', 'No workouts in this round yet.') + '</p>';
+  let body = '<p>' + say('עוד אין אימונים בסבב הזה', 'No workouts in this round yet.') + '</p>';
   if (M.n) {
     body = '<p class="sum-line">' + [cnt(M.n, 'אימונים', 'אימון אחד', 'workouts', 'workout'), avg == null ? '' : say('כוח ', 'strength ') + sign(avg), M.sets ? say('עד ', 'up to ') + fmtN(M.sets.peak) + say(' סטים בשבוע', ' sets a week') : ''].filter(Boolean).join(' · ') + '</p>' +
-      '<section><h3>' + say('שינוי כוח לפי תרגיל', 'Strength change by exercise') + '</h3>' + (M.gains.length ? '<ul class="sum-list">' + M.gains.slice(0, 14).map((g) => '<li><span>' + mvName(g.mv) + '</span><b class="' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</b></li>').join('') + '</ul>' : '<p class="ms-sub">' + say('צריך שני אימונים של אותו תרגיל.', 'It takes two workouts of the same exercise.') + '</p>') + '</section>' +
+      '<section><h3>' + say('שינוי כוח לפי תרגיל', 'Strength change by exercise') + '</h3>' + (M.gains.length ? '<ul class="sum-list">' + M.gains.slice(0, 14).map((g) => '<li><span>' + mvName(g.mv) + '</span><b class="' + (g.pct > 0.4 ? 'up' : g.pct < -0.4 ? 'dn' : '') + '">' + sign(g.pct) + '</b></li>').join('') + '</ul>' : '<p class="ms-sub">' + say('צריך שני אימונים של אותו תרגיל', 'It takes two workouts of the same exercise.') + '</p>') + '</section>' +
       (M.mus.length ? '<section><h3>' + say('סטים בשבוע לפי שריר', 'Sets a week by muscle') + '</h3><ul class="sum-list">' + M.mus.map((m) => '<li><span>' + muName(m.k) + '</span><b>' + (m.weeks > 1 && m.peak !== m.start ? Ltr(fmtN(m.start)) + arrow() + Ltr(fmtN(m.peak)) : fmtN(m.peak)) + '</b></li>').join('') + '</ul></section>' : '');
   }
   S.sheet = 'msum';
   sh.innerHTML = '<div class="sheet-in ms" role="dialog" aria-modal="true" aria-label="' + say('סיכום סבב', 'Round summary') + '"><div class="ed-h"><div><p class="kicker">' + (justDone ? say('הסבב הושלם', 'Round complete') : say('סיכום', 'Summary')) + '</p><h2>' + say('סבב ', 'Round ') + n + '</h2></div><button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' + xpLine(R) + body +
-    (justDone ? '<p>' + say('האימון הבא פותח סבב חדש.', 'The next workout opens a new round.') + '</p>' : '') + '<button class="btn primary big" id="sheetClose" type="button">' + say('סגור', 'Close') + '</button></div>';
+    (justDone ? '<p>' + say('האימון הבא פותח סבב חדש', 'The next workout opens a new round.') + '</p>' : '') + '<button class="btn primary big" id="sheetClose" type="button">' + say('סגור', 'Close') + '</button></div>';
   sh.hidden = false;
 }
 /* two workouts in a row fell short for two muscle groups or more: offer the deload now */
@@ -5793,12 +6015,12 @@ function showDeloadOffer(s, R) {
   const mus = Array.from(missedMuscles(s)).map((k) => muLow(k)), sh = $('#sheet');
   S.sheet = 'dlo';
   sh.innerHTML = '<div class="sheet-in" role="dialog" aria-modal="true" aria-label="' + say('הצעה לשבוע קל', 'An easy week is suggested') + '"><p class="kicker">' + wkOrd(s.w) + say(' הושלם', ' complete') + '</p><h2>' + say('סימני עייפות', 'Signs of fatigue') + '</h2>' + xpLine(R) +
-    '<p>' + say('פעמיים ברצף לא הגעת ליעד (היום: ', 'Twice in a row you missed the target (today: ') + mus.join(', ') + say('). בדרך כלל זו עייפות שהצטברה.', '). That is usually fatigue that has built up.') + '</p>' +
-    '<p><b>' + say('שבוע קל:', 'Easy week:') + '</b>' + say(' חצי מהסטים ופחות משקל. אחריו מתחיל סבב חדש.', ' half the sets and less weight. A new round starts after it.') + '</p>' +
+    '<p>' + say('פעמיים ברצף לא הגעת ליעד<br>זו בדרך כלל עייפות שהצטברה', 'Twice in a row you missed the target. That is usually fatigue that has built up.') + '</p>' +
+    '<p><b>' + say('שבוע קל', 'Easy week:') + '</b>' + say(' עם חצי מהסטים ופחות משקל<br>אחריו מתחיל סבב חדש', ' half the sets and less weight. A new round starts after it.') + '</p>' +
     '<button class="btn primary big" id="dlYes" type="button">' + say('להתחיל שבוע קל', 'Start an easy week') + '</button><button class="btn big" data-close="1" type="button">' + say('לא עכשיו', 'Not now') + '</button></div>';
   sh.hidden = false;
 }
-function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>' + say('שבוע קל התחיל.', 'The easy week has started.') + '</b>' + say(' חצי מהסטים ופחות משקל באימונים של השבוע הזה.', ' Half the sets and less weight for this week\'s workouts.'); }
+function startDeload() { S.cfg.meso.early = Date.now(); saveCfg(); S.bannerKind = ''; S.banner = '<b>' + say('שבוע קל התחיל', 'The easy week has started.') + '</b>' + say('<br>חצי מהסטים ופחות משקל השבוע', ' Half the sets and less weight for this week\'s workouts.'); }
 /* clicks inside the sheet that belong to this file; returns true when the click was handled */
 function coachSheetClick(ev, id) {
   const b = ev.target.closest('button'), ds = b ? b.dataset : {};
@@ -5810,7 +6032,7 @@ function coachSheetClick(ev, id) {
     let now, at = exId;
     if (same) now = swapTo(exId, mv, ds.mode === 'always');
     else { const s = live(w); now = !(s && rowsOf(s, exId).some(isDone)); at = replaceSlot(exId, mv) || exId; }
-    S.bannerKind = ''; S.banner = (now ? say('הוחלף: ', 'Swapped: ') : say('מהאימון הבא: ', 'From next workout: ')) + mvName(mv) + (ds.mode === 'always' ? '' : say(' (רק היום)', ' (today only)')) + '.';
+    S.bannerKind = ''; S.banner = (now ? say('הוחלף ', 'Swapped: ') : say('מהאימון הבא ', 'From next workout: ')) + mvName(mv) + (ds.mode === 'always' ? '' : say(' רק היום', ' (today only)'));
     if (S.tab === w) S.open = now ? at : exId;
     S.drafts = {}; S.pick = null; closeSheet(); return true;
   }
@@ -5830,7 +6052,7 @@ function coachSheetClick(ev, id) {
   if (id === 'msDlYes') { startDeload(); S.msAsk = null; closeSheet(); return true; }
   if (id === 'msDlOff') { S.cfg.meso.early = 0; saveCfg(); renderMeso(); return true; }
   if (id === 'msAdv') { S.msAdv = !S.msAdv; S.msAsk = null; renderMeso(); return true; }
-  if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>' + say('סבב ', 'Round ') + S.cfg.meso.n + say(' התחיל.', ' has started.') + '</b>'; closeSheet(); return true; }
+  if (id === 'msNewYes') { newMeso(); S.msAsk = null; S.bannerKind = ''; S.banner = '<b>' + say('סבב ', 'Round ') + S.cfg.meso.n + say(' התחיל', ' has started.') + '</b>'; closeSheet(); return true; }
   if (id === 'dlYes') { startDeload(); closeSheet(); return true; }
   return false;
 }
@@ -5851,12 +6073,23 @@ function coachSheetChange(ev) {
   saveCfg();
 }
 function wireCoach() {
+  $('#pre').addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.id === 'tqMin') { ev.preventDefault(); const g = $('#tqGo'); if (g) g.click(); } });
+  $('#pre').addEventListener('input', (ev) => { if (ev.target.id === 'tqMin') ev.target.classList.remove('bad'); });
   $('#pre').addEventListener('click', (ev) => {
     /* the second tap of a double tap on "Start workout" lands on the question that has just appeared: it is not an answer */
     if (ev.detail !== 0 && Date.now() - (S.preAt || 0) < 400) return;
     const b = ev.target.closest('button'); if (!b) return;
     S.touched = true;
-    if (b.dataset.time != null) { setDay(S.tab, +b.dataset.time); S.timeAsk = null; S.open = null; haptic('select'); afterPre(); renderHome(); return; }
+    const day = (m) => { setDay(S.tab, m); S.timeAsk = null; S.open = null; S.eqAsk = window.__eq === false ? null : S.tab; S.eqOpen = false; haptic('select'); afterPre(); renderHome(); };
+    if (b.dataset.time != null) { day(+b.dataset.time); return; }
+    if (b.id === 'tqGo') {
+      const inp = $('#tqMin'), m = parseInt(String(inp.value).replace(/[^0-9]/g, ''), 10), T = timeInfo(S.tab);
+      if (!(m >= 5 && m <= 300)) { inp.classList.remove('bad'); void inp.offsetWidth; inp.classList.add('bad'); inp.focus(); return; }
+      day(m >= T.full ? 0 : m); return;
+    }
+    if (b.id === 'eqMiss') { S.eqOpen = true; renderPre(); return; }
+    if (b.dataset.miss) { const w = S.tab, M = S.miss || (S.miss = {}), l = M[w] || (M[w] = []), k = b.dataset.miss, at = l.indexOf(k); if (at >= 0) l.splice(at, 1); else l.push(k); applyMiss(w); haptic('select'); renderPre(); renderHome(); return; }
+    if (b.id === 'eqGo') { S.eqAsk = null; S.eqOpen = false; afterPre(); return; }
     if (b.dataset.mu) setSore(S.tab, b.dataset.mu, +b.dataset.v);
     else if (b.id === 'preAll') { const s = live(S.tab), sore = soreOf(S.tab, s); for (const m of preMuscles(S.tab)) if (sore[m] == null) setSore(S.tab, m, 1); S.preOpen = false; }
     else if (b.id === 'preEdit') S.preOpen = true;
@@ -6084,7 +6317,7 @@ function renderSettings() {
       seg(say('אימונים בשבוע', 'Workouts a week'), 'days', DAYS_OK.map((d) => [d, '' + d]), me.days || 4, 'days') +
       seg(say('זמן לאימון, בדקות', 'Time for a workout, in minutes'), 'time', [[30, '30'], [45, '45'], [60, '60'], [75, '75'], [0, say('לא משנה', 'Any')]], me.time, 'time', 'five') +
       seg(say('חדר הכושר', 'The gym'), 'eq', [[0, say('מלא', 'Full')], [1, say('בסיסי', 'Basic')], [2, say('לא בטוח', 'Not sure')]], me.eq, 'eq') +
-      seg(say('אילון שואל איך היה', 'Eilon asks how it went'), 'fb', [[0, say('אף פעם', 'Never')], [1, say('בתרגילים הכבדים', 'On heavy lifts')], [2, say('תמיד', 'Always')]], me.fb, 'fb')) +
+      '') +
     (refit ? '<div class="st-note" role="status"><span>' + say('התשובות השתנו, והתוכנית נשארה כפי ששינית אותה.', 'The answers changed, and the plan stays as you changed it.') + '</span><button class="btn" id="setRefit" type="button">' + say('לבנות את התוכנית מחדש', 'Build the plan again') + '</button></div>' : '') +
     grp(say('צליל ומגע', 'Sound and touch'), tog(say('צליל', 'Sound'), 'sound', !!S.sound, 'sound') + tog(say('רטט', 'Vibration'), 'buzz', S.buzz !== false, 'buzz')) +
     grp(say('גיבוי', 'Backup'), '<section class="backup" id="backup" aria-label="' + say('גיבוי', 'Backup') + '"></section>') +
@@ -6354,7 +6587,7 @@ const rulesHe = () => 'אתה אילון, המאמן האישי בתוך gymi, �
   '• אימון שהוחמץ: ממשיכים מהאימון הבא בתור, בלי לפצות עליו.\n' +
   '• ביום עם פחות זמן: שומרים על התרגילים המורכבים שפותחים את האימון ומוותרים על הסוף שלו.\n' +
   '• כאב חד, או כאב במפרק: עוצרים את התרגיל ומציעים לפנות לאיש מקצוע. אין לך מידע רפואי על המשתמש, ואתה לא מאבחן.\n\n' +
-  'האפליקציה: שבוע של 2 עד 5 אימונים (כמה שהמתאמן אמר שהוא יכול), לכל אימון שם משלו (ראה את התוכנית למטה). בלשונית "אימונים" נמצאים האימון הבא ורשימת האימונים של השבוע, והכפתור "התוכנית" פותח אותם, שם מוסיפים, מחליפים ומורידים תרגילים. ב"מסע" רואים את הרמות עד 100 ומה נפתח בכל אחת. ב"פרופיל" נמצאים הדמות, הקיוסק (ציוד לדמות, במטבעות שמרוויחים באימונים), ההישגים, האימונים האחרונים, ובגלגל השיניים ההגדרות. באימון עצמו: לפני הסט הראשון האפליקציה שואלת כמה זמן יש היום ומקצרת את האימון לפי זה; לכל תרגיל יש "פירוט התרגיל" (דגשי ביצוע), ותפריט שלוש הנקודות: החלפת תרגיל, דילוג עליו היום, הערה ומספר הסטים; אחרי כל סט המנוחה תופסת את המסך, והחץ שבראשה מבטל את הסט האחרון. האפליקציה מנהלת סבב של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל). דבר בשפה פשוטה: "סבב", "שבוע קל" ו"חזרות לפני כשל", לא מזוציקל, דילואד או RIR.\n\n' +
+  'האפליקציה: שבוע של 2 עד 5 אימונים (כמה שהמתאמן אמר שהוא יכול), לכל אימון שם משלו (ראה את התוכנית למטה). בלשונית "אימונים" נמצאים האימון הבא ורשימת האימונים של השבוע, והכפתור "התוכנית" פותח אותם, שם מוסיפים, מחליפים ומורידים תרגילים. ב"מסע" רואים את הרמות עד 100 ומה נפתח בכל אחת. ב"פרופיל" נמצאים הדמות, הקיוסק (ציוד לדמות, במטבעות שמרוויחים באימונים), ההישגים, האימונים האחרונים, ובגלגל השיניים ההגדרות. באימון עצמו: לפני הסט הראשון האפליקציה שואלת כמה זמן יש היום ומקצרת את האימון לפי זה, ואז מראה את האימון של היום ושואלת אם חסר משהו (מכונה תפוסה, אין כבלים) ומחליפה תרגילים בהתאם; כל תרגיל חדש נפתח במסך משלו עם כפתור "התחל"; לכל תרגיל יש כפתור "פירוט" (דגשי ביצוע, דילוג עליו היום, הערה, מספר הסטים, והמקום לומר שמשהו כואב) וכפתור "החלף תרגיל"; אחרי כל סט המנוחה תופסת את המסך, והחץ שבראשה מבטל את הסט האחרון. האפליקציה מנהלת סבב של כמה שבועות: כל שבוע מתקרבים בחזרה אחת לכשל, והשבוע האחרון קל, כדי להתאושש. היא קובעת יעד לכל סט (יותר חזרות או יותר משקל). דבר בשפה פשוטה: "סבב", "שבוע קל" ו"חזרות לפני כשל", לא מזוציקל, דילואד או RIR.\n\n' +
   'התוכנית של המשתמש. בסוגריים המרובעים מופיע מזהה התרגיל, ובסוגריים העגולים שמו באנגלית. באפליקציה השמות בעברית, אז השתמש בהם:\n\n' + planText() + '\n\n' +
   aboutUser() + 'מבנה התשובה במקרים מיוחדים:\n' +
   '- כששואלים אם תרגיל או מכשיר יכול להחליף תרגיל מהתוכנית, השורה הראשונה היא בדיוק אחת מאלה: "פסיקה: מתאים", "פסיקה: מתאים חלקית" או "פסיקה: לא מומלץ". אחריה שורה או שתיים: למה, ומה להתאים (סטים, חזרות או דגש ביצוע אחד).\n' +
@@ -6386,7 +6619,7 @@ const rulesEn = () => 'You are Eilon, the personal coach inside gymi, the user\'
   '• A missed workout: go on with the next one in line, without making up for it.\n' +
   '• On a day with less time: keep the compound lifts that open the workout and drop its end.\n' +
   '• Sharp pain, or pain in a joint: stop the exercise and suggest seeing a professional. You have no medical information about the user, and you do not diagnose.\n\n' +
-  'The app: a week of 2 to 5 workouts (as many as the lifter said they can do), each with a name of its own (see the plan below). The "Workouts" tab holds the next workout and the list of this week\'s workouts, and the "Plan" button opens them, where exercises are added, swapped and removed. "Journey" shows the levels up to 100 and what each one opens. "Profile" holds the character, the kiosk (gear for the character, bought with coins earned in workouts), the achievements, the recent workouts and, under the gear icon, the settings. In a workout: before the first set the app asks how much time there is today and shortens the workout to fit; every exercise has "Exercise details" (cues), and a three-dot menu: swap the exercise, skip it today, a note and the number of sets; after every set the rest takes the screen, and the arrow at its top takes the last set back. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
+  'The app: a week of 2 to 5 workouts (as many as the lifter said they can do), each with a name of its own (see the plan below). The "Workouts" tab holds the next workout and the list of this week\'s workouts, and the "Plan" button opens them, where exercises are added, swapped and removed. "Journey" shows the levels up to 100 and what each one opens. "Profile" holds the character, the kiosk (gear for the character, bought with coins earned in workouts), the achievements, the recent workouts and, under the gear icon, the settings. In a workout: before the first set the app asks how much time there is today and shortens the workout to fit, then shows today\'s workout and asks whether something is missing (a machine taken, no cables) and swaps exercises to match; every new exercise opens on a screen of its own with a "Start" button; every exercise has a "Details" button (cues, skip it today, a note, the number of sets, and the place to say that something hurts) and a "Swap" button; after every set the rest takes the screen, and the arrow at its top takes the last set back. The app runs a round of several weeks: every week comes one rep closer to failure, and the last week is easy, for recovery. It sets a target for every set (more reps or more weight). Weights are in kilograms. Use plain language: "round", "easy week" and "reps before failure", not mesocycle, deload or RIR.\n\n' +
   'The user\'s plan. The square brackets hold the id of each exercise. Use the exercise names as they are written here:\n\n' + planText() + '\n\n' +
   aboutUser() + 'The shape of the answer in special cases:\n' +
   '- When asked whether an exercise or a machine can replace an exercise from the plan, the first line is exactly one of these: "Verdict: Suitable", "Verdict: Partly suitable" or "Verdict: Not recommended". After it, a line or two: why, and what to adjust (sets, reps or one form cue).\n' +
@@ -6966,7 +7199,7 @@ function obHTML() {
       '<section class="card next w0 ob-plan' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '"><p class="k">' + say('התוכנית שלך', 'Your plan') + '</p><h2>' + obWeek().length + say(' אימונים בשבוע', ' workouts a week') + '</h2>' +
       '<ul class="ob-stats">' + stat(P.ex, say('תרגילים באימון', 'exercises a workout')) + stat(P.sets, say('סטים לתרגיל', 'sets each')) + stat(P.mins, say('דקות לאימון', 'minutes a workout')) + '</ul>' +
       '<ol class="ob-wks">' + obWeek().map((w, k) => '<li><span class="w-dot w' + k + '"></span><b>' + say('אימון ', 'Workout ') + (k + 1) + '</b><small>' + wkMus(w) + '</small></li>').join('') + '</ol><p class="ob-wk-tip">' + glyph('pen') + '<span>' + say('אפשר לתת לכל אימון שם משלך, בתוכנית', 'You can give each workout a name of your own, in the plan') + '</span></p><i class="ob-shine" aria-hidden="true"></i></section>' +
-      '<div class="ob-fb"><span><b>' + say('אילון ישאל איך היה', 'Eilon asks how it went') + '</b><small>' + say('שאלה קצרה אחרי כל תרגיל, כדי לכוון את המשקל', 'A quick question after each exercise, to tune the weight') + '</small></span><button type="button" class="tog" role="switch" id="obFb" aria-checked="' + (OB.fb > 0) + '" aria-label="' + say('אילון ישאל איך היה', 'Eilon asks how it went') + '"><i></i></button></div>';
+      '';
   } else {
     const old = meNow().T.wk > 0, cap = (a, b) => '<figcaption>' + a + '<b>' + b + '</b></figcaption>';
     cta = old ? say('קדימה', "Let's go") : say('לאימון הראשון', 'To the first workout');

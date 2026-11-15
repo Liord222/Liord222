@@ -216,7 +216,7 @@ function renderSettings() {
       seg(say('אימונים בשבוע', 'Workouts a week'), 'days', DAYS_OK.map((d) => [d, '' + d]), me.days || 4, 'days') +
       seg(say('זמן לאימון, בדקות', 'Time for a workout, in minutes'), 'time', [[30, '30'], [45, '45'], [60, '60'], [75, '75'], [0, say('לא משנה', 'Any')]], me.time, 'time', 'five') +
       seg(say('חדר הכושר', 'The gym'), 'eq', [[0, say('מלא', 'Full')], [1, say('בסיסי', 'Basic')], [2, say('לא בטוח', 'Not sure')]], me.eq, 'eq') +
-      seg(say('אילון שואל איך היה', 'Eilon asks how it went'), 'fb', [[0, say('אף פעם', 'Never')], [1, say('בתרגילים הכבדים', 'On heavy lifts')], [2, say('תמיד', 'Always')]], me.fb, 'fb')) +
+      '') +
     (refit ? '<div class="st-note" role="status"><span>' + say('התשובות השתנו, והתוכנית נשארה כפי ששינית אותה.', 'The answers changed, and the plan stays as you changed it.') + '</span><button class="btn" id="setRefit" type="button">' + say('לבנות את התוכנית מחדש', 'Build the plan again') + '</button></div>' : '') +
     grp(say('צליל ומגע', 'Sound and touch'), tog(say('צליל', 'Sound'), 'sound', !!S.sound, 'sound') + tog(say('רטט', 'Vibration'), 'buzz', S.buzz !== false, 'buzz')) +
     grp(say('גיבוי', 'Backup'), '<section class="backup" id="backup" aria-label="' + say('גיבוי', 'Backup') + '"></section>') +

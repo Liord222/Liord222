@@ -524,7 +524,7 @@ const writers = new Map();
 const W = (id) => { let w = writers.get(id); if (!w) { w = { timer: 0, busy: false, again: false, fail: 0 }; writers.set(id, w); } return w; };
 function setSync(state) {
   if (state) S.syncState = state;
-  const off = say('אין חיבור, נשמר במכשיר', 'Offline, saved on this device'), t = { cloud: say('נשמר בחשבון Claude', 'Saved to your Claude account'), local: say('נשמר במכשיר הזה', 'Saved on this device'), slow: off, error: off }[S.syncState];
+  const off = say('נשמר במכשיר בלי חיבור', 'Offline, saved on this device'), t = { cloud: say('נשמר בחשבון Claude', 'Saved to your Claude account'), local: say('נשמר במכשיר הזה', 'Saved on this device'), slow: off, error: off }[S.syncState];
   if (t) { S.syncT = t; $('#syncNote').textContent = t; const n = $('#syncNote2'); if (n) n.textContent = t; $('#app').dataset.sync = S.syncState === 'slow' || S.syncState === 'error' ? 'off' : 'on'; }
 }
 function touch(s, quiet) { s.upd = Date.now(); S.dirty.add(s.id); if (!quiet) saveLocal(); schedule(s.id); }

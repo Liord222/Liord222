@@ -69,7 +69,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   });
   ses.dlive = Object.assign(mk('dlive', 3, 6e5, 5, 1, 4, { lb1: [R(77.5, 8, now - 6e4)] }), { end: 0, upd: now - 6e4 });
   p = await open(b, { sound: true, dirty: [], gone: [], sessions: ses, cfg: { upd: 5, weeks: 5, inc: {}, swap: {}, notes: {}, base: {}, meso: { id: 'm1', n: 1, start: 0, early: 0 }, past: [] } }); txt = T(p);
-  check('easy week: the running workout opens on its exercise, far from failure', (await p.evaluate(() => S.view + ':' + S.open)) === 'workout:lb1' && (await txt('.fx-rx')).includes('רחוק מכשל') && (await p.evaluate(() => findEx('lb1').sets)) === 3, [await txt('.fx-rx'), await p.evaluate(() => findEx('lb1').sets)]);
+  check('easy week: the running workout opens on its exercise, far from failure', (await p.evaluate(() => S.view + ':' + S.open)) === 'workout:lb1' && (await p.evaluate(() => rirText(rirOf(findEx('lb1'), live(S.tab))))).includes('רחוק מכשל') && (await p.evaluate(() => findEx('lb1').sets)) === 3, [await txt('.fx-rx'), await p.evaluate(() => findEx('lb1').sets)]);
   await p.click('#listBtn'); await p.waitForTimeout(250);
   check('easy week: the list of exercises says so', (await txt('#sheet .kicker')).includes('שבוע קל') && (await p.$$('#allList .ex')).length === 7, await txt('#sheet .kicker'));
   await p.click('#finishBtn'); await p.waitForTimeout(500);
@@ -273,18 +273,18 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { fb: 1 } } }); txt = T(p);
   await p.click('#homeGo'); await p.waitForTimeout(350); await gate(p);
   await p.click('#exNext'); await p.waitForTimeout(300);
-  await p.click('.ex.open .more'); await p.waitForTimeout(300); await p.click('#moreSkip'); await p.waitForTimeout(450);
+  await p.click('.ex.open .how'); await p.waitForTimeout(300); await p.click('#moreSkip'); await p.waitForTimeout(450);
   const sk = await p.evaluate(() => ({ today: exList(0).map((e) => e.id).join(), plan: exList(0, null, true).length, open: S.open, toast: document.querySelector('#toast').hidden ? '' : document.querySelector('#toast').textContent, sub: document.querySelector('#wkTitle .sub').textContent, live: !!live(0), cfg: Object.keys(S.cfg.order).length }));
   check('an exercise can be left out for today from "more": the next one takes the screen, a line says so, and the plan keeps it', sk.today === 'ua1,ua3,ua4,ua5,ua6,ua7,ua8' && sk.plan === 8 && sk.open === 'ua3' && sk.toast.includes('דילגנו היום על מתח בסיוע') && sk.sub === 'תרגיל 2 מתוך 7' && !sk.live && sk.cfg === 0, sk);
   await p.click('#exPrev'); await p.waitForTimeout(300);
   await p.click('#dkHit'); await p.waitForTimeout(500);
   check('the workout that starts is the one without it', (await p.evaluate(() => live(0).o.join() + ':' + exList(0).length + ':' + JSON.stringify(S.day))) === 'ua1,ua3,ua4,ua5,ua6,ua7,ua8:7:{}', await p.evaluate(() => JSON.stringify([live(0).o, S.day])));
   await p.click('#rtSkip'); await p.waitForTimeout(250);
-  await p.click('.ex.open .more'); await p.waitForTimeout(300);
-  check('an exercise that has sets in it today cannot be left out', !(await p.$('#moreSkip')) && !!(await p.$('#moreSwap')), await txt('#sheet .mr-rows'));
+  await p.click('.ex.open .how'); await p.waitForTimeout(300);
+  check('an exercise that has sets in it today cannot be left out', !(await p.$('#moreSkip')) && !!(await p.$('#moreAsk')) && !!(await p.$('.ex.open .swp')), await txt('#sheet .mr-rows'));
   await p.click('#moreSame'); await p.waitForTimeout(450);
-  check('asked "only about the heavy lifts": the lift that opens the workout gets its question', (await p.$$('#dock [data-fb="load"]')).length === 3 && (await p.evaluate(() => S.fbFor)) === 'ua1', await txt('#dock'));
-  await p.click('#dkNext'); await p.waitForTimeout(350);
+  await p.waitForTimeout(400);
+  check('nothing is asked when an exercise ends: the question "how was it" is gone, and the next exercise comes up by itself', (await p.$$('#dock [data-fb]')).length === 0 && (await p.evaluate(() => S.fbFor)) == null && (await p.evaluate(() => S.open)) !== 'ua1', await txt('#dock'));
   check('a question that is not answered is dropped, and never stands in the way', (await p.evaluate(() => S.fbFor + ':' + JSON.stringify(live(0).fb))) === 'null:{}' && !!(await p.$('#dkHit')) && !(await p.$('.fb-dock')), await p.evaluate(() => JSON.stringify(live(0).fb)));
   /* three sets of an exercise, each logged with the big button; the rest between them is passed */
   const three = async () => { for (let i = 0; i < 3; i++) { await p.click('#dkHit'); await p.waitForTimeout(450); if (i < 2) { await p.click('#rtSkip'); await p.waitForTimeout(260); } } };
@@ -300,8 +300,8 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   p = await open(b, { sound: false, dirty: [], gone: [], sessions: {}, cfg: { upd: 3, weeks: 5, me: { exp: 0 } } }); txt = T(p);
   await p.evaluate(() => { openWorkout(2, true); }); await p.waitForTimeout(400); await gate(p);
   await p.evaluate(() => { S.open = 'ub9'; renderAll(); }); await p.waitForTimeout(300);
-  const bw = await p.evaluate(() => ({ kg: document.querySelector('#dkKg').innerText.replace(/\s+/g, ' '), say: document.querySelector('#dkKg').getAttribute('aria-label'), badge: document.querySelector('.dk-top .goal').textContent, cells: [...document.querySelectorAll('.ex.open .setp')].map((x) => x.innerText.replace(/\s+/g, ' ').trim()).join(), dash: document.querySelector('#dock').innerText.includes('—') }));
-  check('a movement done with the body\'s own weight says so: no dash, and no weight made up for it', bw.kg === 'גוף משקל גוף' && bw.say.startsWith('משקל: בלי משקל') && bw.badge === 'התחלה' && !bw.dash && /^12 חזרות,12 חזרות,12 חזרות$/.test(bw.cells), bw);
+  const bw = await p.evaluate(() => ({ kg: document.querySelector('#dkKg').innerText.replace(/\s+/g, ' '), say: document.querySelector('#dkKg').getAttribute('aria-label'), badge: (document.querySelector('.dk-top .goal') || { textContent: '' }).textContent, cells: [...document.querySelectorAll('.ex.open .setp')].map((x) => x.innerText.replace(/\s+/g, ' ').trim()).join(), dash: document.querySelector('#dock').innerText.includes('—') }));
+  check('a movement done with the body\'s own weight says so: no dash, and no weight made up for it', bw.kg === 'גוף משקל גוף' && bw.say.startsWith('משקל: בלי משקל') && bw.badge === '' && !bw.dash && /^סט 1,סט 2,סט 3$/.test(bw.cells), bw);
   await p.dispatchEvent('.step[data-d="1"]', 'pointerdown'); await p.dispatchEvent('.step[data-d="1"]', 'pointerup');
   check('weight can still be added to it', (await txt('#dkKg')).replace(/\s+/g, ' ') === '2 ק״ג', await txt('#dkKg'));
   await p.evaluate(() => { S.open = 'ub1'; renderAll(); }); await p.waitForTimeout(300);
@@ -388,11 +388,12 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     check('narrow phone: the exercise and the bar fit the screen', (await past()).length === 0, await past());
     await q.click('#dkHit'); await q.waitForTimeout(500);
     check('narrow phone: the rest timer fits', (await past()).length === 0 && (await q.isVisible('#rtUndo')), await past());
-    await q.click('#rtSkip'); await q.waitForTimeout(200); await q.click('.ex.open .more'); await q.waitForTimeout(250); await q.click('#moreSame'); await q.waitForTimeout(450);
-    check('narrow phone: the question after an exercise fits, with its three answers side by side and the way on in reach', (await past()).length === 0 && (await q.evaluate(() => { const o = [...document.querySelectorAll('#dock .fb-o')].map((x) => x.getBoundingClientRect()), n = document.querySelector('#dkNext').getBoundingClientRect(); return o.length === 3 && o.every((r) => r.left >= 0 && r.right <= innerWidth && Math.abs(r.top - o[0].top) < 1) && n.left >= 0 && n.right <= innerWidth; })), await past());
-    /* a text link is easy to hit: it is as tall as a finger */
-    const tapH = await q.evaluate(() => document.querySelector('#dock .fb-pain').getBoundingClientRect().height);
-    await q.click('#dock [data-painask]'); await q.waitForTimeout(150); await q.click('#dock [data-fb="pain"][data-v="2"]'); await q.waitForTimeout(300);
+    await q.click('#rtSkip'); await q.waitForTimeout(200); await q.click('.ex.open .how'); await q.waitForTimeout(250); await q.click('#moreSame'); await q.waitForTimeout(450);
+    check('narrow phone: an exercise that is done shows the way on, and asks nothing', (await past()).length === 0 && (await q.evaluate(() => { const n = document.querySelector('#dkNext').getBoundingClientRect(); return !document.querySelector('#dock .fb-o') && n.left >= 0 && n.right <= innerWidth; })), await past());
+    /* pain is reported from the details of the exercise; its two answers are as tall as a finger */
+    await q.click('.ex.open .how'); await q.waitForTimeout(300);
+    const tapH = await q.evaluate(() => document.querySelector('#sheet .fb-o').getBoundingClientRect().height);
+    await q.click('#sheet [data-fb="pain"][data-v="2"]'); await q.waitForTimeout(300);
     check('narrow phone: a pain report fits too', (await past()).length === 0, await past());
     await snap(q, 'h9-narrow-pain');
     check('a text link has a tap area of a finger\'s size', tapH >= 44, tapH);
@@ -466,7 +467,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     /* now the device has its workouts, and its settings are newer than this older file: they stay, and the note says so */
     const older = JSON.parse(JSON.stringify(bak)); older.cfg.weeks = 4;
     await p.setInputFiles('#restoreFile', { name: 'older.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(older)) }); await p.waitForTimeout(400);
-    check('an older file does not replace newer settings, and the note says they were kept', (await p.evaluate(() => S.cfg.weeks)) === 6 && (await txt('#backup')).includes('ההגדרות שבמכשיר הזה חדשות יותר'), await txt('#backup'));
+    check('an older file does not replace newer settings, and the note says they were kept', (await p.evaluate(() => S.cfg.weeks)) === 6 && (await txt('#backup')).includes('ההגדרות במכשיר חדשות יותר'), await txt('#backup'));
     await p.context().close();
   }
   // ---- 15. the answers the other suites only ever say "no" to: clear, delete, reset, an early easy week, a backup. And the coach when Claude fails ----
@@ -601,7 +602,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
     await p.click('#sheet [data-set="days"][data-v="5"]'); await p.waitForTimeout(250);
     const five = await p.evaluate(() => ({ days: S.cfg.me.days, kept: JSON.parse(localStorage.getItem('ul4:v1')).cfg.me.days, pressed: document.querySelector('#sheet [data-set="days"][aria-pressed="true"]').dataset.v }));
     await p.click('#sheet [data-close]'); await p.waitForTimeout(250); await p.click('#tabbar [data-view="home"]'); await p.waitForTimeout(300);
-    check('five days, set in the settings and kept: upper, lower, then push, pull and legs', five.days === 5 && five.kept === 5 && five.pressed === '5' && (await rows()).map((x) => x.split(':')[0]).join() === 'אימון 1,אימון 2,אימון 3,אימון 4,אימון 5' && (await txt('#tabs')).includes('חזה · כתפיים · טרייספס'), JSON.stringify([five, await rows()]));
+    check('five days, set in the settings and kept: upper, lower, then push, pull and legs', five.days === 5 && five.kept === 5 && five.pressed === '5' && (await rows()).map((x) => x.split(':')[0]).join() === 'אימון 1,אימון 2,אימון 3,אימון 4,אימון 5' && (await txt('#tabs')).includes('חזה · כתפיים · טריספס'), JSON.stringify([five, await rows()]));
     check('the meter of the week counts five', (await txt('.wk-meter b')).includes('/5') && (await p.$$('.wk-meter i')).length === 5, await txt('.week-h'));
     await p.click('#planBtn'); await p.waitForTimeout(350);
     check('the plan shows the five workouts of the week, and no drawings of clothes', (await p.$$('#sheet .pl-card')).length === 5 && (await txt('#sheet .pl-cards')).includes('אימון 5') && (await txt('#sheet .pl-cards')).includes('גב · ביספס · בטן') && !(await p.$('#sheet .pl-ic svg')), await txt('#sheet .pl-cards'));

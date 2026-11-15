@@ -29,6 +29,8 @@ const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : '
   await f.click('#homeGo'); await f.waitForTimeout(600);
   /* the question about today's length: the whole workout */
   { const t = await f.$('#pre [data-time="0"]'); if (t) { await t.click(); await f.waitForTimeout(350); } }
+  /* then today's workout, and the screen of the first exercise: each is left by its one button */
+  for (const k of ['#eqGo', '#xiGo']) { const t = await f.waitForSelector(k, { state: 'visible', timeout: 4000 }).catch(() => null); if (t) { await t.click(); await f.waitForTimeout(450); } }
   await f.click('#dkKg'); await f.fill('#dkKgIn', '60'); await p.keyboard.press('Enter'); await f.waitForTimeout(150);
   await f.click('#dkHit'); await f.waitForTimeout(1400);
   const copy = await p.evaluate(() => localStorage.getItem('gymi:log:v1'));

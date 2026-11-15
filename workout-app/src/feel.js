@@ -76,6 +76,15 @@ function haptic(kind) {
 /* sound and touch together, for the moments that earn both */
 function feel(kind, touch) { sfx(kind); haptic(touch || (kind === 'set' ? 'success' : kind === 'pr' ? 'pr' : 'heavy')); }
 /* points that fly up from where they were earned */
+function popGain(n, pr, combo) {
+  if (!(n > 0) || reduced) return;
+  for (const o of $$('.gain')) o.remove();
+  const f = document.createElement('div'), run = !pr && combo >= 3 && combo % 3 === 0;
+  f.className = 'gain' + (pr ? ' pr' : run ? ' run' : ''); f.setAttribute('aria-hidden', 'true');
+  f.innerHTML = '<b>' + Ltr('+' + n) + '</b>' + (pr ? '<span>' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : run ? '<span>' + glyph('flame') + say(combo + ' סטים ברצף', combo + ' in a row') + '</span>' : '');
+  document.body.appendChild(f); setTimeout(() => f.remove(), pr || run ? 2800 : 2000);
+  if (run) haptic('heavy');
+}
 function flyPoints(el, n) {
   if (!el || !(n > 0) || reduced) return;
   const r = el.getBoundingClientRect(), f = document.createElement('span');

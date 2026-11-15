@@ -37,10 +37,11 @@ function renderPre() {
     if (box.hidden) S.preAt = Date.now();
     box.hidden = false;
     box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic" aria-hidden="true">' + ICON.clock + '</span><h2 id="tqT">' + say('כמה זמן יש לך היום', 'How much time do you have today') + '</h2>' +
+      '<div class="tq-row"><button type="button" class="tq-st" data-tq="-5" aria-label="' + say('5 דקות פחות', '5 minutes less') + '">−</button>' +
       '<label class="tq-in"><input id="tqMin" type="text" inputmode="numeric" maxlength="3" autocomplete="off" value="' + v0 + '" aria-label="' + say('דקות', 'Minutes') + '"><span>' + say('דקות', 'minutes') + '</span></label>' +
-      '<div class="tq-ch" role="group" aria-label="' + say('אורך האימון היום', 'Today\'s length') + '">' + TC.opts.map((m) => '<button type="button" class="tq-c" data-time="' + m + '">' + m + '</button>').join('') +
-      '<button type="button" class="tq-c all" data-time="0">' + say('הכול', 'All') + ' <small>' + TC.full + '</small></button></div>' +
-      '<button class="btn primary big" id="tqGo" type="button">' + say('המשך', 'Continue') + '</button></div>';
+      '<button type="button" class="tq-st" data-tq="5" aria-label="' + say('5 דקות יותר', '5 minutes more') + '">+</button></div>' +
+      '<button class="btn primary big" id="tqGo" type="button">' + say('המשך', 'Continue') + '</button>' +
+      '<button type="button" class="tq-full" data-time="0">' + say('האימון המלא לוקח ', 'The whole workout takes ') + '<b>' + TC.full + '</b>' + say(' דקות', ' minutes') + '</button></div>';
     return;
   }
   const mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
@@ -69,12 +70,16 @@ function afterPre() { renderPre(); renderHero(); renderList(); updateProgress();
 /* ---- something the workout needs is missing today (a machine taken, no cables): each exercise that needs it moves to one of the
    same kind that does not, for today only. Nothing about machines is asked in the opening; it is asked here, when it matters ---- */
 const EQK = [['bar', ['bar'], () => say('מוט', 'Barbell')], ['smith', ['smith'], () => say('סמית׳', 'Smith machine')], ['mach', ['machine', 'plates'], () => say('מכונות', 'Machines')], ['cable', ['cable'], () => say('כבלים', 'Cables')], ['db', ['db'], () => say('משקולות', 'Dumbbells')]];
+/* how hard an exercise is: 3 for the heavy lifts of the legs and the hips, 2 for the other lifts that move more than one joint, 1 for the rest */
+const hardOf = (mv) => { const L = LIB[mv] || {}; return ['squat', 'lunge', 'thrust'].includes(L.pat) || (L.pat === 'hinge' && L.eq !== 'bw') ? 3 : (L.s || []).length ? 2 : 1; };
+const HARD = () => [say('קל', 'Easy'), say('בינוני', 'Medium'), say('קשה', 'Hard')];
 const eqKind = (mv) => { const q = LIB[mv] && LIB[mv].eq, k = EQK.find((x) => x[1].includes(q)); return k ? k[0] : null; };
 const baseMv = (id) => (S.cfg.swap && S.cfg.swap[id]) || planEx(id).a;
 function eqHTML(w) {
   const s = live(w), list = exList(w, s), miss = (S.miss && S.miss[w]) || [], kinds = EQK.filter((k) => list.some((e) => eqKind(baseMv(e.id)) === k[0]));
   return '<div class="pre gate eqq"><h2>' + say('האימון של היום', 'Today\'s workout') + '</h2>' +
-    '<ol class="eq-list">' + list.map((e) => '<li class="tn-' + toneOf(LIB[e.mv].p) + (e.mv !== baseMv(e.id) ? ' sw' : '') + '"><i aria-hidden="true"></i><span>' + e.nm + '</span><small>' + cnt(e.sets, 'סטים', 'סט אחד', 'sets', 'set') + '</small></li>').join('') + '</ol>' +
+    '<ol class="eq-list">' + list.map((e) => '<li class="d' + hardOf(e.mv) + (e.mv !== baseMv(e.id) ? ' sw' : '') + '"><i aria-hidden="true"></i><span>' + e.nm + '<span class="sr"> ' + HARD()[hardOf(e.mv) - 1] + '</span></span><small>' + cnt(e.sets, 'סטים', 'סט אחד', 'sets', 'set') + '</small></li>').join('') + '</ol>' +
+    '<p class="eq-key" aria-hidden="true">' + HARD().map((t, i) => '<span class="d' + (i + 1) + '"><i></i>' + t + '</span>').join('') + '</p>' +
     (S.eqOpen && kinds.length ? '<p class="eq-q">' + say('מה חסר היום', 'What is missing today') + '</p><div class="eq-ch">' + kinds.map((k) => '<button type="button" class="eq-c" data-miss="' + k[0] + '" aria-pressed="' + miss.includes(k[0]) + '">' + k[2]() + '</button>').join('') + '</div>' +
       '<button class="btn primary big" id="eqGo" type="button">' + say('מתחילים', 'Start') + '</button>'
       : '<div class="eq-b"><button class="btn primary big" id="eqGo" type="button">' + say('מתחילים', 'Start') + '</button>' + (kinds.length ? '<button class="btn big" id="eqMiss" type="button">' + say('חסר משהו', 'Something is missing') + '</button>' : '') + '</div>') + '</div>';
@@ -284,6 +289,10 @@ function wireCoach() {
     S.touched = true;
     const day = (m) => { setDay(S.tab, m); S.timeAsk = null; S.open = null; S.eqAsk = window.__eq === false ? null : S.tab; S.eqOpen = false; haptic('select'); afterPre(); renderHome(); };
     if (b.dataset.time != null) { day(+b.dataset.time); return; }
+    if (b.dataset.tq) {
+      const inp = $('#tqMin'), T = timeInfo(S.tab), top = Math.ceil(T.full / 5) * 5, v = parseInt(String(inp.value).replace(/[^0-9]/g, ''), 10) || T.full;
+      inp.value = Math.max(10, Math.min(top, (+b.dataset.tq > 0 ? Math.floor(v / 5) : Math.ceil(v / 5)) * 5 + +b.dataset.tq)); inp.classList.remove('bad'); haptic('select'); return;
+    }
     if (b.id === 'tqGo') {
       const inp = $('#tqMin'), m = parseInt(String(inp.value).replace(/[^0-9]/g, ''), 10), T = timeInfo(S.tab);
       if (!(m >= 5 && m <= 300)) { inp.classList.remove('bad'); void inp.offsetWidth; inp.classList.add('bad'); inp.focus(); return; }

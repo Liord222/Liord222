@@ -229,7 +229,7 @@ const musOf = (mv) => { const L = LIB[mv]; return [L.p].concat(L.s || []).filter
 const musChips = (mv) => '<p class="mus-chips tn-' + toneOf(LIB[mv].p) + '">' + musOf(mv).map((k, j) => '<span' + (j ? '' : ' class="p"') + '>' + muName(k) + '</span>').join('') + '</p>';
 /* the demo, with the two things that are a tap away on its corners (the details of the exercise, and everything else), then the sets */
 function bodyHTML(e) {
-  return '<div class="stage-box"><button class="stage-wrap" type="button" aria-pressed="' + !player.playing + '"><canvas class="stage" aria-hidden="true"></canvas><span class="stage-play" aria-hidden="true">' + ICON.go + '</span></button>' +
+  return '<div class="stage-box"><div class="stage-wrap"><canvas class="stage" aria-hidden="true"></canvas></div>' +
     '<button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט', 'Details') + '</span></button>' +
     '<button class="st-btn swp" type="button">' + ICON.swap + '<span>' + say('החלף תרגיל', 'Swap') + '</span></button></div>' +
     musChips(e.mv) +
@@ -634,7 +634,7 @@ function fillTargets(e) {
 }
 function startRest(min, max, label, last) {
   clearInterval(rest.iv);
-  Object.assign(rest, { on: true, start: Date.now(), min, max, minHit: false, ended: 0, label, last });
+  Object.assign(rest, { on: true, start: Date.now(), min, max, scale: max, minHit: false, ended: 0, label, last });
   S.edit = null; renderDock(); rest.iv = setInterval(tickRest, 100);
 }
 function tickRest() {
@@ -642,7 +642,7 @@ function tickRest() {
   const el = (Date.now() - rest.start) / 1000, left = Math.max(0, rest.max - el), d = $('#dock'), tm = $('#rtTime');
   if (!tm) return;
   tm.textContent = mmss(Math.ceil(left));
-  const fr = rest.max > 0 ? Math.max(0, Math.min(1, left / rest.max)) : 0, a = fr * 2 * Math.PI, hd = $('#rtHead');
+  const face = Math.max(rest.scale || rest.max, 1), fr = Math.max(0, Math.min(1, left / face)), a = fr * 2 * Math.PI, hd = $('#rtHead');
   $('#rtFill').style.strokeDashoffset = String(((1 - fr) * 100).toFixed(2));
   if (hd) { hd.setAttribute('cx', (100 + 82 * Math.cos(a)).toFixed(1)); hd.setAttribute('cy', (100 + 82 * Math.sin(a)).toFixed(1)); }
   const lit = Math.ceil(fr * 60), tk = $('#rtTicks');
@@ -684,12 +684,18 @@ function exIntroOff() {
   const box = $('#exIntro'); clearTimeout(XI.t); if (!box || box.hidden) return;
   box.classList.add('out'); box.classList.remove('on'); clearTimeout(XI.g);
   const st = $('#exList .stage'), cur = shown(); if (st && cur) startPlayer(st, cur.a, $('#exList'));
-  XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 280);
+  XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 100);
 }
 function nudgeRest(d) {
   if (!rest.on) return;
-  rest.max = Math.max(5, rest.max + d); rest.min = Math.min(rest.min, rest.max);
-  if (rest.ended && (Date.now() - rest.start) / 1000 < rest.max) rest.ended = 0;
+  const el = (Date.now() - rest.start) / 1000;
+  if (d > 0) {
+    /* more rest was asked for: it counts from now when the time was already up, and the screen goes back to plain rest */
+    rest.max = Math.max(rest.max, el) + d;
+    if (rest.minHit || rest.ended) { rest.min = rest.max; rest.minHit = false; } else rest.min += d;
+    rest.ended = 0;
+  } else { rest.max = Math.max(el, rest.max + d); rest.min = Math.max(0, Math.min(rest.min + d, rest.max)); }
+  rest.scale = Math.max(rest.scale || 0, rest.max - el);
   tickRest();
 }
 function undoLast() {
@@ -950,8 +956,6 @@ function wireApp() {
     const li = ev.target.closest('.ex'); if (!li) return;
     const e = findEx(li.dataset.id), nav = ev.target.closest('.fx-nav');
     if (nav) { stepEx(nav.id === 'exNext' ? 1 : -1); return; }
-    /* a tap on the demo stops it and starts it again */
-    if (ev.target.closest('.stage-wrap')) { setPlaying(!player.playing); return; }
     if (ev.target.closest('.how')) { openMore(e.id); return; }
     if (ev.target.closest('.swp')) { openSwap(e.id); return; }
     const p = ev.target.closest('.setp');

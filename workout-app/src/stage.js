@@ -54,8 +54,6 @@ function frame(now) {
 /* the demo is one button: a tap stops it, another starts it again */
 function setPlaying(on) {
   player.playing = on; cancelAnimationFrame(player.raf); player.raf = 0;
-  /* one name and one state: 'pause', pressed while it is paused (a name that changes with the state would say 'play, pressed' while it does not play) */
-  if (player.btn) { player.btn.setAttribute('aria-pressed', String(!on)); player.btn.setAttribute('aria-label', say('השהה את ההדמיה', 'Pause the demo')); }
   if (on) { player.last = 0; player.raf = requestAnimationFrame(frame); } else paintStage(player.lastT);
 }
 function startPlayer(cv, key, body) {

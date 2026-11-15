@@ -1999,6 +1999,33 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 #app.pre-on #pre>.pre.eqq{display:flex;flex-direction:column;max-height:100%}
 .eqq .eq-list{flex:1 1 auto;min-height:96px;overflow:auto;overscroll-behavior:contain}
 .eqq>h2,.eqq>.eq-q,.eqq>.eq-ch,.eqq>.eq-b,.eqq>#eqGo{flex:none}
+
+/* round 3, phase 1, after the owner tried it */
+/* today's time: a number between a minus and a plus, and under the button how long the whole workout takes */
+.tq-row{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;align-items:center;gap:10px;width:100%;max-width:340px}
+.tq-row .tq-in{max-width:none}
+.tq-st{height:52px;border:0;border-radius:16px;background:var(--surface);color:var(--ink);font-size:26px;font-weight:800;line-height:1;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
+.tq-st:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
+.tq-full{min-height:44px;margin-top:-4px;border:0;background:none;color:var(--ink-3);font-size:14.5px;font-weight:600}
+.tq-full b{color:var(--ink);font-weight:800;direction:ltr;unicode-bidi:isolate}
+/* today's workout: green is easy, yellow is medium, red is hard */
+.eq-list li i{border-radius:50%;background:var(--ink-3)}
+.eq-list li.d1 i,.eq-key .d1 i{background:#2FB56A}
+.eq-list li.d2 i,.eq-key .d2 i{background:#F2B01E}
+.eq-list li.d3 i,.eq-key .d3 i{background:#E5484D}
+.eq-key{display:flex;justify-content:center;gap:16px;margin:0;font-size:13px;font-weight:700;color:var(--ink-3);flex:none}
+.eq-key span{display:inline-flex;align-items:center;gap:6px}
+.eq-key i{width:9px;height:9px;border-radius:50%}
+/* a new exercise stands on purple with a few soft white circles; the muscles are named in quiet chips */
+.xi-top{background:radial-gradient(circle at 14% 15%,rgb(255 255 255 / .17) 0 44px,transparent 45px),radial-gradient(circle at 91% 7%,rgb(255 255 255 / .1) 0 74px,transparent 75px),radial-gradient(circle at 86% 90%,rgb(255 255 255 / .14) 0 30px,transparent 31px),radial-gradient(circle at 3% 82%,rgb(255 255 255 / .08) 0 62px,transparent 63px),linear-gradient(165deg,#7B4FF0 0%,#6D3FE0 55%,#5A2FCC 100%)}
+.xi .xi-k{background:#fff;color:#5A2FCC}
+.mus-chips span.p{background:var(--ink);color:var(--paper)}
+/* and "start" leaves it at once */
+.xi.out{transition:opacity .09s linear}
+/* the demo is a picture, not a button */
+.stage-wrap:active{transform:none}
+.tq-row{direction:ltr}.tq-row .tq-in{direction:rtl}
+[dir="ltr"] .tq-row .tq-in{direction:ltr}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -4510,8 +4537,6 @@ function frame(now) {
 /* the demo is one button: a tap stops it, another starts it again */
 function setPlaying(on) {
   player.playing = on; cancelAnimationFrame(player.raf); player.raf = 0;
-  /* one name and one state: 'pause', pressed while it is paused (a name that changes with the state would say 'play, pressed' while it does not play) */
-  if (player.btn) { player.btn.setAttribute('aria-pressed', String(!on)); player.btn.setAttribute('aria-label', say('השהה את ההדמיה', 'Pause the demo')); }
   if (on) { player.last = 0; player.raf = requestAnimationFrame(frame); } else paintStage(player.lastT);
 }
 function startPlayer(cv, key, body) {
@@ -4773,7 +4798,7 @@ const musOf = (mv) => { const L = LIB[mv]; return [L.p].concat(L.s || []).filter
 const musChips = (mv) => '<p class="mus-chips tn-' + toneOf(LIB[mv].p) + '">' + musOf(mv).map((k, j) => '<span' + (j ? '' : ' class="p"') + '>' + muName(k) + '</span>').join('') + '</p>';
 /* the demo, with the two things that are a tap away on its corners (the details of the exercise, and everything else), then the sets */
 function bodyHTML(e) {
-  return '<div class="stage-box"><button class="stage-wrap" type="button" aria-pressed="' + !player.playing + '"><canvas class="stage" aria-hidden="true"></canvas><span class="stage-play" aria-hidden="true">' + ICON.go + '</span></button>' +
+  return '<div class="stage-box"><div class="stage-wrap"><canvas class="stage" aria-hidden="true"></canvas></div>' +
     '<button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט', 'Details') + '</span></button>' +
     '<button class="st-btn swp" type="button">' + ICON.swap + '<span>' + say('החלף תרגיל', 'Swap') + '</span></button></div>' +
     musChips(e.mv) +
@@ -5178,7 +5203,7 @@ function fillTargets(e) {
 }
 function startRest(min, max, label, last) {
   clearInterval(rest.iv);
-  Object.assign(rest, { on: true, start: Date.now(), min, max, minHit: false, ended: 0, label, last });
+  Object.assign(rest, { on: true, start: Date.now(), min, max, scale: max, minHit: false, ended: 0, label, last });
   S.edit = null; renderDock(); rest.iv = setInterval(tickRest, 100);
 }
 function tickRest() {
@@ -5186,7 +5211,7 @@ function tickRest() {
   const el = (Date.now() - rest.start) / 1000, left = Math.max(0, rest.max - el), d = $('#dock'), tm = $('#rtTime');
   if (!tm) return;
   tm.textContent = mmss(Math.ceil(left));
-  const fr = rest.max > 0 ? Math.max(0, Math.min(1, left / rest.max)) : 0, a = fr * 2 * Math.PI, hd = $('#rtHead');
+  const face = Math.max(rest.scale || rest.max, 1), fr = Math.max(0, Math.min(1, left / face)), a = fr * 2 * Math.PI, hd = $('#rtHead');
   $('#rtFill').style.strokeDashoffset = String(((1 - fr) * 100).toFixed(2));
   if (hd) { hd.setAttribute('cx', (100 + 82 * Math.cos(a)).toFixed(1)); hd.setAttribute('cy', (100 + 82 * Math.sin(a)).toFixed(1)); }
   const lit = Math.ceil(fr * 60), tk = $('#rtTicks');
@@ -5228,12 +5253,18 @@ function exIntroOff() {
   const box = $('#exIntro'); clearTimeout(XI.t); if (!box || box.hidden) return;
   box.classList.add('out'); box.classList.remove('on'); clearTimeout(XI.g);
   const st = $('#exList .stage'), cur = shown(); if (st && cur) startPlayer(st, cur.a, $('#exList'));
-  XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 280);
+  XI.g = setTimeout(() => { if (box.classList.contains('out')) { box.hidden = true; box.innerHTML = ''; box.classList.remove('out'); } }, reduced ? 0 : 100);
 }
 function nudgeRest(d) {
   if (!rest.on) return;
-  rest.max = Math.max(5, rest.max + d); rest.min = Math.min(rest.min, rest.max);
-  if (rest.ended && (Date.now() - rest.start) / 1000 < rest.max) rest.ended = 0;
+  const el = (Date.now() - rest.start) / 1000;
+  if (d > 0) {
+    /* more rest was asked for: it counts from now when the time was already up, and the screen goes back to plain rest */
+    rest.max = Math.max(rest.max, el) + d;
+    if (rest.minHit || rest.ended) { rest.min = rest.max; rest.minHit = false; } else rest.min += d;
+    rest.ended = 0;
+  } else { rest.max = Math.max(el, rest.max + d); rest.min = Math.max(0, Math.min(rest.min + d, rest.max)); }
+  rest.scale = Math.max(rest.scale || 0, rest.max - el);
   tickRest();
 }
 function undoLast() {
@@ -5494,8 +5525,6 @@ function wireApp() {
     const li = ev.target.closest('.ex'); if (!li) return;
     const e = findEx(li.dataset.id), nav = ev.target.closest('.fx-nav');
     if (nav) { stepEx(nav.id === 'exNext' ? 1 : -1); return; }
-    /* a tap on the demo stops it and starts it again */
-    if (ev.target.closest('.stage-wrap')) { setPlaying(!player.playing); return; }
     if (ev.target.closest('.how')) { openMore(e.id); return; }
     if (ev.target.closest('.swp')) { openSwap(e.id); return; }
     const p = ev.target.closest('.setp');
@@ -5835,10 +5864,11 @@ function renderPre() {
     if (box.hidden) S.preAt = Date.now();
     box.hidden = false;
     box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic" aria-hidden="true">' + ICON.clock + '</span><h2 id="tqT">' + say('כמה זמן יש לך היום', 'How much time do you have today') + '</h2>' +
+      '<div class="tq-row"><button type="button" class="tq-st" data-tq="-5" aria-label="' + say('5 דקות פחות', '5 minutes less') + '">−</button>' +
       '<label class="tq-in"><input id="tqMin" type="text" inputmode="numeric" maxlength="3" autocomplete="off" value="' + v0 + '" aria-label="' + say('דקות', 'Minutes') + '"><span>' + say('דקות', 'minutes') + '</span></label>' +
-      '<div class="tq-ch" role="group" aria-label="' + say('אורך האימון היום', 'Today\'s length') + '">' + TC.opts.map((m) => '<button type="button" class="tq-c" data-time="' + m + '">' + m + '</button>').join('') +
-      '<button type="button" class="tq-c all" data-time="0">' + say('הכול', 'All') + ' <small>' + TC.full + '</small></button></div>' +
-      '<button class="btn primary big" id="tqGo" type="button">' + say('המשך', 'Continue') + '</button></div>';
+      '<button type="button" class="tq-st" data-tq="5" aria-label="' + say('5 דקות יותר', '5 minutes more') + '">+</button></div>' +
+      '<button class="btn primary big" id="tqGo" type="button">' + say('המשך', 'Continue') + '</button>' +
+      '<button type="button" class="tq-full" data-time="0">' + say('האימון המלא לוקח ', 'The whole workout takes ') + '<b>' + TC.full + '</b>' + say(' דקות', ' minutes') + '</button></div>';
     return;
   }
   const mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
@@ -5867,12 +5897,16 @@ function afterPre() { renderPre(); renderHero(); renderList(); updateProgress();
 /* ---- something the workout needs is missing today (a machine taken, no cables): each exercise that needs it moves to one of the
    same kind that does not, for today only. Nothing about machines is asked in the opening; it is asked here, when it matters ---- */
 const EQK = [['bar', ['bar'], () => say('מוט', 'Barbell')], ['smith', ['smith'], () => say('סמית׳', 'Smith machine')], ['mach', ['machine', 'plates'], () => say('מכונות', 'Machines')], ['cable', ['cable'], () => say('כבלים', 'Cables')], ['db', ['db'], () => say('משקולות', 'Dumbbells')]];
+/* how hard an exercise is: 3 for the heavy lifts of the legs and the hips, 2 for the other lifts that move more than one joint, 1 for the rest */
+const hardOf = (mv) => { const L = LIB[mv] || {}; return ['squat', 'lunge', 'thrust'].includes(L.pat) || (L.pat === 'hinge' && L.eq !== 'bw') ? 3 : (L.s || []).length ? 2 : 1; };
+const HARD = () => [say('קל', 'Easy'), say('בינוני', 'Medium'), say('קשה', 'Hard')];
 const eqKind = (mv) => { const q = LIB[mv] && LIB[mv].eq, k = EQK.find((x) => x[1].includes(q)); return k ? k[0] : null; };
 const baseMv = (id) => (S.cfg.swap && S.cfg.swap[id]) || planEx(id).a;
 function eqHTML(w) {
   const s = live(w), list = exList(w, s), miss = (S.miss && S.miss[w]) || [], kinds = EQK.filter((k) => list.some((e) => eqKind(baseMv(e.id)) === k[0]));
   return '<div class="pre gate eqq"><h2>' + say('האימון של היום', 'Today\'s workout') + '</h2>' +
-    '<ol class="eq-list">' + list.map((e) => '<li class="tn-' + toneOf(LIB[e.mv].p) + (e.mv !== baseMv(e.id) ? ' sw' : '') + '"><i aria-hidden="true"></i><span>' + e.nm + '</span><small>' + cnt(e.sets, 'סטים', 'סט אחד', 'sets', 'set') + '</small></li>').join('') + '</ol>' +
+    '<ol class="eq-list">' + list.map((e) => '<li class="d' + hardOf(e.mv) + (e.mv !== baseMv(e.id) ? ' sw' : '') + '"><i aria-hidden="true"></i><span>' + e.nm + '<span class="sr"> ' + HARD()[hardOf(e.mv) - 1] + '</span></span><small>' + cnt(e.sets, 'סטים', 'סט אחד', 'sets', 'set') + '</small></li>').join('') + '</ol>' +
+    '<p class="eq-key" aria-hidden="true">' + HARD().map((t, i) => '<span class="d' + (i + 1) + '"><i></i>' + t + '</span>').join('') + '</p>' +
     (S.eqOpen && kinds.length ? '<p class="eq-q">' + say('מה חסר היום', 'What is missing today') + '</p><div class="eq-ch">' + kinds.map((k) => '<button type="button" class="eq-c" data-miss="' + k[0] + '" aria-pressed="' + miss.includes(k[0]) + '">' + k[2]() + '</button>').join('') + '</div>' +
       '<button class="btn primary big" id="eqGo" type="button">' + say('מתחילים', 'Start') + '</button>'
       : '<div class="eq-b"><button class="btn primary big" id="eqGo" type="button">' + say('מתחילים', 'Start') + '</button>' + (kinds.length ? '<button class="btn big" id="eqMiss" type="button">' + say('חסר משהו', 'Something is missing') + '</button>' : '') + '</div>') + '</div>';
@@ -6082,6 +6116,10 @@ function wireCoach() {
     S.touched = true;
     const day = (m) => { setDay(S.tab, m); S.timeAsk = null; S.open = null; S.eqAsk = window.__eq === false ? null : S.tab; S.eqOpen = false; haptic('select'); afterPre(); renderHome(); };
     if (b.dataset.time != null) { day(+b.dataset.time); return; }
+    if (b.dataset.tq) {
+      const inp = $('#tqMin'), T = timeInfo(S.tab), top = Math.ceil(T.full / 5) * 5, v = parseInt(String(inp.value).replace(/[^0-9]/g, ''), 10) || T.full;
+      inp.value = Math.max(10, Math.min(top, (+b.dataset.tq > 0 ? Math.floor(v / 5) : Math.ceil(v / 5)) * 5 + +b.dataset.tq)); inp.classList.remove('bad'); haptic('select'); return;
+    }
     if (b.id === 'tqGo') {
       const inp = $('#tqMin'), m = parseInt(String(inp.value).replace(/[^0-9]/g, ''), 10), T = timeInfo(S.tab);
       if (!(m >= 5 && m <= 300)) { inp.classList.remove('bad'); void inp.offsetWidth; inp.classList.add('bad'); inp.focus(); return; }

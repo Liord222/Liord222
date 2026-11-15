@@ -29,16 +29,19 @@ function wearLook() {
   C.cloth = css(shorts); C.clothFar = css(to(shorts, bg, 0.42));
   C.av = { hair: k.hair | 0, beard: k.beard | 0, band: gear('band'), tank: gear('tank'), beardC: hairOn ? hc : '#4A3A30', browC: hairOn ? css(to(hexRgb(hc), [0, 0, 0], 0.15)) : '#4A3A30', bandC: k.shirt === 3 ? '#F4F5F7' : '#F2B93B' };
 }
-const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null };
+const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH };
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
-function fitCanvas(cv, cssW) {
-  const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cssW * dpr));
-  if (cv.width !== w) { cv.width = w; cv.height = Math.round((w * SH) / SW); }
+/* the canvas has the shape of its box on the page (a card may be lower than the plan, on a short screen): the camera fits the demo to it */
+function fitCanvas(cv) {
+  const r = cv.getBoundingClientRect(), cw = cv.clientWidth || r.width || 340, ch = cv.clientHeight || r.height || (cw * SH) / SW;
+  const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cw * dpr)), h = Math.max(60, Math.round((w * ch) / cw));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  player.vh = (SW * h) / w;
 }
 function paintStage(t) {
   if (!player.cv) return;
   const g = player.g, k = player.cv.width / SW;
-  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
+  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false, player.vh); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
 }
 function frame(now) {
   /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
@@ -58,9 +61,11 @@ function setPlaying(on) {
 }
 function startPlayer(cv, key, body) {
   stopPlayer();
-  Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: 0.5, clock: 0, visible: true });
-  fitCanvas(cv, cv.getBoundingClientRect().width || 340);
-  if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); paintStage(player.lastT); }); player.ro.observe(cv); }
+  /* the same demo, drawn again because something else on the page changed, goes on from where it was: it never jumps back to its start */
+  const same = key === player.key;
+  Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: same ? player.lastT : 0.5, clock: same ? player.clock : 0, visible: true });
+  fitCanvas(cv); paintStage(player.lastT);
+  if (window.ResizeObserver) { player.ro = new ResizeObserver(() => { if (!player.cv) return; fitCanvas(player.cv); paintStage(player.lastT); }); player.ro.observe(cv); }
   if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; if (player.visible && player.playing && player.cv && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }); player.io.observe(cv); }
   setPlaying(player.playing);
 }
@@ -76,8 +81,8 @@ function drawThumbs() {
   wearLook(); C.bg = C.halo = C.surface;
   for (const cv of $$('.ex-thumb')) {
     cv.width = Math.round(68 * dpr); cv.height = Math.round(49 * dpr);
-    const g = cv.getContext('2d'), z = (cv.width / SW) * 1.3;
-    g.setTransform(z, 0, 0, z, cv.width / 2 - 180 * z, cv.height / 2 - 142 * z); renderAnim(g, cv.dataset.anim, 0.5, C, true);
+    const g = cv.getContext('2d'), z = cv.width / SW;
+    g.setTransform(z, 0, 0, z, 0, 0); renderAnim(g, cv.dataset.anim, 0.5, C, true);
   }
   C.bg = ''; C.halo = C.stage;
 }

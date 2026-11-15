@@ -2426,3 +2426,13 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 
 /* the body log on a narrow phone */
 @media (max-width:359px){.bd-top{grid-template-columns:62px minmax(0,1fr);gap:10px}.bd-kg .tq-in input{font-size:28px}.bd-kg .tq-st{width:40px;min-width:40px}.bd-date{padding:0 10px;gap:6px;font-size:14px}.bd-date input{font-size:15px}}
+
+/* ---- round 4: the demo is one size on a given screen. It no longer shrinks when the page has more on it (a long name, a note), which
+   made it change size from one exercise to the next; on a short screen it is lower for every exercise alike, and the camera fits the
+   picture to the card (rig.js) ---- */
+.stage{object-fit:fill}
+#exList .stage{max-height:max(150px,calc(100vh - 512px));max-height:max(150px,calc(100dvh - 512px - env(safe-area-inset-bottom,0px)))}
+@media (min-height:760px){.fx-t{min-height:86px;display:grid;align-content:center}}
+/* the two buttons on the demo sit in its top corners, where a scene is empty: at the bottom they covered the feet and the floor */
+.st-btn{top:8px;bottom:auto;min-height:34px;padding:0 10px}
+.st-btn span{font-size:13px}

@@ -532,14 +532,8 @@ function renderDock() {
   if (rest.on) tickRest();
   fitStage();
 }
-/* the demo gives up height, so that the exercise and its sets are never under the dock: the page of a workout does not scroll
-   unless there is truly no room (a banner, a very small screen) */
-function fitStage() {
-  const cv = $('#exList .stage'); if (!cv || $('#app').dataset.view !== 'workout') return;
-  cv.style.maxHeight = '';
-  const over = document.documentElement.scrollHeight - window.innerHeight;
-  if (over > 0) cv.style.maxHeight = Math.max(130, Math.floor(cv.getBoundingClientRect().height - over)) + 'px';
-}
+/* the demo has one size on a given screen, whatever the exercise and whatever else is on the page (see .stage in styles.css) */
+function fitStage() {}
 function setKg(kg) {
   const t = dockTarget(); if (!t) return;
   kg = capKg(kg);

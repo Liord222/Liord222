@@ -334,7 +334,7 @@ def('pikePushUp', {
 def('bwSquat', {
   view: 'side', mus: ['quads', 'glutes'], tempo: [1.2, 0.2, 2.0, 0.3],
   base: { legN: { to: [178, 229], bend: 1 } },
-  a: { hip: [150, 186], torso: 58, head: 70, armN: { a: [8, 4] } }, b: { hip: [176, 141], torso: 88, head: 88, armN: { a: [285, 290] } },
+  a: { hip: [150, 186], torso: 58, head: 70, armN: { a: [8, 4] } }, b: { hip: [176, 141], torso: 88, head: 88, armN: { a: [-75, -70] } },
 });
 def('bwLunge', {
   view: 'side', mus: ['quads', 'glutes'], tempo: [1.2, 0.2, 2.0, 0.3],
@@ -367,7 +367,7 @@ def('hollow', {
 def('lSit', {
   view: 'side', mus: ['abs'], tempo: [1.4, 0.6, 1.4, 0.5],
   base: { hip: [178, 164], torso: 90, armN: { to: [178, 176], bend: -1 }, footN: 'p' },
-  a: { legN: { a: [350, 348] } }, b: { legN: { a: [6, 4] } },
+  a: { legN: { a: [350, 348] } }, b: { legN: { a: [366, 364] } },
   back(g, J, C) { K.tube(g, C, [152, 176], [152, G - 4], 6); K.tube(g, C, [206, 176], [206, G - 4], 6); K.tube(g, C, [142, 176], [216, 176], 5); K.foot(g, C, 152, 24); K.foot(g, C, 206, 24); },
   front(g, J, C) { capsule(g, [168, 176], [188, 176], 5.6, C.plate); },
 });
@@ -660,7 +660,7 @@ def('dbRdl', {
 def('backExt', {
   view: 'side', mus: ['hams', 'glutes', 'lowback'], tempo: [1.2, 0.3, 1.9, 0.3],
   base: { hip: [176, 150], legN: { a: [225, 225] }, footN: 250 },
-  a: { torso: -42, head: -52, armN: { a: [262, 300], s: [0.8, 0.7] } }, b: { torso: 45, head: 45, armN: { a: [300, 110], s: [0.7, 0.7] } },
+  a: { torso: -42, head: -52, armN: { a: [213, 23], s: [0.7, 0.7] } }, b: { torso: 45, head: 45, armN: { a: [300, 110], s: [0.7, 0.7] } },
   back(g, J, C) {
     K.tube(g, C, [104, 228], [196, 170], 6); K.dark(g, C, [190, 172], [198, G - 4], 6); K.dark(g, C, [122, 216], [118, G - 4], 5); K.base(g, C, 96, 224);
     K.cushion(g, C, 164, 170, 44, 10, 45); box(g, 106, 212, 9, 30, 45, C.eq2, 3);

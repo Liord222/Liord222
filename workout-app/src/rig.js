@@ -338,10 +338,47 @@ const K = {
   bench(g, C, x1, x2, top) { K.cushion(g, C, (x1 + x2) / 2, top + 5.5, x2 - x1, 11, 0); K.dark(g, C, [x1 + 9, top + 11], [x1 + 6, G - 4], 4.5); K.dark(g, C, [x2 - 9, top + 11], [x2 - 6, G - 4], 4.5); K.foot(g, C, x1 + 6, 16); K.foot(g, C, x2 - 6, 16); },
 };
 
-function drawBackdrop(g, C, top) {
-  g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, SH);
-  if (top) return;
-  g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(26, G); g.lineTo(SW - 26, G); g.stroke(); g.lineCap = 'butt';
+/* ---- the camera. Every movement is drawn on the same 360 x 260 plan, but a plank fills a sliver of it and a smith machine all of it,
+   so on the card one demo looked small and the next one large. What a movement draws, from its first moment to its last, is measured once
+   on a small hidden canvas (the whole scene, and the lifter alone); the picture is then enlarged and centred, so every demo fills its card
+   alike and the lifter is about the same size in each. The lifter is never cut; the top of a tall machine may be.
+   A scene with a floor never floats: its floor stays in the lower part of the card.
+   vh: the height of the card in the plan's units (its width is always 360), for a card that is lower than the plan ---- */
+const CAMBOX = {}, FRAME = {}, FIT = { pad: 13, lo: 1.16, hi: 1.5, floor: 0.76 };
+function boxesOf(key, C) {
+  if (CAMBOX[key] !== undefined) return CAMBOX[key];
+  const ex = ANIM[key];
+  if (typeof document === 'undefined' || !ex) return null;
+  try {
+    const k = 0.5, w = SW * k, h = SH * k, cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const g = cv.getContext('2d', { willReadFrequently: true }), bg = 'rgb(1,254,3)', Cm = Object.assign({}, C, { bg, halo: bg, fx: 0, raw: true });
+    const box = () => ({ x0: 1e9, y0: 1e9, x1: -1, y1: -1 }), A = box(), F = ex.draw ? A : box();
+    const grow = (B) => {
+      const d = g.getImageData(0, 0, w, h).data;
+      for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i += 4) if (Math.abs(d[i] - 1) + Math.abs(d[i + 1] - 254) + Math.abs(d[i + 2] - 3) > 90) { if (x < B.x0) B.x0 = x; if (x > B.x1) B.x1 = x; if (y < B.y0) B.y0 = y; if (y > B.y1) B.y1 = y; }
+    };
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+      g.setTransform(k, 0, 0, k, 0, 0); Cm.solo = false; renderAnim(g, key, t, Cm, true); grow(A);
+      if (F !== A) { Cm.solo = true; renderAnim(g, key, t, Cm, true); grow(F); }
+    }
+    if (A.x1 < A.x0 || F.x1 < F.x0) return (CAMBOX[key] = null);
+    for (const B of F === A ? [A] : [A, F]) { B.x0 /= k; B.y0 /= k; B.x1 = (B.x1 + 1) / k; B.y1 = (B.y1 + 1) / k; }
+    return (CAMBOX[key] = { A, F });
+  } catch (e) { return null; }
+}
+function frameOf(key, C, vh) {
+  const H = Math.round(vh || SH), id = key + ':' + H;
+  if (FRAME[id]) return FRAME[id];
+  const f = { z: 1, x: 0, y: (H - SH) / 2 }, B = boxesOf(key, C);
+  if (!B) return f;
+  const A = B.A, F = B.F, s = Math.max(0.6, Math.min(1, H / SH));
+  const fit = (b) => Math.min((SW - 2 * FIT.pad) / (b.x1 - b.x0), (H - 2 * FIT.pad) / (b.y1 - b.y0)), z = Math.min(fit(F), Math.max(FIT.lo * s, Math.min(FIT.hi * s, fit(A))));
+  const within = (v, lo, hi) => (lo > hi ? (lo + hi) / 2 : Math.max(lo, Math.min(hi, v)));
+  f.z = z;
+  f.x = within(SW / 2 - ((A.x0 + A.x1) / 2) * z, FIT.pad - F.x0 * z, SW - FIT.pad - F.x1 * z);
+  f.y = within(H / 2 - ((A.y0 + A.y1) / 2) * z, FIT.pad - F.y0 * z, H - FIT.pad - F.y1 * z);
+  if (ANIM[key].view !== 'top') f.y = Math.min(H - 12 - G * z, Math.max(f.y, Math.min(H * FIT.floor - G * z, H - FIT.pad - A.y1 * z)));
+  return (FRAME[id] = f);
 }
 
 /* ---- movement registry ---- */
@@ -351,13 +388,19 @@ function def(key, o) {
   ANIM[key] = o;
 }
 /* one frame. t: 0 = lengthened position, 1 = contracted; C.fx > 0 turns on the muscle glow */
-function renderAnim(g, key, t, C, thumb) {
-  const ex = ANIM[key];
-  if (thumb) { g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, SH); } else drawBackdrop(g, C, ex.view === 'top');
+function renderAnim(g, key, t, C, thumb, vh) {
+  const ex = ANIM[key], f = C.raw ? null : frameOf(key, C, vh), fx = C.fx;
+  g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, Math.max(SH, vh || 0));
+  if (!f) { paintAnim(g, ex, t, C, thumb); return; }
+  if (!thumb && ex.view !== 'top') { const gy = f.y + G * f.z; g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(20, gy); g.lineTo(SW - 20, gy); g.stroke(); g.lineCap = 'butt'; }
+  g.save(); g.translate(f.x, f.y); g.scale(f.z, f.z); C.fx = fx * f.z;
+  try { paintAnim(g, ex, t, C, thumb); } finally { C.fx = fx; g.restore(); }
+}
+function paintAnim(g, ex, t, C, thumb) {
   if (ex.draw) { ex.draw(g, t, C, t); return; }
   const J = solve(mixPose(ex.A, ex.B, t));
   if (!thumb && ex.view === 'side') { g.fillStyle = C.shadow; g.beginPath(); g.ellipse((J.hip[0] + J.legN.c[0]) / 2, G + 4, 46, 4.2, 0, 0, TAU); g.fill(); }
-  if (ex.back) ex.back(g, J, C, t);
+  if (ex.back && !C.solo) ex.back(g, J, C, t);
   (ex.view === 'back' ? drawBack : drawSide)(g, J, C, ex, t);
-  if (ex.front) ex.front(g, J, C, t);
+  if (ex.front && !C.solo) ex.front(g, J, C, t);
 }

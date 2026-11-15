@@ -2430,6 +2430,16 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 
 /* the body log on a narrow phone */
 @media (max-width:359px){.bd-top{grid-template-columns:62px minmax(0,1fr);gap:10px}.bd-kg .tq-in input{font-size:28px}.bd-kg .tq-st{width:40px;min-width:40px}.bd-date{padding:0 10px;gap:6px;font-size:14px}.bd-date input{font-size:15px}}
+
+/* ---- round 4: the demo is one size on a given screen. It no longer shrinks when the page has more on it (a long name, a note), which
+   made it change size from one exercise to the next; on a short screen it is lower for every exercise alike, and the camera fits the
+   picture to the card (rig.js) ---- */
+.stage{object-fit:fill}
+#exList .stage{max-height:max(150px,calc(100vh - 512px));max-height:max(150px,calc(100dvh - 512px - env(safe-area-inset-bottom,0px)))}
+@media (min-height:760px){.fx-t{min-height:86px;display:grid;align-content:center}}
+/* the two buttons on the demo sit in its top corners, where a scene is empty: at the bottom they covered the feet and the floor */
+.st-btn{top:8px;bottom:auto;min-height:34px;padding:0 10px}
+.st-btn span{font-size:13px}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -4079,10 +4089,47 @@ const K = {
   bench(g, C, x1, x2, top) { K.cushion(g, C, (x1 + x2) / 2, top + 5.5, x2 - x1, 11, 0); K.dark(g, C, [x1 + 9, top + 11], [x1 + 6, G - 4], 4.5); K.dark(g, C, [x2 - 9, top + 11], [x2 - 6, G - 4], 4.5); K.foot(g, C, x1 + 6, 16); K.foot(g, C, x2 - 6, 16); },
 };
 
-function drawBackdrop(g, C, top) {
-  g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, SH);
-  if (top) return;
-  g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(26, G); g.lineTo(SW - 26, G); g.stroke(); g.lineCap = 'butt';
+/* ---- the camera. Every movement is drawn on the same 360 x 260 plan, but a plank fills a sliver of it and a smith machine all of it,
+   so on the card one demo looked small and the next one large. What a movement draws, from its first moment to its last, is measured once
+   on a small hidden canvas (the whole scene, and the lifter alone); the picture is then enlarged and centred, so every demo fills its card
+   alike and the lifter is about the same size in each. The lifter is never cut; the top of a tall machine may be.
+   A scene with a floor never floats: its floor stays in the lower part of the card.
+   vh: the height of the card in the plan's units (its width is always 360), for a card that is lower than the plan ---- */
+const CAMBOX = {}, FRAME = {}, FIT = { pad: 13, lo: 1.16, hi: 1.5, floor: 0.76 };
+function boxesOf(key, C) {
+  if (CAMBOX[key] !== undefined) return CAMBOX[key];
+  const ex = ANIM[key];
+  if (typeof document === 'undefined' || !ex) return null;
+  try {
+    const k = 0.5, w = SW * k, h = SH * k, cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const g = cv.getContext('2d', { willReadFrequently: true }), bg = 'rgb(1,254,3)', Cm = Object.assign({}, C, { bg, halo: bg, fx: 0, raw: true });
+    const box = () => ({ x0: 1e9, y0: 1e9, x1: -1, y1: -1 }), A = box(), F = ex.draw ? A : box();
+    const grow = (B) => {
+      const d = g.getImageData(0, 0, w, h).data;
+      for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i += 4) if (Math.abs(d[i] - 1) + Math.abs(d[i + 1] - 254) + Math.abs(d[i + 2] - 3) > 90) { if (x < B.x0) B.x0 = x; if (x > B.x1) B.x1 = x; if (y < B.y0) B.y0 = y; if (y > B.y1) B.y1 = y; }
+    };
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+      g.setTransform(k, 0, 0, k, 0, 0); Cm.solo = false; renderAnim(g, key, t, Cm, true); grow(A);
+      if (F !== A) { Cm.solo = true; renderAnim(g, key, t, Cm, true); grow(F); }
+    }
+    if (A.x1 < A.x0 || F.x1 < F.x0) return (CAMBOX[key] = null);
+    for (const B of F === A ? [A] : [A, F]) { B.x0 /= k; B.y0 /= k; B.x1 = (B.x1 + 1) / k; B.y1 = (B.y1 + 1) / k; }
+    return (CAMBOX[key] = { A, F });
+  } catch (e) { return null; }
+}
+function frameOf(key, C, vh) {
+  const H = Math.round(vh || SH), id = key + ':' + H;
+  if (FRAME[id]) return FRAME[id];
+  const f = { z: 1, x: 0, y: (H - SH) / 2 }, B = boxesOf(key, C);
+  if (!B) return f;
+  const A = B.A, F = B.F, s = Math.max(0.6, Math.min(1, H / SH));
+  const fit = (b) => Math.min((SW - 2 * FIT.pad) / (b.x1 - b.x0), (H - 2 * FIT.pad) / (b.y1 - b.y0)), z = Math.min(fit(F), Math.max(FIT.lo * s, Math.min(FIT.hi * s, fit(A))));
+  const within = (v, lo, hi) => (lo > hi ? (lo + hi) / 2 : Math.max(lo, Math.min(hi, v)));
+  f.z = z;
+  f.x = within(SW / 2 - ((A.x0 + A.x1) / 2) * z, FIT.pad - F.x0 * z, SW - FIT.pad - F.x1 * z);
+  f.y = within(H / 2 - ((A.y0 + A.y1) / 2) * z, FIT.pad - F.y0 * z, H - FIT.pad - F.y1 * z);
+  if (ANIM[key].view !== 'top') f.y = Math.min(H - 12 - G * z, Math.max(f.y, Math.min(H * FIT.floor - G * z, H - FIT.pad - A.y1 * z)));
+  return (FRAME[id] = f);
 }
 
 /* ---- movement registry ---- */
@@ -4092,15 +4139,21 @@ function def(key, o) {
   ANIM[key] = o;
 }
 /* one frame. t: 0 = lengthened position, 1 = contracted; C.fx > 0 turns on the muscle glow */
-function renderAnim(g, key, t, C, thumb) {
-  const ex = ANIM[key];
-  if (thumb) { g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, SH); } else drawBackdrop(g, C, ex.view === 'top');
+function renderAnim(g, key, t, C, thumb, vh) {
+  const ex = ANIM[key], f = C.raw ? null : frameOf(key, C, vh), fx = C.fx;
+  g.fillStyle = C.bg || C.stage; g.fillRect(0, 0, SW, Math.max(SH, vh || 0));
+  if (!f) { paintAnim(g, ex, t, C, thumb); return; }
+  if (!thumb && ex.view !== 'top') { const gy = f.y + G * f.z; g.strokeStyle = C.grid2; g.lineWidth = 2; g.lineCap = 'round'; g.beginPath(); g.moveTo(20, gy); g.lineTo(SW - 20, gy); g.stroke(); g.lineCap = 'butt'; }
+  g.save(); g.translate(f.x, f.y); g.scale(f.z, f.z); C.fx = fx * f.z;
+  try { paintAnim(g, ex, t, C, thumb); } finally { C.fx = fx; g.restore(); }
+}
+function paintAnim(g, ex, t, C, thumb) {
   if (ex.draw) { ex.draw(g, t, C, t); return; }
   const J = solve(mixPose(ex.A, ex.B, t));
   if (!thumb && ex.view === 'side') { g.fillStyle = C.shadow; g.beginPath(); g.ellipse((J.hip[0] + J.legN.c[0]) / 2, G + 4, 46, 4.2, 0, 0, TAU); g.fill(); }
-  if (ex.back) ex.back(g, J, C, t);
+  if (ex.back && !C.solo) ex.back(g, J, C, t);
   (ex.view === 'back' ? drawBack : drawSide)(g, J, C, ex, t);
-  if (ex.front) ex.front(g, J, C, t);
+  if (ex.front && !C.solo) ex.front(g, J, C, t);
 }
 
 /* ================================================================== movements
@@ -4439,7 +4492,7 @@ def('pikePushUp', {
 def('bwSquat', {
   view: 'side', mus: ['quads', 'glutes'], tempo: [1.2, 0.2, 2.0, 0.3],
   base: { legN: { to: [178, 229], bend: 1 } },
-  a: { hip: [150, 186], torso: 58, head: 70, armN: { a: [8, 4] } }, b: { hip: [176, 141], torso: 88, head: 88, armN: { a: [285, 290] } },
+  a: { hip: [150, 186], torso: 58, head: 70, armN: { a: [8, 4] } }, b: { hip: [176, 141], torso: 88, head: 88, armN: { a: [-75, -70] } },
 });
 def('bwLunge', {
   view: 'side', mus: ['quads', 'glutes'], tempo: [1.2, 0.2, 2.0, 0.3],
@@ -4472,7 +4525,7 @@ def('hollow', {
 def('lSit', {
   view: 'side', mus: ['abs'], tempo: [1.4, 0.6, 1.4, 0.5],
   base: { hip: [178, 164], torso: 90, armN: { to: [178, 176], bend: -1 }, footN: 'p' },
-  a: { legN: { a: [350, 348] } }, b: { legN: { a: [6, 4] } },
+  a: { legN: { a: [350, 348] } }, b: { legN: { a: [366, 364] } },
   back(g, J, C) { K.tube(g, C, [152, 176], [152, G - 4], 6); K.tube(g, C, [206, 176], [206, G - 4], 6); K.tube(g, C, [142, 176], [216, 176], 5); K.foot(g, C, 152, 24); K.foot(g, C, 206, 24); },
   front(g, J, C) { capsule(g, [168, 176], [188, 176], 5.6, C.plate); },
 });
@@ -4765,7 +4818,7 @@ def('dbRdl', {
 def('backExt', {
   view: 'side', mus: ['hams', 'glutes', 'lowback'], tempo: [1.2, 0.3, 1.9, 0.3],
   base: { hip: [176, 150], legN: { a: [225, 225] }, footN: 250 },
-  a: { torso: -42, head: -52, armN: { a: [262, 300], s: [0.8, 0.7] } }, b: { torso: 45, head: 45, armN: { a: [300, 110], s: [0.7, 0.7] } },
+  a: { torso: -42, head: -52, armN: { a: [213, 23], s: [0.7, 0.7] } }, b: { torso: 45, head: 45, armN: { a: [300, 110], s: [0.7, 0.7] } },
   back(g, J, C) {
     K.tube(g, C, [104, 228], [196, 170], 6); K.dark(g, C, [190, 172], [198, G - 4], 6); K.dark(g, C, [122, 216], [118, G - 4], 5); K.base(g, C, 96, 224);
     K.cushion(g, C, 164, 170, 44, 10, 45); box(g, 106, 212, 9, 30, 45, C.eq2, 3);
@@ -5911,16 +5964,19 @@ function wearLook() {
   C.cloth = css(shorts); C.clothFar = css(to(shorts, bg, 0.42));
   C.av = { hair: k.hair | 0, beard: k.beard | 0, band: gear('band'), tank: gear('tank'), beardC: hairOn ? hc : '#4A3A30', browC: hairOn ? css(to(hexRgb(hc), [0, 0, 0], 0.15)) : '#4A3A30', bandC: k.shirt === 3 ? '#F4F5F7' : '#F2B93B' };
 }
-const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null };
+const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH };
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
-function fitCanvas(cv, cssW) {
-  const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cssW * dpr));
-  if (cv.width !== w) { cv.width = w; cv.height = Math.round((w * SH) / SW); }
+/* the canvas has the shape of its box on the page (a card may be lower than the plan, on a short screen): the camera fits the demo to it */
+function fitCanvas(cv) {
+  const r = cv.getBoundingClientRect(), cw = cv.clientWidth || r.width || 340, ch = cv.clientHeight || r.height || (cw * SH) / SW;
+  const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.max(120, Math.round(cw * dpr)), h = Math.max(60, Math.round((w * ch) / cw));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  player.vh = (SW * h) / w;
 }
 function paintStage(t) {
   if (!player.cv) return;
   const g = player.g, k = player.cv.width / SW;
-  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
+  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false, player.vh); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
 }
 function frame(now) {
   /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
@@ -5940,9 +5996,11 @@ function setPlaying(on) {
 }
 function startPlayer(cv, key, body) {
   stopPlayer();
-  Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: 0.5, clock: 0, visible: true });
-  fitCanvas(cv, cv.getBoundingClientRect().width || 340);
-  if (window.ResizeObserver) { player.ro = new ResizeObserver((en) => { if (!player.cv) return; fitCanvas(player.cv, en[0].contentRect.width); paintStage(player.lastT); }); player.ro.observe(cv); }
+  /* the same demo, drawn again because something else on the page changed, goes on from where it was: it never jumps back to its start */
+  const same = key === player.key;
+  Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: same ? player.lastT : 0.5, clock: same ? player.clock : 0, visible: true });
+  fitCanvas(cv); paintStage(player.lastT);
+  if (window.ResizeObserver) { player.ro = new ResizeObserver(() => { if (!player.cv) return; fitCanvas(player.cv); paintStage(player.lastT); }); player.ro.observe(cv); }
   if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; if (player.visible && player.playing && player.cv && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }); player.io.observe(cv); }
   setPlaying(player.playing);
 }
@@ -5958,8 +6016,8 @@ function drawThumbs() {
   wearLook(); C.bg = C.halo = C.surface;
   for (const cv of $$('.ex-thumb')) {
     cv.width = Math.round(68 * dpr); cv.height = Math.round(49 * dpr);
-    const g = cv.getContext('2d'), z = (cv.width / SW) * 1.3;
-    g.setTransform(z, 0, 0, z, cv.width / 2 - 180 * z, cv.height / 2 - 142 * z); renderAnim(g, cv.dataset.anim, 0.5, C, true);
+    const g = cv.getContext('2d'), z = cv.width / SW;
+    g.setTransform(z, 0, 0, z, 0, 0); renderAnim(g, cv.dataset.anim, 0.5, C, true);
   }
   C.bg = ''; C.halo = C.stage;
 }
@@ -6500,14 +6558,8 @@ function renderDock() {
   if (rest.on) tickRest();
   fitStage();
 }
-/* the demo gives up height, so that the exercise and its sets are never under the dock: the page of a workout does not scroll
-   unless there is truly no room (a banner, a very small screen) */
-function fitStage() {
-  const cv = $('#exList .stage'); if (!cv || $('#app').dataset.view !== 'workout') return;
-  cv.style.maxHeight = '';
-  const over = document.documentElement.scrollHeight - window.innerHeight;
-  if (over > 0) cv.style.maxHeight = Math.max(130, Math.floor(cv.getBoundingClientRect().height - over)) + 'px';
-}
+/* the demo has one size on a given screen, whatever the exercise and whatever else is on the page (see .stage in styles.css) */
+function fitStage() {}
 function setKg(kg) {
   const t = dockTarget(); if (!t) return;
   kg = capKg(kg);

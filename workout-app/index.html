@@ -239,8 +239,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .road-h h2{font-size:24px;font-weight:800;letter-spacing:-.015em;line-height:1.2}
 .road-h p{margin-top:1px;font-size:14.5px;font-weight:500;color:var(--ink-3)}
 
-
-
 .pw-trail{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .pw-trail path{fill:none;stroke:var(--surface-3);stroke-width:9;stroke-linecap:round;stroke-dasharray:.1 17;vector-effect:non-scaling-stroke}
 .pw-trail path.on{stroke:var(--gold);stroke-width:7;stroke-dasharray:none}
@@ -268,37 +266,13 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 @keyframes chip-bob{50%{transform:translate(-50%,-5px)}}
 /* a figure beside a stop: the lifter at the stop that is next, the coach or a friend on a wide side of the road. Left and right are the screen's own */
 
-
-
-
-
-
-
-
-
-
-
-
 /* the weeks further down the road */
-
-
-
-
-
-
-
-
-
 
 /* coming to the screen, the stops of the road pop in one after the other */
 .view.enter .stop{animation:stop-in .5s cubic-bezier(.3,1.45,.5,1) both;animation-delay:calc(var(--i,0) * 70ms + 140ms)}
 
 @keyframes stop-in{from{opacity:0;transform:scale(.55)}}
 /* the weeks further down the road are drawn smaller, as a road looks from where one stands */
-
-
-
-
 
 .stop.later .dot{background:var(--wk-soft);color:color-mix(in srgb,var(--wk) 42%,var(--ink-4));box-shadow:0 5px 0 var(--coin-lip)}
 
@@ -332,23 +306,10 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 @keyframes tour-hop{45%{transform:translateY(-11px) rotate(-3deg)}}
 /* ---- the journey: a dark stage with the character today and at the hundredth level, then the levels as a road ---- */
 
-
-
-
-
-
 .ob-ladder figcaption b{white-space:nowrap}
-
-
-
-
-
-
-
 
 .lv:active{transform:none}
 .lv:active .dot{transform:scale(.93)}
-
 
 /* a stop of the journey, opened: the character at that level, on the dark stage */
 .sheet-in.lvs{gap:14px}
@@ -357,8 +318,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .lvs-fig .av{display:block;width:100%;height:auto;overflow:visible}
 .lvs-fig .av-aura{display:none}
 .lvs-fig .av-shadow{fill:rgb(0 0 0 / .3)}
-.lvs-t{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:8px 16px;border-radius:14px;background:var(--xp-soft);color:var(--xp);font-size:17px;font-weight:700;text-align:center}
-.lvs-t svg{flex:none;width:22px;height:22px}
 
 /* one workout: a progress strip, then one exercise at a time */
 .hero{display:grid;gap:10px}
@@ -428,8 +387,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .ex-body{display:grid;gap:14px}
 .stage-wrap{position:relative;display:block;width:100%;padding:0;border:0;border-radius:var(--r);overflow:hidden;background:var(--surface)}
 .stage{display:block;width:100%;max-width:100%;aspect-ratio:360/260}
-
-
 
 .muscles{font-size:13.5px;font-weight:500;line-height:1.4;color:var(--ink-2);display:flex;gap:8px;align-items:baseline;justify-content:center;padding-inline:4px}
 .muscles i{width:8px;height:8px;border-radius:50%;background:var(--muscle);flex:none}
@@ -797,7 +754,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 /* the medals, small: a row of four with their names, and all of them a tap away */
 .badges{padding:14px 4px 12px;gap:14px 2px}
 
-
 /* ---- Eilon's chat: a purple head with his face, paper behind the talk, white bubbles for him and purple ones for the lifter ---- */
 .chat{background:var(--paper)}
 .chat-h{gap:12px;padding:12px 14px;border-bottom:0;color:#fff;background:linear-gradient(135deg,#7B4DEB 0%,#5A2FCC 58%,#4521A8 100%)}
@@ -886,17 +842,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .sheet-in.ks > .ks-awn{margin:0 -20px 8px;height:34px;flex:none}
 .ks .ed-h .kicker{color:var(--ks-ink)}
 
-
-
-
-
-
-
-
-
-
-
-
 /* the shelves: all, or one part of the body */
 .ks-shelf{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px}
 .ks-shelf::-webkit-scrollbar{display:none}
@@ -921,11 +866,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .ks-it.on.try{border-color:var(--ks);box-shadow:inset 0 0 0 1.5px var(--ks)}
 
 .badges{list-style:none;margin:0;padding:18px 6px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 2px;background:var(--surface);border-radius:var(--r)}
-
-
-
-
-
 
 /* settings: a choice out of a few is a row of words; on and off is a switch */
 .st{gap:18px}
@@ -1028,8 +968,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .card.next .btn.primary:active:not(:disabled){box-shadow:0 0 0 rgb(0 0 0 / .22)}
 .w-dot{display:inline-block;flex:none;width:12px;height:12px;margin-inline-end:10px;border-radius:4px;background:var(--wk);box-shadow:0 2px 0 var(--wk-lip)}
 
-
-
 .sum .kicker{display:inline-block;padding:4px 14px;border-radius:99px;background:var(--wk-soft);color:var(--wk-ink)}
 /* the streak: a flame that flickers */
 .p-streak{display:flex;align-items:center;gap:2px;color:var(--flame-ink);padding-inline:2px}
@@ -1061,8 +999,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .tabbar button[aria-current="page"],.app.chat-on #chatOpen{background:var(--accent-soft);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent-ink)}
 .tabbar button.live::after{top:6px;inset-inline-start:calc(50% + 10px)}
 /* medals: gold, standing on its edge; the ones still to earn are grey */
-
-
 
 .sug{background:var(--surface);box-shadow:inset 0 0 0 2px var(--line),0 3px 0 var(--lip);margin-bottom:3px}
 .sug:active{transform:scale(.96)}
@@ -1151,19 +1087,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .pre-ic{display:grid;place-items:center;width:56px;height:56px;border-radius:14px;background:var(--wk-soft);color:var(--wk-ink);margin-bottom:6px}
 .pre-ic svg{width:30px;height:30px;stroke-width:2.2}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---- the details of an exercise, and "more" ---- */
 .hw-facts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .hw-facts li{display:grid;justify-items:center;gap:2px;padding:12px 6px;border-radius:14px;background:var(--wk-soft);color:var(--wk-ink)}
@@ -1248,7 +1171,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
   .hit{min-height:54px}
   .rt-adj button{height:42px}
 
-
   .sum .sum-xp{font-size:58px}
   .sum-av{width:min(140px,36vw)}
 }
@@ -1306,32 +1228,19 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .ob-coach{inset-inline-start:5%;width:43%;transition:opacity .7s ease}
 .ob-film[data-beat="2"] .ob-coach{opacity:0}
 
-
 .ob-coach .av{display:block;width:100%;height:auto;overflow:visible}
 .ob-film .av-aura,.ob-done .av-aura{display:none}
 .ob-film .av-shadow,.ob-done .av-shadow{fill:rgb(0 0 0 / .4)}
-
-
-
-
-
 
 .ob-in.film,.ob-in.fin{color:#fff}
 .ob-in.film .ob-body{grid-template-rows:auto minmax(0,1fr) auto;gap:8px}
 .ob-in.film .ob-foot,.ob-in.fin .ob-foot{background:none}
 
-
 .ob-in.film .logo-w{color:#fff;font-size:32px}
 .ob-in.film .logo-i{color:#A98BFF}
 .ob-in.film .logo small{color:rgb(255 255 255 / .55)}
 
-
-
 @keyframes cap-in{from{opacity:0;transform:translateY(10px);filter:blur(4px)}}
-
-
-
-
 
 @keyframes story{to{width:100%}}
 .ob-in.film .ob-lang{background:rgb(255 255 255 / .1)}
@@ -1372,16 +1281,13 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 .ob-opts>:nth-child(2){animation-delay:.16s}
 .ob-opts>:nth-child(3){animation-delay:.22s}
 
-
 .ob-body.in .ob-name,.ob-body.in .ob-pre,.ob-body.in .ob-build{animation:ob-rise .45s cubic-bezier(.2,.8,.2,1) .12s both}
-
 
 /* the name, large, in the middle of the screen */
 .ob-name{display:grid;justify-items:center;gap:8px;padding-top:3vh}
 .ob-in-name{box-sizing:border-box;width:100%;max-width:340px;height:66px;border:0;border-radius:16px;background:var(--surface);padding:0 18px;text-align:center;font:inherit;font-size:28px;font-weight:800;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line);transition:box-shadow .2s}
 .ob-in-name:focus{outline:none;box-shadow:inset 0 0 0 2.5px var(--accent),0 0 0 6px var(--accent-soft)}
 .ob-in-name::placeholder{color:var(--ink-4);font-weight:600}
-
 
 /* answers: a card each, with an icon on a tint; the chosen one is lit */
 .ob-opts{display:grid;gap:10px}
@@ -1409,24 +1315,10 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 
 /* the time: four tiles with the minutes large, and "any length" across the bottom */
 
-
-
-
-
-
-
-
-
-
-
 /* the look: the character in the room that is left, and under it the editor */
 .ob-in[data-k="look"] .ob-body{grid-template-rows:auto minmax(120px,1fr) auto}
 
-
 /* the photo button stands beside the head, where the figure leaves room on both sides */
-
-
-
 
 /* ---- the character editor (here and in the profile): tabs, and the choices of the tab that is open ---- */
 .lk-ed{display:grid;gap:12px;min-width:0}
@@ -1477,32 +1369,9 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
 
 /* the plan: the purple card of the workouts page, with its numbers; under it, whether Eilon asks */
 
-
-
-
-
-
-
-
-
-
-
-
-
 @keyframes plan-in{from{opacity:0;transform:translateY(20px) scale(.93)}}
 
 @keyframes shine{to{transform:translateX(130%)}}
-
-
-
-
-
-
-
-
-
-
-
 
 /* all set: on the stage again, today's character and the same one at level 100 */
 .ob-in.fin .ob-body{align-content:center}
@@ -1542,7 +1411,6 @@ button:active:not(:disabled),[role="button"]:active{transform:scale(.95);transit
   .ob-q.big .ob-eilon{width:min(110px,30vw)}
   .ob-body{gap:14px}
   .ob-opt{min-height:62px;padding:10px 14px}
-
 
   .ob-set{height:min(54vh,460px)}
 
@@ -1618,37 +1486,12 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 
 /* ---- a new exercise: the screen turns purple for a moment. Its place in the workout fills a ring that beats out waves, the word
    "new exercise" above it, the name and what it asks below. Everything rises into place; nothing comes from the side ---- */
-.xi{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(120% 80% at 50% 38%,#8A5CFF 0%,#6D3FE0 38%,#3B1E9C 100%);color:#fff;text-align:center;cursor:pointer;overflow:hidden;opacity:0;transition:opacity .22s ease}
-.xi.on{opacity:1}
-.xi.out{opacity:0;transition:opacity .26s ease}
-.xi::before{content:"";position:absolute;inset:-40% -40%;background:conic-gradient(from 0deg,transparent 0 70%,rgb(255 255 255 / .10) 80%,transparent 90%);animation:xi-spin 3.2s linear infinite;pointer-events:none}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @keyframes xi-up{from{opacity:0;transform:translateY(14px)}}
 @keyframes xi-pop{from{opacity:0;transform:scale(.6)}}
 @keyframes xi-fill{to{stroke-dashoffset:var(--to)}}
 @keyframes xi-wave{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.55)}}
-@keyframes xi-spin{to{transform:rotate(360deg)}}
 @keyframes xi-time{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@media (prefers-reduced-motion: reduce){.xi::before{display:none}}
 /* a set on its button: the weight over the reps, each with its word */
 .setp .v,.setp .hint{display:grid;justify-items:center;gap:1px;line-height:1.1;direction:inherit}
 .sv{display:inline-flex;align-items:baseline;gap:3px;white-space:nowrap}
@@ -1667,64 +1510,15 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .ob-wk-tip svg{flex:none;width:16px;height:16px}
 /* ---- the journey's map: four worlds of colour down the screen, the levels as medallions on a path, and the summit at 100 ---- */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* the sign that opens a world: its number and levels, its name, and how much of it is open */
 
-
-
-
-
-
-
 /* the levels: gold once reached, white and pulsing when next, glass when still ahead */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* the kiosk's red buttons and its shelves: after the general button styles, so that they keep their colour */
 .card.kiosk .btn.ks-go,.card.kiosk .btn.ks-go:hover{background:var(--ks);color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--ks) 70%,#000)}
 
-
 .sheet-in.ks .ks-shelf{min-height:46px;overflow-y:hidden}
 /* the journey's medallions ahead are solid, so the path does not show through them */
-
-
-
-
 
 /* the figure: a boy and a girl, whole, side by side */
 .lk-cuts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1776,7 +1570,6 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .ob-in[data-k="plan"] .ob-q:not(.big) .ob-eilon{background:var(--accent-soft);box-shadow:none}
 
 .ob-in[data-k="plan"] .ob-q:not(.big) .ob-bub h1{color:var(--ink)}
-
 
 /* ---- the plan's advanced settings, as finished as the rest: the round on a card of its own (its weeks rising toward failure,
    the easy week low again), its settings in a group with icons, and two real buttons */
@@ -1885,23 +1678,8 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .setp.cur .hint{color:var(--accent-ink)}
 
 /* ---- a new exercise: a light screen, the colour of its muscle on top with the figure doing it, and Start. It stays until Start */
-.xi{background:var(--paper);color:var(--ink);cursor:default;align-items:stretch;place-items:stretch;padding:0}
-.xi::before{display:none}
 
-
-
-
-
-
-
-.xi .mus-chips{animation:xi-up .35s ease .12s both}
-
-
-
-
-.xi #xiGo{width:100%;max-width:400px;margin-top:4px;animation:xi-up .35s ease .2s both}
 @keyframes xi-up{from{opacity:0;transform:translateY(10px)}}
-@media (prefers-reduced-motion: reduce){.xi .mus-chips,.xi #xiGo{animation:none}}
 
 /* ---- the rest: dark and neutral in both themes. A ring of ticks around the time, a soft purple arc with a dot that leads it,
    a glow that breathes slowly behind it. Green when it is fine to start, gold when the rest is over */
@@ -1985,7 +1763,6 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .eq-c[aria-pressed="true"]{background:var(--ink);color:var(--paper);text-decoration:none;box-shadow:0 3px 0 rgba(0,0,0,.25)}
 .eq-c[aria-pressed="true"]::before{content:"✕";margin-inline-end:6px;font-size:12px;opacity:.8}
 
-
 .hw-rir{margin:2px 0 0;text-align:center;font-size:14px;font-weight:700;color:var(--ink-3)}
 .gain.pr,.gain.run{animation-duration:2.7s}
 /* the card of today's time stands in the middle without making the page longer than the screen */
@@ -2001,10 +1778,8 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 /* round 3, phase 1, after the owner tried it */
 /* today's time: a number between a minus and a plus, and under the button how long the whole workout takes */
 
-
 .tq-st{height:52px;border:0;border-radius:16px;background:var(--surface);color:var(--ink);font-size:26px;font-weight:800;line-height:1;box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--lip)}
 .tq-st:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
-
 
 /* today's workout: green is easy, yellow is medium, red is hard */
 .eq-list li i{border-radius:50%;background:var(--ink-3)}
@@ -2016,14 +1791,10 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .eq-key i{width:9px;height:9px;border-radius:50%}
 /* a new exercise stands on purple with a few soft white circles; the muscles are named in quiet chips */
 
-
 .mus-chips span.p{background:var(--ink);color:var(--paper)}
 /* and "start" leaves it at once */
-.xi.out{transition:opacity .09s linear}
 /* the demo is a picture, not a button */
 .stage-wrap:active{transform:none}
-
-
 
 /* round 3, phase 1, the owner's second notes */
 /* the rest clock: yellow for the last half minute, green when it says go */
@@ -2039,20 +1810,6 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .pre-back svg{width:22px;height:22px}
 .pre-back:active{background:var(--surface-2)}
 /* a new exercise: the whole screen in purple with a few soft white circles, its number large behind, the name, and one white button */
-.xi{display:grid;place-items:center;align-items:center;padding:28px 22px calc(28px + env(safe-area-inset-bottom));color:#fff;background:radial-gradient(circle at 12% 12%,rgb(255 255 255 / .14) 0 54px,transparent 55px),radial-gradient(circle at 93% 22%,rgb(255 255 255 / .09) 0 92px,transparent 93px),radial-gradient(circle at 84% 84%,rgb(255 255 255 / .12) 0 40px,transparent 41px),radial-gradient(circle at 5% 91%,rgb(255 255 255 / .07) 0 78px,transparent 79px),radial-gradient(120% 80% at 50% 36%,#8A5CFF 0%,#6D3FE0 42%,#4A27B8 100%)}
-
-
-
-
-.xi .mus-chips span{background:rgb(255 255 255 / .14);color:#fff}
-.xi .mus-chips span.p{background:#fff;color:#4A27B8}
-
-
-
-.xi #xiGo{width:100%;max-width:400px;margin-top:10px;border:0;background:#fff;color:#4A27B8;box-shadow:0 5px 0 rgb(0 0 0 / .24)}
-.xi #xiGo:active{transform:translateY(3px);box-shadow:0 2px 0 rgb(0 0 0 / .24)}
-.xi-back{position:fixed;z-index:2;top:calc(12px + env(safe-area-inset-top,0px));inset-inline-start:12px;width:44px;height:44px;border:0;border-radius:14px;background:rgb(255 255 255 / .14);color:#fff;display:grid;place-items:center}
-.xi-back svg{width:22px;height:22px}
 
 /* the points of a set rise from the button that logged it, with a ring and sparks, and fade slowly on the way up */
 .gain{left:var(--gx,50%);top:var(--gy,70%);z-index:96;transform:translate(-50%,-50%);animation:gain-rise 1.95s cubic-bezier(.16,.84,.3,1) both}
@@ -2066,7 +1823,6 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 @keyframes gain-rise{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}10%{opacity:1;transform:translate(-50%,calc(-50% - 30px)) scale(1.28)}20%{transform:translate(-50%,calc(-50% - 44px)) scale(1)}62%{opacity:1}100%{opacity:0;transform:translate(-50%,calc(-50% - var(--dy,220px))) scale(.9)}}
 @keyframes gain-ring{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(2.4)}}
 @keyframes gain-spark{0%{opacity:0;transform:translate(0,0) scale(.3) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(1.15) rotate(140deg)}}
-
 
 /* ================================================================== round 3, phase 2: the opening */
 /* the first screen: a real skip button in one top corner and the logo in the other, Eilon in the middle, the language under the button */
@@ -2108,26 +1864,9 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .ob-chip[aria-checked="true"]{background:var(--ink);color:var(--paper);box-shadow:0 3px 0 rgb(0 0 0 / .3)}
 /* the character: the figure large on one side, the choices beside it */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* the plan: one light card, a row for each workout with its real time */
 .ob-plan2{display:grid;gap:12px;padding:14px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
 .ob-plan2.reveal{animation:plan-in .7s cubic-bezier(.2,.9,.3,1.15) both}
-
 
 .ob-wks2{list-style:none;margin:0;padding:0;display:grid}
 .ob-wks2 li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 2px}
@@ -2143,17 +1882,12 @@ button,[role="button"],.tabbar,.dock,.splash,.ob-film,.stage-wrap,canvas,.hx{-we
 .ob-plan2 .ob-wk-tip svg{width:16px;height:16px;flex:none}
 .ob-in.film .ob-top .ob-skip{background:rgb(255 255 255 / .16);color:#fff;border:0}
 
-
 .ob-wks2 em span{white-space:nowrap}
 .ob-wks2 em span{display:block}
 .ob-opts.g2 .ob-opt .ob-chk{display:none}
 .ob-opts.g2 .ob-opt b{overflow-wrap:anywhere}
 
-
-
 @media (max-height:640px){.ob-film .ob-coach{width:42%;margin-left:-21%}.ob-hello h1{font-size:28px}}
-
-
 
 .ob-opts.g2 .ob-opt b{overflow-wrap:normal}
 @media (max-width:360px){.ob-opts.g2 .ob-opt{padding:10px 8px;gap:8px}.ob-opts.g2 .ob-ic{width:34px;height:34px}.ob-opts.g2 .ob-opt b{font-size:14.5px}}
@@ -2185,20 +1919,6 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 /* achievements: each a card; one that is still ahead shows how far along it is */
 .badges{display:grid;grid-template-columns:1fr 1fr;gap:8px;list-style:none;margin:0;padding:0}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* recent workouts: light grey cards, one for each, with the day, what was done and the new bests */
 .rows.hist{display:grid;gap:8px;background:none;border-radius:0;overflow:visible}
 .rows.hist li.tap{border:0;border-radius:16px;background:var(--surface-2)}
@@ -2214,10 +1934,7 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 /* the journey: where the lifter stands among the ranks, then the prizes on the way, and at the foot the goal, small */
 .jr-top{display:grid;gap:10px;padding:16px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line),0 4px 0 var(--lip)}
 
-
-
 .jr-top h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
-
 
 .jr-ranks{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
 .jr-ranks li{display:grid;justify-items:center;gap:2px;padding:8px 0 6px;border-radius:12px;text-align:center;opacity:.38;filter:grayscale(1)}
@@ -2229,10 +1946,6 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 .stop .dot.rk{background:var(--surface);box-shadow:0 6px 0 var(--lip),inset 0 0 0 2px var(--line)}
 .stop .dot.rk .medal{width:44px;height:53px}
 .stop.later .dot.rk .medal{filter:grayscale(1);opacity:.55}
-
-
-
-
 
 /* a new rank, on the whole screen */
 .rank-up{position:fixed;inset:0;z-index:97;display:grid;place-items:center;padding:24px;background:radial-gradient(90% 70% at 50% 42%,#3B2477 0%,#150D2E 60%,#07050D 100%);color:#fff;animation:tour-fade .25s ease-out}
@@ -2256,10 +1969,6 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 .msg{font-size:15px;line-height:1.45}
 
 /* the journey's own bar stands on a light card */
-
-
-
-
 
 /* ================================================================== round 3, phase 5 (second part): the collection */
 /* how rare a thing is: a small tag in the colour of its rarity */
@@ -2312,12 +2021,6 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 .ks-it.q{display:grid;justify-items:center;gap:6px;padding:8px 6px 10px;border:1.5px dashed color-mix(in srgb,var(--rc) 50%,var(--line));border-radius:14px;background:var(--surface-2);box-shadow:none}
 .ks-it.q .ks-pic{display:grid;place-items:center;width:100%;border-radius:12px;background:color-mix(in srgb,var(--rc) 10%,var(--surface));color:color-mix(in srgb,var(--rc) 70%,var(--ink-3));font-size:34px;font-weight:800;line-height:1}
 .ks-none{margin:0;padding:18px 12px;border-radius:14px;background:var(--surface-2);font-size:14.5px;font-weight:600;text-align:center;color:var(--ink-3)}
-
-
-
-
-
-
 
 /* the box of the summary */
 #sumBox:empty{display:none}
@@ -2386,14 +2089,6 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 .bd-dot{fill:var(--ink)}
 .bd-trend{margin:0;font-size:15px;font-weight:800;color:var(--ink-2)}
 
-
-
-
-
-
-
-
-
 /* the opening: height and weight side by side */
 .ob-hw{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:340px;margin-inline:auto}
 .ob-hw .ob-nbox{width:auto}
@@ -2432,7 +2127,7 @@ body.touring .pre-back,body.touring .xi-back{display:none}
    made it change size from one exercise to the next; on a short screen it is lower for every exercise alike, and the camera fits the
    picture to the card (rig.js) ---- */
 .stage{object-fit:fill}
-#exList .stage{max-height:max(150px,calc(100vh - 512px));max-height:max(150px,calc(100dvh - 512px - env(safe-area-inset-bottom,0px)))}
+#exList .stage{max-height:max(150px,calc(100vh - 546px));max-height:max(150px,calc(100dvh - 546px - env(safe-area-inset-bottom,0px)))}
 @media (min-height:760px){.fx-t{min-height:86px;display:grid;align-content:center}}
 /* the two buttons on the demo sit in its top corners, where a scene is empty: at the bottom they covered the feet and the floor */
 .st-btn{top:8px;bottom:auto;min-height:34px;padding:0 10px}
@@ -2520,27 +2215,7 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 .cloud::after{right:22px;width:44px;height:36px}
 .cloud.c1{transform:scale(.72);opacity:.45}
 .cloud.c2{transform:scale(1.25);opacity:.34}
-.sky .pw-trail path{stroke:rgb(255 255 255 / .55);stroke-width:8}
-.sky .pw-trail path.on{stroke:#FFD23F;stroke-width:7}
-.sky-sign{position:absolute;left:50%;transform:translateX(-50%);z-index:1;display:grid;justify-items:center;gap:2px;min-width:200px;padding:10px 20px 12px;border-radius:18px;background:rgb(255 255 255 / .2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .42);text-align:center}
-.sky-sign small{font-size:12.5px;font-weight:800;opacity:.9}
-.sky-sign b{font-size:20px;font-weight:900;letter-spacing:-.01em}
 .st{position:absolute;left:0;right:0;height:0}
-.st .lv{position:absolute;left:var(--x);top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:5px;width:132px;padding:0;border:0;background:none;color:#fff;font:inherit;text-align:center}
-.st .dot{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:#fff;color:#4530A3;box-shadow:0 5px 0 rgb(0 0 0 / .22);transition:transform .12s}
-.st .lv:active .dot{transform:translateY(3px);box-shadow:0 2px 0 rgb(0 0 0 / .22)}
-.st .dot svg{width:30px;height:30px}
-.st .dot .i{stroke-width:2.2}
-.st .dot .bx{width:42px;height:42px}
-.st .dot .medal{width:38px;height:46px}
-.st.rk .dot{width:72px;height:72px;margin-top:-6px;background:linear-gradient(160deg,#FFF6D6,#FFDF8A);box-shadow:0 5px 0 #C98A12}
-.st.done .dot{background:var(--gold);color:var(--gold-ink);box-shadow:0 5px 0 var(--gold-lip)}
-.st.done .dot svg{width:28px;height:28px;stroke-width:3.4}
-.st.later .dot{background:rgb(255 255 255 / .86)}
-.st.next .dot{animation:st-pulse 1.8s ease-in-out infinite}
-@keyframes st-pulse{0%,100%{box-shadow:0 5px 0 rgb(0 0 0 / .22),0 0 0 0 rgb(255 255 255 / .6)}50%{box-shadow:0 5px 0 rgb(0 0 0 / .22),0 0 0 12px rgb(255 255 255 / 0)}}
-.st .lv b{font-size:13.5px;font-weight:800;line-height:1.2;text-shadow:0 1px 2px rgb(0 0 0 / .3);text-wrap:balance}
-.st.later .lv b{opacity:.86}
 .st-n{position:absolute;top:14px;display:grid;place-items:center;min-width:44px;height:32px;padding:0 8px;font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:#fff;text-shadow:0 1px 2px rgb(0 0 0 / .28);opacity:.92}
 .st.r .st-n{right:6px}
 .st.l .st-n{left:6px}
@@ -2558,19 +2233,11 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 @keyframes peek-l{from{transform:translateX(-90px) rotate(0)}to{transform:translateX(0) rotate(16deg)}}
 @keyframes peek-r{from{transform:translateX(90px) rotate(0)}to{transform:translateX(0) rotate(-16deg)}}
 @keyframes pop-in{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
-@media (prefers-reduced-motion:reduce){.st.next .dot,.peek-fig,.peek-say{animation:none!important}}
 /* on a phone the sky has no frame: it runs from one edge of the screen to the other, and down under the tab bar */
 @media (max-width:699px){
   .sky{margin:8px -20px calc(-1 * (var(--tabbar) + 44px + env(safe-area-inset-bottom,0px)));padding-bottom:calc(var(--tabbar) + 30px + env(safe-area-inset-bottom,0px));border-radius:30px 30px 0 0}
 }
-.lvs-t .bx{width:34px;height:34px}
-.lvs-t .medal{width:26px;height:32px}
 /* the words of the road are read on every colour of the sky: dark plates under the white letters */
-.sky-sign{background:#fff;color:#2A1F66;box-shadow:0 5px 0 rgb(0 0 0 / .14);-webkit-backdrop-filter:none;backdrop-filter:none}
-.sky-sign small{color:#6A5FA8;opacity:1}
-.st .lv b{padding:3px 9px;border-radius:99px;background:rgb(24 14 70 / .42);text-shadow:none}
-.st-n{border-radius:99px;background:rgb(24 14 70 / .34);text-shadow:none;font-size:18px}
-.st.done .st-n{background:rgb(24 14 70 / .5)}
 .peek{direction:ltr}
 .peek-say{direction:rtl}
 [dir="ltr"] .peek-say{direction:ltr}
@@ -2582,23 +2249,6 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 .tq-c:active{transform:translateY(3px);box-shadow:inset 0 0 0 1.5px var(--line),0 1px 0 var(--lip)}
 .tq-c b{font-size:30px;font-weight:900;letter-spacing:-.02em;line-height:1.05;font-variant-numeric:tabular-nums}
 .tq-c span{font-size:13.5px;font-weight:700;color:var(--ink-3)}
-/* a new exercise takes the screen: calm purple, the name in large, and what it asks on one white card */
-.xi.xo{display:grid;place-items:center;align-items:center;padding:28px 22px calc(28px + env(safe-area-inset-bottom));color:#fff;background:linear-gradient(170deg,#7A4CEC 0%,#5A2FCC 55%,#40209F 100%)}
-.xi.xo::before{display:none}
-.xo-in{position:relative;display:grid;justify-items:center;gap:14px;width:100%;max-width:420px;text-align:center}
-.xo-k{margin:0;padding:6px 15px;border-radius:99px;background:rgb(255 255 255 / .16);font-size:14.5px;font-weight:800;animation:xi-up .35s ease .02s both}
-.xo-t{margin:0;font-size:clamp(30px,9vw,40px);font-weight:900;line-height:1.08;letter-spacing:-.025em;text-wrap:balance;animation:xi-up .35s ease .08s both}
-.xo .mus-chips{animation:xi-up .35s ease .12s both}
-.xo .mus-chips span{background:rgb(255 255 255 / .15);color:#fff}
-.xo .mus-chips span.p{background:#fff;color:#4A27B8}
-.xo-rx{list-style:none;margin:8px 0 0;padding:6px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;border-radius:20px;background:#fff;color:#1E1440;box-shadow:0 6px 0 rgb(0 0 0 / .2);animation:xi-up .35s ease .16s both}
-.xo-rx li{display:grid;gap:3px;padding:10px 4px}
-.xo-rx li+li{border-inline-start:1.5px solid #E7E2F6}
-.xo-rx b{font-size:28px;font-weight:900;letter-spacing:-.02em;line-height:1;direction:ltr;color:#4A27B8;font-variant-numeric:tabular-nums}
-.xo-rx span{font-size:13.5px;font-weight:700;color:#6B6485}
-.xo-go{width:100%;margin-top:8px;border:0;background:#fff;color:#4A27B8;font-weight:900;box-shadow:0 5px 0 rgb(0 0 0 / .24);animation:xi-up .35s ease .2s both}
-.xo-go:active{transform:translateY(3px);box-shadow:0 2px 0 rgb(0 0 0 / .24)}
-@media (prefers-reduced-motion:reduce){.xo-k,.xo-t,.xo .mus-chips,.xo-rx,.xo-go{animation:none}}
 /* the points of a logged set: a gold pill that pops in under the top of the screen, a few sparks, and it is gone */
 .pts{position:fixed;z-index:96;left:50%;top:calc(env(safe-area-inset-top,0px) + 58px);display:grid;justify-items:center;gap:8px;pointer-events:none;transform:translateX(-50%);animation:pts-in 1.6s cubic-bezier(.2,.9,.3,1) both}
 .pts.pr{animation-duration:2.3s}
@@ -2766,6 +2416,101 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 @media (max-height:700px){.ob-pre{max-height:150px}}
 @media (max-width:359px){.ob-av-ed .lk-tabs button{padding:0 3px;font-size:11.5px}.ob-av-ed{padding:8px 6px}}
 @media (max-height:700px){.ob-pre{display:none}}
+
+/* ==================================================================== round 5: drawn, not iconic */
+/* ---- a new exercise: the exercise itself fills the top of the screen, moving, on a soft lilac backdrop with round lower corners;
+   under it which one it is of how many, its name, the muscles, what it asks, and Start ---- */
+:root{--xo-bg:#EEE9FF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--xo-bg:#1C1734}}
+:root[data-theme="dark"]{--xo-bg:#1C1734}
+.xi{position:fixed;inset:0;z-index:70;opacity:0;transition:opacity .22s ease}
+.xi.on{opacity:1}
+.xi.out{opacity:0;transition:opacity .1s linear}
+.xi.xo{display:block;padding:0;background:var(--paper);color:var(--ink);text-align:center;cursor:default;overflow:hidden}
+.xo-in{display:grid;grid-template-rows:auto minmax(0,1fr);width:100%;max-width:560px;height:100%;margin:0 auto}
+.xo-hero{position:relative;height:min(58vh,122vw,560px);min-height:240px;overflow:hidden;border-radius:0 0 34px 34px;background:var(--xo-bg)}
+.xo-cv{position:absolute;top:calc(58px + env(safe-area-inset-top,0px));left:0;display:block;width:100%;height:calc(100% - 58px - env(safe-area-inset-top,0px))}
+.xo-k{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:50%;margin:0;padding:7px 16px;border-radius:99px;background:var(--surface);color:var(--ink);font-size:14.5px;font-weight:800;white-space:nowrap;box-shadow:0 6px 16px -8px rgb(40 20 110 / .45);transform:translateX(-50%);animation:xo-k .35s ease both}
+.xo-body{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:14px;min-height:0;padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px))}
+.xo-info{display:grid;justify-items:center;align-content:center;gap:12px}
+.xo-t{margin:0;font-size:clamp(26px,7.6vw,34px);font-weight:900;line-height:1.1;letter-spacing:-.02em;text-wrap:balance;animation:xi-up .35s ease .05s both}
+.xi.xo .mus-chips{animation:xi-up .35s ease .1s both}
+.xo-rx{list-style:none;margin:4px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;animation:xi-up .35s ease .15s both}
+.xo-rx li{display:grid;gap:5px;padding:2px 4px}
+.xo-rx li+li{border-inline-start:1.5px solid var(--line)}
+.xo-rx b{font-size:28px;font-weight:900;letter-spacing:-.02em;line-height:1;direction:ltr;font-variant-numeric:tabular-nums}
+.xo-rx span{font-size:13.5px;font-weight:700;color:var(--ink-3)}
+.xi.xo #xiGo{width:100%;animation:xi-up .35s ease .2s both}
+.xi-back{position:absolute;z-index:2;top:calc(12px + env(safe-area-inset-top,0px));inset-inline-start:12px;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:14px;background:var(--surface);color:var(--ink);box-shadow:0 6px 16px -8px rgb(40 20 110 / .45)}
+.xi-back svg{width:22px;height:22px}
+@keyframes xo-k{from{opacity:0;transform:translate(-50%,-8px)}}
+@media (max-height:700px){.xo-hero{height:min(48vh,100vw)}.xo-body{gap:10px;padding-top:14px}.xo-info{gap:9px}.xo-rx b{font-size:24px}.xo-t{font-size:clamp(24px,7vw,30px)}}
+@media (prefers-reduced-motion:reduce){.xo-k,.xo-t,.xi.xo .mus-chips,.xo-rx,.xi.xo #xiGo{animation:none}}
+
+/* ---- the exercise screen: the drawing stands alone; "details", the muscles and "swap" make one row under it ---- */
+.ex-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.ex-row .mus-chips{flex:1;min-width:0;flex-wrap:wrap;justify-content:center;gap:4px}
+.ex-row .mus-chips span{padding:3px 8px;font-size:12.5px;white-space:nowrap}
+.ex-row .st-btn{position:relative;inset:auto;top:auto;bottom:auto;flex:none;min-height:38px;padding:0 12px}
+@media (max-width:359px){.ex-row .mus-chips span:nth-child(n+3){display:none}}
+
+/* ---- a level reached: a gold note, like the points of a set ---- */
+.toast.lvl{padding:11px 24px;background:linear-gradient(180deg,#FFE27A,#FFBF2E);color:#4A2C00;font-size:22px;font-weight:900;box-shadow:0 5px 0 #C98A12,0 16px 30px -10px rgb(0 0 0 / .5)}
+.toast.lvl svg{color:#4A2C00;fill:#4A2C00;width:24px;height:24px}
+
+/* ---- the finish: a long number fits its tile ---- */
+.sum.fin .sum-st b{font-size:clamp(22px,7vw,30px);white-space:nowrap}
+
+/* ---- the journey. The road is a road: wide and pale, a dashed line down its middle, gold where it was walked. Each station is
+   the thing itself, drawn (the medal of a rank, the gear, the box) on a small cloud; a tick when it is reached ---- */
+.sky .sky-way .rd{fill:none;stroke:rgb(255 255 255 / .3);stroke-width:22;stroke-linecap:round;stroke-dasharray:none;vector-effect:non-scaling-stroke}
+.sky .sky-way .rd.on{stroke:#FFD23F}
+.sky .sky-way .rd-c{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-dasharray:8 12;opacity:.75;vector-effect:non-scaling-stroke}
+.sky .sky-way .rd-c.on{stroke:#FFF8DC;opacity:1}
+.st .lv{position:absolute;left:var(--x);top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:4px;width:140px;padding:0;border:0;background:none;color:#fff;font:inherit;text-align:center}
+.st .dot{position:relative;display:grid;place-items:center;width:80px;height:68px}
+.st .dot::before{content:"";position:absolute;left:6px;right:6px;bottom:-3px;height:20px;border-radius:50%;background:rgb(255 255 255 / .6);box-shadow:0 0 0 6px rgb(255 255 255 / .16)}
+.st .dot>svg{position:relative;width:64px;height:64px;overflow:visible;filter:drop-shadow(0 4px 0 rgb(20 10 60 / .18));transition:transform .12s}
+.st .dot>.medal{width:54px;height:65px}
+.st .dot>.bx{width:66px;height:66px}
+.st .lv:active .dot>svg{transform:scale(.93)}
+.st.rk .dot>.medal{width:60px;height:72px;margin-top:-8px}
+.st.next .dot::before{background:rgb(255 255 255 / .75);box-shadow:0 0 0 6px rgb(255 226 122 / .35),0 0 18px 6px rgb(255 226 122 / .45)}
+.st.next .dot>svg{animation:st-float 2.4s ease-in-out infinite}
+@keyframes st-float{50%{transform:translateY(-6px)}}
+.st .ok{position:absolute;top:-2px;inset-inline-end:0;display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#22B07D;color:#fff;box-shadow:0 0 0 2.5px #fff,0 3px 6px rgb(0 0 0 / .2)}
+.st .ok svg{width:14px;height:14px;stroke-width:3.4}
+.st .lv b{padding:4px 11px;border-radius:99px;background:rgb(24 14 70 / .5);font-size:13.5px;font-weight:800;line-height:1.2;text-wrap:balance}
+.st.done .lv b{background:rgb(24 14 70 / .64)}
+.st-n{top:24px;min-width:40px;height:30px;padding:0 9px;border-radius:99px;background:rgb(255 255 255 / .2);color:#fff;font-size:17px;font-weight:900;text-shadow:none;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .45);opacity:1}
+.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
+@media (prefers-reduced-motion:reduce){.st.next .dot>svg,.peek-fig,.peek-say,.sky-pic{animation:none!important}}
+/* the name of each part of the sky on a ribbon, its ends folded back */
+.sky-sign{position:absolute;left:50%;z-index:1;transform:translateX(-50%);text-align:center;filter:drop-shadow(0 5px 0 rgb(20 10 60 / .18))}
+.sky-sign::before,.sky-sign::after{content:"";position:absolute;z-index:-1;top:13px;bottom:-9px;width:42px;background:#CFC2FF}
+.sky-sign::before{right:-28px;clip-path:polygon(0 0,100% 0,74% 50%,100% 100%,0 100%)}
+.sky-sign::after{left:-28px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,26% 50%)}
+.sky-sign .sg{position:relative;display:grid;justify-items:center;gap:1px;padding:9px 22px 11px;border-radius:12px;background:#fff;color:#2A1F66}
+.sky-sign small{font-size:12.5px;font-weight:800;color:#6A5FA8}
+.sky-sign b{font-size:20px;font-weight:900;letter-spacing:-.01em;white-space:nowrap}
+/* a sight of the sky beside each ribbon */
+.sky-pic{position:absolute;z-index:0;width:62px;height:62px;pointer-events:none;animation:sky-bob 6s ease-in-out infinite}
+.sky-pic.l{left:2.5%}
+.sky-pic.r{right:2.5%}
+.sky-pic svg{display:block;width:100%;height:100%;overflow:visible}
+@keyframes sky-bob{50%{transform:translateY(-6px)}}
+@media (max-width:359px){.sky-pic{width:46px;height:46px}}
+/* a station opened: what waits there, drawn in large */
+.lvs-t{display:grid;justify-items:center;gap:8px;padding:12px 16px 14px;border-radius:18px;background:var(--surface-2)}
+.lvs-art{display:flex;align-items:flex-end;justify-content:center;gap:10px}
+.lvs-art svg{width:76px;height:76px;overflow:visible}
+.lvs-art .medal{width:62px;height:74px}
+.lvs-t b{font-size:18px;font-weight:800;line-height:1.3}
+.pts{top:calc(env(safe-area-inset-top,0px) + 84px)}
+@media (max-width:359px){.jr-ranks b{font-size:10px;letter-spacing:-.02em}}
+/* the question of time is Eilon's: his face over it, not a clock */
+.pre-ic.coach{width:84px;height:84px;padding:0;border-radius:50%;overflow:hidden;background:var(--xo-bg);box-shadow:0 0 0 4px var(--surface),0 8px 18px -10px rgb(40 20 110 / .5)}
+.pre-ic.coach svg{display:block;width:100%;height:100%;stroke-width:1}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -5420,6 +5165,105 @@ function avatarSVG(look, lvl, o) {
     '<g class="av-fig">' + backHair + cape + backArt + legs + body + '</g>' + stars + '</svg>';
 }
 
+/* ================================================================== drawings
+   The things of the game drawn as themselves, not as icons: the box of each rarity, every piece of gear that the
+   road gives, and the sights of the sky the road climbs through. Each is one small SVG with a dark outline, in the
+   manner of the character (avatar.js). Flat fills only: a gradient would need an id of its own in the page */
+const ART_OL = ' stroke-linejoin="round" stroke-linecap="round"';
+const artSvg = (cls, body, vb) => '<svg class="' + cls + '" viewBox="' + (vb || '0 0 64 64') + '" aria-hidden="true">' + body + '</svg>';
+const shine = (x, y, k, c) => '<path transform="translate(' + x + ' ' + y + ') scale(' + k + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="' + (c || '#FFF3B0') + '"/>';
+const ART_STAR = (x, y, R, r) => { let q = ''; for (let k = 0; k < 10; k++) { const a = ((-90 + k * 36) * Math.PI) / 180, v = k % 2 ? r : R; q += (k ? 'L' : 'M') + (x + Math.cos(a) * v).toFixed(1) + ' ' + (y + Math.sin(a) * v).toFixed(1); } return q + 'Z'; };
+
+/* ---- a box of the collection: a chest in the colour of its rarity, with metal bands and a lock. The rarer, the richer:
+   gold bands from rare on, sparkles from epic on, and a glow behind the mythic and the legendary ---- */
+const BOX_TRIM = [['#E9ECF2', '#8E95A3'], ['#FFD15C', '#B07A0C'], ['#FFD15C', '#B07A0C'], ['#FFD15C', '#B07A0C'], ['#FFE07A', '#B07A0C'], ['#FFFFFF', '#B9912E']];
+function boxSVG(kind) {
+  kind = BOXES[kind] ? kind : 0;
+  const c = BOXES[kind].c, dk = tone(c, -0.38), lt = tone(c, 0.34), t = BOX_TRIM[kind], ol = ' stroke="' + dk + '" stroke-width="1.8"' + ART_OL;
+  const band = (x, y, h) => '<rect x="' + x + '" y="' + y + '" width="6.5" height="' + h + '" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.3"/>';
+  return artSvg('bx r' + kind,
+    (kind >= 4 ? '<circle cx="32" cy="33" r="30" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".2"/><circle cx="32" cy="33" r="22" fill="' + (kind === 5 ? '#FFE27A' : c) + '" opacity=".18"/>' : '') +
+    '<ellipse cx="32" cy="58.4" rx="25" ry="3.6" fill="rgb(0 0 0 / .2)"/>' +
+    '<g class="bx-body"><path d="M8.5 31.5H55.5V52Q55.5 56.5 51 56.5H13Q8.5 56.5 8.5 52Z" fill="' + c + '"' + ol + '/>' +
+    '<path d="M10 48.5H54V52Q54 55 51 55H13Q10 55 10 52Z" fill="' + dk + '" opacity=".28"/>' + band(13.5, 31.5, 25) + band(44, 31.5, 25) + '</g>' +
+    '<g class="bx-lid"><path d="M6.5 32V22.5Q6.5 12 17 12H47Q57.5 12 57.5 22.5V32Z" fill="' + c + '"' + ol + '/>' +
+    '<path d="M11.5 21.5Q12 16.2 17.5 16.2H46.5Q52 16.2 52.5 21.5" stroke="' + lt + '" stroke-width="3.2" fill="none"' + ART_OL + '/>' +
+    band(13.5, 12, 19) + band(44, 12, 19) + '<rect x="5.5" y="29" width="53" height="5.5" rx="2.6" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.3"/></g>' +
+    '<path d="M26 27H38V37Q38 41.8 32 43.6Q26 41.8 26 37Z" fill="' + t[0] + '" stroke="' + t[1] + '" stroke-width="1.5"' + ART_OL + '/>' +
+    (kind >= 4 ? '<path d="M32 29.6L35.4 33.4L32 38.6L28.6 33.4Z" fill="' + (kind === 5 ? '#8B4DF0' : '#FF5A7A') + '" stroke="' + t[1] + '" stroke-width="1"/><path d="M32 29.6L33.6 33.4H30.4Z" fill="#fff" opacity=".55"/>'
+      : '<circle cx="32" cy="32.8" r="2.4" fill="' + dk + '"/><path d="M30.8 34.2H33.2L33.8 38.6H30.2Z" fill="' + dk + '"/>') +
+    (kind >= 3 ? shine(7, 9, 0.9) + shine(57.5, 6.5, 0.7) : '') + (kind >= 5 ? shine(60, 41, 0.6) + shine(3.5, 44, 0.55) : ''));
+}
+
+/* ---- the gear of the road, each drawn as the thing itself (see REWARDS) ---- */
+const GOLD = ['#F6C343', '#B07A0C', '#FFE59A'];
+const GEAR_ART = {
+  /* a sweatband: a ring seen from a little above, its inside dark, two tails tied at the side */
+  band: () => '<path d="M50 32L60 47L54.5 49L46.5 35Z" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.6"' + ART_OL + '/><path d="M46 34L50.5 52H45L42.5 35Z" fill="#E0A92C" stroke="' + GOLD[1] + '" stroke-width="1.6"' + ART_OL + '/>' +
+    '<path d="M9 25A23 8.5 0 0 1 55 25L55 33A23 8.5 0 0 0 9 33Z" fill="#B88416" stroke="' + GOLD[1] + '" stroke-width="1.6"/>' +
+    '<path d="M9 25A23 8.5 0 0 0 55 25L55 33A23 8.5 0 0 1 9 33Z" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.8"' + ART_OL + '/>' +
+    '<path d="M11.5 30.6A20.5 7 0 0 0 52.5 30.6" stroke="#fff" stroke-width="2.2" fill="none" opacity=".75"' + ART_OL + '/>',
+  /* wrist wraps: two rolls, each with its end loose and a strip to close it */
+  wraps: () => [[1, 9, 0], [8, 33, 1]].map(([x, y, k]) => '<g transform="translate(' + x + ' ' + y + ') scale(1.12)"><path d="M18 2H44Q48 2 48 6V12Q48 16 44 16H18Z" fill="' + (k ? '#D6D9E1' : '#ECEEF2') + '" stroke="#7E8594" stroke-width="1.6"' + ART_OL + '/>' +
+    '<rect x="34" y="3.5" width="9" height="11" rx="2" fill="#6D3FE0" stroke="#3B1E96" stroke-width="1.3"/>' +
+    '<ellipse cx="18" cy="9" rx="8" ry="9" fill="#F7F8FA" stroke="#7E8594" stroke-width="1.6"/><path d="M18 3.6A4.6 5.4 0 1 1 13.4 9A3 3.4 0 1 1 18 12.4" stroke="#A3A9B5" stroke-width="1.4" fill="none"' + ART_OL + '/>' +
+    '<path d="M24 5V13M29 5V13" stroke="#C9CED8" stroke-width="1.3"' + ART_OL + '/></g>').join(''),
+  /* a lifting belt: leather, stitched, with a gold buckle in front */
+  belt: () => '<path d="M5 22Q32 33 59 22V40Q32 51 5 40Z" fill="#5A3E2B" stroke="#2E1F14" stroke-width="1.8"' + ART_OL + '/>' +
+    '<path d="M7.5 26.2Q32 36.4 56.5 26.2M7.5 36.2Q32 46.4 56.5 36.2" stroke="#C9A27A" stroke-width="1.1" stroke-dasharray="2.4 2.2" fill="none"/>' +
+    '<rect x="23" y="26" width="18" height="19" rx="3.5" fill="none" stroke="' + GOLD[1] + '" stroke-width="5"/><rect x="23" y="26" width="18" height="19" rx="3.5" fill="none" stroke="' + GOLD[0] + '" stroke-width="3"/><path d="M32 28.5V42.5" stroke="' + GOLD[0] + '" stroke-width="2.6"' + ART_OL + '/>',
+  /* a tank top in the purple of gymi */
+  tank: () => '<path d="M21 6H27Q32 17 37 6H43Q43 20 50 24V55Q32 59 14 55V24Q21 20 21 6Z" fill="#6D3FE0" stroke="#3B1E96" stroke-width="1.8"' + ART_OL + '/>' +
+    '<path d="M27 6Q32 17 37 6" stroke="#8D66F0" stroke-width="2.4" fill="none"' + ART_OL + '/><path d="M18 27Q19 40 18 51" stroke="#fff" stroke-width="2.4" fill="none" opacity=".28"' + ART_OL + '/>' +
+    '<path d="M26.5 37H37.5" stroke="#fff" stroke-width="2.6"' + ART_OL + '/><rect x="22.5" y="32" width="4.5" height="10" rx="1.4" fill="#fff"/><rect x="37" y="32" width="4.5" height="10" rx="1.4" fill="#fff"/>',
+  /* a gold medal on a purple ribbon */
+  medal: () => '<path d="M17 3H28L36 29H25Z" fill="#6D3FE0" stroke="#3B1E96" stroke-width="1.6"' + ART_OL + '/><path d="M47 3H36L28 29H39Z" fill="#8D66F0" stroke="#3B1E96" stroke-width="1.6"' + ART_OL + '/>' +
+    '<circle cx="32" cy="41" r="15" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="2.2"/><circle cx="32" cy="41" r="10.5" fill="none" stroke="' + GOLD[1] + '" stroke-width="1.2" opacity=".6"/>' +
+    '<path d="' + ART_STAR(32, 41.5, 7, 3) + '" fill="' + GOLD[1] + '"/><path d="M21.5 35A12 12 0 0 1 30 28" stroke="#fff" stroke-width="2" fill="none" opacity=".6"' + ART_OL + '/>',
+  /* a crown: five points, a band with stones */
+  crown: () => '<path d="M9 45L6 17L20 29L32 8L44 29L58 17L55 45Z" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.9"' + ART_OL + '/>' +
+    '<path d="M11 24L13 41M32 15V40" stroke="' + GOLD[2] + '" stroke-width="2" opacity=".8"' + ART_OL + '/>' +
+    '<rect x="8" y="43" width="48" height="11" rx="3" fill="#E0A92C" stroke="' + GOLD[1] + '" stroke-width="1.9"/>' +
+    '<circle cx="6" cy="16" r="3" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.4"/><circle cx="32" cy="7" r="3.2" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.4"/><circle cx="58" cy="16" r="3" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.4"/>' +
+    '<circle cx="20" cy="48.5" r="3" fill="#E0364B"/><path d="M32 45L35.2 48.5L32 52L28.8 48.5Z" fill="#6D3FE0"/><circle cx="44" cy="48.5" r="3" fill="#2B78F0"/>',
+  /* a cape: deep purple with a gold edge, a lighter lining at the shoulders, a clasp */
+  cape: () => '<path d="M19 9Q32 15 45 9L47 13Q57 34 58 56Q47 52 41 58Q32 52 23 58Q17 52 6 56Q7 34 17 13Z" fill="#3B1E96" stroke="' + GOLD[0] + '" stroke-width="2.4"' + ART_OL + '/>' +
+    '<path d="M19 9Q32 15 45 9L46 14Q32 22 18 14Z" fill="#6D3FE0"/><path d="M24 22Q22 40 20 54M40 22Q42 40 44 54" stroke="#2A1470" stroke-width="2" fill="none" opacity=".7"' + ART_OL + '/>' +
+    '<circle cx="23.5" cy="13" r="3.2" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.2"/><circle cx="40.5" cy="13" r="3.2" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.2"/><path d="M26.5 13.5Q32 16.4 37.5 13.5" stroke="' + GOLD[0] + '" stroke-width="1.6" fill="none"/>',
+  /* a gold sneaker, seen from the side, a star on it */
+  kicks: () => '<path d="M7 41Q7 29 16 27L28 25Q34 15 43 18L49 30Q58 33 58.5 42V45H7Z" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.8"' + ART_OL + '/>' +
+    '<path d="M30 25L35 32M34.5 21.5L39.5 28.5M39 19L43.5 25" stroke="#fff" stroke-width="2" opacity=".9"' + ART_OL + '/><path d="' + ART_STAR(20.5, 36, 5, 2.2) + '" fill="#fff" opacity=".9"/>' +
+    '<path d="M5.5 43.5H60V47Q60 52.5 54 52.5H11Q5.5 52.5 5.5 47Z" fill="#FFF6DC" stroke="' + GOLD[1] + '" stroke-width="1.8"' + ART_OL + '/><path d="M8 48.5H57" stroke="#E7D7A8" stroke-width="1.4"/>',
+  /* a title belt: black straps, gold side plates, the big plate in front with a stone */
+  champ: () => '<path d="M3 25H61V41H3Z" fill="#1E1D24" stroke="#000" stroke-width="1.6"' + ART_OL + '/><path d="M3 28H61M3 38H61" stroke="#3A3946" stroke-width="1.2"/>' +
+    '<rect x="6" y="27" width="9" height="12" rx="2" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.3"/><rect x="49" y="27" width="9" height="12" rx="2" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.3"/>' +
+    '<ellipse cx="32" cy="33" rx="17.5" ry="15" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="2"/><ellipse cx="32" cy="33" rx="12.5" ry="10.5" fill="#FFD76A" stroke="' + GOLD[1] + '" stroke-width="1.3"/>' +
+    '<path d="' + ART_STAR(32, 33.5, 7.5, 3.2) + '" fill="#E0364B" stroke="#9E1F30" stroke-width="1"/><path d="M19.5 26A14 12 0 0 1 28 20.5" stroke="#fff" stroke-width="2" fill="none" opacity=".6"' + ART_OL + '/>',
+  /* a golden glow: rays around a bright core */
+  glow: () => { let r = ''; for (let k = 0; k < 12; k++) { const a = (k * 30 * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a), w = k % 2 ? 0.1 : 0.14, L = k % 2 ? 24 : 30; r += '<path d="M' + (32 + Math.cos(a - w) * 13).toFixed(1) + ' ' + (32 + Math.sin(a - w) * 13).toFixed(1) + 'L' + (32 + c * L).toFixed(1) + ' ' + (32 + s * L).toFixed(1) + 'L' + (32 + Math.cos(a + w) * 13).toFixed(1) + ' ' + (32 + Math.sin(a + w) * 13).toFixed(1) + 'Z" fill="' + GOLD[0] + '" opacity=".85"/>'; }
+    return '<circle cx="32" cy="32" r="27" fill="#FFE27A" opacity=".22"/>' + r + '<circle cx="32" cy="32" r="14" fill="#FFE59A" stroke="' + GOLD[1] + '" stroke-width="1.8"/><circle cx="32" cy="32" r="9" fill="#FFF6D6"/>' + shine(27.5, 27.5, 0.6, '#fff'); },
+  /* the stars of a titan: three gold stars and their sparkle */
+  stars: () => '<path d="' + ART_STAR(25, 30, 17, 7.4) + '" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.9"' + ART_OL + '/><path d="' + ART_STAR(49, 17, 9.5, 4.2) + '" fill="#FFE07A" stroke="' + GOLD[1] + '" stroke-width="1.6"' + ART_OL + '/>' +
+    '<path d="' + ART_STAR(48, 46, 11, 4.8) + '" fill="' + GOLD[0] + '" stroke="' + GOLD[1] + '" stroke-width="1.7"' + ART_OL + '/><path d="M18 24L22 21" stroke="#fff" stroke-width="2.2" opacity=".7"' + ART_OL + '/>' + shine(9, 52, 0.7) + shine(57, 31, 0.5),
+};
+const gearSVG = (k) => artSvg('gear g-' + k, (GEAR_ART[k] || GEAR_ART.medal)());
+/* what a station of the road holds, drawn: the medal of a rank, the gear, or the box */
+const stationArt = (st) => (st.rank > 0 ? medalSVG(st.rank) : st.gear ? gearSVG(st.gear.k) : boxSVG(Math.max(0, st.box)));
+
+/* ---- the sights of the sky, one for each part of the road: a balloon in the blue, a paper plane, the low sun of the evening,
+   the moon of the night and a ringed planet at the top ---- */
+const SKY_ART = [
+  () => '<path d="M32 4C17 4 10 15 10 25C10 37 24 43 28 48H36C40 43 54 37 54 25C54 15 47 4 32 4Z" fill="#FF6B6B" stroke="#B83A3A" stroke-width="1.6"' + ART_OL + '/>' +
+    '<path d="M32 4C26 8 23 16 23 25C23 35 27 43 29 48H35C37 43 41 35 41 25C41 16 38 8 32 4Z" fill="#FFF3E0" stroke="#B83A3A" stroke-width="1.2"' + ART_OL + '/><path d="M32 4V48" stroke="#B83A3A" stroke-width="1.2"/>' +
+    '<path d="M28 48L27 53M36 48L37 53" stroke="#7A5233" stroke-width="1.3"/><rect x="25" y="53" width="14" height="9" rx="2" fill="#B5814F" stroke="#7A5233" stroke-width="1.4"/><path d="M15 17Q17 11 23 8" stroke="#fff" stroke-width="2.4" fill="none" opacity=".6"' + ART_OL + '/>',
+  () => '<path d="M4 34L60 12L30 50Z" fill="#fff" stroke="#9AA6C4" stroke-width="1.5"' + ART_OL + '/><path d="M60 12L24 38L30 50Z" fill="#DCE3F3" stroke="#9AA6C4" stroke-width="1.5"' + ART_OL + '/><path d="M60 12L24 38L18 42Z" fill="#C2CCE6" stroke="#9AA6C4" stroke-width="1.2"' + ART_OL + '/>',
+  () => '<circle cx="32" cy="32" r="30" fill="#FFE29A" opacity=".35"/><circle cx="32" cy="32" r="22" fill="#FFC75A" opacity=".55"/><circle cx="32" cy="32" r="16" fill="#FFB238"/><path d="M22 27A11 11 0 0 1 30 20" stroke="#FFF1C9" stroke-width="2.4" fill="none"' + ART_OL + '/>',
+  () => '<circle cx="34" cy="32" r="28" fill="#FFF3C4" opacity=".12"/><path d="M38 6A26 26 0 1 0 58 44A20 20 0 1 1 38 6Z" fill="#FFF0B8" stroke="#E2CB7A" stroke-width="1.4"' + ART_OL + '/><circle cx="22" cy="38" r="3.2" fill="#E9D79A"/><circle cx="30" cy="50" r="2.2" fill="#E9D79A"/><circle cx="17" cy="24" r="2" fill="#E9D79A"/>',
+  () => '<circle cx="32" cy="32" r="16" fill="#FF8FB8" stroke="#B2457A" stroke-width="1.6"/><path d="M18 26Q32 31 46 25M17 35Q32 40 47 34" stroke="#E46A9A" stroke-width="2.4" fill="none"' + ART_OL + '/>' +
+    '<ellipse cx="32" cy="34" rx="29" ry="8" fill="none" stroke="#FFD76A" stroke-width="3" transform="rotate(-14 32 34)"/>' + shine(8, 10, 0.6, '#fff') + shine(56, 54, 0.5, '#fff'),
+];
+const skyArt = (k) => artSvg('sky-art a' + k, SKY_ART[k % SKY_ART.length]());
+
 /* ================================================================== helpers + data layer */
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -6270,7 +6114,9 @@ function wearLook() {
   C.cloth = css(shorts); C.clothFar = css(to(shorts, bg, 0.42));
   C.av = { hair: k.hair | 0, beard: k.beard | 0, band: gear('band'), tank: gear('tank'), beardC: hairOn ? hc : '#4A3A30', browC: hairOn ? css(to(hexRgb(hc), [0, 0, 0], 0.15)) : '#4A3A30', bandC: k.shirt === 3 ? '#F4F5F7' : '#F2B93B' };
 }
-const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH };
+const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH, bg: '' };
+/* a colour of the page, by the name of its variable */
+const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
 /* the canvas has the shape of its box on the page (a card may be lower than the plan, on a short screen): the camera fits the demo to it */
 function fitCanvas(cv) {
@@ -6282,7 +6128,7 @@ function fitCanvas(cv) {
 function paintStage(t) {
   if (!player.cv) return;
   const g = player.g, k = player.cv.width / SW;
-  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false, player.vh); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
+  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = player.bg || C.surface; renderAnim(g, player.key, t, C, false, player.vh); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
 }
 function frame(now) {
   /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
@@ -6300,11 +6146,12 @@ function setPlaying(on) {
   player.playing = on; cancelAnimationFrame(player.raf); player.raf = 0;
   if (on) { player.last = 0; player.raf = requestAnimationFrame(frame); } else paintStage(player.lastT);
 }
-function startPlayer(cv, key, body) {
+function startPlayer(cv, key, body, bg) {
   stopPlayer();
-  /* the same demo, drawn again because something else on the page changed, goes on from where it was: it never jumps back to its start */
+  /* the same demo, drawn again because something else on the page changed, goes on from where it was: it never jumps back to its start.
+     bg: a backdrop of its own (the screen of a new exercise); otherwise the colour of the card */
   const same = key === player.key;
-  Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: same ? player.lastT : 0.5, clock: same ? player.clock : 0, visible: true });
+  Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: same ? player.lastT : 0.5, clock: same ? player.clock : 0, visible: true, bg: bg || '' });
   fitCanvas(cv); paintStage(player.lastT);
   if (window.ResizeObserver) { player.ro = new ResizeObserver(() => { if (!player.cv) return; fitCanvas(player.cv); paintStage(player.lastT); }); player.ro.observe(cv); }
   if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; if (player.visible && player.playing && player.cv && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }); player.io.observe(cv); }
@@ -6397,7 +6244,6 @@ function openWorkout(w, picked) {
 const minsOf = (list, w) => (w != null && dayOf(w) ? workMins(list) : fullMins(list));
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
 /* the line of the road between two stops: (x in hundredths of the width, y in pixels), a curve that leaves and arrives straight down */
-const trailSeg = (x1, y1, x2, y2, on) => '<path' + (on ? ' class="on"' : '') + ' d="M' + x1 + ' ' + y1 + 'C' + x1 + ' ' + (y1 + (y2 - y1) / 2) + ' ' + x2 + ' ' + (y2 - (y2 - y1) / 2) + ' ' + x2 + ' ' + y2 + '"/>';
 /* when a workout of this week was finished, in a word: today, yesterday, the day of the week, a date once a week has passed */
 function dayWord(ts) {
   const d0 = new Date().setHours(0, 0, 0, 0), days = Math.round((d0 - new Date(ts).setHours(0, 0, 0, 0)) / 864e5);
@@ -6540,10 +6386,9 @@ const musOf = (mv) => { const L = LIB[mv]; return [L.p].concat(L.s || []).filter
 const musChips = (mv) => '<p class="mus-chips tn-' + toneOf(LIB[mv].p) + '">' + musOf(mv).map((k, j) => '<span' + (j ? '' : ' class="p"') + '>' + muName(k) + '</span>').join('') + '</p>';
 /* the demo, with the two things that are a tap away on its corners (the details of the exercise, and everything else), then the sets */
 function bodyHTML(e) {
-  return '<div class="stage-box"><div class="stage-wrap"><canvas class="stage" aria-hidden="true"></canvas></div>' +
-    '<button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט', 'Details') + '</span></button>' +
-    '<button class="st-btn swp" type="button"' + (rowsOf(live(S.tab), e.id).some(isDone) ? ' aria-disabled="true"' : '') + '>' + ICON.swap + '<span>' + say('החלף תרגיל', 'Swap') + '</span></button></div>' +
-    musChips(e.mv) +
+  return '<div class="stage-box"><div class="stage-wrap"><canvas class="stage" aria-hidden="true"></canvas></div></div>' +
+    '<div class="ex-row"><button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט', 'Details') + '</span></button>' + musChips(e.mv) +
+    '<button class="st-btn swp" type="button"' + (rowsOf(live(S.tab), e.id).some(isDone) ? ' aria-disabled="true"' : '') + '>' + ICON.swap + '<span>' + say('החלף', 'Swap') + '</span></button></div>' +
     '<div class="sets">' + setsHTML(e) + '</div>';
 }
 /* the exercise on screen: its name and what is asked, the demo, and the sets */
@@ -6903,7 +6748,7 @@ function commitSet(e, i, kg, reps) {
   S.justDone = { ex: e.id, i, t: Date.now() };
   delete S.drafts[e.id]; refreshEx(e); renderTabs(); renderHistory(); renderPre(); markLive();
   /* a new level is told once the points of the set have had their moment */
-  renderMe(); setTimeout(() => bump(lv0), reduced ? 0 : 1700);
+  renderMe(); setTimeout(() => bump(lv0), reduced ? 0 : pr ? 2300 : 1600);
   S.why = false;
   if (!left(e)) askFb(e, s);
   if (!list.some(left)) { stopRest(); return; }
@@ -6953,8 +6798,8 @@ function stopRest() {
   if (nxt && S.view === 'workout') { if (S.open !== nxt.id) openEx(nxt.id, true, 1); exIntro(nxt); }
   renderDock(); refreshOpenSets();
 }
-/* ---- a new exercise takes the screen for a moment: purple, its place in the workout, its name, the muscles and what it asks.
-   It goes by itself, or at a tap. kick: the word above it (a new exercise, or the first of the workout) ---- */
+/* ---- a new exercise takes the screen: the exercise itself, drawn in large and moving on a soft backdrop, and under it its place
+   in the workout, its name, the muscles and what it asks. It stays until "start" ---- */
 const XI = { t: 0, g: 0 };
 function exIntro(e, first) {
   const box = $('#exIntro'); if (!box || !e || window.__intro === false) return;
@@ -6967,11 +6812,12 @@ function exIntro(e, first) {
   box.className = 'xi xo';
   box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
     (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
-    '<p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p>' +
-    '<h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
-    '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul>' +
-    '<button class="btn big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div>';
+    '<div class="xo-hero"><canvas class="xo-cv" aria-hidden="true"></canvas><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p></div>' +
+    '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
+    '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
+    '<button class="btn primary big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
   box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
+  startPlayer($('.xo-cv', box), e.a, box, cssVar('--xo-bg'));
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
 }
@@ -7529,6 +7375,12 @@ function popGain(n, pr) {
   for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + 0.4, d = pr ? 92 : 74; sparks += '<i style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d * 0.55).toFixed(0) + 'px;--sd:' + (i * 18) + 'ms"></i>'; }
   f.innerHTML = '<span class="pts-pill">' + sparks + glyph('bolt') + '<b>' + Ltr('+' + nf(n)) + '</b></span>' + (pr ? '<span class="pts-tag">' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : '');
   document.body.appendChild(f); setTimeout(() => f.remove(), pr ? 2400 : 1700);
+  requestAnimationFrame(() => { f.style.top = laneTop(); });
+}
+/* where a short note shows: over the top of the drawing of the exercise when it is on the screen; otherwise where its style puts it */
+function laneTop() {
+  const st = !rest.on && S.view === 'workout' && !S.sheet && document.querySelector('#exList .stage-wrap'), r = st && st.getBoundingClientRect();
+  return r && r.top > 40 && r.top < innerHeight - 160 ? Math.round(r.top + 14) + 'px' : '';
 }
 /* the touch each press gets, by what the control is */
 function touchOf(b) {
@@ -7587,7 +7439,7 @@ function renderPre() {
     $('#app').classList.add('pre-on');
     if (box.hidden) S.preAt = Date.now();
     box.hidden = false;
-    box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic" aria-hidden="true">' + ICON.clock + '</span><h2 id="tqT">' + say('יש לך פחות זמן היום', 'Less time today') + '</h2>' +
+    box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic coach" aria-hidden="true">' + coachFace() + '</span><h2 id="tqT">' + say('יש לך פחות זמן היום', 'Less time today') + '</h2>' +
       '<div class="tq-ch" role="group" aria-labelledby="tqT">' + TC.opts.map((m) => '<button type="button" class="tq-c" data-time="' + m + '"><b>' + m + '</b><span>' + say('דקות', 'minutes') + '</span></button>').join('') + '</div>' +
       '<button class="btn primary big" id="tqSkip" type="button" data-time="0">' + say('לא ממהר', 'No rush') + '</button></div>';
     return;
@@ -7921,15 +7773,6 @@ function renderProfile(P) {
 }
 /* ---- the kiosk. Coins buy boxes, one for each rarity; a box gives one thing that is not owned yet; what is owned goes on and off
    with a tap. Under the boxes stand what is sold for a limited time and the shield of the streak, and then the whole collection ---- */
-function boxSVG(kind) {
-  const c = BOXES[kind].c, spark = (x, y, k) => '<path transform="translate(' + x + ' ' + y + ') scale(' + k + ')" d="M0-5L1.300-1.300L5 0L1.300 1.300L0 5L-1.300 1.300L-5 0L-1.300-1.300Z" fill="#FFE27A"/>';
-  return '<svg class="bx" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="22" ry="3.2" fill="rgb(0 0 0 / .14)"/>' +
-    '<g class="bx-body"><rect x="9" y="27" width="46" height="30" rx="5" fill="' + c + '"/><rect x="9" y="27" width="46" height="6" fill="rgb(0 0 0 / .18)"/></g>' +
-    '<text class="bx-mark" x="32" y="51.5" text-anchor="middle" font-family="Rubik,Arial,sans-serif" font-weight="900" font-size="19" fill="#fff">?</text>' +
-    '<g class="bx-lid"><rect x="6" y="17" width="52" height="12" rx="4" fill="' + c + '"/><rect x="6" y="17" width="52" height="5" rx="2.5" fill="#fff" opacity=".22"/><rect x="27.500" y="17" width="9" height="12" fill="#fff"/>' +
-    '<path d="M32 17C26 7 16 9 19 15C21 18 27 18 32 17ZM32 17C38 7 48 9 45 15C43 18 37 18 32 17Z" fill="#fff"/></g>' +
-    (kind >= 3 ? spark(9, 12, 0.9) + spark(55, 9, 0.7) : '') + (kind >= 5 ? spark(52, 40, 0.6) + spark(12, 44, 0.5) : '') + '</svg>';
-}
 const SHIELD_SVG = '<svg class="shd" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2.5L36 8V20.500C36 30.500 29.500 37.500 20 41.500C10.500 37.500 4 30.500 4 20.500V8Z" fill="#2B78F0" stroke="#1B4FB0" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 7.500L31.500 11.500V20.500C31.500 27.800 26.900 33 20 36.300Z" fill="#fff" opacity=".22"/><path d="M19.500 12C23.500 15.500 25.500 18.500 25.500 22.300C25.500 25.700 23.100 28 20 28C16.900 28 14.500 25.700 14.500 22.300C14.500 20 15.500 18.400 17 16.900C17.300 18.700 18 19.700 19.100 20.200C18.600 17.300 18.700 14.600 19.500 12Z" fill="#FFD76A"/></svg>';
 const rareTag = (it) => { const r = rareOf(it); return '<span class="rr" style="--rc:' + r.c + '">' + nm(r) + '</span>'; };
 const ownedOf = (shop) => SHOP.filter((x) => shop.own.includes(x.id)).length;
@@ -8131,7 +7974,9 @@ function bodyClick(ev) {
 /* ---- the journey: the road of the levels, from the first to the hundredth, up through the sky. Every two or three levels a
    station waits (a rank, gear, or a box for the collection); the number of its level stands at the edge of the screen, and the
    lifter's own head leans in from the side at the station that comes next ---- */
-const J_PITCH = 104, J_HEAD = 96, J_AMP = 15;
+const J_PITCH = 112, J_HEAD = 104, J_AMP = 16, J_MID = 34;
+/* a stretch of the road from one station to the next: it leaves each one straight down and bends between them */
+const roadPath = (x1, y1, x2, y2) => 'M' + x1 + ' ' + y1 + 'C' + x1 + ' ' + (y1 + (y2 - y1) / 2) + ' ' + x2 + ' ' + (y2 - (y2 - y1) / 2) + ' ' + x2 + ' ' + y2;
 /* the road crosses five skies, each with its levels and its name */
 const WORLDS = [{ to: 10, he: 'הצעדים הראשונים', en: 'First steps' }, { to: 25, he: 'בונים כוח', en: 'Building strength' }, { to: 45, he: 'מעל העננים', en: 'Above the clouds' }, { to: 70, he: 'שמי הלילה', en: 'The night sky' }, { to: 100, he: 'אל הפסגה', en: 'To the summit' }];
 const worldOf = (at) => { const k = WORLDS.findIndex((w) => at <= w.to); return k < 0 ? WORLDS.length - 1 : k; };
@@ -8139,10 +7984,15 @@ const toGo = (n) => (n === 1 ? say('עוד רמה אחת', '1 level to go') : sa
 function renderJourney(P) {
   P = P || meNow();
   const lvl = P.L.lvl, nx = nextReward(lvl), N = STATIONS.length, pos = [];
-  let y = 26, world = -1, signs = '', stops = '', trail = '', deco = '';
+  let y = 26, world = -1, signs = '', stops = '', road = '', lane = '', deco = '';
   STATIONS.forEach((st, i) => {
     const k = worldOf(st.at);
-    if (k !== world) { world = k; signs += '<div class="sky-sign" style="top:' + y + 'px"><small>' + say('רמות ' + (k ? WORLDS[k - 1].to + 1 : 1) + '–' + WORLDS[k].to, 'Levels ' + (k ? WORLDS[k - 1].to + 1 : 1) + '–' + WORLDS[k].to) + '</small><b>' + say(WORLDS[k].he, WORLDS[k].en) + '</b></div>'; y += J_HEAD; }
+    if (k !== world) {
+      world = k;
+      signs += '<div class="sky-sign" style="top:' + y + 'px"><span class="sg"><small>' + say('רמות ' + (k ? WORLDS[k - 1].to + 1 : 1) + '–' + WORLDS[k].to, 'Levels ' + (k ? WORLDS[k - 1].to + 1 : 1) + '–' + WORLDS[k].to) + '</small><b>' + say(WORLDS[k].he, WORLDS[k].en) + '</b></span></div>' +
+        '<span class="sky-pic ' + (k % 2 ? 'l' : 'r') + '" style="top:' + (y - 4) + 'px" aria-hidden="true">' + skyArt(k) + '</span>';
+      y += J_HEAD;
+    }
     pos[i] = { x: st.at === 100 ? 50 : 50 + (i % 2 ? 1 : -1) * J_AMP, y, r: i % 2 === 1 };
     y += J_PITCH;
   });
@@ -8151,10 +8001,10 @@ function renderJourney(P) {
     const p = pos[i], s = lvl >= st.at ? 'done' : nx && nx.at === st.at ? 'next' : 'later';
     stops += '<li class="st ' + s + (p.r ? ' r' : ' l') + (st.rank > 0 ? ' rk' : st.box >= 0 ? ' bxs' : ' gr') + (st.at === 100 ? ' top' : '') + '" style="top:' + p.y + 'px;--x:' + p.x + '%;--i:' + Math.min(i, 8) + (st.box >= 0 ? ';--rc:' + RARE[st.box].c : '') + '">' +
       '<span class="st-n" aria-hidden="true">' + st.at + '</span>' +
-      '<button class="lv" type="button" data-lv="' + st.at + '" aria-label="' + say('רמה ', 'Level ') + st.at + ': ' + nm(st) + (s === 'done' ? say(', הושג', ', reached') : '') + '"><span class="dot" aria-hidden="true">' + (st.rank > 0 ? medalSVG(st.rank) : s === 'done' ? ICON.check : st.box >= 0 ? boxSVG(st.box) : glyph('gift')) + '</span><b>' + nm(st) + '</b></button>' +
+      '<button class="lv" type="button" data-lv="' + st.at + '" aria-label="' + say('רמה ', 'Level ') + st.at + ': ' + nm(st) + (s === 'done' ? say(', הושג', ', reached') : '') + '"><span class="dot" aria-hidden="true">' + stationArt(st) + (s === 'done' ? '<i class="ok">' + ICON.check + '</i>' : '') + '</span><b>' + nm(st) + '</b></button>' +
       /* the lifter looks in from the far side of the station that comes next, and says how far it is */
       (s === 'next' ? '<span class="peek" aria-hidden="true"><span class="peek-fig">' + avatar(lvl, { bust: true }) + '</span><span class="peek-say">' + toGo(st.at - lvl) + '</span></span>' : '') + '</li>';
-    if (i < N - 1) trail += trailSeg(p.x, p.y + 30, pos[i + 1].x, pos[i + 1].y + 30, lvl >= STATIONS[i + 1].at);
+    if (i < N - 1) { const on = lvl >= STATIONS[i + 1].at, d = roadPath(p.x, p.y + J_MID, pos[i + 1].x, pos[i + 1].y + J_MID); road += '<path class="rd' + (on ? ' on' : '') + '" d="' + d + '"/>'; lane += '<path class="rd-c' + (on ? ' on' : '') + '" d="' + d + '"/>'; }
   });
   /* clouds low in the sky, stars high in it: placed by a fixed rule, so the sky is the same on every visit */
   for (let k = 0, cy = 70; cy < H * 0.62; k++, cy += 150 + (k % 3) * 46) deco += '<i class="cloud c' + (k % 3) + '" style="top:' + cy + 'px;' + (k % 2 ? 'left' : 'right') + ':' + (-6 + (k % 4) * 9) + '%"></i>';
@@ -8162,7 +8012,7 @@ function renderJourney(P) {
     '<div class="jr-now">' + medalSVG(P.rank.i) + '<b>' + nm(P.rank) + '</b></div>' +
     '<ol class="jr-ranks" aria-label="' + say('הדרגות', 'The ranks') + '">' + RANKS.map((k, i) => '<li class="' + (i < P.rank.i ? 'done' : i === P.rank.i ? 'cur' : '') + '">' + medalSVG(i) + '<b>' + nm(k) + '</b></li>').join('') + '</ol></section>' +
     '<section class="sky" aria-label="' + say('הפרסים בדרך', 'The prizes on the way') + '"><h2 class="sky-h">' + say('הפרסים בדרך', 'The prizes on the way') + '</h2>' +
-    '<div class="sky-road" style="height:' + H + 'px"><span class="sky-stars" aria-hidden="true"></span>' + deco + '<svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol>' + signs + '</div></section>';
+    '<div class="sky-road" style="height:' + H + 'px"><span class="sky-stars" aria-hidden="true"></span>' + deco + '<svg class="pw-trail sky-way" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + road + lane + '</svg><ol>' + stops + '</ol>' + signs + '</div></section>';
 }
 /* a station of the journey, opened: the character as it will stand at that level, and what waits there */
 function openLevel(at) {
@@ -8172,7 +8022,7 @@ function openLevel(at) {
   sh.innerHTML = '<div class="sheet-in lvs" role="dialog" aria-modal="true" aria-label="' + say('רמה ', 'Level ') + at + '"><div class="ed-h"><div><p class="kicker">' + (lvl >= at ? say('כבר שלך', 'Already yours') : toGo(at - lvl)) + '</p><h2>' + say('רמה ', 'Level ') + at + '</h2></div>' +
     '<button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="lvs-stage"><span class="lvs-fig">' + avatar(at, { flex: true }) + '</span></div>' +
-    '<p class="lvs-t">' + (st.rank > 0 ? medalSVG(st.rank) : st.box >= 0 ? boxSVG(st.box) : glyph('gift')) + '<span>' + nm(st) + (st.rank > 0 && st.gear ? say(' · ', ' · ') + nm(st.gear) : '') + '</span></p>' +
+    '<div class="lvs-t"><span class="lvs-art">' + stationArt(st) + (st.rank > 0 && st.gear ? gearSVG(st.gear.k) : '') + '</span><b>' + nm(st) + (st.rank > 0 && st.gear ? say(' · ', ' · ') + nm(st.gear) : '') + '</b></div>' +
     '<button class="btn primary big" data-close="1" type="button">' + (lvl >= at ? say('סגור', 'Close') : say('ממשיכים לשם', 'On my way')) + '</button></div>';
   sh.hidden = false;
 }
@@ -8385,7 +8235,7 @@ function meSheetChange(ev) { if (ev.target.id === 'lkName') setName(ev.target.va
 /* ---- rewards: a short note when the level climbs mid-workout, and the celebration at the end ---- */
 let toastT = 0;
 function toast(html) {
-  const el = $('#toast'); el.innerHTML = html; el.hidden = false; el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
+  const el = $('#toast'); el.innerHTML = html; el.hidden = false; el.style.top = laneTop(); el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
   clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2800);
 }
 function chime() {
@@ -8399,7 +8249,7 @@ function chime() {
     });
   } catch (e) { /* no audio here */ }
 }
-function levelUp(lvl) { toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); chime(); haptic('heavy'); }
+function levelUp(lvl) { for (const o of $$('.pts')) o.remove(); toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); $('#toast').classList.add('lvl'); setTimeout(() => $('#toast').classList.remove('lvl'), 2800); chime(); haptic('heavy'); }
 /* call after a change that may have earned points, with the level from before it */
 function bump(lv0) { if (lv0 && S.lvl > lv0) levelUp(S.lvl); }
 /* paper confetti over a sheet: a short burst that falls and stops by itself */

@@ -24,7 +24,7 @@ function renderPre() {
     $('#app').classList.add('pre-on');
     if (box.hidden) S.preAt = Date.now();
     box.hidden = false;
-    box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic" aria-hidden="true">' + ICON.clock + '</span><h2 id="tqT">' + say('יש לך פחות זמן היום', 'Less time today') + '</h2>' +
+    box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic coach" aria-hidden="true">' + coachFace() + '</span><h2 id="tqT">' + say('יש לך פחות זמן היום', 'Less time today') + '</h2>' +
       '<div class="tq-ch" role="group" aria-labelledby="tqT">' + TC.opts.map((m) => '<button type="button" class="tq-c" data-time="' + m + '"><b>' + m + '</b><span>' + say('דקות', 'minutes') + '</span></button>').join('') + '</div>' +
       '<button class="btn primary big" id="tqSkip" type="button" data-time="0">' + say('לא ממהר', 'No rush') + '</button></div>';
     return;

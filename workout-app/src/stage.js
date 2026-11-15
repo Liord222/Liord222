@@ -29,7 +29,9 @@ function wearLook() {
   C.cloth = css(shorts); C.clothFar = css(to(shorts, bg, 0.42));
   C.av = { hair: k.hair | 0, beard: k.beard | 0, band: gear('band'), tank: gear('tank'), beardC: hairOn ? hc : '#4A3A30', browC: hairOn ? css(to(hexRgb(hc), [0, 0, 0], 0.15)) : '#4A3A30', bandC: k.shirt === 3 ? '#F4F5F7' : '#F2B93B' };
 }
-const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH };
+const player = { key: null, cv: null, g: null, raf: 0, clock: 0, last: 0, playing: !reduced, visible: true, btn: null, lastT: 0.5, io: null, ro: null, vh: SH, bg: '' };
+/* a colour of the page, by the name of its variable */
+const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const ease = (x) => (1 - Math.cos(Math.PI * x)) / 2;
 /* the canvas has the shape of its box on the page (a card may be lower than the plan, on a short screen): the camera fits the demo to it */
 function fitCanvas(cv) {
@@ -41,7 +43,7 @@ function fitCanvas(cv) {
 function paintStage(t) {
   if (!player.cv) return;
   const g = player.g, k = player.cv.width / SW;
-  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = C.surface; renderAnim(g, player.key, t, C, false, player.vh); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
+  wearLook(); g.setTransform(k, 0, 0, k, 0, 0); C.fx = k; C.bg = C.halo = player.bg || C.surface; renderAnim(g, player.key, t, C, false, player.vh); C.fx = 0; C.bg = ''; C.halo = C.stage; player.lastT = t;
 }
 function frame(now) {
   /* out of sight (another tab of the app, scrolled away, or under the coach's chat on a phone): no more frames are asked for until it is seen again */
@@ -59,11 +61,12 @@ function setPlaying(on) {
   player.playing = on; cancelAnimationFrame(player.raf); player.raf = 0;
   if (on) { player.last = 0; player.raf = requestAnimationFrame(frame); } else paintStage(player.lastT);
 }
-function startPlayer(cv, key, body) {
+function startPlayer(cv, key, body, bg) {
   stopPlayer();
-  /* the same demo, drawn again because something else on the page changed, goes on from where it was: it never jumps back to its start */
+  /* the same demo, drawn again because something else on the page changed, goes on from where it was: it never jumps back to its start.
+     bg: a backdrop of its own (the screen of a new exercise); otherwise the colour of the card */
   const same = key === player.key;
-  Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: same ? player.lastT : 0.5, clock: same ? player.clock : 0, visible: true });
+  Object.assign(player, { cv, key, g: cv.getContext('2d'), btn: cv.closest('.stage-wrap'), lastT: same ? player.lastT : 0.5, clock: same ? player.clock : 0, visible: true, bg: bg || '' });
   fitCanvas(cv); paintStage(player.lastT);
   if (window.ResizeObserver) { player.ro = new ResizeObserver(() => { if (!player.cv) return; fitCanvas(player.cv); paintStage(player.lastT); }); player.ro.observe(cv); }
   if (window.IntersectionObserver) { player.io = new IntersectionObserver((en) => { player.visible = en[0].isIntersecting; if (player.visible && player.playing && player.cv && !player.raf) { player.last = 0; player.raf = requestAnimationFrame(frame); } }); player.io.observe(cv); }

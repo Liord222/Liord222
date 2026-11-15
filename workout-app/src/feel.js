@@ -89,6 +89,12 @@ function popGain(n, pr) {
   for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + 0.4, d = pr ? 92 : 74; sparks += '<i style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d * 0.55).toFixed(0) + 'px;--sd:' + (i * 18) + 'ms"></i>'; }
   f.innerHTML = '<span class="pts-pill">' + sparks + glyph('bolt') + '<b>' + Ltr('+' + nf(n)) + '</b></span>' + (pr ? '<span class="pts-tag">' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : '');
   document.body.appendChild(f); setTimeout(() => f.remove(), pr ? 2400 : 1700);
+  requestAnimationFrame(() => { f.style.top = laneTop(); });
+}
+/* where a short note shows: over the top of the drawing of the exercise when it is on the screen; otherwise where its style puts it */
+function laneTop() {
+  const st = !rest.on && S.view === 'workout' && !S.sheet && document.querySelector('#exList .stage-wrap'), r = st && st.getBoundingClientRect();
+  return r && r.top > 40 && r.top < innerHeight - 160 ? Math.round(r.top + 14) + 'px' : '';
 }
 /* the touch each press gets, by what the control is */
 function touchOf(b) {

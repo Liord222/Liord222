@@ -65,7 +65,6 @@ function openWorkout(w, picked) {
 const minsOf = (list, w) => (w != null && dayOf(w) ? workMins(list) : fullMins(list));
 const bannerHTML = () => (S.banner ? '<div class="banner ' + (S.bannerKind || '') + '"><p>' + S.banner + '</p><button type="button" class="banner-x" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' : '');
 /* the line of the road between two stops: (x in hundredths of the width, y in pixels), a curve that leaves and arrives straight down */
-const trailSeg = (x1, y1, x2, y2, on) => '<path' + (on ? ' class="on"' : '') + ' d="M' + x1 + ' ' + y1 + 'C' + x1 + ' ' + (y1 + (y2 - y1) / 2) + ' ' + x2 + ' ' + (y2 - (y2 - y1) / 2) + ' ' + x2 + ' ' + y2 + '"/>';
 /* when a workout of this week was finished, in a word: today, yesterday, the day of the week, a date once a week has passed */
 function dayWord(ts) {
   const d0 = new Date().setHours(0, 0, 0, 0), days = Math.round((d0 - new Date(ts).setHours(0, 0, 0, 0)) / 864e5);
@@ -208,10 +207,9 @@ const musOf = (mv) => { const L = LIB[mv]; return [L.p].concat(L.s || []).filter
 const musChips = (mv) => '<p class="mus-chips tn-' + toneOf(LIB[mv].p) + '">' + musOf(mv).map((k, j) => '<span' + (j ? '' : ' class="p"') + '>' + muName(k) + '</span>').join('') + '</p>';
 /* the demo, with the two things that are a tap away on its corners (the details of the exercise, and everything else), then the sets */
 function bodyHTML(e) {
-  return '<div class="stage-box"><div class="stage-wrap"><canvas class="stage" aria-hidden="true"></canvas></div>' +
-    '<button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט', 'Details') + '</span></button>' +
-    '<button class="st-btn swp" type="button"' + (rowsOf(live(S.tab), e.id).some(isDone) ? ' aria-disabled="true"' : '') + '>' + ICON.swap + '<span>' + say('החלף תרגיל', 'Swap') + '</span></button></div>' +
-    musChips(e.mv) +
+  return '<div class="stage-box"><div class="stage-wrap"><canvas class="stage" aria-hidden="true"></canvas></div></div>' +
+    '<div class="ex-row"><button class="st-btn how" type="button">' + ICON.info + '<span>' + say('פירוט', 'Details') + '</span></button>' + musChips(e.mv) +
+    '<button class="st-btn swp" type="button"' + (rowsOf(live(S.tab), e.id).some(isDone) ? ' aria-disabled="true"' : '') + '>' + ICON.swap + '<span>' + say('החלף', 'Swap') + '</span></button></div>' +
     '<div class="sets">' + setsHTML(e) + '</div>';
 }
 /* the exercise on screen: its name and what is asked, the demo, and the sets */
@@ -571,7 +569,7 @@ function commitSet(e, i, kg, reps) {
   S.justDone = { ex: e.id, i, t: Date.now() };
   delete S.drafts[e.id]; refreshEx(e); renderTabs(); renderHistory(); renderPre(); markLive();
   /* a new level is told once the points of the set have had their moment */
-  renderMe(); setTimeout(() => bump(lv0), reduced ? 0 : 1700);
+  renderMe(); setTimeout(() => bump(lv0), reduced ? 0 : pr ? 2300 : 1600);
   S.why = false;
   if (!left(e)) askFb(e, s);
   if (!list.some(left)) { stopRest(); return; }
@@ -621,8 +619,8 @@ function stopRest() {
   if (nxt && S.view === 'workout') { if (S.open !== nxt.id) openEx(nxt.id, true, 1); exIntro(nxt); }
   renderDock(); refreshOpenSets();
 }
-/* ---- a new exercise takes the screen for a moment: purple, its place in the workout, its name, the muscles and what it asks.
-   It goes by itself, or at a tap. kick: the word above it (a new exercise, or the first of the workout) ---- */
+/* ---- a new exercise takes the screen: the exercise itself, drawn in large and moving on a soft backdrop, and under it its place
+   in the workout, its name, the muscles and what it asks. It stays until "start" ---- */
 const XI = { t: 0, g: 0 };
 function exIntro(e, first) {
   const box = $('#exIntro'); if (!box || !e || window.__intro === false) return;
@@ -635,11 +633,12 @@ function exIntro(e, first) {
   box.className = 'xi xo';
   box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
     (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
-    '<p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p>' +
-    '<h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
-    '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul>' +
-    '<button class="btn big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div>';
+    '<div class="xo-hero"><canvas class="xo-cv" aria-hidden="true"></canvas><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p></div>' +
+    '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
+    '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
+    '<button class="btn primary big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
   box.classList.remove('out'); box.hidden = false; void box.offsetWidth; box.classList.add('on');
+  startPlayer($('.xo-cv', box), e.a, box, cssVar('--xo-bg'));
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
 }

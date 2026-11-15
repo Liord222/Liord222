@@ -67,15 +67,6 @@ function renderProfile(P) {
 }
 /* ---- the kiosk. Coins buy boxes, one for each rarity; a box gives one thing that is not owned yet; what is owned goes on and off
    with a tap. Under the boxes stand what is sold for a limited time and the shield of the streak, and then the whole collection ---- */
-function boxSVG(kind) {
-  const c = BOXES[kind].c, spark = (x, y, k) => '<path transform="translate(' + x + ' ' + y + ') scale(' + k + ')" d="M0-5L1.300-1.300L5 0L1.300 1.300L0 5L-1.300 1.300L-5 0L-1.300-1.300Z" fill="#FFE27A"/>';
-  return '<svg class="bx" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="22" ry="3.2" fill="rgb(0 0 0 / .14)"/>' +
-    '<g class="bx-body"><rect x="9" y="27" width="46" height="30" rx="5" fill="' + c + '"/><rect x="9" y="27" width="46" height="6" fill="rgb(0 0 0 / .18)"/></g>' +
-    '<text class="bx-mark" x="32" y="51.5" text-anchor="middle" font-family="Rubik,Arial,sans-serif" font-weight="900" font-size="19" fill="#fff">?</text>' +
-    '<g class="bx-lid"><rect x="6" y="17" width="52" height="12" rx="4" fill="' + c + '"/><rect x="6" y="17" width="52" height="5" rx="2.5" fill="#fff" opacity=".22"/><rect x="27.500" y="17" width="9" height="12" fill="#fff"/>' +
-    '<path d="M32 17C26 7 16 9 19 15C21 18 27 18 32 17ZM32 17C38 7 48 9 45 15C43 18 37 18 32 17Z" fill="#fff"/></g>' +
-    (kind >= 3 ? spark(9, 12, 0.9) + spark(55, 9, 0.7) : '') + (kind >= 5 ? spark(52, 40, 0.6) + spark(12, 44, 0.5) : '') + '</svg>';
-}
 const SHIELD_SVG = '<svg class="shd" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2.5L36 8V20.500C36 30.500 29.500 37.500 20 41.500C10.500 37.500 4 30.500 4 20.500V8Z" fill="#2B78F0" stroke="#1B4FB0" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 7.500L31.500 11.500V20.500C31.500 27.800 26.900 33 20 36.300Z" fill="#fff" opacity=".22"/><path d="M19.500 12C23.500 15.500 25.500 18.500 25.500 22.300C25.500 25.700 23.100 28 20 28C16.900 28 14.500 25.700 14.500 22.300C14.500 20 15.500 18.400 17 16.900C17.300 18.700 18 19.700 19.100 20.200C18.600 17.300 18.700 14.600 19.500 12Z" fill="#FFD76A"/></svg>';
 const rareTag = (it) => { const r = rareOf(it); return '<span class="rr" style="--rc:' + r.c + '">' + nm(r) + '</span>'; };
 const ownedOf = (shop) => SHOP.filter((x) => shop.own.includes(x.id)).length;
@@ -277,7 +268,9 @@ function bodyClick(ev) {
 /* ---- the journey: the road of the levels, from the first to the hundredth, up through the sky. Every two or three levels a
    station waits (a rank, gear, or a box for the collection); the number of its level stands at the edge of the screen, and the
    lifter's own head leans in from the side at the station that comes next ---- */
-const J_PITCH = 104, J_HEAD = 96, J_AMP = 15;
+const J_PITCH = 112, J_HEAD = 104, J_AMP = 16, J_MID = 34;
+/* a stretch of the road from one station to the next: it leaves each one straight down and bends between them */
+const roadPath = (x1, y1, x2, y2) => 'M' + x1 + ' ' + y1 + 'C' + x1 + ' ' + (y1 + (y2 - y1) / 2) + ' ' + x2 + ' ' + (y2 - (y2 - y1) / 2) + ' ' + x2 + ' ' + y2;
 /* the road crosses five skies, each with its levels and its name */
 const WORLDS = [{ to: 10, he: 'הצעדים הראשונים', en: 'First steps' }, { to: 25, he: 'בונים כוח', en: 'Building strength' }, { to: 45, he: 'מעל העננים', en: 'Above the clouds' }, { to: 70, he: 'שמי הלילה', en: 'The night sky' }, { to: 100, he: 'אל הפסגה', en: 'To the summit' }];
 const worldOf = (at) => { const k = WORLDS.findIndex((w) => at <= w.to); return k < 0 ? WORLDS.length - 1 : k; };
@@ -285,10 +278,15 @@ const toGo = (n) => (n === 1 ? say('עוד רמה אחת', '1 level to go') : sa
 function renderJourney(P) {
   P = P || meNow();
   const lvl = P.L.lvl, nx = nextReward(lvl), N = STATIONS.length, pos = [];
-  let y = 26, world = -1, signs = '', stops = '', trail = '', deco = '';
+  let y = 26, world = -1, signs = '', stops = '', road = '', lane = '', deco = '';
   STATIONS.forEach((st, i) => {
     const k = worldOf(st.at);
-    if (k !== world) { world = k; signs += '<div class="sky-sign" style="top:' + y + 'px"><small>' + say('רמות ' + (k ? WORLDS[k - 1].to + 1 : 1) + '–' + WORLDS[k].to, 'Levels ' + (k ? WORLDS[k - 1].to + 1 : 1) + '–' + WORLDS[k].to) + '</small><b>' + say(WORLDS[k].he, WORLDS[k].en) + '</b></div>'; y += J_HEAD; }
+    if (k !== world) {
+      world = k;
+      signs += '<div class="sky-sign" style="top:' + y + 'px"><span class="sg"><small>' + say('רמות ' + (k ? WORLDS[k - 1].to + 1 : 1) + '–' + WORLDS[k].to, 'Levels ' + (k ? WORLDS[k - 1].to + 1 : 1) + '–' + WORLDS[k].to) + '</small><b>' + say(WORLDS[k].he, WORLDS[k].en) + '</b></span></div>' +
+        '<span class="sky-pic ' + (k % 2 ? 'l' : 'r') + '" style="top:' + (y - 4) + 'px" aria-hidden="true">' + skyArt(k) + '</span>';
+      y += J_HEAD;
+    }
     pos[i] = { x: st.at === 100 ? 50 : 50 + (i % 2 ? 1 : -1) * J_AMP, y, r: i % 2 === 1 };
     y += J_PITCH;
   });
@@ -297,10 +295,10 @@ function renderJourney(P) {
     const p = pos[i], s = lvl >= st.at ? 'done' : nx && nx.at === st.at ? 'next' : 'later';
     stops += '<li class="st ' + s + (p.r ? ' r' : ' l') + (st.rank > 0 ? ' rk' : st.box >= 0 ? ' bxs' : ' gr') + (st.at === 100 ? ' top' : '') + '" style="top:' + p.y + 'px;--x:' + p.x + '%;--i:' + Math.min(i, 8) + (st.box >= 0 ? ';--rc:' + RARE[st.box].c : '') + '">' +
       '<span class="st-n" aria-hidden="true">' + st.at + '</span>' +
-      '<button class="lv" type="button" data-lv="' + st.at + '" aria-label="' + say('רמה ', 'Level ') + st.at + ': ' + nm(st) + (s === 'done' ? say(', הושג', ', reached') : '') + '"><span class="dot" aria-hidden="true">' + (st.rank > 0 ? medalSVG(st.rank) : s === 'done' ? ICON.check : st.box >= 0 ? boxSVG(st.box) : glyph('gift')) + '</span><b>' + nm(st) + '</b></button>' +
+      '<button class="lv" type="button" data-lv="' + st.at + '" aria-label="' + say('רמה ', 'Level ') + st.at + ': ' + nm(st) + (s === 'done' ? say(', הושג', ', reached') : '') + '"><span class="dot" aria-hidden="true">' + stationArt(st) + (s === 'done' ? '<i class="ok">' + ICON.check + '</i>' : '') + '</span><b>' + nm(st) + '</b></button>' +
       /* the lifter looks in from the far side of the station that comes next, and says how far it is */
       (s === 'next' ? '<span class="peek" aria-hidden="true"><span class="peek-fig">' + avatar(lvl, { bust: true }) + '</span><span class="peek-say">' + toGo(st.at - lvl) + '</span></span>' : '') + '</li>';
-    if (i < N - 1) trail += trailSeg(p.x, p.y + 30, pos[i + 1].x, pos[i + 1].y + 30, lvl >= STATIONS[i + 1].at);
+    if (i < N - 1) { const on = lvl >= STATIONS[i + 1].at, d = roadPath(p.x, p.y + J_MID, pos[i + 1].x, pos[i + 1].y + J_MID); road += '<path class="rd' + (on ? ' on' : '') + '" d="' + d + '"/>'; lane += '<path class="rd-c' + (on ? ' on' : '') + '" d="' + d + '"/>'; }
   });
   /* clouds low in the sky, stars high in it: placed by a fixed rule, so the sky is the same on every visit */
   for (let k = 0, cy = 70; cy < H * 0.62; k++, cy += 150 + (k % 3) * 46) deco += '<i class="cloud c' + (k % 3) + '" style="top:' + cy + 'px;' + (k % 2 ? 'left' : 'right') + ':' + (-6 + (k % 4) * 9) + '%"></i>';
@@ -308,7 +306,7 @@ function renderJourney(P) {
     '<div class="jr-now">' + medalSVG(P.rank.i) + '<b>' + nm(P.rank) + '</b></div>' +
     '<ol class="jr-ranks" aria-label="' + say('הדרגות', 'The ranks') + '">' + RANKS.map((k, i) => '<li class="' + (i < P.rank.i ? 'done' : i === P.rank.i ? 'cur' : '') + '">' + medalSVG(i) + '<b>' + nm(k) + '</b></li>').join('') + '</ol></section>' +
     '<section class="sky" aria-label="' + say('הפרסים בדרך', 'The prizes on the way') + '"><h2 class="sky-h">' + say('הפרסים בדרך', 'The prizes on the way') + '</h2>' +
-    '<div class="sky-road" style="height:' + H + 'px"><span class="sky-stars" aria-hidden="true"></span>' + deco + '<svg class="pw-trail" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + trail + '</svg><ol>' + stops + '</ol>' + signs + '</div></section>';
+    '<div class="sky-road" style="height:' + H + 'px"><span class="sky-stars" aria-hidden="true"></span>' + deco + '<svg class="pw-trail sky-way" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + road + lane + '</svg><ol>' + stops + '</ol>' + signs + '</div></section>';
 }
 /* a station of the journey, opened: the character as it will stand at that level, and what waits there */
 function openLevel(at) {
@@ -318,7 +316,7 @@ function openLevel(at) {
   sh.innerHTML = '<div class="sheet-in lvs" role="dialog" aria-modal="true" aria-label="' + say('רמה ', 'Level ') + at + '"><div class="ed-h"><div><p class="kicker">' + (lvl >= at ? say('כבר שלך', 'Already yours') : toGo(at - lvl)) + '</p><h2>' + say('רמה ', 'Level ') + at + '</h2></div>' +
     '<button class="icon-btn" data-close="1" type="button" aria-label="' + say('סגור', 'Close') + '">' + ICON.x + '</button></div>' +
     '<div class="lvs-stage"><span class="lvs-fig">' + avatar(at, { flex: true }) + '</span></div>' +
-    '<p class="lvs-t">' + (st.rank > 0 ? medalSVG(st.rank) : st.box >= 0 ? boxSVG(st.box) : glyph('gift')) + '<span>' + nm(st) + (st.rank > 0 && st.gear ? say(' · ', ' · ') + nm(st.gear) : '') + '</span></p>' +
+    '<div class="lvs-t"><span class="lvs-art">' + stationArt(st) + (st.rank > 0 && st.gear ? gearSVG(st.gear.k) : '') + '</span><b>' + nm(st) + (st.rank > 0 && st.gear ? say(' · ', ' · ') + nm(st.gear) : '') + '</b></div>' +
     '<button class="btn primary big" data-close="1" type="button">' + (lvl >= at ? say('סגור', 'Close') : say('ממשיכים לשם', 'On my way')) + '</button></div>';
   sh.hidden = false;
 }
@@ -531,7 +529,7 @@ function meSheetChange(ev) { if (ev.target.id === 'lkName') setName(ev.target.va
 /* ---- rewards: a short note when the level climbs mid-workout, and the celebration at the end ---- */
 let toastT = 0;
 function toast(html) {
-  const el = $('#toast'); el.innerHTML = html; el.hidden = false; el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
+  const el = $('#toast'); el.innerHTML = html; el.hidden = false; el.style.top = laneTop(); el.classList.remove('in'); void el.offsetWidth; el.classList.add('in');
   clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2800);
 }
 function chime() {
@@ -545,7 +543,7 @@ function chime() {
     });
   } catch (e) { /* no audio here */ }
 }
-function levelUp(lvl) { toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); chime(); haptic('heavy'); }
+function levelUp(lvl) { for (const o of $$('.pts')) o.remove(); toast(glyph('star') + '<b>' + say('רמה ', 'Level ') + lvl + '!</b>'); $('#toast').classList.add('lvl'); setTimeout(() => $('#toast').classList.remove('lvl'), 2800); chime(); haptic('heavy'); }
 /* call after a change that may have earned points, with the level from before it */
 function bump(lv0) { if (lv0 && S.lvl > lv0) levelUp(S.lvl); }
 /* paper confetti over a sheet: a short burst that falls and stops by itself */

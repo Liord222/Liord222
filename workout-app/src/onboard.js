@@ -6,8 +6,6 @@ const autoLang = () => (Object.keys(S.sessions).length || S.cfg.me.made || /^(he
 const STATIC = () => [
   ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
   ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
-  ['#backBtn .ib', '', say('חזרה', 'Back')], ['#listBtn .ib', '', say('רשימה', 'List')], ['#chatKey .ib', '', say('חיבור', 'Key')], ['#chatNew .ib', '', say('חדשה', 'New')],
-  ['#chatClose .ib', '', say('סגור', 'Close')], ['#camBtn .ib', '', say('מצלמה', 'Camera')], ['#galBtn .ib', '', say('תמונה', 'Photo')], ['#attachX .ib', '', say('הסר', 'Remove')], ['#sendBtn .ib', '', say('שלח', 'Send')],
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
   ['#tabbar [data-view="home"] .tb-l', '', say('אימונים', 'Workouts')],
   ['#tabbar [data-view="profile"] .tb-l', '', say('פרופיל', 'Profile')],
@@ -275,7 +273,7 @@ function obHTML() {
     body = '<div class="ob-done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi> ' + say('הכול מוכן', 'you are all set') : say('הכול מוכן', 'You are all set')) + '</h1>' +
       '<p class="ob-sub">' + say('כל אימון מקרב אותך לרמה 100', 'Every workout takes you closer to level 100') + '</p>' +
       '<div class="ob-ladder" aria-hidden="true"><figure class="now"><span class="ob-fig">' + avatar(1) + '</span>' + cap(say('היום', 'Today'), say('רמה 1', 'Level 1')) + '</figure>' +
-      '' +
+      '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span>' +
       '<figure class="max"><span class="ob-fig">' + avatar(100) + '</span>' + cap(say('המטרה', 'The goal'), say('רמה 100', 'Level 100')) + '</figure></div>' +
       '<p class="ob-note">' + say('האפליקציה לא מחליפה ייעוץ רפואי', 'The app does not replace medical advice') + '</p></div>';
   }

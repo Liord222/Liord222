@@ -109,7 +109,7 @@ function weekHTML(Wm, easy) {
     const sub = x.st === 'done' ? say('הושלם ', 'Done ') + dayWord(x.when) : x.st === 'live' ? x.dn + say(' מתוך ', ' of ') + x.total + say(' סטים', ' sets') : wkMus(x.i) + ' · ' + x.mins + say(' דק׳', ' min');
     const end = x.st === 'live' ? '<span class="wr-tag">' + say('באמצע', 'In progress') + '</span>' : x.st === 'next' ? '<span class="wr-tag">' + say('הבא', 'Next') + '</span>' : x.st === 'done' ? '' : '<span class="wr-go">' + ICON.fwd + '</span>';
     return '<li style="--i:' + x.k + '"><button class="tab ' + wkTone(x.i) + ' ' + x.st + '" type="button" data-tab="' + x.i + '" aria-label="' + x.label + '"' + (x.cur ? ' aria-current="true"' : '') + '>' +
-      '<span class="dot" aria-hidden="true">' + (x.k + 1) + '</span><span class="wr-txt"><b>' + wkName(x.i) + '</b><span>' + sub + '</span>' +
+      '<span class="dot" aria-hidden="true">' + (x.st === 'done' ? ICON.check : x.k + 1) + '</span><span class="wr-txt"><b>' + wkName(x.i) + '</b><span>' + sub + '</span>' +
       (x.st === 'live' ? '<span class="wr-bar" aria-hidden="true"><i style="width:' + Math.round((x.dn / Math.max(1, x.total)) * 100) + '%"></i></span>' : '') + '</span>' + end + '</button></li>';
   };
   const n = Wm.items.length;
@@ -154,7 +154,7 @@ function rowHTML(e, i, s) {
   const dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets, part = dn > 0 && !full && !off;
   return '<li class="ex' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
     '<button class="ex-head" type="button">' +
-    '<span class="ex-n">' + (off ? '–' : i + 1) + '</span>' +
+    '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span>' +
     '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (e.cut ? '<span class="ex-sub">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + '</span>' +
     '<span class="ex-rx' + (part ? ' part' : '') + '">' + (part ? dn + say(' מתוך ', ' of ') + e.sets : cnt(off ? e.n0 : e.sets, 'סטים', 'סט אחד', 'sets', 'set') + ' · ' + Ltr(e.reps) + say(' חז׳', ' reps')) + '</span>' +
     '</button></li>';
@@ -170,7 +170,7 @@ function setsHTML(e) {
     const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + rowWords(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + rowWords(T) : '');
     const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
-      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + say('שיא', 'Best') + '</span>' : '') + '<span class="v">' + setVal(row, e.mv) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
+      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row, e.mv) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
   }
   if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב', 'Off today because of pain.')) + '</p>';
   return h;
@@ -216,9 +216,9 @@ function bodyHTML(e) {
 function focusHTML(e, i, n) {
   const off = e.cut && e.sets === 0, s = live(S.tab), full = !off && doneCount(s, e) >= e.sets;
   return '<li class="ex open' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
-    '<div class="fx-head"><button class="fx-nav" id="exPrev" type="button" aria-label="' + say('התרגיל הקודם', 'Previous exercise') + '"' + (i > 0 ? '' : ' disabled') + '>' + ibw(say('הקודם', 'Prev')) + '</button>' +
+    '<div class="fx-head"><button class="fx-nav" id="exPrev" type="button" aria-label="' + say('התרגיל הקודם', 'Previous exercise') + '"' + (i > 0 ? '' : ' disabled') + '>' + ICON.back + '</button>' +
     '<div class="fx-t"><h1 class="ex-name">' + e.nm + '</h1><p class="fx-rx">' + rxLine(e, s) + '</p></div>' +
-    '<button class="fx-nav" id="exNext" type="button" aria-label="' + say('התרגיל הבא', 'Next exercise') + '"' + (i < n - 1 ? '' : ' disabled') + '>' + ibw(say('הבא', 'Next')) + '</button></div>' +
+    '<button class="fx-nav" id="exNext" type="button" aria-label="' + say('התרגיל הבא', 'Next exercise') + '"' + (i < n - 1 ? '' : ' disabled') + '>' + ICON.fwd + '</button></div>' +
     '<div class="ex-body" id="body-' + e.id + '">' + bodyHTML(e) + '</div></li>';
 }
 /* ---- the details of an exercise, one tap away: what it asks, how it is done, what was done last time, the lifter's own note,
@@ -637,7 +637,7 @@ function exIntro(e, first) {
   const rm = restMins(e);
   box.className = 'xi xo';
   box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
-    (back ? '<button class="xi-back" id="xiBack" type="button">' + say('חזרה', 'Back') + '</button>' : '') +
+    (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
     '<div class="xo-hero"><span class="xo-spot" aria-hidden="true"></span><span class="xo-pod" aria-hidden="true"></span><canvas class="xo-cv" aria-hidden="true"></canvas><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p></div>' +
     '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
@@ -813,7 +813,7 @@ function openEditor(id, all) {
       list += '<div class="ed-row' + (on ? ' on' : '') + '" data-ex="' + e.id + '" data-i="' + i + '"><span>' + say('סט ', 'Set ') + (i + 1) + '</span>' +
         '<label class="ed-f"><input type="text" inputmode="decimal" autocomplete="off" data-k="kg" aria-label="' + say('משקל בסט ', 'Weight in set ') + (i + 1) + '" value="' + (on && row.kg != null ? fmtKg(row.kg) : '') + '"><span>' + say('ק״ג', 'kg') + '</span></label><span aria-hidden="true">×</span>' +
         '<label class="ed-f"><input type="text" inputmode="numeric" autocomplete="off" data-k="reps" aria-label="' + say('חזרות בסט ', 'Reps in set ') + (i + 1) + '" value="' + (on && row.reps != null ? row.reps : '') + '"><span>' + say('חז׳', 'reps') + '</span></label>' +
-        '<button class="ed-clr" type="button" aria-label="' + say('נקה את סט ', 'Clear set ') + (i + 1) + '">' + ibw(say('נקה', 'Clear')) + '</button></div>';
+        '<button class="ed-clr" type="button" aria-label="' + say('נקה את סט ', 'Clear set ') + (i + 1) + '">' + ICON.x + '</button></div>';
     }
     list += '</section>';
   }

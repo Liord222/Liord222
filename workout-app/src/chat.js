@@ -190,7 +190,7 @@ function loggedHTML(m, idx) {
   return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span>' + (canUnlog(m) ? '<button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button>' : '') + '</div>';
 }
 /* first things to ask, each with its sign */
-const SUG_I = () => ['', '', '', '', '', '', '', ''];
+const SUG_I = () => [ICON.swap, '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>', ICON.info, ICON.bell, '<svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.300-7-9.600A4 4 0 0 1 12 8a4 4 0 0 1 7 2.400C19 15.700 12 20 12 20z"/></svg>'];
 const SUGS = () => [say('המכשיר תפוס מה במקום', 'The machine is taken. What instead?'), say('צילמתי מכשיר הוא מתאים', 'I took a photo of a machine. Does it fit?'), say('איך עושים את התרגיל הזה', 'How do I do this exercise?'), say('כמה משקל לשים היום', 'How much weight today?'), say('משהו כואב לי מה לעשות', 'Something hurts. What do I do?')];
 /* the four that open the chat, in the order they are asked most */
 const SUG_SHOW = [0, 3, 2, 4];

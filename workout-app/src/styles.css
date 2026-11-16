@@ -2212,19 +2212,19 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 .cloud::after{right:22px;width:44px;height:36px}
 .cloud.c1{transform:scale(.72);opacity:.45}
 .cloud.c2{transform:scale(1.25);opacity:.34}
-.st{position:absolute;left:0;right:0;height:0}
+li.st{position:absolute;left:0;right:0;height:0}
 .st-n{position:absolute;top:14px;display:grid;place-items:center;min-width:44px;height:32px;padding:0 8px;font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:#fff;text-shadow:0 1px 2px rgb(0 0 0 / .28);opacity:.92}
-.st.r .st-n{right:6px}
-.st.l .st-n{left:6px}
-.st.done .st-n{color:#FFE27A}
-.st.top .st-n{right:6px}
+li.st.r .st-n{right:6px}
+li.st.l .st-n{left:6px}
+li.st.done .st-n{color:#FFE27A}
+li.st.top .st-n{right:6px}
 /* the lifter leans in from the far edge, at the station that comes next */
 .peek{position:absolute;top:-8px;display:flex;align-items:center;gap:6px;pointer-events:none}
-.st.r .peek{left:-16px;flex-direction:row}
-.st.l .peek{right:-16px;flex-direction:row-reverse}
+li.st.r .peek{left:-16px;flex-direction:row}
+li.st.l .peek{right:-16px;flex-direction:row-reverse}
 .peek-fig{display:block;width:74px;height:74px;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 0 0 3px #fff,0 6px 14px rgb(0 0 0 / .25)}
-.st.r .peek-fig{transform:rotate(16deg);animation:peek-l .7s cubic-bezier(.3,1.4,.5,1) .3s both}
-.st.l .peek-fig{transform:rotate(-16deg);animation:peek-r .7s cubic-bezier(.3,1.4,.5,1) .3s both}
+li.st.r .peek-fig{transform:rotate(16deg);animation:peek-l .7s cubic-bezier(.3,1.4,.5,1) .3s both}
+li.st.l .peek-fig{transform:rotate(-16deg);animation:peek-r .7s cubic-bezier(.3,1.4,.5,1) .3s both}
 .peek-fig svg{display:block;width:100%;height:100%}
 .peek-say{padding:7px 11px;border-radius:13px;background:#fff;color:#2A1F66;font-size:13.5px;font-weight:800;white-space:nowrap;box-shadow:0 4px 0 rgb(0 0 0 / .16);animation:pop-in .3s ease-out .8s both}
 @keyframes peek-l{from{transform:translateX(-90px) rotate(0)}to{transform:translateX(0) rotate(16deg)}}
@@ -2464,24 +2464,24 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .sky .sky-way .rd.on{stroke:#FFD23F}
 .sky .sky-way .rd-c{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-dasharray:8 12;opacity:.75;vector-effect:non-scaling-stroke}
 .sky .sky-way .rd-c.on{stroke:#FFF8DC;opacity:1}
-.st .lv{position:absolute;left:var(--x);top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:4px;width:140px;padding:0;border:0;background:none;color:#fff;font:inherit;text-align:center}
-.st .dot{position:relative;display:grid;place-items:center;width:80px;height:68px}
-.st .dot::before{content:"";position:absolute;left:6px;right:6px;bottom:-3px;height:20px;border-radius:50%;background:rgb(255 255 255 / .6);box-shadow:0 0 0 6px rgb(255 255 255 / .16)}
-.st .dot>svg{position:relative;width:64px;height:64px;overflow:visible;filter:drop-shadow(0 4px 0 rgb(20 10 60 / .18));transition:transform .12s}
-.st .dot>.medal{width:54px;height:65px}
-.st .dot>.bx{width:66px;height:66px}
-.st .lv:active .dot>svg{transform:scale(.93)}
-.st.rk .dot>.medal{width:60px;height:72px;margin-top:-8px}
-.st.next .dot::before{background:rgb(255 255 255 / .75);box-shadow:0 0 0 6px rgb(255 226 122 / .35),0 0 18px 6px rgb(255 226 122 / .45)}
-.st.next .dot>svg{animation:st-float 2.4s ease-in-out infinite}
+li.st .lv{position:absolute;left:var(--x);top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:4px;width:140px;padding:0;border:0;background:none;color:#fff;font:inherit;text-align:center}
+li.st .dot{position:relative;display:grid;place-items:center;width:80px;height:68px}
+li.st .dot::before{content:"";position:absolute;left:6px;right:6px;bottom:-3px;height:20px;border-radius:50%;background:rgb(255 255 255 / .6);box-shadow:0 0 0 6px rgb(255 255 255 / .16)}
+li.st .dot>svg{position:relative;width:64px;height:64px;overflow:visible;filter:drop-shadow(0 4px 0 rgb(20 10 60 / .18));transition:transform .12s}
+li.st .dot>.medal{width:54px;height:65px}
+li.st .dot>.bx{width:66px;height:66px}
+li.st .lv:active .dot>svg{transform:scale(.93)}
+li.st.rk .dot>.medal{width:60px;height:72px;margin-top:-8px}
+li.st.next .dot::before{background:rgb(255 255 255 / .75);box-shadow:0 0 0 6px rgb(255 226 122 / .35),0 0 18px 6px rgb(255 226 122 / .45)}
+li.st.next .dot>svg{animation:st-float 2.4s ease-in-out infinite}
 @keyframes st-float{50%{transform:translateY(-6px)}}
-.st .ok{position:absolute;top:-2px;inset-inline-end:0;display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#22B07D;color:#fff;box-shadow:0 0 0 2.5px #fff,0 3px 6px rgb(0 0 0 / .2)}
-.st .ok svg{width:14px;height:14px;stroke-width:3.4}
-.st .lv b{padding:4px 11px;border-radius:99px;background:rgb(24 14 70 / .5);font-size:13.5px;font-weight:800;line-height:1.2;text-wrap:balance}
-.st.done .lv b{background:rgb(24 14 70 / .64)}
+li.st .ok{position:absolute;top:-2px;inset-inline-end:0;display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#22B07D;color:#fff;box-shadow:0 0 0 2.5px #fff,0 3px 6px rgb(0 0 0 / .2)}
+li.st .ok svg{width:14px;height:14px;stroke-width:3.4}
+li.st .lv b{padding:4px 11px;border-radius:99px;background:rgb(24 14 70 / .5);font-size:13.5px;font-weight:800;line-height:1.2;text-wrap:balance}
+li.st.done .lv b{background:rgb(24 14 70 / .64)}
 .st-n{top:24px;min-width:40px;height:30px;padding:0 9px;border-radius:99px;background:rgb(255 255 255 / .2);color:#fff;font-size:17px;font-weight:900;text-shadow:none;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .45);opacity:1}
-.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
-@media (prefers-reduced-motion:reduce){.st.next .dot>svg,.peek-fig,.peek-say,.sky-pic{animation:none!important}}
+li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
+@media (prefers-reduced-motion:reduce){li.st.next .dot>svg,.peek-fig,.peek-say,.sky-pic{animation:none!important}}
 /* the name of each part of the sky on a ribbon, its ends folded back */
 .sky-sign{position:absolute;left:50%;z-index:1;transform:translateX(-50%);text-align:center;filter:drop-shadow(0 5px 0 rgb(20 10 60 / .18))}
 .sky-sign::before,.sky-sign::after{content:"";position:absolute;z-index:-1;top:13px;bottom:-9px;width:42px;background:#CFC2FF}
@@ -2545,19 +2545,11 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 @keyframes xo-tile{from{opacity:0;transform:translateY(24px) scale(.7)}}
 .xi.xo #xiGo{background:linear-gradient(#FFDD55,#FFC21F);color:var(--ol);font-weight:900;font-size:21px;border:0;box-shadow:0 0 0 3px var(--ol),0 6px 0 0 #B57A00,0 6px 0 3px var(--ol);text-shadow:none}
 .xi.xo #xiGo:active{transform:scale(.96)}
-.xi-back{width:auto;padding:0 14px;font-size:15px;font-weight:800;color:var(--ol);background:#fff;box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
+.xi-back{color:var(--ol);background:#fff;box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
 @media (prefers-reduced-motion:reduce){.xi.xo::before,.xo-spot,.xo-pod,.xo-rx li{animation:none}}
 /* ---- the points of a set: a gold sun bursts, the number pops on it in thick outlined letters, then all of it flies up ---- */
 .pts{gap:0}
-.pg{position:relative;display:grid;place-items:center;width:150px;height:150px;animation:pg-pop .42s cubic-bezier(.2,.9,.3,1.5) both}
-.pg-burst{position:absolute;inset:0;width:100%;height:100%;animation:ru-spin 6s linear infinite;filter:drop-shadow(0 6px 0 rgb(27 16 53 / .35))}
-.pg-n{position:relative;margin-top:-10px;font-size:46px;font-weight:900;line-height:1;letter-spacing:-.03em;color:#fff;-webkit-text-stroke:3px #1B1035;paint-order:stroke fill;text-shadow:0 4px 0 #1B1035;direction:ltr;font-variant-numeric:tabular-nums}
-.pts.pr .pg-n{font-size:52px}
-.pg-l{position:absolute;bottom:22px;padding:3px 12px;border-radius:9px;background:#5B2EE0;color:#fff;font-size:14px;font-weight:900;box-shadow:0 0 0 2.5px #1B1035;transform:rotate(-4deg)}
-.pg>i{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;background:#FFD23F;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:pts-spark .7s cubic-bezier(.2,.8,.3,1) var(--sd,0ms) both}
-.pg-pr{margin-top:-6px;padding:6px 16px;border-radius:12px;background:#FF4D6A;color:#fff;font-size:18px;font-weight:900;box-shadow:0 0 0 3px #1B1035,0 4px 0 0 #1B1035;transform:rotate(3deg);animation:pg-pop .4s cubic-bezier(.2,.9,.3,1.6) .25s both}
 @keyframes pg-pop{0%{opacity:0;transform:scale(.2) rotate(-20deg)}100%{opacity:1}}
-@media (prefers-reduced-motion:reduce){.pg,.pg-burst,.pg-pr{animation:none}}
 /* ---- a box is opened: it drops onto a checkered floor, shakes, its lid flies off, light shoots up and the card flies out of it,
    then the collection counts up by one ---- */
 .box-up{background:radial-gradient(80% 55% at 50% 45%,rgb(120 80 255 / .45),transparent 70%),repeating-conic-gradient(from 45deg,#2A1A66 0 25%,#22145A 0 50%) 50% 0/64px 64px,#22145A}
@@ -2589,8 +2581,8 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .bu-act{animation-delay:.9s}
 @media (prefers-reduced-motion:reduce){.bu-card,.bu-card::after,.box-up.open .bu-chest,.box-up.open .bu-chest .bx-lid,.box-up.open .bu-chest::before,.bu-col{animation:none!important}}
 /* the badges of the ranks are square */
-.medal,.pf-rank .medal,.jr-ranks .medal,.stop .dot.rk .medal,.ru-medal .medal,.jr-now .medal,.st .dot>.medal,.st.rk .dot>.medal,.lvs-art .medal{height:auto!important;aspect-ratio:1}
-.ru-medal .medal{width:190px}.jr-now .medal{width:120px}.jr-ranks .medal{width:30px}.pf-rank .medal{width:32px}.st .dot>.medal{width:62px}.st.rk .dot>.medal{width:70px}.lvs-art .medal{width:72px}
+.medal,.pf-rank .medal,.jr-ranks .medal,.stop .dot.rk .medal,.ru-medal .medal,.jr-now .medal,li.st .dot>.medal,li.st.rk .dot>.medal,.lvs-art .medal{height:auto!important;aspect-ratio:1}
+.ru-medal .medal{width:190px}.jr-now .medal{width:120px}.jr-ranks .medal{width:30px}.pf-rank .medal{width:32px}li.st .dot>.medal{width:62px}li.st.rk .dot>.medal{width:70px}.lvs-art .medal{width:72px}
 .bu-card::after{direction:ltr}
 /* ---- the kiosk as a game shop: a bold blue room, chunky outlined cards, a dark price bar under each, tags set at a slant ---- */
 .sheet-in.ks{--ol:#1B1035;background:radial-gradient(120% 60% at 50% 0%,#3D8BFF 0%,#1F5FE0 45%,#1747B8 100%);color:#fff}
@@ -2649,14 +2641,7 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .stk-go{width:100%;border:0;background:#fff;color:#E36A00;font-weight:900;font-size:21px;box-shadow:0 0 0 3px #1B1035,0 6px 0 0 #1B1035;animation:ob-rise .4s 1.3s both}
 @media (prefers-reduced-motion:reduce){.stk-glow,.stk-fig,.flm-b,.stk-was,.stk-now,.stk-w,.stk-wk i.on,.stk-go{animation:none}.stk-was{display:none}}
 /* ---- no pictograms: a control that only had one says its word on a chunky pill; places that held one beside words are empty ---- */
-.ib{display:inline-block;font-size:14px;font-weight:800;line-height:1;white-space:nowrap;letter-spacing:0}
-button:has(> .ib),label:has(> .ib){width:auto!important;min-width:0;height:auto;min-height:38px;padding:0 13px!important;border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:0 0 0 2px var(--ink),0 3px 0 0 var(--ink);gap:0;aspect-ratio:auto}
-button:has(> .ib):disabled,button:has(> .ib)[aria-disabled="true"]{opacity:.35}
-button:has(> .ib):active{transform:scale(.95)}
-.dock.rest button:has(> .ib),.xi button:has(> .ib),.box-up button:has(> .ib),.sheet-in.ks button:has(> .ib){background:#fff;color:#1B1035;box-shadow:0 0 0 2.5px #1B1035,0 3px 0 0 #1B1035}
-.send:has(> .ib),#sendBtn{background:var(--accent)!important;color:#fff!important}
-.wr-go:empty,.h-ok:empty,.sug-i:empty,.st .ok:empty,.ob-go:empty{display:none}
+.wr-go:empty,.h-ok:empty,.sug-i:empty,li.st .ok:empty,.ob-go:empty{display:none}
 .ob-chk svg,.ob-steps li i svg{display:none}
 .tb-ic svg{width:28px;height:28px}
-.top-list:has(.ib),.back:has(.ib){margin-inline:0;min-height:36px}
 .ob-skip{min-width:64px;justify-content:center}

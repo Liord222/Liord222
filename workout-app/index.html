@@ -2216,19 +2216,19 @@ body.touring .pre-back,body.touring .xi-back{display:none}
 .cloud::after{right:22px;width:44px;height:36px}
 .cloud.c1{transform:scale(.72);opacity:.45}
 .cloud.c2{transform:scale(1.25);opacity:.34}
-.st{position:absolute;left:0;right:0;height:0}
+li.st{position:absolute;left:0;right:0;height:0}
 .st-n{position:absolute;top:14px;display:grid;place-items:center;min-width:44px;height:32px;padding:0 8px;font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:#fff;text-shadow:0 1px 2px rgb(0 0 0 / .28);opacity:.92}
-.st.r .st-n{right:6px}
-.st.l .st-n{left:6px}
-.st.done .st-n{color:#FFE27A}
-.st.top .st-n{right:6px}
+li.st.r .st-n{right:6px}
+li.st.l .st-n{left:6px}
+li.st.done .st-n{color:#FFE27A}
+li.st.top .st-n{right:6px}
 /* the lifter leans in from the far edge, at the station that comes next */
 .peek{position:absolute;top:-8px;display:flex;align-items:center;gap:6px;pointer-events:none}
-.st.r .peek{left:-16px;flex-direction:row}
-.st.l .peek{right:-16px;flex-direction:row-reverse}
+li.st.r .peek{left:-16px;flex-direction:row}
+li.st.l .peek{right:-16px;flex-direction:row-reverse}
 .peek-fig{display:block;width:74px;height:74px;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 0 0 3px #fff,0 6px 14px rgb(0 0 0 / .25)}
-.st.r .peek-fig{transform:rotate(16deg);animation:peek-l .7s cubic-bezier(.3,1.4,.5,1) .3s both}
-.st.l .peek-fig{transform:rotate(-16deg);animation:peek-r .7s cubic-bezier(.3,1.4,.5,1) .3s both}
+li.st.r .peek-fig{transform:rotate(16deg);animation:peek-l .7s cubic-bezier(.3,1.4,.5,1) .3s both}
+li.st.l .peek-fig{transform:rotate(-16deg);animation:peek-r .7s cubic-bezier(.3,1.4,.5,1) .3s both}
 .peek-fig svg{display:block;width:100%;height:100%}
 .peek-say{padding:7px 11px;border-radius:13px;background:#fff;color:#2A1F66;font-size:13.5px;font-weight:800;white-space:nowrap;box-shadow:0 4px 0 rgb(0 0 0 / .16);animation:pop-in .3s ease-out .8s both}
 @keyframes peek-l{from{transform:translateX(-90px) rotate(0)}to{transform:translateX(0) rotate(16deg)}}
@@ -2468,24 +2468,24 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .sky .sky-way .rd.on{stroke:#FFD23F}
 .sky .sky-way .rd-c{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-dasharray:8 12;opacity:.75;vector-effect:non-scaling-stroke}
 .sky .sky-way .rd-c.on{stroke:#FFF8DC;opacity:1}
-.st .lv{position:absolute;left:var(--x);top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:4px;width:140px;padding:0;border:0;background:none;color:#fff;font:inherit;text-align:center}
-.st .dot{position:relative;display:grid;place-items:center;width:80px;height:68px}
-.st .dot::before{content:"";position:absolute;left:6px;right:6px;bottom:-3px;height:20px;border-radius:50%;background:rgb(255 255 255 / .6);box-shadow:0 0 0 6px rgb(255 255 255 / .16)}
-.st .dot>svg{position:relative;width:64px;height:64px;overflow:visible;filter:drop-shadow(0 4px 0 rgb(20 10 60 / .18));transition:transform .12s}
-.st .dot>.medal{width:54px;height:65px}
-.st .dot>.bx{width:66px;height:66px}
-.st .lv:active .dot>svg{transform:scale(.93)}
-.st.rk .dot>.medal{width:60px;height:72px;margin-top:-8px}
-.st.next .dot::before{background:rgb(255 255 255 / .75);box-shadow:0 0 0 6px rgb(255 226 122 / .35),0 0 18px 6px rgb(255 226 122 / .45)}
-.st.next .dot>svg{animation:st-float 2.4s ease-in-out infinite}
+li.st .lv{position:absolute;left:var(--x);top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:4px;width:140px;padding:0;border:0;background:none;color:#fff;font:inherit;text-align:center}
+li.st .dot{position:relative;display:grid;place-items:center;width:80px;height:68px}
+li.st .dot::before{content:"";position:absolute;left:6px;right:6px;bottom:-3px;height:20px;border-radius:50%;background:rgb(255 255 255 / .6);box-shadow:0 0 0 6px rgb(255 255 255 / .16)}
+li.st .dot>svg{position:relative;width:64px;height:64px;overflow:visible;filter:drop-shadow(0 4px 0 rgb(20 10 60 / .18));transition:transform .12s}
+li.st .dot>.medal{width:54px;height:65px}
+li.st .dot>.bx{width:66px;height:66px}
+li.st .lv:active .dot>svg{transform:scale(.93)}
+li.st.rk .dot>.medal{width:60px;height:72px;margin-top:-8px}
+li.st.next .dot::before{background:rgb(255 255 255 / .75);box-shadow:0 0 0 6px rgb(255 226 122 / .35),0 0 18px 6px rgb(255 226 122 / .45)}
+li.st.next .dot>svg{animation:st-float 2.4s ease-in-out infinite}
 @keyframes st-float{50%{transform:translateY(-6px)}}
-.st .ok{position:absolute;top:-2px;inset-inline-end:0;display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#22B07D;color:#fff;box-shadow:0 0 0 2.5px #fff,0 3px 6px rgb(0 0 0 / .2)}
-.st .ok svg{width:14px;height:14px;stroke-width:3.4}
-.st .lv b{padding:4px 11px;border-radius:99px;background:rgb(24 14 70 / .5);font-size:13.5px;font-weight:800;line-height:1.2;text-wrap:balance}
-.st.done .lv b{background:rgb(24 14 70 / .64)}
+li.st .ok{position:absolute;top:-2px;inset-inline-end:0;display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#22B07D;color:#fff;box-shadow:0 0 0 2.5px #fff,0 3px 6px rgb(0 0 0 / .2)}
+li.st .ok svg{width:14px;height:14px;stroke-width:3.4}
+li.st .lv b{padding:4px 11px;border-radius:99px;background:rgb(24 14 70 / .5);font-size:13.5px;font-weight:800;line-height:1.2;text-wrap:balance}
+li.st.done .lv b{background:rgb(24 14 70 / .64)}
 .st-n{top:24px;min-width:40px;height:30px;padding:0 9px;border-radius:99px;background:rgb(255 255 255 / .2);color:#fff;font-size:17px;font-weight:900;text-shadow:none;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .45);opacity:1}
-.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
-@media (prefers-reduced-motion:reduce){.st.next .dot>svg,.peek-fig,.peek-say,.sky-pic{animation:none!important}}
+li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
+@media (prefers-reduced-motion:reduce){li.st.next .dot>svg,.peek-fig,.peek-say,.sky-pic{animation:none!important}}
 /* the name of each part of the sky on a ribbon, its ends folded back */
 .sky-sign{position:absolute;left:50%;z-index:1;transform:translateX(-50%);text-align:center;filter:drop-shadow(0 5px 0 rgb(20 10 60 / .18))}
 .sky-sign::before,.sky-sign::after{content:"";position:absolute;z-index:-1;top:13px;bottom:-9px;width:42px;background:#CFC2FF}
@@ -2549,19 +2549,11 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 @keyframes xo-tile{from{opacity:0;transform:translateY(24px) scale(.7)}}
 .xi.xo #xiGo{background:linear-gradient(#FFDD55,#FFC21F);color:var(--ol);font-weight:900;font-size:21px;border:0;box-shadow:0 0 0 3px var(--ol),0 6px 0 0 #B57A00,0 6px 0 3px var(--ol);text-shadow:none}
 .xi.xo #xiGo:active{transform:scale(.96)}
-.xi-back{width:auto;padding:0 14px;font-size:15px;font-weight:800;color:var(--ol);background:#fff;box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
+.xi-back{color:var(--ol);background:#fff;box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
 @media (prefers-reduced-motion:reduce){.xi.xo::before,.xo-spot,.xo-pod,.xo-rx li{animation:none}}
 /* ---- the points of a set: a gold sun bursts, the number pops on it in thick outlined letters, then all of it flies up ---- */
 .pts{gap:0}
-.pg{position:relative;display:grid;place-items:center;width:150px;height:150px;animation:pg-pop .42s cubic-bezier(.2,.9,.3,1.5) both}
-.pg-burst{position:absolute;inset:0;width:100%;height:100%;animation:ru-spin 6s linear infinite;filter:drop-shadow(0 6px 0 rgb(27 16 53 / .35))}
-.pg-n{position:relative;margin-top:-10px;font-size:46px;font-weight:900;line-height:1;letter-spacing:-.03em;color:#fff;-webkit-text-stroke:3px #1B1035;paint-order:stroke fill;text-shadow:0 4px 0 #1B1035;direction:ltr;font-variant-numeric:tabular-nums}
-.pts.pr .pg-n{font-size:52px}
-.pg-l{position:absolute;bottom:22px;padding:3px 12px;border-radius:9px;background:#5B2EE0;color:#fff;font-size:14px;font-weight:900;box-shadow:0 0 0 2.5px #1B1035;transform:rotate(-4deg)}
-.pg>i{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;background:#FFD23F;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:pts-spark .7s cubic-bezier(.2,.8,.3,1) var(--sd,0ms) both}
-.pg-pr{margin-top:-6px;padding:6px 16px;border-radius:12px;background:#FF4D6A;color:#fff;font-size:18px;font-weight:900;box-shadow:0 0 0 3px #1B1035,0 4px 0 0 #1B1035;transform:rotate(3deg);animation:pg-pop .4s cubic-bezier(.2,.9,.3,1.6) .25s both}
 @keyframes pg-pop{0%{opacity:0;transform:scale(.2) rotate(-20deg)}100%{opacity:1}}
-@media (prefers-reduced-motion:reduce){.pg,.pg-burst,.pg-pr{animation:none}}
 /* ---- a box is opened: it drops onto a checkered floor, shakes, its lid flies off, light shoots up and the card flies out of it,
    then the collection counts up by one ---- */
 .box-up{background:radial-gradient(80% 55% at 50% 45%,rgb(120 80 255 / .45),transparent 70%),repeating-conic-gradient(from 45deg,#2A1A66 0 25%,#22145A 0 50%) 50% 0/64px 64px,#22145A}
@@ -2593,8 +2585,8 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .bu-act{animation-delay:.9s}
 @media (prefers-reduced-motion:reduce){.bu-card,.bu-card::after,.box-up.open .bu-chest,.box-up.open .bu-chest .bx-lid,.box-up.open .bu-chest::before,.bu-col{animation:none!important}}
 /* the badges of the ranks are square */
-.medal,.pf-rank .medal,.jr-ranks .medal,.stop .dot.rk .medal,.ru-medal .medal,.jr-now .medal,.st .dot>.medal,.st.rk .dot>.medal,.lvs-art .medal{height:auto!important;aspect-ratio:1}
-.ru-medal .medal{width:190px}.jr-now .medal{width:120px}.jr-ranks .medal{width:30px}.pf-rank .medal{width:32px}.st .dot>.medal{width:62px}.st.rk .dot>.medal{width:70px}.lvs-art .medal{width:72px}
+.medal,.pf-rank .medal,.jr-ranks .medal,.stop .dot.rk .medal,.ru-medal .medal,.jr-now .medal,li.st .dot>.medal,li.st.rk .dot>.medal,.lvs-art .medal{height:auto!important;aspect-ratio:1}
+.ru-medal .medal{width:190px}.jr-now .medal{width:120px}.jr-ranks .medal{width:30px}.pf-rank .medal{width:32px}li.st .dot>.medal{width:62px}li.st.rk .dot>.medal{width:70px}.lvs-art .medal{width:72px}
 .bu-card::after{direction:ltr}
 /* ---- the kiosk as a game shop: a bold blue room, chunky outlined cards, a dark price bar under each, tags set at a slant ---- */
 .sheet-in.ks{--ol:#1B1035;background:radial-gradient(120% 60% at 50% 0%,#3D8BFF 0%,#1F5FE0 45%,#1747B8 100%);color:#fff}
@@ -2653,31 +2645,24 @@ button.ob-may:active{transform:translateY(2px);box-shadow:inset 0 0 0 1.5px var(
 .stk-go{width:100%;border:0;background:#fff;color:#E36A00;font-weight:900;font-size:21px;box-shadow:0 0 0 3px #1B1035,0 6px 0 0 #1B1035;animation:ob-rise .4s 1.3s both}
 @media (prefers-reduced-motion:reduce){.stk-glow,.stk-fig,.flm-b,.stk-was,.stk-now,.stk-w,.stk-wk i.on,.stk-go{animation:none}.stk-was{display:none}}
 /* ---- no pictograms: a control that only had one says its word on a chunky pill; places that held one beside words are empty ---- */
-.ib{display:inline-block;font-size:14px;font-weight:800;line-height:1;white-space:nowrap;letter-spacing:0}
-button:has(> .ib),label:has(> .ib){width:auto!important;min-width:0;height:auto;min-height:38px;padding:0 13px!important;border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:0 0 0 2px var(--ink),0 3px 0 0 var(--ink);gap:0;aspect-ratio:auto}
-button:has(> .ib):disabled,button:has(> .ib)[aria-disabled="true"]{opacity:.35}
-button:has(> .ib):active{transform:scale(.95)}
-.dock.rest button:has(> .ib),.xi button:has(> .ib),.box-up button:has(> .ib),.sheet-in.ks button:has(> .ib){background:#fff;color:#1B1035;box-shadow:0 0 0 2.5px #1B1035,0 3px 0 0 #1B1035}
-.send:has(> .ib),#sendBtn{background:var(--accent)!important;color:#fff!important}
-.wr-go:empty,.h-ok:empty,.sug-i:empty,.st .ok:empty,.ob-go:empty{display:none}
+.wr-go:empty,.h-ok:empty,.sug-i:empty,li.st .ok:empty,.ob-go:empty{display:none}
 .ob-chk svg,.ob-steps li i svg{display:none}
 .tb-ic svg{width:28px;height:28px}
-.top-list:has(.ib),.back:has(.ib){margin-inline:0;min-height:36px}
 .ob-skip{min-width:64px;justify-content:center}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
-    <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><span class="ib">חזרה</span></button>
+    <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><svg class="i dir" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     <div class="logo" role="img" aria-label="gymi by Lior Dahan">
       <span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span>
       <small aria-hidden="true">by Lior Dahan</small>
     </div>
     <div class="wk-title" id="wkTitle"></div>
     <span class="sync" id="syncNote"></span>
-    <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><span class="ib">רשימה</span></button>
+    <button class="top-list" id="listBtn" type="button" aria-label="כל התרגילים"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 7h11M8.5 12h11M8.5 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01" stroke-width="2.6"/></svg></button>
     <nav class="tabbar" id="tabbar" aria-label="ניווט ראשי">
-      <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="7" y="12.3" width="14" height="3.4" rx="1.2" fill="#C9CEDA" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="2" y="9" width="4" height="10" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="5.2" y="6.5" width="4" height="15" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="18.8" y="6.5" width="4" height="15" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><rect x="22" y="9" width="4" height="10" rx="1.6" fill="#8B4DF0" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><path d="M6.4 8.6V12" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></svg></span><span class="tb-l">אימונים</span></button>
-      <button type="button" data-view="journey"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M3 25L11 11L15 17L18.5 12.5L25 25Z" fill="#6FD8FF" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 11L13.2 14.6L11.6 15.6L9.6 13.4Z" fill="#fff"/><path d="M11 11V2.5" stroke="#1B1035" stroke-width="1.8" stroke-linecap="round"/><path d="M11 3H18L16.2 5.3L18 7.6H11Z" fill="#FFC83D" stroke="#1B1035" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span class="tb-l">מסע</span></button>
+      <button type="button" data-view="home" aria-current="page"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/><rect x="5.6" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="10.2" y="12.2" width="7.6" height="3.6" rx="1.2" fill="#BBA5F7"/><rect x="17.8" y="7" width="4.6" height="14" rx="1.9" fill="#6D3FE0"/><rect x="22.9" y="10.5" width="3.6" height="7" rx="1.5" fill="#5229C4"/></svg></span><span class="tb-l">אימונים</span></button>
+      <button type="button" data-view="journey"><span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="2.5" y="18" width="7" height="7.5" rx="1.8" fill="#BBA5F7"/><rect x="10.5" y="13" width="7" height="12.5" rx="1.8" fill="#6D3FE0"/><rect x="18.5" y="8.2" width="7" height="17.3" rx="1.8" fill="#5229C4"/><rect x="20.3" y="1.8" width="1.5" height="7.4" rx=".7" fill="#5229C4"/><path d="M21.8 2.2h4.7l-1.4 1.9 1.4 1.9h-4.7z" fill="#F2B02E"/></svg></span><span class="tb-l">מסע</span></button>
       <button type="button" data-view="profile"><span class="tb-ic tb-face" id="tbMe" aria-hidden="true"></span><span class="tb-l">פרופיל</span></button>
       <button type="button" id="chatOpen"><span class="tb-ic tb-face" id="tbCoach" aria-hidden="true"></span><span class="tb-l">אילון</span></button>
     </nav>
@@ -2709,20 +2694,20 @@ button:has(> .ib):active{transform:scale(.95)}
       <div class="chat-h">
         <span class="ava" aria-hidden="true"></span>
         <div><h2>אילון</h2><p>המאמן שלך</p></div>
-        <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><span class="ib">חיבור</span></button>
-        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה" hidden><span class="ib">חדשה</span></button>
-        <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><span class="ib">סגור</span></button>
+        <button class="icon-btn" id="chatKey" type="button" aria-label="החיבור של אילון" title="החיבור של אילון" hidden><svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2.5 2.5M19 4l1.5 1.5"/></svg></button>
+        <button class="icon-btn" id="chatNew" type="button" aria-label="שיחה חדשה" title="שיחה חדשה" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 18v-5h5"/></svg></button>
+        <button class="icon-btn chat-close" id="chatClose" type="button" aria-label="סגור את הצ׳אט"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div class="msgs" id="msgs"></div>
       <div class="composer">
-        <label class="chat-ctx" for="chatCtx"><span>על</span><select id="chatCtx"></select></label>
-        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><span class="ib">הסר</span></button></div>
+        <label class="chat-ctx" for="chatCtx"><span>על</span><select id="chatCtx"></select><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></label>
+        <div class="attach" id="attach" hidden><img id="attachImg" alt="התמונה שצורפה"><span>תישלח עם ההודעה</span><button type="button" id="attachX" aria-label="הסר את התמונה"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
         <p class="comp-note" id="compNote" hidden></p>
         <div class="comp-row">
-          <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><span class="ib">מצלמה</span></button>
-          <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><span class="ib">תמונה</span></button>
+          <button class="icon-btn" id="camBtn" type="button" aria-label="צלם את המכשיר" title="צלם את המכשיר" hidden><svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg></button>
+          <button class="icon-btn" id="galBtn" type="button" aria-label="בחר תמונה מהגלריה" title="בחר תמונה מהגלריה" hidden><svg class="i" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M5 17l5-5 4 4 2-2 3 3"/></svg></button>
           <textarea id="chatInput" rows="1" maxlength="500" placeholder="שאל את אילון" enterkeyhint="send" aria-label="הודעה לאילון"></textarea>
-          <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><span class="ib">שלח</span></button>
+          <button class="icon-btn send" id="sendBtn" type="button" aria-label="שלח"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
         </div>
         <input type="file" id="camFile" accept="image/*" capture="environment" hidden>
         <input type="file" id="galFile" accept="image/*" hidden>
@@ -5460,14 +5445,23 @@ const HOUR = 3600e3, LS_KEY = 'ul4:v1', STALE = 3 * HOUR, MAX_SETS = 8, MAX_KG =
 /* a weight and a rep count as they may be kept: no weight is null, and nothing beyond what a set can be */
 const capKg = (kg) => (typeof kg !== 'number' || !(kg > 0) ? null : Math.min(MAX_KG, Math.round(kg * 100) / 100));
 const capReps = (r) => (typeof r !== 'number' || !(r >= 0.5) ? null : Math.min(MAX_REPS, Math.max(1, Math.round(r))));
-/* no pictograms anywhere (the owner, round 6): a control that had only a picture says in a word what it does, on a chunky button.
-   Words and states that had a picture beside them stand on their own */
-const ibw = (t) => '<span class="ib">' + t + '</span>';
 const ICON = {
-  get check() { return ''; }, get x() { return ibw(say('סגור', 'Close')); }, get send() { return ibw(say('שלח', 'Send')); }, get stop() { return ibw(say('עצור', 'Stop')); },
-  get down() { return ibw(say('פתח', 'Open')); }, get up() { return ibw(say('למעלה', 'Up')); }, get go() { return ''; }, get pin() { return ''; },
-  get fwd() { return ''; }, get back() { return ibw(say('חזרה', 'Back')); }, get bell() { return ''; }, get swap() { return ''; },
-  get undo() { return ibw(say('בטל', 'Undo')); }, get info() { return ''; }, get clock() { return ''; }, get dots() { return ''; },
+  check: '<svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  send: '<svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+  stop: '<svg class="i" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>',
+  down: '<svg class="i" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
+  up: '<svg class="i" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
+  go: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
+  pin: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/></svg>',
+  fwd: '<svg class="i dir" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>',
+  back: '<svg class="i dir" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
+  bell: '<svg class="i" viewBox="0 0 24 24"><path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4M6.5 12h11"/></svg>',
+  swap: '<svg class="i" viewBox="0 0 24 24"><path d="M5 8.5h13l-3.5-3.5M19 15.5H6l3.5 3.5"/></svg>',
+  undo: '<svg class="i dir" viewBox="0 0 24 24"><path d="M15 5l5 5-5 5"/><path d="M20 10H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>',
+  info: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.5M12 7.6h.01"/></svg>',
+  clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3 2"/></svg>',
+  dots: '<svg class="i" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg>',
 };
 /* S.sessions: id -> one workout:
    { id, v, w (workout 0-3), ts (start), end, mt, upd, sets: { slotId: [ { kg, reps, done, t, pr, tk, tr } ] },
@@ -6470,7 +6464,7 @@ function weekHTML(Wm, easy) {
     const sub = x.st === 'done' ? say('הושלם ', 'Done ') + dayWord(x.when) : x.st === 'live' ? x.dn + say(' מתוך ', ' of ') + x.total + say(' סטים', ' sets') : wkMus(x.i) + ' · ' + x.mins + say(' דק׳', ' min');
     const end = x.st === 'live' ? '<span class="wr-tag">' + say('באמצע', 'In progress') + '</span>' : x.st === 'next' ? '<span class="wr-tag">' + say('הבא', 'Next') + '</span>' : x.st === 'done' ? '' : '<span class="wr-go">' + ICON.fwd + '</span>';
     return '<li style="--i:' + x.k + '"><button class="tab ' + wkTone(x.i) + ' ' + x.st + '" type="button" data-tab="' + x.i + '" aria-label="' + x.label + '"' + (x.cur ? ' aria-current="true"' : '') + '>' +
-      '<span class="dot" aria-hidden="true">' + (x.k + 1) + '</span><span class="wr-txt"><b>' + wkName(x.i) + '</b><span>' + sub + '</span>' +
+      '<span class="dot" aria-hidden="true">' + (x.st === 'done' ? ICON.check : x.k + 1) + '</span><span class="wr-txt"><b>' + wkName(x.i) + '</b><span>' + sub + '</span>' +
       (x.st === 'live' ? '<span class="wr-bar" aria-hidden="true"><i style="width:' + Math.round((x.dn / Math.max(1, x.total)) * 100) + '%"></i></span>' : '') + '</span>' + end + '</button></li>';
   };
   const n = Wm.items.length;
@@ -6515,7 +6509,7 @@ function rowHTML(e, i, s) {
   const dn = doneCount(s, e), off = e.cut && e.sets === 0, full = !off && dn >= e.sets, part = dn > 0 && !full && !off;
   return '<li class="ex' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
     '<button class="ex-head" type="button">' +
-    '<span class="ex-n">' + (off ? '–' : i + 1) + '</span>' +
+    '<span class="ex-n">' + (off ? '–' : full ? ICON.check : i + 1) + '</span>' +
     '<span class="ex-title"><span class="ex-name">' + e.nm + '</span>' + (e.cut ? '<span class="ex-sub">' + (off ? say('בוטל היום', 'Off today') : say('קוצר היום', 'Cut short today')) + '</span>' : '') + '</span>' +
     '<span class="ex-rx' + (part ? ' part' : '') + '">' + (part ? dn + say(' מתוך ', ' of ') + e.sets : cnt(off ? e.n0 : e.sets, 'סטים', 'סט אחד', 'sets', 'set') + ' · ' + Ltr(e.reps) + say(' חז׳', ' reps')) + '</span>' +
     '</button></li>';
@@ -6531,7 +6525,7 @@ function setsHTML(e) {
     const label = say('סט ', 'Set ') + (i + 1) + (on ? ': ' + rowWords(row) + (row.pr ? say(', שיא', ', personal best') : '') + say(', עריכה', ', edit') : T ? say(', יעד ', ', target ') + rowWords(T) : '');
     const pop = on && S.justDone && S.justDone.ex === e.id && S.justDone.i === i && Date.now() - S.justDone.t < 1200;
     h += '<button class="setp' + (on ? ' done' : isCur ? ' cur' : '') + (ed ? ' cur' : '') + (pop ? ' pop' + (row.pr ? ' pr-pop' : '') : '') + '" type="button" data-i="' + i + '" aria-label="' + label + '">' +
-      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + say('שיא', 'Best') + '</span>' : '') + '<span class="v">' + setVal(row, e.mv) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
+      (on ? (row.pr ? '<span class="pr" aria-hidden="true">' + glyph('star') + '</span>' : '') + '<span class="v">' + setVal(row, e.mv) + '</span>' : '<span class="hint">' + say('סט ', 'Set ') + (i + 1) + '</span>') + '</button>';
   }
   if (e.cut) h += '<p class="cut-note">' + (e.sets ? say('שאר הסטים בוטלו היום בגלל כאב', 'The remaining sets are off today because of pain.') : say('בוטל היום בגלל כאב', 'Off today because of pain.')) + '</p>';
   return h;
@@ -6577,9 +6571,9 @@ function bodyHTML(e) {
 function focusHTML(e, i, n) {
   const off = e.cut && e.sets === 0, s = live(S.tab), full = !off && doneCount(s, e) >= e.sets;
   return '<li class="ex open' + (full ? ' done' : '') + (off ? ' off' : '') + '" data-id="' + e.id + '">' +
-    '<div class="fx-head"><button class="fx-nav" id="exPrev" type="button" aria-label="' + say('התרגיל הקודם', 'Previous exercise') + '"' + (i > 0 ? '' : ' disabled') + '>' + ibw(say('הקודם', 'Prev')) + '</button>' +
+    '<div class="fx-head"><button class="fx-nav" id="exPrev" type="button" aria-label="' + say('התרגיל הקודם', 'Previous exercise') + '"' + (i > 0 ? '' : ' disabled') + '>' + ICON.back + '</button>' +
     '<div class="fx-t"><h1 class="ex-name">' + e.nm + '</h1><p class="fx-rx">' + rxLine(e, s) + '</p></div>' +
-    '<button class="fx-nav" id="exNext" type="button" aria-label="' + say('התרגיל הבא', 'Next exercise') + '"' + (i < n - 1 ? '' : ' disabled') + '>' + ibw(say('הבא', 'Next')) + '</button></div>' +
+    '<button class="fx-nav" id="exNext" type="button" aria-label="' + say('התרגיל הבא', 'Next exercise') + '"' + (i < n - 1 ? '' : ' disabled') + '>' + ICON.fwd + '</button></div>' +
     '<div class="ex-body" id="body-' + e.id + '">' + bodyHTML(e) + '</div></li>';
 }
 /* ---- the details of an exercise, one tap away: what it asks, how it is done, what was done last time, the lifter's own note,
@@ -6998,7 +6992,7 @@ function exIntro(e, first) {
   const rm = restMins(e);
   box.className = 'xi xo';
   box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
-    (back ? '<button class="xi-back" id="xiBack" type="button">' + say('חזרה', 'Back') + '</button>' : '') +
+    (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
     '<div class="xo-hero"><span class="xo-spot" aria-hidden="true"></span><span class="xo-pod" aria-hidden="true"></span><canvas class="xo-cv" aria-hidden="true"></canvas><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p></div>' +
     '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
@@ -7174,7 +7168,7 @@ function openEditor(id, all) {
       list += '<div class="ed-row' + (on ? ' on' : '') + '" data-ex="' + e.id + '" data-i="' + i + '"><span>' + say('סט ', 'Set ') + (i + 1) + '</span>' +
         '<label class="ed-f"><input type="text" inputmode="decimal" autocomplete="off" data-k="kg" aria-label="' + say('משקל בסט ', 'Weight in set ') + (i + 1) + '" value="' + (on && row.kg != null ? fmtKg(row.kg) : '') + '"><span>' + say('ק״ג', 'kg') + '</span></label><span aria-hidden="true">×</span>' +
         '<label class="ed-f"><input type="text" inputmode="numeric" autocomplete="off" data-k="reps" aria-label="' + say('חזרות בסט ', 'Reps in set ') + (i + 1) + '" value="' + (on && row.reps != null ? row.reps : '') + '"><span>' + say('חז׳', 'reps') + '</span></label>' +
-        '<button class="ed-clr" type="button" aria-label="' + say('נקה את סט ', 'Clear set ') + (i + 1) + '">' + ibw(say('נקה', 'Clear')) + '</button></div>';
+        '<button class="ed-clr" type="button" aria-label="' + say('נקה את סט ', 'Clear set ') + (i + 1) + '">' + ICON.x + '</button></div>';
     }
     list += '</section>';
   }
@@ -7558,16 +7552,13 @@ function haptic(kind) {
 /* sound and touch together, for the moments that earn both */
 function feel(kind, touch) { sfx(kind); haptic(touch || (kind === 'set' ? 'success' : kind === 'pr' ? 'pr' : 'heavy')); }
 /* points that fly up from where they were earned */
-/* the burst behind the points of a set: a sun of sixteen rays, gold with a dark outline, turning slowly */
-const PG_BURST = (() => { let d = ''; for (let k = 0; k < 32; k++) { const a = (k / 32) * Math.PI * 2, v = k % 2 ? 34 : 48; d += (k ? 'L' : 'M') + (50 + Math.cos(a) * v).toFixed(1) + ' ' + (50 + Math.sin(a) * v).toFixed(1); }
-  return '<svg class="pg-burst" viewBox="0 0 100 100" aria-hidden="true"><path d="' + d + 'Z" fill="#FFC928" stroke="#1B1035" stroke-width="3" stroke-linejoin="round"/><circle cx="50" cy="50" r="28" fill="#FFE27A"/></svg>'; })();
 function popGain(n, pr) {
   if (!(n > 0) || reduced) return;
   for (const o of $$('.pts')) o.remove();
   const f = document.createElement('div'); f.className = 'pts' + (pr ? ' pr' : ''); f.setAttribute('aria-hidden', 'true');
   let sparks = ''; const cnt = pr ? 10 : 6;
   for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + 0.4, d = pr ? 92 : 74; sparks += '<i style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d * 0.55).toFixed(0) + 'px;--sd:' + (i * 18) + 'ms"></i>'; }
-  f.innerHTML = '<span class="pg">' + sparks + PG_BURST + '<b class="pg-n">' + Ltr('+' + nf(n)) + '</b><span class="pg-l">' + say('נקודות', 'points') + '</span></span>' + (pr ? '<span class="pg-pr">' + say('שיא חדש', 'New best') + '</span>' : '');
+  f.innerHTML = '<span class="pts-pill">' + sparks + glyph('bolt') + '<b>' + Ltr('+' + nf(n)) + '</b></span>' + (pr ? '<span class="pts-tag">' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : '');
   document.body.appendChild(f); setTimeout(() => f.remove(), pr ? 2400 : 1700);
   requestAnimationFrame(() => { f.style.top = laneTop(); });
 }
@@ -7757,7 +7748,7 @@ function builderHTML(w) {
     const k = ids.indexOf(e.id);
     return '<div class="bl-row"><span class="bl-n"><b>' + e.nm + '</b><small>' + muName(LIB[e.mv].p) + ' · ' + Ltr(e.reps) + '</small></span>' +
       (k < 0 ? '<small class="bl-once">' + say('רק היום', 'Today only') + '</small>'
-        : ed ? '<div class="bl-ed"><button type="button" data-mvs="' + e.id + '" data-d="-1" aria-label="' + say('הזז למעלה', 'Move up') + '"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.up + '</button><button type="button" data-mvs="' + e.id + '" data-d="1" aria-label="' + say('הזז למטה', 'Move down') + '"' + (k >= ids.length - 1 ? ' disabled' : '') + '>' + ibw(say('למטה', 'Down')) + '</button><button class="rm" type="button" data-rm="' + e.id + '" aria-label="' + say('הסר את ', 'Remove ') + e.nm + '"' + (ids.length <= 1 ? ' disabled' : '') + '>' + ibw(say('הסר', 'Remove')) + '</button></div>'
+        : ed ? '<div class="bl-ed"><button type="button" data-mvs="' + e.id + '" data-d="-1" aria-label="' + say('הזז למעלה', 'Move up') + '"' + (k <= 0 ? ' disabled' : '') + '>' + ICON.up + '</button><button type="button" data-mvs="' + e.id + '" data-d="1" aria-label="' + say('הזז למטה', 'Move down') + '"' + (k >= ids.length - 1 ? ' disabled' : '') + '>' + ICON.down + '</button><button class="rm" type="button" data-rm="' + e.id + '" aria-label="' + say('הסר את ', 'Remove ') + e.nm + '"' + (ids.length <= 1 ? ' disabled' : '') + '>' + ICON.x + '</button></div>'
         : '<div class="stp"><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 - 1) + '" aria-label="' + say('סט אחד פחות', 'One set less') + '"' + (dl || e.n0 <= Math.max(1, rowsOf(s, e.id).filter(isDone).length) ? ' disabled' : '') + '>−</button><b>' + e.n0 + '</b><button type="button" data-base="' + e.id + '" data-n="' + (e.n0 + 1) + '" aria-label="' + say('סט נוסף', 'One more set') + '"' + (dl || e.n0 >= MAX_SETS ? ' disabled' : '') + '>+</button></div>') + '</div>';
   }).join('') + '</div><div class="bl-act"><button class="link" type="button" data-addw="' + w + '">' + say('+ הוסף תרגיל', '+ Add exercise') + '</button><button class="link" type="button" data-bled="' + w + '">' + (ed ? say('סיום', 'Done') : say('סידור והסרה', 'Reorder and remove')) + '</button></div>';
 }
@@ -7919,7 +7910,7 @@ const GLYPH = {
 const flameSVG = () => '<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.4 1.6c.5 3.6 6 6 6 12a6.4 6.4 0 0 1-12.8 0c0-2.5 1.1-4.4 2.6-5.7.3 1.8 1 2.9 2.1 3.5-.4-3.6.4-7 2.1-9.8z" fill="var(--flame)"/><path d="M12.1 11.6c.5 1.7 2.7 2.7 2.7 5.2a2.8 2.8 0 0 1-5.6 0c0-2.1 1.9-3 2.9-5.2z" fill="var(--flame-2)"/></svg>';
 /* the colours a medal can have: fill and darker edge */
 /* no pictograms (round 6): a glyph is gone wherever it stood beside words; the two buttons that were only a glyph say their word */
-const glyph = (k) => (k === 'pen' ? '<span class="ib">' + say('עריכה', 'Edit') + '</span>' : k === 'gear' ? '<span class="ib">' + say('הגדרות', 'Settings') + '</span>' : '');
+const glyph = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + GLYPH[k] + '</svg>';
 const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
 const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '') + ' style="width:' + p + '%"></i></span>';
@@ -8694,7 +8685,7 @@ function loggedHTML(m, idx) {
   return '<div class="logged"><span>' + (n === 1 ? say('נרשם סט אחד', '1 set logged') : say('נרשמו ' + n + ' סטים', n + ' sets logged')) + ' · ' + esc(ctxName(m.logged.ex) || m.logged.name || '') + '</span>' + (canUnlog(m) ? '<button class="link" type="button" data-unlog="' + idx + '">' + say('בטל', 'Undo') + '</button>' : '') + '</div>';
 }
 /* first things to ask, each with its sign */
-const SUG_I = () => ['', '', '', '', '', '', '', ''];
+const SUG_I = () => [ICON.swap, '<svg class="i" viewBox="0 0 24 24"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>', ICON.info, ICON.bell, '<svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.300-7-9.600A4 4 0 0 1 12 8a4 4 0 0 1 7 2.400C19 15.700 12 20 12 20z"/></svg>'];
 const SUGS = () => [say('המכשיר תפוס מה במקום', 'The machine is taken. What instead?'), say('צילמתי מכשיר הוא מתאים', 'I took a photo of a machine. Does it fit?'), say('איך עושים את התרגיל הזה', 'How do I do this exercise?'), say('כמה משקל לשים היום', 'How much weight today?'), say('משהו כואב לי מה לעשות', 'Something hurts. What do I do?')];
 /* the four that open the chat, in the order they are asked most */
 const SUG_SHOW = [0, 3, 2, 4];
@@ -8920,8 +8911,6 @@ const autoLang = () => (Object.keys(S.sessions).length || S.cfg.me.made || /^(he
 const STATIC = () => [
   ['#backBtn', 'aria-label', say('חזרה למסך הראשי', 'Back to the main screen')],
   ['#listBtn', 'aria-label', say('כל התרגילים', 'All exercises')],
-  ['#backBtn .ib', '', say('חזרה', 'Back')], ['#listBtn .ib', '', say('רשימה', 'List')], ['#chatKey .ib', '', say('חיבור', 'Key')], ['#chatNew .ib', '', say('חדשה', 'New')],
-  ['#chatClose .ib', '', say('סגור', 'Close')], ['#camBtn .ib', '', say('מצלמה', 'Camera')], ['#galBtn .ib', '', say('תמונה', 'Photo')], ['#attachX .ib', '', say('הסר', 'Remove')], ['#sendBtn .ib', '', say('שלח', 'Send')],
   ['#tabbar', 'aria-label', say('ניווט ראשי', 'Main navigation')],
   ['#tabbar [data-view="home"] .tb-l', '', say('אימונים', 'Workouts')],
   ['#tabbar [data-view="profile"] .tb-l', '', say('פרופיל', 'Profile')],
@@ -9189,7 +9178,7 @@ function obHTML() {
     body = '<div class="ob-done"><canvas class="confetti" id="obConfetti" aria-hidden="true"></canvas><h1 id="obTitle">' + (nm ? '<bdi>' + esc(nm) + '</bdi> ' + say('הכול מוכן', 'you are all set') : say('הכול מוכן', 'You are all set')) + '</h1>' +
       '<p class="ob-sub">' + say('כל אימון מקרב אותך לרמה 100', 'Every workout takes you closer to level 100') + '</p>' +
       '<div class="ob-ladder" aria-hidden="true"><figure class="now"><span class="ob-fig">' + avatar(1) + '</span>' + cap(say('היום', 'Today'), say('רמה 1', 'Level 1')) + '</figure>' +
-      '' +
+      '<span class="ob-go">' + ICON.fwd + ICON.fwd + ICON.fwd + '</span>' +
       '<figure class="max"><span class="ob-fig">' + avatar(100) + '</span>' + cap(say('המטרה', 'The goal'), say('רמה 100', 'Level 100')) + '</figure></div>' +
       '<p class="ob-note">' + say('האפליקציה לא מחליפה ייעוץ רפואי', 'The app does not replace medical advice') + '</p></div>';
   }

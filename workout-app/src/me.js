@@ -14,7 +14,7 @@ const GLYPH = {
 const flameSVG = () => '<svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.4 1.6c.5 3.6 6 6 6 12a6.4 6.4 0 0 1-12.8 0c0-2.5 1.1-4.4 2.6-5.7.3 1.8 1 2.9 2.1 3.5-.4-3.6.4-7 2.1-9.8z" fill="var(--flame)"/><path d="M12.1 11.6c.5 1.7 2.7 2.7 2.7 5.2a2.8 2.8 0 0 1-5.6 0c0-2.1 1.9-3 2.9-5.2z" fill="var(--flame-2)"/></svg>';
 /* the colours a medal can have: fill and darker edge */
 /* no pictograms (round 6): a glyph is gone wherever it stood beside words; the two buttons that were only a glyph say their word */
-const glyph = (k) => (k === 'pen' ? '<span class="ib">' + say('עריכה', 'Edit') + '</span>' : k === 'gear' ? '<span class="ib">' + say('הגדרות', 'Settings') + '</span>' : '');
+const glyph = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + GLYPH[k] + '</svg>';
 const nf = (n) => Math.round(n).toLocaleString('en-US');
 const pctOf = (L) => Math.max(0, Math.min(100, Math.round((L.into / L.need) * 100)));
 const xpBar = (p, id) => '<span class="xpbar"><i' + (id ? ' id="' + id + '"' : '') + ' style="width:' + p + '%"></i></span>';

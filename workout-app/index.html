@@ -2650,14 +2650,28 @@ li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
 .stk{overflow-y:auto}
 @media (max-height:660px){.stk{padding:16px}.stk-fig{width:128px}.stk-n{height:108px}.stk-n b{font-size:108px;line-height:108px}.stk-w{font-size:25px}.stk-wk{margin:8px 0 12px}}
 
-/* the screen of a new exercise, plain (owner, 16 Nov): no drawing; which one it is, its name, what it trains, its numbers, and Start */
-.xi.xs .xo-in{grid-template-rows:minmax(0,1fr)}
+/* the screen of a new exercise (owner, 16 Nov): no drawing of the exercise; purple, with pieces of the kiosk floating behind,
+   and on it which one it is, its name, what it trains, its numbers and Start */
+.xi.xs{background:radial-gradient(120% 80% at 50% 34%,#7D4EF3 0%,#5B30D2 46%,#341A8C 100%);color:#fff}
+.xo-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.xo-bg span{position:absolute;width:min(23vw,92px);aspect-ratio:1;display:grid;place-items:center;border-radius:24px;background:rgb(255 255 255 / .13);box-shadow:inset 0 0 0 2px rgb(255 255 255 / .16),inset 0 -5px 0 color-mix(in srgb,var(--rc) 55%,transparent);transform:rotate(var(--r));animation:xo-float 5s ease-in-out var(--d) infinite alternate}
+.xo-bg span{overflow:hidden}
+.xo-bg span svg{display:block;width:100%;height:100%;overflow:hidden}
+@keyframes xo-float{to{transform:rotate(var(--r)) translateY(-9px)}}
+.xi.xs .xo-in{position:relative;z-index:1;grid-template-rows:minmax(0,1fr)}
 .xi.xs .xo-body{padding-top:calc(64px + env(safe-area-inset-top,0px))}
 .xi.xs .xo-info{gap:14px}
-.xi.xs .xo-k{position:static;transform:none;margin:0;padding:0;background:none;box-shadow:none;font-size:16px;font-weight:700;color:var(--ink-3);animation:xi-up .3s ease both}
-.xi.xs .xo-t{font-size:clamp(30px,9vw,40px)}
-.xi.xs .xo-rx{margin-top:18px;padding:18px 6px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
-.xi.xs .xo-rx b{font-size:30px}
+.xi.xs .xo-k{position:static;transform:none;margin:0;padding:6px 16px;border-radius:99px;background:rgb(255 255 255 / .16);box-shadow:none;font-size:15px;font-weight:800;color:#fff;animation:xi-up .3s ease both}
+.xi.xs .xo-t{font-size:clamp(30px,9vw,40px);color:#fff;text-shadow:0 3px 0 rgb(30 10 90 / .35)}
+.xi.xs .mus-chips span{background:rgb(255 255 255 / .16);color:#fff}
+.xi.xs .mus-chips span.p{background:#fff;color:#3A1D96}
+.xi.xs .xo-rx{margin-top:18px;padding:18px 6px;border-radius:22px;background:#fff;box-shadow:0 10px 28px -12px rgb(20 6 70 / .6)}
+.xi.xs .xo-rx li+li{border-inline-start:1.5px solid #E6E1F4}
+.xi.xs .xo-rx b{font-size:30px;color:#17122B}
+.xi.xs .xo-rx span{color:#6B6488}
+.xi.xs #xiGo{background:#FFC83D;color:#2A1A00;box-shadow:0 5px 0 #C98A12;font-weight:900}
+.xi.xs .xi-back{background:rgb(255 255 255 / .18);color:#fff;box-shadow:none}
+@media (prefers-reduced-motion:reduce){.xo-bg span{animation:none}}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -6991,6 +7005,15 @@ function stopRest() {
 /* ---- a new exercise takes the screen: the exercise itself, drawn in large and moving on a soft backdrop, and under it its place
    in the workout, its name, the muscles and what it asks. It stays until "start" ---- */
 const XI = { t: 0, g: 0 };
+/* behind the screen of a new exercise: pieces of the kiosk on the character, scattered on purple. Drawn once for a look */
+const XO_AT = [[3, 4, -12], [37, 1, 8], [71, 6, -6], [17, 16, 10], [55, 17, -14], [-8, 38, 12], [85, 40, -10], [5, 68, -8], [40, 73, 10], [75, 69, 14]];
+function xoBg() {
+  const key = JSON.stringify(S.cfg.me.look || {});
+  if (XI.bgKey === key && XI.bg) return XI.bg;
+  const step = Math.max(1, Math.floor(SHOP.length / XO_AT.length)), its = SHOP.filter((x, k) => k % step === 0).slice(0, XO_AT.length), lvl = meNow().L.lvl;
+  XI.bg = '<div class="xo-bg" aria-hidden="true">' + its.map((it, k) => '<span style="left:' + XO_AT[k][0] + '%;top:' + XO_AT[k][1] + '%;--r:' + XO_AT[k][2] + 'deg;--d:-' + (k * 0.7).toFixed(1) + 's;--rc:' + rareOf(it).c + '">' + cropFig(it, lvl) + '</span>').join('') + '</div>';
+  XI.bgKey = key; return XI.bg;
+}
 function exIntro(e, first) {
   const box = $('#exIntro'); if (!box || !e || window.__intro === false) return;
   /* the sample workout of the tour has no opening screens: Eilon is the one who speaks there */
@@ -7000,7 +7023,7 @@ function exIntro(e, first) {
   const s0 = live(S.tab), back = !!first && !(s0 && hasDone(s0));
   const rm = restMins(e);
   box.className = 'xi xo xs';
-  box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
+  box.innerHTML = xoBg() + '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
     (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
     '<div class="xo-body"><div class="xo-info"><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +

@@ -627,6 +627,15 @@ function stopRest() {
 /* ---- a new exercise takes the screen: the exercise itself, drawn in large and moving on a soft backdrop, and under it its place
    in the workout, its name, the muscles and what it asks. It stays until "start" ---- */
 const XI = { t: 0, g: 0 };
+/* behind the screen of a new exercise: pieces of the kiosk on the character, scattered on purple. Drawn once for a look */
+const XO_AT = [[3, 4, -12], [37, 1, 8], [71, 6, -6], [17, 16, 10], [55, 17, -14], [-8, 38, 12], [85, 40, -10], [5, 68, -8], [40, 73, 10], [75, 69, 14]];
+function xoBg() {
+  const key = JSON.stringify(S.cfg.me.look || {});
+  if (XI.bgKey === key && XI.bg) return XI.bg;
+  const step = Math.max(1, Math.floor(SHOP.length / XO_AT.length)), its = SHOP.filter((x, k) => k % step === 0).slice(0, XO_AT.length), lvl = meNow().L.lvl;
+  XI.bg = '<div class="xo-bg" aria-hidden="true">' + its.map((it, k) => '<span style="left:' + XO_AT[k][0] + '%;top:' + XO_AT[k][1] + '%;--r:' + XO_AT[k][2] + 'deg;--d:-' + (k * 0.7).toFixed(1) + 's;--rc:' + rareOf(it).c + '">' + cropFig(it, lvl) + '</span>').join('') + '</div>';
+  XI.bgKey = key; return XI.bg;
+}
 function exIntro(e, first) {
   const box = $('#exIntro'); if (!box || !e || window.__intro === false) return;
   /* the sample workout of the tour has no opening screens: Eilon is the one who speaks there */
@@ -636,7 +645,7 @@ function exIntro(e, first) {
   const s0 = live(S.tab), back = !!first && !(s0 && hasDone(s0));
   const rm = restMins(e);
   box.className = 'xi xo xs';
-  box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
+  box.innerHTML = xoBg() + '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
     (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
     '<div class="xo-body"><div class="xo-info"><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +

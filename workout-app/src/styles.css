@@ -2649,11 +2649,12 @@ li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
 /* the screen of a new exercise (owner, 16 Nov): no drawing of the exercise; purple, with pieces of the kiosk floating behind,
    and on it which one it is, its name, what it trains, its numbers and Start */
 .xi.xs{background:radial-gradient(120% 80% at 50% 34%,#7D4EF3 0%,#5B30D2 46%,#341A8C 100%);color:#fff}
-.xo-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.xo-bg span{position:absolute;width:min(23vw,92px);aspect-ratio:1;display:grid;place-items:center;border-radius:24px;background:rgb(255 255 255 / .13);box-shadow:inset 0 0 0 2px rgb(255 255 255 / .16),inset 0 -5px 0 color-mix(in srgb,var(--rc) 55%,transparent);transform:rotate(var(--r));animation:xo-float 5s ease-in-out var(--d) infinite alternate}
-.xo-bg span{overflow:hidden}
+.xo-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;-webkit-mask:linear-gradient(#000 0 24%,rgb(0 0 0 / .16) 32% 64%,#000 74%);mask:linear-gradient(#000 0 24%,rgb(0 0 0 / .16) 32% 64%,#000 74%)}
+.xo-rays{position:absolute;left:50%;top:36%;width:190vmax;height:190vmax;margin:-95vmax 0 0 -95vmax;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgb(255 255 255 / .075) 0deg 9deg,transparent 9deg 24deg);-webkit-mask:radial-gradient(closest-side,#000 8%,transparent 62%);mask:radial-gradient(closest-side,#000 8%,transparent 62%);animation:xo-spin 70s linear infinite}
+@keyframes xo-spin{to{transform:rotate(360deg)}}
+.xo-bg span{position:absolute;top:100%;width:var(--z);aspect-ratio:1;overflow:hidden;border-radius:30%;background:linear-gradient(160deg,rgb(255 255 255 / .24),rgb(255 255 255 / .08));box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .22),inset 0 -4px 0 color-mix(in srgb,var(--rc) 70%,transparent),0 14px 26px -14px rgb(20 6 70 / .7);will-change:transform;animation:xo-rise var(--t) linear var(--d) infinite}
 .xo-bg span svg{display:block;width:100%;height:100%;overflow:hidden}
-@keyframes xo-float{to{transform:rotate(var(--r)) translateY(-9px)}}
+@keyframes xo-rise{0%{transform:translateY(0) rotate(var(--r))}25%{transform:translate(7px,calc(-25vh - 40px)) rotate(calc(var(--r) * -.5))}50%{transform:translate(0,calc(-50vh - 80px)) rotate(var(--r))}75%{transform:translate(-7px,calc(-75vh - 120px)) rotate(calc(var(--r) * -.5))}100%{transform:translateY(calc(-100vh - 160px)) rotate(var(--r))}}
 .xi.xs .xo-in{position:relative;z-index:1;grid-template-rows:minmax(0,1fr)}
 .xi.xs .xo-body{padding-top:calc(64px + env(safe-area-inset-top,0px))}
 .xi.xs .xo-info{gap:14px}
@@ -2667,4 +2668,4 @@ li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
 .xi.xs .xo-rx span{color:#6B6488}
 .xi.xs #xiGo{background:#FFC83D;color:#2A1A00;box-shadow:0 5px 0 #C98A12;font-weight:900}
 .xi.xs .xi-back{background:rgb(255 255 255 / .18);color:#fff;box-shadow:none}
-@media (prefers-reduced-motion:reduce){.xo-bg span{animation:none}}
+@media (prefers-reduced-motion:reduce){.xo-rays{animation:none}.xo-bg span{top:var(--y);animation:none;transform:rotate(var(--r))}}

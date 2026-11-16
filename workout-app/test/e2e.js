@@ -747,7 +747,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   const cB = sess().find((x) => !x.end);
   check('one tap on the check logs exactly the target', !!cB && cB.sets.ua1[0].kg === 62.5 && cB.sets.ua1[0].reps === 9 && cB.sets.ua1[0].tk === 62.5 && cB.sets.ua1[0].tr === 9 && cB.wk === 2 && cB.rir === 2, cB && cB.sets.ua1);
   check('live sync back to the first device', !!(await p.$('.tab.live')) && (await cur(p)).endsWith('באמצע'), await cur(p));
-  check('a personal best is worth 300 more, and the points say so', !!(await q.$('.pts.pr')) && (await t2('.pts')).includes('שיא חדש') && (await t2('.pts b')) === '+400' && (await q.evaluate(() => meNow().T.xp)) === 1900, await t2('.pts'));
+  check('a personal best is worth 300 more, and the points show only the number', !!(await q.$('.pts.pr')) && !(await t2('.pts')).includes('שיא חדש') && (await t2('.pts b')) === '+400' && (await q.evaluate(() => meNow().T.xp)) === 1900, await t2('.pts'));
   await skip(q); await q.waitForTimeout(100);
   await fillAll(q); await q.waitForTimeout(400);
   check('"log the rest at target" fills the remaining sets', (await q.evaluate(() => doneCount(live(0), findEx('ua1')))) === 3, await q.evaluate(() => doneCount(live(0), findEx('ua1'))));

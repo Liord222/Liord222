@@ -627,13 +627,16 @@ function stopRest() {
 /* ---- a new exercise takes the screen: the exercise itself, drawn in large and moving on a soft backdrop, and under it its place
    in the workout, its name, the muscles and what it asks. It stays until "start" ---- */
 const XI = { t: 0, g: 0 };
-/* behind the screen of a new exercise: pieces of the kiosk on the character, scattered on purple. Drawn once for a look */
-const XO_AT = [[3, 4, -12], [37, 1, 8], [71, 6, -6], [17, 16, 10], [55, 17, -14], [-8, 38, 12], [85, 40, -10], [5, 68, -8], [40, 73, 10], [75, 69, 14]];
+/* behind the screen of a new exercise: pieces of the kiosk on the character rise slowly up the purple, each in its own lane,
+   size and pace, swaying as they go, under soft turning rays. Drawn once for a look. [x %, size px, seconds, where it starts 0..1, tilt] */
+const XO_AT = [[2, 86, 19, 0.05, -10], [24, 64, 23, 0.62, 8], [46, 78, 21, 0.3, -6], [70, 92, 18, 0.82, 12], [86, 66, 24, 0.45, -12],
+  [12, 70, 22, 0.9, 10], [34, 94, 17, 0.18, -8], [58, 62, 25, 0.72, 6], [80, 80, 20, 0.12, -10], [-4, 74, 21, 0.5, 9], [52, 88, 19, 0.98, -7], [26, 60, 24, 0.36, 11]];
 function xoBg() {
   const key = JSON.stringify(S.cfg.me.look || {});
   if (XI.bgKey === key && XI.bg) return XI.bg;
   const step = Math.max(1, Math.floor(SHOP.length / XO_AT.length)), its = SHOP.filter((x, k) => k % step === 0).slice(0, XO_AT.length), lvl = meNow().L.lvl;
-  XI.bg = '<div class="xo-bg" aria-hidden="true">' + its.map((it, k) => '<span style="left:' + XO_AT[k][0] + '%;top:' + XO_AT[k][1] + '%;--r:' + XO_AT[k][2] + 'deg;--d:-' + (k * 0.7).toFixed(1) + 's;--rc:' + rareOf(it).c + '">' + cropFig(it, lvl) + '</span>').join('') + '</div>';
+  XI.bg = '<div class="xo-bg" aria-hidden="true"><i class="xo-rays"></i>' + its.map((it, k) => { const [x, z, t, at, r] = XO_AT[k];
+    return '<span style="left:' + x + '%;--z:' + z + 'px;--t:' + t + 's;--d:-' + (t * at).toFixed(1) + 's;--y:' + Math.round(8 + at * 80) + '%;--r:' + r + 'deg;--rc:' + rareOf(it).c + '">' + cropFig(it, lvl) + '</span>'; }).join('') + '</div>';
   XI.bgKey = key; return XI.bg;
 }
 function exIntro(e, first) {

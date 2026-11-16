@@ -2645,3 +2645,8 @@ li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
 .ob-chk svg,.ob-steps li i svg{display:none}
 .tb-ic svg{width:28px;height:28px}
 .ob-skip{min-width:64px;justify-content:center}
+
+/* the points of a set: the number alone, gold, rising and fading; no pill, no picture (owner, 16 Nov) */
+.pts-n{direction:ltr;font-size:44px;font-weight:900;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#FFC21A;text-shadow:0 3px 0 #B97A00,0 10px 22px rgb(0 0 0 / .22)}
+.pts.pr .pts-n{font-size:52px}
+.pts-w{margin-top:4px;font-size:16px;font-weight:900;color:#FFC21A;text-shadow:0 2px 0 #B97A00}

@@ -2649,6 +2649,11 @@ li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
 .ob-chk svg,.ob-steps li i svg{display:none}
 .tb-ic svg{width:28px;height:28px}
 .ob-skip{min-width:64px;justify-content:center}
+
+/* the points of a set: the number alone, gold, rising and fading; no pill, no picture (owner, 16 Nov) */
+.pts-n{direction:ltr;font-size:44px;font-weight:900;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#FFC21A;text-shadow:0 3px 0 #B97A00,0 10px 22px rgb(0 0 0 / .22)}
+.pts.pr .pts-n{font-size:52px}
+.pts-w{margin-top:4px;font-size:16px;font-weight:900;color:#FFC21A;text-shadow:0 2px 0 #B97A00}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -7556,9 +7561,7 @@ function popGain(n, pr) {
   if (!(n > 0) || reduced) return;
   for (const o of $$('.pts')) o.remove();
   const f = document.createElement('div'); f.className = 'pts' + (pr ? ' pr' : ''); f.setAttribute('aria-hidden', 'true');
-  let sparks = ''; const cnt = pr ? 10 : 6;
-  for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + 0.4, d = pr ? 92 : 74; sparks += '<i style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d * 0.55).toFixed(0) + 'px;--sd:' + (i * 18) + 'ms"></i>'; }
-  f.innerHTML = '<span class="pts-pill">' + sparks + glyph('bolt') + '<b>' + Ltr('+' + nf(n)) + '</b></span>' + (pr ? '<span class="pts-tag">' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : '');
+  f.innerHTML = '<b class="pts-n">' + Ltr('+' + nf(n)) + '</b>' + (pr ? '<span class="pts-w">' + say('שיא חדש', 'New best') + '</span>' : '');
   document.body.appendChild(f); setTimeout(() => f.remove(), pr ? 2400 : 1700);
   requestAnimationFrame(() => { f.style.top = laneTop(); });
 }

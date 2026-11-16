@@ -85,9 +85,7 @@ function popGain(n, pr) {
   if (!(n > 0) || reduced) return;
   for (const o of $$('.pts')) o.remove();
   const f = document.createElement('div'); f.className = 'pts' + (pr ? ' pr' : ''); f.setAttribute('aria-hidden', 'true');
-  let sparks = ''; const cnt = pr ? 10 : 6;
-  for (let i = 0; i < cnt; i++) { const a = (i / cnt) * Math.PI * 2 + 0.4, d = pr ? 92 : 74; sparks += '<i style="--sx:' + (Math.cos(a) * d).toFixed(0) + 'px;--sy:' + (Math.sin(a) * d * 0.55).toFixed(0) + 'px;--sd:' + (i * 18) + 'ms"></i>'; }
-  f.innerHTML = '<span class="pts-pill">' + sparks + glyph('bolt') + '<b>' + Ltr('+' + nf(n)) + '</b></span>' + (pr ? '<span class="pts-tag">' + glyph('star') + say('שיא חדש', 'New best') + '</span>' : '');
+  f.innerHTML = '<b class="pts-n">' + Ltr('+' + nf(n)) + '</b>' + (pr ? '<span class="pts-w">' + say('שיא חדש', 'New best') + '</span>' : '');
   document.body.appendChild(f); setTimeout(() => f.remove(), pr ? 2400 : 1700);
   requestAnimationFrame(() => { f.style.top = laneTop(); });
 }

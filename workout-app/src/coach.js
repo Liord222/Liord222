@@ -24,9 +24,10 @@ function renderPre() {
     $('#app').classList.add('pre-on');
     if (box.hidden) S.preAt = Date.now();
     box.hidden = false;
-    box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic coach" aria-hidden="true">' + coachFace() + '</span><h2 id="tqT">' + say('יש לך פחות זמן היום', 'Less time today') + '</h2>' +
+    box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic coach" aria-hidden="true">' + coachFace() + '</span><h2 id="tqT">' + say('יש לך פחות זמן היום?', 'Less time today?') + '</h2>' +
+      '<label class="tq-l" for="tqIn">' + say('כמה זמן יש לך', 'How long do you have') + '</label><div class="tq-row"><label class="tq-in"><input id="tqIn" type="text" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="' + TC.opts[0] + '"><span>' + say('דקות', 'min') + '</span></label><button class="btn primary" id="tqGo" type="button" disabled>' + say('יאללה', 'Go') + '</button></div>' +
       '<div class="tq-ch" role="group" aria-labelledby="tqT">' + TC.opts.map((m) => '<button type="button" class="tq-c" data-time="' + m + '"><b>' + m + '</b><span>' + say('דקות', 'minutes') + '</span></button>').join('') + '</div>' +
-      '<button class="btn primary big" id="tqSkip" type="button" data-time="0">' + say('לא ממהר', 'No rush') + '</button></div>';
+      '<button class="btn big" id="tqSkip" type="button" data-time="0">' + say('לא ממהר', 'No rush') + '</button><p class="tq-full">' + say('זמן האימון המלא הוא ', 'The whole workout is ') + '<b>' + TC.full + say(' דקות', ' min') + '</b></p></div>';
     return;
   }
   const mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
@@ -269,7 +270,15 @@ function coachSheetChange(ev) {
   if (v === EQUIP[k].inc) delete S.cfg.inc[k]; else S.cfg.inc[k] = v;
   saveCfg();
 }
+/* a time typed on the card: ten minutes at least; the whole workout or more is no rush */
+function tqTyped(day) {
+  const i = $('#tqIn'), v = parseInt((i && i.value) || '', 10), full = timeInfo(S.tab).full;
+  if (!(v >= 10)) { if (i) { i.classList.remove('bad'); void i.offsetWidth; i.classList.add('bad'); i.focus(); } haptic('warn'); return; }
+  day(v >= full ? 0 : v);
+}
 function wireCoach() {
+  $('#pre').addEventListener('input', (ev) => { if (ev.target.id !== 'tqIn') return; ev.target.value = ev.target.value.replace(/[^0-9]/g, ''); const g = $('#tqGo'); if (g) g.disabled = !ev.target.value; });
+  $('#pre').addEventListener('keydown', (ev) => { if (ev.target.id === 'tqIn' && ev.key === 'Enter') { ev.preventDefault(); const g = $('#tqGo'); if (g && !g.disabled) g.click(); } });
   $('#pre').addEventListener('click', (ev) => {
     /* the second tap of a double tap on "Start workout" lands on the question that has just appeared: it is not an answer */
     if (ev.detail !== 0 && Date.now() - (S.preAt || 0) < 400) return;
@@ -277,6 +286,7 @@ function wireCoach() {
     S.touched = true;
     const day = (m) => { setDay(S.tab, m); S.timeAsk = null; S.open = null; S.eqAsk = window.__eq === false ? null : S.tab; S.eqOpen = false; haptic('select'); afterPre(); renderHome(); };
     if (b.dataset.time != null) { day(+b.dataset.time); return; }
+    if (b.id === 'tqGo') { tqTyped(day); return; }
     if (b.id === 'preBack') { preBack('time'); return; }
     if (b.id === 'eqMiss') { S.eqOpen = true; renderPre(); return; }
     if (b.dataset.miss) { const w = S.tab, M = S.miss || (S.miss = {}), l = M[w] || (M[w] = []), k = b.dataset.miss, at = l.indexOf(k); if (at >= 0) l.splice(at, 1); else l.push(k); applyMiss(w); haptic('select'); renderPre(); renderHome(); return; }

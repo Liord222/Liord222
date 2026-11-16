@@ -17,17 +17,43 @@ function soreEffects(w, sore) {
    Then: did the muscles recover from their last workout? One tap says yes. "Not quite" opens the muscles one by one: still sore
    takes a set off and stops a rep earlier; never sore after easy work adds a set */
 /* a shorter day: the times that are at least ten minutes under the whole workout */
-function timeInfo(w) { const full = fullMins(exList(w, null, true)); return { full, opts: [30, 45, 60, 75].filter((m) => m <= full - 10) }; }
+function timeInfo(w) {
+  const L = exList(w, null, true), full = fullMins(L), opts = [];
+  if (L.length <= FIT_MIN) return { full, min: full, opts };
+  const min = Math.max(10, workMins(L.slice(0, FIT_MIN)));
+  for (let m = min; m <= full - 5; m += 5) opts.push(m);
+  return { full, min, opts };
+}
+/* the box of minutes is swiped to the sides; the number in its middle is the one chosen */
+function tqCenter(v, smooth) {
+  const st = $('#pre .tq-strip'), el = st && $('.tq-v[data-v="' + v + '"]', st); if (!el) return;
+  const r = el.getBoundingClientRect(), b = st.getBoundingClientRect();
+  st.scrollBy({ left: r.left + r.width / 2 - (b.left + b.width / 2), behavior: smooth && !reduced ? 'smooth' : 'auto' });
+}
+function tqSync() {
+  const st = $('#pre .tq-strip'); if (!st) return;
+  const b = st.getBoundingClientRect(), c = b.left + b.width / 2; let best = null, d = 1e9;
+  for (const el of $$('.tq-v', st)) { const r = el.getBoundingClientRect(), x = Math.abs(r.left + r.width / 2 - c); if (x < d) { d = x; best = el; } }
+  if (!best) return; const v = +best.dataset.v; if (v === S.tqPick && best.classList.contains('on')) return;
+  for (const el of $$('.tq-v.on', st)) el.classList.remove('on');
+  best.classList.add('on'); S.tqPick = v; haptic('step');
+  const pk = $('#pre .tq-pick'); pk.setAttribute('aria-valuenow', v); pk.setAttribute('aria-valuetext', v + say(' דקות', ' minutes'));
+}
+function tqSet(v) { S.tqPick = v; tqCenter(v, false); tqSync(); }
 function renderPre() {
   const box = $('#pre'), w = S.tab, s = live(w), TC = (s && S.timeAsk !== w) || (s && hasDone(s)) || dayOf(w) ? null : timeInfo(w);
   if (TC && TC.opts.length) {
     $('#app').classList.add('pre-on');
     if (box.hidden) S.preAt = Date.now();
     box.hidden = false;
+    const v0 = TC.opts.includes(S.tqPick) ? S.tqPick : TC.opts[Math.floor((TC.opts.length - 1) / 2)]; S.tqPick = v0;
     box.innerHTML = '<div class="pre gate tq" role="dialog" aria-modal="true" aria-labelledby="tqT"><span class="pre-ic coach" aria-hidden="true">' + coachFace() + '</span><h2 id="tqT">' + say('יש לך פחות זמן היום?', 'Less time today?') + '</h2>' +
-      '<label class="tq-l" for="tqIn">' + say('כמה זמן יש לך', 'How long do you have') + '</label><div class="tq-row"><label class="tq-in"><input id="tqIn" type="text" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="' + TC.opts[0] + '"><span>' + say('דקות', 'min') + '</span></label><button class="btn primary" id="tqGo" type="button" disabled>' + say('יאללה', 'Go') + '</button></div>' +
-      '<div class="tq-ch" role="group" aria-labelledby="tqT">' + TC.opts.map((m) => '<button type="button" class="tq-c" data-time="' + m + '"><b>' + m + '</b><span>' + say('דקות', 'minutes') + '</span></button>').join('') + '</div>' +
+      '<p class="tq-l" id="tqL">' + say('כמה זמן יש לך', 'How long do you have') + '</p>' +
+      '<div class="tq-pick" role="slider" tabindex="0" aria-labelledby="tqL" aria-valuemin="' + TC.opts[0] + '" aria-valuemax="' + TC.opts[TC.opts.length - 1] + '" aria-valuenow="' + v0 + '" aria-valuetext="' + v0 + say(' דקות', ' minutes') + '"><div class="tq-strip">' +
+      TC.opts.map((m) => '<span class="tq-v' + (m === v0 ? ' on' : '') + '" data-v="' + m + '">' + m + '</span>').join('') + '</div><span class="tq-u">' + say('דקות', 'minutes') + '</span></div>' +
+      '<button class="btn primary big" id="tqGo" type="button">' + say('התחל', 'Start') + '</button>' +
       '<button class="btn big" id="tqSkip" type="button" data-time="0">' + say('לא ממהר', 'No rush') + '</button><p class="tq-full">' + say('זמן האימון המלא הוא ', 'The whole workout is ') + '<b>' + TC.full + say(' דקות', ' min') + '</b></p></div>';
+    requestAnimationFrame(() => tqCenter(S.tqPick, false));
     return;
   }
   const mus = (s && hasDone(s)) || phase(w, s).dl ? [] : preMuscles(w);
@@ -270,23 +296,23 @@ function coachSheetChange(ev) {
   if (v === EQUIP[k].inc) delete S.cfg.inc[k]; else S.cfg.inc[k] = v;
   saveCfg();
 }
-/* a time typed on the card: ten minutes at least; the whole workout or more is no rush */
-function tqTyped(day) {
-  const i = $('#tqIn'), v = parseInt((i && i.value) || '', 10), full = timeInfo(S.tab).full;
-  if (!(v >= 10)) { if (i) { i.classList.remove('bad'); void i.offsetWidth; i.classList.add('bad'); i.focus(); } haptic('warn'); return; }
-  day(v >= full ? 0 : v);
-}
 function wireCoach() {
-  $('#pre').addEventListener('input', (ev) => { if (ev.target.id !== 'tqIn') return; ev.target.value = ev.target.value.replace(/[^0-9]/g, ''); const g = $('#tqGo'); if (g) g.disabled = !ev.target.value; });
-  $('#pre').addEventListener('keydown', (ev) => { if (ev.target.id === 'tqIn' && ev.key === 'Enter') { ev.preventDefault(); const g = $('#tqGo'); if (g && !g.disabled) g.click(); } });
+  let tqRaf = 0;
+  $('#pre').addEventListener('scroll', (ev) => { if (ev.target.classList && ev.target.classList.contains('tq-strip') && !tqRaf) tqRaf = requestAnimationFrame(() => { tqRaf = 0; tqSync(); }); }, true);
+  $('#pre').addEventListener('keydown', (ev) => {
+    if (!ev.target.classList.contains('tq-pick') || (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight')) return;
+    ev.preventDefault(); const o = timeInfo(S.tab).opts, rtl = getComputedStyle(ev.target).direction === 'rtl', k = o.indexOf(S.tqPick) + ((ev.key === 'ArrowLeft') === rtl ? 1 : -1);
+    if (k >= 0 && k < o.length) { tqCenter(o[k], true); }
+  });
   $('#pre').addEventListener('click', (ev) => {
     /* the second tap of a double tap on "Start workout" lands on the question that has just appeared: it is not an answer */
     if (ev.detail !== 0 && Date.now() - (S.preAt || 0) < 400) return;
+    const tv = ev.target.closest('.tq-v'); if (tv) { tqCenter(+tv.dataset.v, true); return; }
     const b = ev.target.closest('button'); if (!b) return;
     S.touched = true;
     const day = (m) => { setDay(S.tab, m); S.timeAsk = null; S.open = null; S.eqAsk = window.__eq === false ? null : S.tab; S.eqOpen = false; haptic('select'); afterPre(); renderHome(); };
     if (b.dataset.time != null) { day(+b.dataset.time); return; }
-    if (b.id === 'tqGo') { tqTyped(day); return; }
+    if (b.id === 'tqGo') { day(S.tqPick >= timeInfo(S.tab).full ? 0 : S.tqPick); return; }
     if (b.id === 'preBack') { preBack('time'); return; }
     if (b.id === 'eqMiss') { S.eqOpen = true; renderPre(); return; }
     if (b.dataset.miss) { const w = S.tab, M = S.miss || (S.miss = {}), l = M[w] || (M[w] = []), k = b.dataset.miss, at = l.indexOf(k); if (at >= 0) l.splice(at, 1); else l.push(k); applyMiss(w); haptic('select'); renderPre(); renderHome(); return; }

@@ -120,7 +120,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   // ---- the workout: the recovery question, the exercise, the bar at the bottom
   await p.click('#homeGo'); await p.waitForTimeout(450);
   const tg = await txt('#pre');
-  check('the question about a shorter day is in English', tg.includes('Less time today') && tg.includes('minutes') && tg.includes('No rush') && (await p.$$('#pre .tq-c')).length >= 2 && !(await p.$('#tqMin')), tg);
+  check('the question about a shorter day is in English', tg.includes('Less time today') && tg.includes('minutes') && tg.includes('No rush') && (await p.$$('#pre .tq-v')).length >= 2 && tg.includes('Start') && tg.includes('The whole workout is') && !(await p.$('#tqMin')), tg);
   await clean('the question about today\'s length'); await snap(p, 'en5a-time');
   await gate(p);
   check('the recovery question is in English', (await txt('#pre')).includes('Have your muscles recovered') && (await txt('#preAll')) === 'Yes, all good' && (await txt('#preEdit')) === 'Not quite' && (await txt('#preSkip')) === 'Skip', await txt('#pre'));

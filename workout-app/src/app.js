@@ -635,15 +635,13 @@ function exIntro(e, first) {
   const fact = (b, t) => '<li><b>' + b + '</b><span>' + t + '</span></li>';
   const s0 = live(S.tab), back = !!first && !(s0 && hasDone(s0));
   const rm = restMins(e);
-  box.className = 'xi xo';
+  box.className = 'xi xo xs';
   box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
     (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
-    '<div class="xo-hero"><span class="xo-spot" aria-hidden="true"></span><span class="xo-pod" aria-hidden="true"></span><canvas class="xo-cv" aria-hidden="true"></canvas><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p></div>' +
-    '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
+    '<div class="xo-body"><div class="xo-info"><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
     '<button class="btn primary big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
   box.classList.remove('out'); box.hidden = false; box.classList.add('on');
-  startPlayer($('.xo-cv', box), e.a, box, 'none');
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
 }

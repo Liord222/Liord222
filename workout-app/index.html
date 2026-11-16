@@ -2525,32 +2525,6 @@ li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
 @media (prefers-reduced-motion:reduce){.xi.xo.out{transition:none}}
 /* ================= round 6: the look of a game (the owner's references): chunky shapes, thick dark outlines, glossy colour */
 :root{--ol:#1B1035}
-/* ---- the screen of a new exercise: a stage at night, the exercise on a lit podium, nothing like the set screen under it ---- */
-.xi.xo{background:radial-gradient(120% 70% at 50% 18%,#5B33D6 0%,#3A1D96 42%,#1A0C45 100%);color:#fff}
-.xi.xo::before{content:"";position:absolute;inset:-30%;background:repeating-conic-gradient(from 0deg at 50% 32%,rgb(255 255 255 / .07) 0 9deg,transparent 9deg 22deg);animation:ru-spin 40s linear infinite;pointer-events:none}
-.xo-in{position:relative}
-.xo-hero{background:none;border-radius:0;overflow:visible}
-.xo-spot{position:absolute;left:50%;top:calc(52% + 20px);width:min(96vw,470px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,#F4EFFF 0%,#E3D9FF 52%,rgb(227 217 255 / .55) 70%,rgb(227 217 255 / 0) 100%);animation:xo-spot .6s cubic-bezier(.2,.9,.3,1.2) both}
-.xo-pod{position:absolute;left:50%;bottom:4%;width:74%;height:13%;transform:translateX(-50%);border-radius:50%;background:linear-gradient(#FFD75E,#F2A91C);box-shadow:0 0 0 3px var(--ol),0 7px 0 0 #A86A07,0 7px 0 3px var(--ol);animation:xo-pod .5s cubic-bezier(.2,.9,.3,1.3) .1s both}
-.xo-cv{z-index:1}
-.xo-k{z-index:2;top:calc(14px + env(safe-area-inset-top,0px));padding:8px 18px;border-radius:12px;background:#FFD23F;color:var(--ol);font-size:16px;font-weight:900;box-shadow:0 0 0 3px var(--ol),0 5px 0 0 var(--ol);transform:translateX(-50%) rotate(-3deg);animation:xo-k .45s cubic-bezier(.2,.9,.3,1.4) both}
-@keyframes xo-k{from{opacity:0;transform:translate(-50%,-30px) rotate(-12deg)}}
-@keyframes xo-spot{from{opacity:0;transform:translate(-50%,-50%) scale(.4)}}
-@keyframes xo-pod{from{opacity:0;transform:translateX(-50%) scale(.3)}}
-.xo-t{color:#fff;font-size:clamp(28px,8vw,38px);text-shadow:0 3px 0 var(--ol),0 0 2px var(--ol);-webkit-text-stroke:1px var(--ol);paint-order:stroke fill;animation:xo-t .5s cubic-bezier(.2,.9,.3,1.35) .12s both}
-@keyframes xo-t{from{opacity:0;transform:scale(.55)}}
-.xi.xo .mus-chips span{background:rgb(255 255 255 / .16);color:#fff;box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .3)}
-.xo-rx{gap:10px;animation:none}
-.xo-rx li{padding:10px 4px 9px;border-radius:16px;background:#fff;color:var(--ol);box-shadow:0 0 0 3px var(--ol),0 5px 0 0 var(--ol);animation:xo-tile .45s cubic-bezier(.2,.9,.3,1.4) both}
-.xo-rx li:nth-child(2){animation-delay:.08s}.xo-rx li:nth-child(3){animation-delay:.16s}
-.xo-rx li+li{border:0}
-.xo-rx b{color:#5B2EE0}
-.xo-rx span{color:#4A4060}
-@keyframes xo-tile{from{opacity:0;transform:translateY(24px) scale(.7)}}
-.xi.xo #xiGo{background:linear-gradient(#FFDD55,#FFC21F);color:var(--ol);font-weight:900;font-size:21px;border:0;box-shadow:0 0 0 3px var(--ol),0 6px 0 0 #B57A00,0 6px 0 3px var(--ol);text-shadow:none}
-.xi.xo #xiGo:active{transform:scale(.96)}
-.xi-back{color:var(--ol);background:#fff;box-shadow:0 0 0 3px var(--ol),0 4px 0 0 var(--ol)}
-@media (prefers-reduced-motion:reduce){.xi.xo::before,.xo-spot,.xo-pod,.xo-rx li{animation:none}}
 /* ---- the points of a set: a gold sun bursts, the number pops on it in thick outlined letters, then all of it flies up ---- */
 .pts{gap:0}
 @keyframes pg-pop{0%{opacity:0;transform:scale(.2) rotate(-20deg)}100%{opacity:1}}
@@ -2675,6 +2649,15 @@ li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
 /* the streak on a short phone: the flame and the number smaller, so the button is on the screen */
 .stk{overflow-y:auto}
 @media (max-height:660px){.stk{padding:16px}.stk-fig{width:128px}.stk-n{height:108px}.stk-n b{font-size:108px;line-height:108px}.stk-w{font-size:25px}.stk-wk{margin:8px 0 12px}}
+
+/* the screen of a new exercise, plain (owner, 16 Nov): no drawing; which one it is, its name, what it trains, its numbers, and Start */
+.xi.xs .xo-in{grid-template-rows:minmax(0,1fr)}
+.xi.xs .xo-body{padding-top:calc(64px + env(safe-area-inset-top,0px))}
+.xi.xs .xo-info{gap:14px}
+.xi.xs .xo-k{position:static;transform:none;margin:0;padding:0;background:none;box-shadow:none;font-size:16px;font-weight:700;color:var(--ink-3);animation:xi-up .3s ease both}
+.xi.xs .xo-t{font-size:clamp(30px,9vw,40px)}
+.xi.xs .xo-rx{margin-top:18px;padding:18px 6px;border-radius:20px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line)}
+.xi.xs .xo-rx b{font-size:30px}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
@@ -7016,15 +6999,13 @@ function exIntro(e, first) {
   const fact = (b, t) => '<li><b>' + b + '</b><span>' + t + '</span></li>';
   const s0 = live(S.tab), back = !!first && !(s0 && hasDone(s0));
   const rm = restMins(e);
-  box.className = 'xi xo';
+  box.className = 'xi xo xs';
   box.innerHTML = '<div class="xo-in" role="dialog" aria-modal="true" aria-labelledby="xiT">' +
     (back ? '<button class="xi-back" id="xiBack" type="button" aria-label="' + say('חזרה', 'Back') + '">' + ICON.back + '</button>' : '') +
-    '<div class="xo-hero"><span class="xo-spot" aria-hidden="true"></span><span class="xo-pod" aria-hidden="true"></span><canvas class="xo-cv" aria-hidden="true"></canvas><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p></div>' +
-    '<div class="xo-body"><div class="xo-info"><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
+    '<div class="xo-body"><div class="xo-info"><p class="xo-k">' + say('תרגיל ', 'Exercise ') + (i + 1) + say(' מתוך ', ' of ') + list.length + '</p><h2 class="xo-t" id="xiT">' + e.nm + '</h2>' + musChips(e.mv) +
     '<ul class="xo-rx">' + fact(e.sets, e.sets === 1 ? say('סט', 'set') : say('סטים', 'sets')) + fact(Ltr(e.reps), repWord(e.mv)) + fact(Ltr(rm.v), rm.one ? say('דקה מנוחה', 'min rest') : say('דקות מנוחה', 'min rest')) + '</ul></div>' +
     '<button class="btn primary big xo-go" id="xiGo" type="button">' + say('התחל', 'Start') + '</button></div></div>';
   box.classList.remove('out'); box.hidden = false; box.classList.add('on');
-  startPlayer($('.xo-cv', box), e.a, box, 'none');
   haptic('step'); sfx('next');
   clearTimeout(XI.t); XI.t = setTimeout(() => { const b = $('#xiGo'); if (b) b.focus({ preventScroll: true }); }, 80);
 }

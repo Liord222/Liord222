@@ -357,7 +357,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   const ru = await p.evaluate(() => { const el = document.querySelector('#rankUp'); return el ? { label: el.getAttribute('aria-label'), text: el.innerText.replace(/\s+/g, ' ').trim(), medal: !!el.querySelector('svg.medal'), heb: /[\u0590-\u05FF]/.test(el.innerText + el.getAttribute('aria-label')) } : null; });
   check('a new rank is told in English on the whole screen, with its medal', !!ru && ru.label === 'A new rank: Warrior' && ru.text === 'A new rank Warrior Yes' && ru.medal && !ru.heb, ru);
   await p.click('#rankOk'); await p.waitForTimeout(350);
-  check('a level-up and its rewards are told in English', (await txt('#sheet')).includes('You reached level ') && (await txt('#sheet')).includes('Unlocked Headband') && (await txt('#sheet')).includes('Unlocked Common box') && (await txt('#sheet')).includes('Unlocked Warrior') && !(await txt('#sheet')).includes('Achievement') && (await txt('#sheet')).includes('Well done'), await txt('#sheet'));
+  check('a level-up and its rewards are told in English', (await txt('#sheet')).includes('You reached level ') && /\d+ prizes unlocked/.test(await txt('#sheet')) && !(await txt('#sheet')).includes('Achievement') && (await txt('#sheet')).includes('Well done'), await txt('#sheet'));
   await clean('a level-up'); await snap(p, 'en17-levelup');
   await p.click('#sheetClose'); await p.waitForTimeout(250);
   await p.evaluate(() => { levelUp(7); });

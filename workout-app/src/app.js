@@ -732,8 +732,9 @@ function showSummary(s, R) {
   const y = R.y, up = R.to.lvl > R.from.lvl, opened = up ? rewardsBetween(R.from.lvl, R.to.lvl) : [], bk = boxOf(s), mins = durMins(s), pct = betterPct(s), better = pct != null && pct >= 1;
   const prs = exList(s.w, s).filter((e) => rowsOf(s, e.id).some((r) => isDone(r) && r.pr)).map((e) => e.nm);
   const chip = (cls, ic, t) => '<li class="' + cls + '">' + ic + '<b>' + t + '</b></li>';
-  const chips = prs.slice(0, 3).map((n) => chip('gold', glyph('star'), say('שיא חדש ב', 'New best · ') + n))
-    .concat(opened.map((r) => chip('', glyph('gift'), say('נפתח ', 'Unlocked ') + nm(r))));
+  /* one line for the bests and one for what opened, however many: the button under them stays on the screen */
+  const chips = (prs.length > 1 ? [chip('gold', glyph('star'), prs.length + say(' שיאים חדשים', ' new bests'))] : prs.map((n) => chip('gold', glyph('star'), say('שיא חדש ב', 'New best · ') + n)))
+    .concat(opened.length > 1 ? [chip('', glyph('gift'), say('נפתחו ' + opened.length + ' פרסים', opened.length + ' prizes unlocked'))] : opened.map((r) => chip('', glyph('gift'), say('נפתח ', 'Unlocked ') + nm(r))));
   const tile = (id, v, t, cls) => '<li' + (cls ? ' class="' + cls + '"' : '') + '><b id="' + id + '" dir="ltr">' + v + '</b><span>' + t + '</span></li>';
   const sh = $('#sheet'); S.sheet = 'sum'; $('#toast').hidden = true;
   const who = S.cfg.me.name;

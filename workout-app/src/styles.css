@@ -2664,3 +2664,10 @@ li.st.done .st-n{background:#FFD23F;color:#5A3A00;box-shadow:none}
 .tq-u{position:relative;display:block;margin-top:-4px;font-size:15px;font-weight:800;color:var(--ink-3);text-align:center}
 .tq-full{margin:2px 0 0;font-size:14.5px;font-weight:600;color:var(--ink-3);text-align:center}
 .tq-full b{color:var(--ink);font-weight:800}
+
+/* the end of a workout scrolls when it is taller than the screen, and its button stays at the foot of the screen, over whatever is under it */
+.sheet-in.sum{overflow-y:auto}
+.sheet-in.sum>#sheetClose,.sheet-in.sum>.btn.primary:last-child{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:3}
+/* the streak on a short phone: the flame and the number smaller, so the button is on the screen */
+.stk{overflow-y:auto}
+@media (max-height:660px){.stk{padding:16px}.stk-fig{width:128px}.stk-n{height:108px}.stk-n b{font-size:108px;line-height:108px}.stk-w{font-size:25px}.stk-wk{margin:8px 0 12px}}

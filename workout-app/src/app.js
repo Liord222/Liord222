@@ -106,7 +106,7 @@ function coachSays(Wm, easy) {
 }
 function weekHTML(Wm, easy) {
   const row = (x) => {
-    const sub = x.st === 'done' ? say('הושלם ', 'Done ') + dayWord(x.when) : x.st === 'live' ? x.dn + say(' מתוך ', ' of ') + x.total + say(' סטים', ' sets') : wkMus(x.i) + ' · ' + x.mins + say(' דק׳', ' min');
+    const sub = x.st === 'done' ? say('הושלם ', 'Done ') + dayWord(x.when) : x.st === 'live' ? x.dn + say(' מתוך ', ' of ') + x.total + say(' סטים', ' sets') : wkMus(x.i) + ' · ' + x.mins + say('\u00A0דק׳', '\u00A0min');
     const end = x.st === 'live' ? '<span class="wr-tag">' + say('באמצע', 'In progress') + '</span>' : x.st === 'next' ? '<span class="wr-tag">' + say('הבא', 'Next') + '</span>' : x.st === 'done' ? '' : '<span class="wr-go">' + ICON.fwd + '</span>';
     return '<li style="--i:' + x.k + '"><button class="tab ' + wkTone(x.i) + ' ' + x.st + '" type="button" data-tab="' + x.i + '" aria-label="' + x.label + '"' + (x.cur ? ' aria-current="true"' : '') + '>' +
       '<span class="dot" aria-hidden="true">' + (x.st === 'done' ? ICON.check : x.k + 1) + '</span><span class="wr-txt"><b>' + wkName(x.i) + '</b><span>' + sub + '</span>' +
@@ -632,9 +632,9 @@ const XI = { t: 0, g: 0 };
 const XO_AT = [[2, 86, 19, 0.05, -10], [24, 64, 23, 0.62, 8], [46, 78, 21, 0.3, -6], [70, 92, 18, 0.82, 12], [86, 66, 24, 0.45, -12],
   [12, 70, 22, 0.9, 10], [34, 94, 17, 0.18, -8], [58, 62, 25, 0.72, 6], [80, 80, 20, 0.12, -10], [-4, 74, 21, 0.5, 9], [52, 88, 19, 0.98, -7], [26, 60, 24, 0.36, 11]];
 function xoBg() {
-  const key = JSON.stringify(S.cfg.me.look || {});
+  const lvl = meNow().L.lvl, key = JSON.stringify(S.cfg.me.look || {}) + '|' + lvl;
   if (XI.bgKey === key && XI.bg) return XI.bg;
-  const step = Math.max(1, Math.floor(SHOP.length / XO_AT.length)), its = SHOP.filter((x, k) => k % step === 0).slice(0, XO_AT.length), lvl = meNow().L.lvl;
+  const step = Math.max(1, Math.floor(SHOP.length / XO_AT.length)), its = SHOP.filter((x, k) => k % step === 0).slice(0, XO_AT.length);
   XI.bg = '<div class="xo-bg" aria-hidden="true"><i class="xo-rays"></i>' + its.map((it, k) => { const [x, z, t, at, r] = XO_AT[k];
     return '<span style="left:' + x + '%;--z:' + z + 'px;--t:' + t + 's;--d:-' + (t * at).toFixed(1) + 's;--y:' + Math.round(8 + at * 80) + '%;--r:' + r + 'deg;--rc:' + rareOf(it).c + '">' + cropFig(it, lvl) + '</span>'; }).join('') + '</div>';
   XI.bgKey = key; return XI.bg;

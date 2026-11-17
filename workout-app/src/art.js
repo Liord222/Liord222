@@ -114,3 +114,54 @@ const FLAME_SVG = '<svg class="flm" viewBox="0 0 120 140" aria-hidden="true">' +
   '<path d="M37 72L53 76M83 72L67 76" stroke="#1B1035" stroke-width="3.6" stroke-linecap="round"/>' +
   '<path d="M50 96Q60 106 70 96" fill="#B3261E" stroke="#1B1035" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g>' +
   shine(16, 26, 1.1, '#FFF3B0') + shine(104, 22, 0.9, '#FFF3B0') + '</svg>';
+/* ---- the small pictures of the app, drawn like the things of the road, not as line icons (owner, 17 Nov):
+   all in the purple of gymi, a dark outline, a lighter purple for the second part and a white detail. 48 by 48 ---- */
+const AI_P = '#6D3FE0', AI_L = '#9B7BF6', AI_X = '#CBB9FF', AI_D = '#3B1E96', AI_W = '#FFFFFF';
+const aiP = (d, c, w) => '<path d="' + d + '" fill="' + c + '" stroke="' + AI_D + '" stroke-width="' + (w || 2) + '"' + ART_OL + '/>';
+const aiR = (x, y, w, h, r, c) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + r + '" fill="' + c + '" stroke="' + AI_D + '" stroke-width="2"/>';
+const aiC = (x, y, r, c) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + c + '" stroke="' + AI_D + '" stroke-width="2"/>';
+const aiW = (d, w, c) => '<path d="' + d + '" fill="none" stroke="' + (c || AI_W) + '" stroke-width="' + (w || 2.6) + '" opacity="' + (c ? 1 : 0.8) + '"' + ART_OL + '/>';
+const aiF = (d, c) => '<path d="' + d + '" fill="' + (c || AI_W) + '" stroke="none"/>';
+const aiBell = (y, k) => { const s = k || 1, t = (v) => +(v * s).toFixed(1); return '<g transform="translate(' + t(24 - 24) + ' 0)">' + aiR(4, y - 6, 6, 12, 2, AI_L) + aiR(9, y - 11, 7, 22, 3, AI_P) + aiR(16, y - 3, 16, 6, 2, AI_X) + aiR(32, y - 11, 7, 22, 3, AI_P) + aiR(38, y - 6, 6, 12, 2, AI_L) + aiW('M12.5 ' + (y - 7) + 'v8') + aiW('M35.5 ' + (y - 7) + 'v8') + '</g>'; };
+const aiHouse = (inner) => aiP('M6 22L24 7l18 15v20c0 1-1 2-2 2H8c-1 0-2-1-2-2z', AI_L) + aiP('M3 23L24 5l21 18', 'none', 3.4) + inner;
+const AI = {
+  arm: () => aiP('M4 33C6 19 24 14 30 22V16c-3-1-3-7 0-10s11-3 13 1 1 8-1 10v21c0 4-3 6-6 6H8c-3 0-4-2-4-5z', AI_P) + aiW('M33 11h6M33 15h5', 2, AI_D) + aiW('M10 29c3-5 9-7 14-6') + aiW('M34 25v12', 2.4, AI_L),
+  bell: () => aiBell(24),
+  bolt: () => aiP('M28 3L9 27h12l-3 18 21-26H27z', AI_P) + aiW('M25 9l-9 14'),
+  flame: () => aiP('M24 3c2 8 15 12 15 26a15 15 0 0 1-30 0c0-6 3-11 8-14 0 4 2 7 5 8-1-8 0-14 2-20z', AI_P) + aiP('M24 24c3 4 8 6 8 12a8 8 0 0 1-16 0c0-3 2-6 4-8 0 2 1 4 3 5 0-3 0-6 1-9z', AI_X),
+  heart: () => aiP('M24 42S6 31 6 18a9.5 9.5 0 0 1 18-4.5A9.5 9.5 0 0 1 42 18c0 13-18 24-18 24z', AI_P) + aiW('M12 17a6 6 0 0 1 5-5'),
+  shoe: () => aiP('M5 33v-4c0-2 1-4 3-4l8-2 5-9c1-2 3-2 4-1l2 1 2 6 7 4c6 1 9 3 9 7v2H5z', AI_P) + aiR(4, 33, 40, 7, 3.5, AI_X) + aiW('M22 21l-3 2M25 25l-3 2'),
+  gym: () => aiP('M5 43V17L24 6l19 11v26z', AI_L) + aiR(17, 29, 14, 14, 2, AI_P) + aiR(11, 17, 4, 7, 1.5, AI_P) + aiR(33, 17, 4, 7, 1.5, AI_P) + aiR(15, 19, 18, 3, 1.5, AI_X) + aiW('M8 19v20'),
+  park: () => aiR(3, 40, 42, 5, 2.5, AI_X) + aiR(8, 9, 5, 33, 2.5, AI_P) + aiR(35, 9, 5, 33, 2.5, AI_P) + aiR(5, 9, 38, 5, 2.5, AI_L) + aiW('M10 17v20'),
+  homeBell: () => aiHouse(aiR(13, 29, 4, 9, 1.5, AI_P) + aiR(31, 29, 4, 9, 1.5, AI_P) + aiR(17, 32, 14, 3, 1.5, AI_X)),
+  home: () => aiHouse(aiR(19, 29, 10, 15, 2, AI_P) + aiC(24, 21, 3.2, AI_W)),
+  plates1: () => aiR(2, 22, 44, 4, 2, AI_X) + aiR(11, 13, 5, 22, 2, AI_P) + aiR(32, 13, 5, 22, 2, AI_P),
+  plates2: () => aiR(2, 22, 44, 4, 2, AI_X) + aiR(6, 16, 5, 16, 2, AI_L) + aiR(11, 11, 5, 26, 2, AI_P) + aiR(32, 11, 5, 26, 2, AI_P) + aiR(37, 16, 5, 16, 2, AI_L),
+  plates3: () => aiR(1, 22, 46, 4, 2, AI_X) + aiR(3, 18, 4, 12, 2, AI_X) + aiR(7, 14, 5, 20, 2, AI_L) + aiR(12, 9, 5, 30, 2, AI_P) + aiR(31, 9, 5, 30, 2, AI_P) + aiR(36, 14, 5, 20, 2, AI_L) + aiR(41, 18, 4, 12, 2, AI_X),
+  crown: () => aiP('M7 35L4 13l12 9 8-14 8 14 12-9-3 22z', AI_P) + aiR(7, 35, 34, 7, 2.5, AI_L) + aiC(24, 28, 3.4, AI_X) + aiC(4, 12, 2.6, AI_X) + aiC(24, 7, 2.6, AI_X) + aiC(44, 12, 2.6, AI_X),
+  me: () => aiP('M8 43c1-10 7-15 16-15s15 5 16 15z', AI_P) + aiC(24, 16, 9, AI_L) + aiW('M19 13a5 5 0 0 1 4-3'),
+  lang: () => aiC(24, 24, 18, AI_L) + aiW('M24 6c7 5 7 31 0 36M24 6c-7 5-7 31 0 36M6 24h36M9 15h30M9 33h30', 2, AI_D),
+  bars: () => aiR(6, 28, 9, 15, 2.5, AI_X) + aiR(19.5, 18, 9, 25, 2.5, AI_L) + aiR(33, 7, 9, 36, 2.5, AI_P),
+  goal: () => aiC(24, 24, 18, AI_P) + aiC(24, 24, 12, AI_W) + aiC(24, 24, 6, AI_P),
+  time: () => aiR(20, 3, 8, 5, 2, AI_P) + aiC(24, 26, 17, AI_P) + aiC(24, 26, 12, AI_W) + aiW('M24 19v7l5 3', 3, AI_D),
+  cal: () => aiR(6, 9, 36, 33, 6, AI_W) + aiP('M6 15c0-3 3-6 6-6h24c3 0 6 3 6 6v5H6z', AI_P) + aiR(14, 4, 5, 10, 2.5, AI_L) + aiR(29, 4, 5, 10, 2.5, AI_L) + aiW('M17 31l5 5 9-9', 3.4, AI_P),
+  fb: () => aiP('M9 8h30c3 0 5 2 5 5v16c0 3-2 5-5 5H23l-10 8v-8H9c-3 0-5-2-5-5V13c0-3 2-5 5-5z', AI_P) + aiF('M14.5 21a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M21.5 21a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0M28.5 21a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0'),
+  sound: () => aiP('M6 18h8l11-9v30l-11-9H6z', AI_P) + aiW('M31 18a8 8 0 0 1 0 12M36 12a15 15 0 0 1 0 24', 3.6, AI_L),
+  buzz: () => aiR(14, 4, 20, 40, 5, AI_P) + aiR(17.5, 9, 13, 26, 2.5, AI_X) + aiW('M7 17v14M41 17v14', 3.6, AI_L),
+  lock: () => aiW('M15 22v-6a9 9 0 0 1 18 0v6', 5, AI_D) + aiW('M15 22v-6a9 9 0 0 1 18 0v6', 2, AI_L) + aiR(9, 21, 30, 22, 5, AI_P) + aiC(24, 30, 3.4, AI_W) + aiF('M22.5 31h3l1 6h-5z'),
+  tour: () => aiC(24, 24, 18, AI_L) + aiC(24, 24, 13, AI_W) + aiP('M32 16l-5 11-11 5 5-11z', AI_P) + aiF('M22 24a2 2 0 1 0 4 0a2 2 0 1 0-4 0'),
+  film: () => aiR(4, 8, 40, 28, 5, AI_P) + aiF('M20 15v14l11-7z') + aiR(16, 38, 16, 5, 2.5, AI_L),
+  del: () => '<path d="M11 15h26l-2 26c0 2-2 3-4 3H17c-2 0-4-1-4-3z" fill="#E5484D" stroke="#8F1D10" stroke-width="2"' + ART_OL + '/><rect x="7" y="10" width="34" height="6" rx="3" fill="#FF8A8D" stroke="#8F1D10" stroke-width="2"/><path d="M19 10V7c0-1 1-2 2-2h6c1 0 2 1 2 2v3" fill="none" stroke="#8F1D10" stroke-width="2.4"' + ART_OL + '/>' + aiW('M20 21v17M28 21v17'),
+  flag: () => aiR(8, 4, 5, 40, 2.5, AI_L) + aiP('M13 7h25l-6 9 6 9H13z', AI_P) + aiW('M17 11h14'),
+  loop: () => aiW('M9 22A15 15 0 0 1 36 13', 5.4, AI_P) + aiP('M40 5v12H28z', AI_P) + aiW('M39 26A15 15 0 0 1 12 35', 5.4, AI_L) + aiP('M8 43V31h12z', AI_L),
+  cup: () => aiW('M13 11H7c0 7 3 10 8 10M35 11h6c0 7-3 10-8 10', 3.4, AI_L) + aiP('M13 6h22v11a11 11 0 0 1-22 0z', AI_P) + aiR(21, 27, 6, 8, 1.5, AI_L) + aiR(13, 34, 22, 8, 2.5, AI_P) + aiW('M18 10v7'),
+  star: () => aiP(ART_STAR(24, 25, 20, 9), AI_P) + aiW('M18 16l-3 1'),
+  gift: () => aiR(8, 20, 32, 23, 3, AI_P) + aiR(5, 13, 38, 9, 3, AI_L) + aiR(21, 13, 6, 30, 0, AI_X) + aiP('M24 13c-3-6-10-8-11-4s6 4 11 4zM24 13c3-6 10-8 11-4s-6 4-11 4z', AI_L),
+  pen: () => aiP('M8 40l2-9L31 10a4.5 4.5 0 0 1 7 7L17 38z', AI_P) + aiP('M8 40l2-9 7 7z', AI_X) + aiW('M27 14l7 7', 2, AI_D) + aiW('M14 29l11-11'),
+  gear: () => [0, 45, 90, 135, 180, 225, 270, 315].map((a) => '<rect x="20.5" y="3" width="7" height="10" rx="2" fill="' + AI_P + '" stroke="' + AI_D + '" stroke-width="2" transform="rotate(' + a + ' 24 24)"/>').join('') + '<circle cx="24" cy="24" r="14" fill="' + AI_P + '"/>' + aiC(24, 24, 6, AI_W),
+  swap: () => aiP('M6 13h23V7l12 10-12 10v-6H6z', AI_P) + aiP('M42 35H19v6L7 31l12-10v6h23z', AI_L),
+  camera: () => aiP('M15 13l3-5h12l3 5z', AI_L) + aiR(4, 13, 40, 28, 5, AI_P) + aiC(24, 27, 9, AI_W) + aiC(24, 27, 5, AI_L),
+  info: () => aiC(24, 24, 19, AI_P) + aiF('M21.5 22a2.5 2.5 0 0 1 5 0v12a2.5 2.5 0 0 1-5 0zM21 15a3 3 0 1 0 6 0a3 3 0 1 0-6 0'),
+};
+/* one of them; an unknown name draws nothing */
+const artIc = (k) => (AI[k] ? '<svg class="ai" viewBox="0 0 48 48" aria-hidden="true">' + AI[k]() + '</svg>' : '');

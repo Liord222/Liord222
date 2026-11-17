@@ -51,8 +51,8 @@ function renderProfile(P) {
   let si = 0; const stat = (v, k) => '<li style="--i:' + (si++) + '"><b>' + v + '</b><span>' + k + '</span></li>';
   /* the kiosk in short: the boxes that wait, and the last three things that came out of a box */
   const owned = ownedOf(me.shop), wait = me.shop.inv.reduce((a, b) => a + b, 0), peek = me.shop.own.slice(-3).reverse().map(shopItem).filter(Boolean);
-  $('#profile').innerHTML = '<section class="pf-top"><div class="pf-bar">' + (me.made ? '<button class="pf-ic pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + glyph('pen') + '</button>' : '<span></span>') +
-    '<button class="pf-ic" id="setBtn" type="button" aria-label="' + say('הגדרות', 'Settings') + '">' + glyph('gear') + '</button></div>' +
+  $('#profile').innerHTML = '<section class="pf-top"><div class="pf-bar">' + (me.made ? '<button class="pf-ic pf-edit" id="lookBtn" type="button" aria-label="' + say('עריכת הדמות', 'Edit the character') + '">' + artIc('pen') + '</button>' : '<span></span>') +
+    '<button class="pf-ic" id="setBtn" type="button" aria-label="' + say('הגדרות', 'Settings') + '">' + artIc('gear') + '</button></div>' +
     '<div class="pf-stage" id="pfStage">' + avatar(L.lvl) + '</div><h1 class="pf-name">' + (me.name ? '<bdi>' + esc(me.name) + '</bdi>' : say('הדמות שלי', 'My character')) + '</h1>' +
     '<p class="pf-rank">' + medalSVG(P.rank.i) + '<span class="lv-badge">' + say('רמה ', 'Level ') + L.lvl + '</span>' + nm(P.rank) + '</p>' +
     '<div class="xp">' + xpBar(pctOf(L)) + '<p class="xp-l">' + say('עוד ' + nf(L.need - L.into) + ' נקודות לרמה ', nf(L.need - L.into) + ' pts to level ') + (L.lvl + 1) + '</p></div>' +
@@ -343,7 +343,9 @@ const SET_I = {
   film: '<rect x="4" y="5.5" width="16" height="13" rx="2.5"/><path d="M10.2 9.4v5.2l4.4-2.6z"/>',
   del: '<path d="M5 7h14M9.5 7V4.8h5V7M7 7l.8 12.2h8.4L17 7M10.3 10.5v5.5M13.7 10.5v5.5"/>',
 };
-const setIcon = (k, tone) => '<span class="st-i' + (tone ? ' ' + tone : '') + '" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">' + SET_I[k] + '</svg></span>';
+/* each row of the settings has its drawing (art.js), in the purple of the app */
+const SET_ART = { me: 'me', lang: 'lang', exp: 'bars', goal: 'goal', time: 'time', days: 'cal', eq: 'bell', fb: 'fb', sound: 'sound', buzz: 'buzz', pin: 'lock', tour: 'tour', film: 'film', del: 'del' };
+const setIcon = (k, tone) => '<span class="st-i' + (tone ? ' ' + tone : '') + '" aria-hidden="true">' + (artIc(SET_ART[k]) || '<svg class="i" viewBox="0 0 24 24">' + SET_I[k] + '</svg>') + '</span>';
 /* the word that has to be typed to delete the account: the lifter's own name, or a plain word when there is none */
 const delWord = () => S.cfg.me.name || say('מחק', 'delete');
 const sameWord = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
@@ -390,7 +392,7 @@ function setAnswer(key, v) {
 /* ---- deleting the account: said plainly, and confirmed by typing a word ---- */
 function delPageHTML() {
   const D = S.del || (S.del = { v: '', busy: false, note: '' }), word = delWord();
-  return '<div class="st-del"><span class="st-del-i" aria-hidden="true"><svg class="i" viewBox="0 0 24 24">' + SET_I.del + '</svg></span><h3>' + say('למחוק את החשבון', 'Delete the account?') + '</h3>' +
+  return '<div class="st-del"><span class="st-del-i" aria-hidden="true">' + artIc('del') + '</span><h3>' + say('למחוק את החשבון', 'Delete the account?') + '</h3>' +
     '<p>' + say('כל האימונים הדמות המטבעות וההגדרות יימחקו מהמכשיר הזה ומהחשבון אי אפשר לבטל את זה', 'Every workout, the character, the coins and the settings will be erased from this device and from the account. This cannot be undone.') + '</p>' +
     (S.dl ? '<button class="link" id="backupBtn" type="button">' + say('קודם לשמור גיבוי לקובץ', 'Save a backup file first') + '</button>' : '') +
     '<label for="delName">' + say('כדי לאשר כותבים כאן ', 'To confirm, type: ') + '<b><bdi>' + esc(word) + '</bdi></b></label>' +

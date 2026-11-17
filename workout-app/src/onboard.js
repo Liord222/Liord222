@@ -82,28 +82,8 @@ const AREAS = () => [say('חזה', 'Chest'), say('גב', 'Back'), say('כתפי�
 const OUCH = () => [say('ברכיים', 'Knees'), say('גב תחתון', 'Lower back'), say('כתפיים', 'Shoulders'), say('מרפקים', 'Elbows'), say('פרקי ידיים', 'Wrists')];
 /* the equipment an older answer about the gym left: null for all of it */
 const EQ_OK = [null, ['db', 'bar', 'cable', 'bw'], null];
-/* a bar with one, two or three plates a side: the more there is on the bar, the longer one has trained */
-const platesIcon = (n) => {
-  const xs = [7.2, 4.2, 1.2], hs = n === 1 ? [10] : n === 2 ? [14, 10] : [17, 13, 9], r = (x, h) => '<rect x="' + x + '" y="' + (12 - h / 2) + '" width="2.4" height="' + h + '" rx="1.1"/>';
-  return '<svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><rect x=".4" y="11" width="23.2" height="2" rx="1"/>' + hs.map((h, i) => r(xs[i], h) + r(+(21.6 - xs[i]).toFixed(1), h)).join('') + '</svg>';
-};
-const OBI = {
-  bell: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 7.5v9M17.5 7.5v9M3.8 10v4M20.2 10v4M6.5 12h11"/></svg>',
-  gym: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17M5 20.5V9.2L12 4.6l7 4.6v11.3M9.2 20.5v-5.2h5.6v5.2"/></svg>',
-  park: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20.500V5.200M19 20.500V5.200M3.500 7.200h17M9.200 7.200v5.200M14.800 7.200v5.200M3.500 20.500h17"/></svg>',
-  home: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.200 12 4.600l8 6.600M6.200 9.800v9.700h11.600V9.800M10 19.500v-5h4v5"/></svg>',
-  crown: '<svg class="pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.500 8.200l4 3.600L12 5.400l4.500 6.400 4-3.600-1.600 10.200H5.100z"/></svg>',
-};
-/* the goals, each with a drawing of its own (by the goal's number): an arm, a dumbbell, a bolt, a flame, a heart, a running shoe */
-const gi = (d) => '<svg class="gi-s" viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>';
-const GOAL_IC = [
-  gi('<path d="M4 20h9.200c3.500 0 6.300-2.600 6.300-5.900 0-2.600-1.800-4.800-4.300-5.600-1.400-.5-2.900-.3-4.100.300L9.800 4.600c-.3-.9-1.200-1.400-2.100-1.100l-2 .6c-.9.3-1.400 1.200-1.100 2.100l1.600 4.600C5 12.800 4 15.800 4 20z"/><path d="M11.200 8.900c-1.500.9-2.300 2.300-2.300 3.900" fill="none" stroke="rgb(0 0 0 / .22)" stroke-width="1.400" stroke-linecap="round"/>'),
-  gi('<rect x="1.800" y="9.200" width="3" height="5.600" rx="1.200"/><rect x="5.400" y="6.400" width="3.800" height="11.200" rx="1.500"/><rect x="9.200" y="10.600" width="5.600" height="2.800" rx=".8"/><rect x="14.800" y="6.400" width="3.800" height="11.200" rx="1.500"/><rect x="19.200" y="9.200" width="3" height="5.600" rx="1.200"/>'),
-  gi('<path d="M13.800 2.400 5.400 13.500h5.400l-1.200 8.100 9-11.300h-5.700z"/>'),
-  gi('<path d="M12.300 2.300c.9 3.500-1.400 5.200-3.100 7.400-1.500 1.900-2.700 3.700-2.700 6a5.500 5.500 0 0 0 11 0c0-2-.8-3.500-1.900-4.900-.5 1.200-1.300 1.900-2.300 2.200.7-3.300 0-7.400-1-10.700z"/>'),
-  gi('<path d="M12 20.600s-7.600-4.600-7.600-10.300A4.300 4.300 0 0 1 12 7.600a4.300 4.300 0 0 1 7.600 2.700c0 5.700-7.600 10.300-7.600 10.300z"/>'),
-  gi('<path d="M2.800 17.300v-1.100c0-1.200.7-2.100 1.700-2.400l3.600-1.200 2.300-4.900c.3-.7 1.100-1 1.800-.7l.9.400 1 3.100 3.400 1.900c2.300.7 3.700 1.800 3.700 3.500v1.400c0 .6-.4 1-1 1H3.800c-.6 0-1-.400-1-1z"/><path d="M11.200 10.800l-1.400 1M12.600 12.600l-1.400 1" fill="none" stroke="rgb(0 0 0 / .25)" stroke-width="1.200" stroke-linecap="round"/>'),
-];
+/* the pictures of the answers are drawings of art.js (artIc), all in purple */
+const GOAL_IC = ['arm', 'bell', 'bolt', 'flame', 'heart', 'shoe'].map(artIc);
 /* the experience the character is drawn with: the answer being given, while the opening is open */
 const expNow = () => (OB.on && OB.exp != null ? OB.exp : S.cfg.me.exp);
 
@@ -218,7 +198,7 @@ function obHTML() {
       '<div class="ob-name"><input class="ob-in-name" id="obName" type="text" dir="auto" maxlength="16" autocomplete="given-name" enterkeyhint="next" aria-labelledby="obTitle" placeholder="' + say('השם שלך', 'Your name') + '" value="' + esc(OB.name) + '"></div>';
   } else if (st === 'exp') {
     body = ask(say('כמה ניסיון יש לך', 'How much experience do you have')) +
-      group(false, EXP().map((o, i) => card('exp', i, i < 3 ? platesIcon(i + 1) : OBI.crown, o[0], o[1], OB.exp === i)).join('')) +
+      group(false, EXP().map((o, i) => card('exp', i, artIc(i < 3 ? 'plates' + (i + 1) : 'crown'), o[0], o[1], OB.exp === i)).join('')) +
       '<div class="ob-pre" id="obPre" aria-hidden="true">' + avatar(1) + '</div>';
     can = OB.exp != null;
   } else if (st === 'goals') {
@@ -230,7 +210,7 @@ function obHTML() {
       numBox('obDays', OB.days || 3, say('ימים בשבוע', 'days a week'), say('יום פחות', 'One day less'), say('יום יותר', 'One day more'));
   } else if (st === 'place') {
     body = ask(say('איפה תתאמן', 'Where will you train')) +
-      group(false, WHERE().map((t, i) => card('place', i, [OBI.gym, OBI.park, OBI.bell, OBI.home][i], t, '', OB.place === i)).join(''));
+      group(false, WHERE().map((t, i) => card('place', i, artIc(['gym', 'park', 'homeBell', 'home'][i]), t, '', OB.place === i)).join(''));
     can = OB.place != null;
   } else if (st === 'quick') {
     const q = OB.q | 0;

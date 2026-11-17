@@ -116,7 +116,7 @@ const FLAME_SVG = '<svg class="flm" viewBox="0 0 120 140" aria-hidden="true">' +
   shine(16, 26, 1.1, '#FFF3B0') + shine(104, 22, 0.9, '#FFF3B0') + '</svg>';
 /* ---- the small pictures of the app, drawn like the things of the road, not as line icons (owner, 17 Nov):
    all in the purple of gymi, a dark outline, a lighter purple for the second part and a white detail. 48 by 48 ---- */
-const AI_P = '#6D3FE0', AI_L = '#9B7BF6', AI_X = '#CBB9FF', AI_D = '#3B1E96', AI_W = '#FFFFFF';
+const AI_P = '#8B63F7', AI_L = '#B7A0FF', AI_X = '#DED3FF', AI_D = '#6A45E0', AI_W = '#FFFFFF';
 const aiP = (d, c, w) => '<path d="' + d + '" fill="' + c + '" stroke="' + AI_D + '" stroke-width="' + (w || 2) + '"' + ART_OL + '/>';
 const aiR = (x, y, w, h, r, c) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + r + '" fill="' + c + '" stroke="' + AI_D + '" stroke-width="2"/>';
 const aiC = (x, y, r, c) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + c + '" stroke="' + AI_D + '" stroke-width="2"/>';
@@ -151,11 +151,11 @@ const AI = {
   lock: () => aiW('M15 22v-6a9 9 0 0 1 18 0v6', 5, AI_D) + aiW('M15 22v-6a9 9 0 0 1 18 0v6', 2, AI_L) + aiR(9, 21, 30, 22, 5, AI_P) + aiC(24, 30, 3.4, AI_W) + aiF('M22.5 31h3l1 6h-5z'),
   tour: () => aiC(24, 24, 18, AI_L) + aiC(24, 24, 13, AI_W) + aiP('M32 16l-5 11-11 5 5-11z', AI_P) + aiF('M22 24a2 2 0 1 0 4 0a2 2 0 1 0-4 0'),
   film: () => aiR(4, 8, 40, 28, 5, AI_P) + aiF('M20 15v14l11-7z') + aiR(16, 38, 16, 5, 2.5, AI_L),
-  del: () => '<path d="M11 15h26l-2 26c0 2-2 3-4 3H17c-2 0-4-1-4-3z" fill="#E5484D" stroke="#8F1D10" stroke-width="2"' + ART_OL + '/><rect x="7" y="10" width="34" height="6" rx="3" fill="#FF8A8D" stroke="#8F1D10" stroke-width="2"/><path d="M19 10V7c0-1 1-2 2-2h6c1 0 2 1 2 2v3" fill="none" stroke="#8F1D10" stroke-width="2.4"' + ART_OL + '/>' + aiW('M20 21v17M28 21v17'),
+  del: () => '<path d="M11 15h26l-2 26c0 2-2 3-4 3H17c-2 0-4-1-4-3z" fill="#F26B6F" stroke="#D2343A" stroke-width="2"' + ART_OL + '/><rect x="7" y="10" width="34" height="6" rx="3" fill="#FF8A8D" stroke="#D2343A" stroke-width="2"/><path d="M19 10V7c0-1 1-2 2-2h6c1 0 2 1 2 2v3" fill="none" stroke="#D2343A" stroke-width="2.4"' + ART_OL + '/>' + aiW('M20 21v17M28 21v17'),
   flag: () => aiR(8, 4, 5, 40, 2.5, AI_L) + aiP('M13 7h25l-6 9 6 9H13z', AI_P) + aiW('M17 11h14'),
   loop: () => aiW('M9 22A15 15 0 0 1 36 13', 5.4, AI_P) + aiP('M40 5v12H28z', AI_P) + aiW('M39 26A15 15 0 0 1 12 35', 5.4, AI_L) + aiP('M8 43V31h12z', AI_L),
   cup: () => aiW('M13 11H7c0 7 3 10 8 10M35 11h6c0 7-3 10-8 10', 3.4, AI_L) + aiP('M13 6h22v11a11 11 0 0 1-22 0z', AI_P) + aiR(21, 27, 6, 8, 1.5, AI_L) + aiR(13, 34, 22, 8, 2.5, AI_P) + aiW('M18 10v7'),
-  star: () => aiP(ART_STAR(24, 25, 20, 9), AI_P) + aiW('M18 16l-3 1'),
+  star: () => aiP(ART_STAR(24, 25, 20, 9), AI_P) + aiW('M22.5 13l-2.5 5'),
   gift: () => aiR(8, 20, 32, 23, 3, AI_P) + aiR(5, 13, 38, 9, 3, AI_L) + aiR(21, 13, 6, 30, 0, AI_X) + aiP('M24 13c-3-6-10-8-11-4s6 4 11 4zM24 13c3-6 10-8 11-4s-6 4-11 4z', AI_L),
   pen: () => aiP('M8 40l2-9L31 10a4.5 4.5 0 0 1 7 7L17 38z', AI_P) + aiP('M8 40l2-9 7 7z', AI_X) + aiW('M27 14l7 7', 2, AI_D) + aiW('M14 29l11-11'),
   gear: () => [0, 45, 90, 135, 180, 225, 270, 315].map((a) => '<rect x="20.5" y="3" width="7" height="10" rx="2" fill="' + AI_P + '" stroke="' + AI_D + '" stroke-width="2" transform="rotate(' + a + ' 24 24)"/>').join('') + '<circle cx="24" cy="24" r="14" fill="' + AI_P + '"/>' + aiC(24, 24, 6, AI_W),

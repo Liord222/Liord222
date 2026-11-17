@@ -2692,3 +2692,8 @@ svg.ai{display:block;fill:none;stroke:none;overflow:visible}
 .ob-opts.g2 .ob-opt[aria-checked="true"] .ob-ic.gi{box-shadow:inset 0 0 0 2px var(--accent)}
 .pf-ic{background:#fff;box-shadow:0 4px 10px -4px rgb(20 6 70 / .5)}
 .pf-ic svg.ai{width:62%;height:62%}
+/* lighter (owner, 17 Nov): the tiles a soft lilac with a little lip under them, like the buttons of the game */
+:root{--ai-bg:#F1ECFF;--ai-lip:#E0D5FF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ai-bg:#352C5E;--ai-lip:#271F4A}}
+:root[data-theme="dark"]{--ai-bg:#352C5E;--ai-lip:#271F4A}
+.ob-opt .ob-ic,.ob-opt .ob-ic.gi,.ob-opts.g2 .ob-ic.gi,.st-i,.st-i.gold,.st-i.calm,.st-i.grey,.sug-i,.sugs.chips .sug-i{box-shadow:inset 0 -3px 0 var(--ai-lip)}

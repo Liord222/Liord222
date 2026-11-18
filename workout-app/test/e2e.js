@@ -88,7 +88,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
 (async () => {
   const scheme = process.argv[2] || 'light', b = await chromium.launch(), A = await device(b, scheme), p = A.p; ERR.push(A.errs);
   const check = (name, cond, info) => (cond ? ok : bad).push(name + (cond ? '' : ' -> ' + JSON.stringify(info)));
-  const T = (pg) => (sel) => pg.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
+  const T = (pg) => (sel) => pg.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' ').replace(/\u00A0/g, ' '), sel);
   const txt = T(p), shot = (n, pg) => snap(pg || p, n);
   /* the stop on the week's path that is next or running: its spoken label carries the full workout name and its state */
   const cur = (pg) => pg.getAttribute('.tab[aria-current="true"]', 'aria-label');
@@ -296,7 +296,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   check('first question: the name, ready for typing, asked by Eilon, all of him', (await txt('#obTitle')) === 'איך קוראים לך' && !(await p.$('#ob .ob-hint')) && (await p.evaluate(() => document.activeElement.id)) === 'obName' && !!(await p.$('#ob .ob-q.big .ob-eilon svg.av:not(.bust)')) && (await fits()), await txt('#ob'));
   await seeOb('name');
   await p.fill('#obName', 'ליאור'); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
-  check('experience has to be chosen before going on: four levels, from a beginner to a veteran, each with a bar that carries more plates and a crown for the last', (await txt('#obTitle')) === 'כמה ניסיון יש לך' && (await p.isDisabled('#obNext')) && (await p.evaluate(() => [...document.querySelectorAll('.ob-opt b')].map((x) => x.textContent).join('|'))) === 'מתחיל|קבוע|מנוסה|ותיק' && (await p.evaluate(() => [...document.querySelectorAll('.ob-opt .ob-ic svg.pl')].map((x) => x.querySelectorAll('rect').length).join())) === '3,5,7,0', await txt('#ob'));
+  check('experience has to be chosen before going on: four levels, from a beginner to a veteran, each drawn as a bar that carries more plates and a crown for the last', (await txt('#obTitle')) === 'כמה ניסיון יש לך' && (await p.isDisabled('#obNext')) && (await p.evaluate(() => [...document.querySelectorAll('.ob-opt b')].map((x) => x.textContent).join('|'))) === 'מתחיל|קבוע|מנוסה|ותיק' && (await p.evaluate(() => [...document.querySelectorAll('.ob-opt .ob-ic svg.ai')].map((x) => x.querySelectorAll('rect').length).join())) === '3,5,7,1', await txt('#ob'));
   await seeOb('experience');
   await p.evaluate(() => { window.__q = document.querySelector('.ob-q'); window.__b0 = document.querySelector('#obPre').innerHTML; });
   await p.click('.ob-opt[data-v="2"]'); await p.waitForTimeout(200);
@@ -310,7 +310,7 @@ const skip = async (pg) => { await pg.waitForTimeout(400); await pg.click('#rtSk
   await p.click('.ob-opt[data-v="0"]'); await p.click('.ob-opt[data-v="1"]'); await p.waitForTimeout(100);
   const g2 = await p.evaluate(() => [...document.querySelectorAll('.ob-opt')].map((x) => x.getAttribute('aria-checked')).join());
   await p.click('.ob-opt[data-v="1"]'); await p.waitForTimeout(100);
-  check('what matters: six goals in the order that was asked for, each with a drawing on a colour of its own, with no limit on how many, no line under any of them, and one is needed', g0.title === 'מה חשוב לך' && g0.off && g0.names === 'חיטוב|כוח|כושר וסיבולת|מסה|בריאות|ריצות' && g2 === 'false,true,false,true,false,false' && (await p.evaluate(() => [...document.querySelectorAll('.ob-opt .ob-ic.gi')].map((x) => getComputedStyle(x).backgroundColor).filter((c, i, a) => a.indexOf(c) === i).length)) === 6 && !(await p.$('.ob-opt[role="checkbox"] small')) && !(await p.$('#ob .ob-hint')) && (await p.evaluate(() => OB.goals.join() + ':' + document.querySelector('#obNext').disabled)) === '0:false' && (await fits()), [g0, g2]);
+  check('what matters: six goals in the order that was asked for, each with a drawing in the one purple of the app, with no limit on how many, no line under any of them, and one is needed', g0.title === 'מה חשוב לך' && g0.off && g0.names === 'חיטוב|כוח|כושר וסיבולת|מסה|בריאות|ריצות' && g2 === 'false,true,false,true,false,false' && (await p.evaluate(() => document.querySelectorAll('.ob-opt .ob-ic.gi svg.ai').length)) === 6 && !(await p.$('.ob-opt[role="checkbox"] small')) && !(await p.$('#ob .ob-hint')) && (await p.evaluate(() => OB.goals.join() + ':' + document.querySelector('#obNext').disabled)) === '0:false' && (await fits()), [g0, g2]);
   await seeOb('goals');
   await p.click('#obNext'); await p.waitForTimeout(400);
   const obD0 = await p.evaluate(() => { const b = document.querySelector('.ob-nbox').getBoundingClientRect(); return { title: document.querySelector('#obTitle').textContent, v: document.querySelector('#obDays').value, big: b.width >= 150 && b.height >= 120, steps: document.querySelectorAll('.ob-num .ob-st').length, row: document.querySelectorAll('.ob-time').length, hint: !!document.querySelector('#ob .ob-hint'), on: !document.querySelector('#obNext').disabled }; });

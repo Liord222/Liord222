@@ -104,7 +104,7 @@ const adv = async (pg) => { if (await pg.$('#msAdv[aria-expanded="false"]')) { a
   });
   await p.context().close();
   p = await open(b, store);
-  const txt = (sel) => p.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' '), sel);
+  const txt = (sel) => p.evaluate((s) => (document.querySelector(s) || { innerText: '' }).innerText.replace(/\n/g, ' ').replace(/\u00A0/g, ' '), sel);
   const clean = async (where) => { const h = await hebOn(p); check('nothing Hebrew is left: ' + where, h.length === 0, h.slice(0, 6)); };
   const tab = async (v) => { await p.click('#tabbar [data-view="' + v + '"]'); await p.waitForTimeout(250); };
 

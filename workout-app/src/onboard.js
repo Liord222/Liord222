@@ -245,7 +245,7 @@ function obHTML() {
     body = ask(say('התוכנית שלך', 'Your plan')) +
       '<section class="ob-plan2' + (OB.reveal ? ' reveal' : '') + '" aria-label="' + say('התוכנית שלך', 'Your plan') + '">' +
       '<ul class="pl-stats">' + stat(wk.length, wk.length === 1 ? say('אימון בשבוע', 'workout a week') : say('אימונים בשבוע', 'workouts a week')) + stat(pv.mins, say('דקות לאימון', 'minutes each')) + stat(pv.ex, say('תרגילים באימון', 'exercises each')) + '</ul>' +
-      '<ol class="ob-wks2">' + wk.map((w, k) => '<li style="--i:' + k + '"><i aria-hidden="true">' + (k + 1) + '</i><span><b>' + say('אימון ', 'Workout ') + (k + 1) + '</b><small>' + wkMus(w) + '</small></span><em><span><b>' + fullMins(lists[k]) + '</b>' + say(' דק׳', ' min') + '</span><small>' + cnt(lists[k].length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + '</small></em></li>').join('') + '</ol>' +
+      '<ol class="ob-wks2">' + wk.map((w, k) => '<li style="--i:' + k + '"><i aria-hidden="true">' + (k + 1) + '</i><span><b>' + say('אימון ', 'Workout ') + (k + 1) + '</b><small>' + wkMus(w) + '</small></span><em><span><b>' + fullMins(lists[k]) + '</b>' + say('\u00A0דק׳', '\u00A0min') + '</span><small>' + cnt(lists[k].length, 'תרגילים', 'תרגיל אחד', 'exercises', 'exercise') + '</small></em></li>').join('') + '</ol>' +
       '<p class="ob-wk-tip">' + glyph('pen') + '<span>' + say('אפשר לתת לכל אימון שם משלך אחר כך', 'You can give each workout a name of your own later') + '</span></p></section>';
   } else {
     const old = meNow().T.wk > 0, cap = (a, b) => '<figcaption>' + a + '<b>' + b + '</b></figcaption>';

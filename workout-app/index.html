@@ -2706,13 +2706,17 @@ svg.ai{display:block;fill:none;stroke:none;overflow:visible}
 /* the way back from the screen of a new exercise stands clear of the pieces floating behind it */
 .xi.xs .xi-back{background:#5B30D2;box-shadow:0 4px 12px -4px rgb(20 6 70 / .6)}
 @media (max-width:359px){.ex-row .mus-chips{gap:3px}.ex-row .mus-chips span{padding:2px 6px;font-size:11.5px}}
+
+/* the home, quieter: no circles on the card, the count of points beside the rank */
+.card.next::before,.card.next::after{content:none}
+.p-pts{margin-inline-start:auto;font-size:13px;font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.wk-meter{justify-content:flex-start}
 </style>
 <div class="app" id="app" dir="rtl" lang="he" data-view="home">
   <header class="wrap brand">
     <button class="back" id="backBtn" type="button" aria-label="חזרה למסך הראשי"><svg class="i dir" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     <div class="logo" role="img" aria-label="gymi by Lior Dahan">
       <span class="logo-w" aria-hidden="true">gym<span class="logo-i">i</span></span>
-      <small aria-hidden="true">by Lior Dahan</small>
     </div>
     <div class="wk-title" id="wkTitle"></div>
     <span class="sync" id="syncNote"></span>
@@ -6578,7 +6582,7 @@ function weekHTML(Wm, easy) {
   const n = Wm.items.length;
   return '<section class="week' + (easy ? ' easy' : '') + '" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="week-h"><h2>' + (easy ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2>' +
     '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית שלי', 'My plan') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div>' +
-    '<p class="wk-meter" role="img" aria-label="' + Wm.dn + say(' מתוך ', ' of ') + n + say(' אימונים הושלמו', ' workouts done') + '"><span class="wk-segs">' + Wm.items.map((x) => '<i class="' + x.st + '"></i>').join('') + '</span><b>' + Wm.dn + say(' מתוך ', ' of ') + n + '</b></p>' +
+    '<p class="wk-meter" role="img" aria-label="' + Wm.dn + say(' מתוך ', ' of ') + n + say(' אימונים הושלמו', ' workouts done') + '"><b>' + Wm.dn + say(' מתוך ', ' of ') + n + '</b></p>' +
     '<ol class="wk-list" id="tabs">' + Wm.items.map(row).join('') + '</ol>' +
     '<p class="wk-coach"><span class="ava" aria-hidden="true">' + coachFace() + '</span><span><b>' + say('אילון', 'Eilon') + '</b>' + coachSays(Wm, easy) + '</span></p></section>';
 }
@@ -8083,7 +8087,7 @@ function renderMe() {
 function playerHTML(P) {
   const me = S.cfg.me;
   return '<button class="player" id="playerBtn" type="button" aria-label="' + say('הפרופיל שלי: רמה ', 'My profile: level ') + P.L.lvl + ', ' + nm(P.rank) + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
-    '<span class="p-txt"><b>' + (me.name ? say('היי ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi>' : say('היי', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
+    '<span class="p-txt">' + (me.name ? '<b>' + say('היי ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi></b>' : '') + '<span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '<span class="p-pts">' + nf(P.L.into) + say(' מתוך ', ' of ') + nf(P.L.need) + '</span></span>' + xpBar(pctOf(P.L)) + '</span>' +
     (P.X.days ? '<span class="p-streak" title="' + say('ימים ברצף', 'Days in a row') + '">' + flameSVG() + '<b>' + P.X.days + '</b></span>' : '') + '</button>';
 }
 /* a coin of the kiosk */

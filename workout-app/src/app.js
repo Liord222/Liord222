@@ -115,7 +115,7 @@ function weekHTML(Wm, easy) {
   const n = Wm.items.length;
   return '<section class="week' + (easy ? ' easy' : '') + '" aria-label="' + say('האימונים של השבוע', 'This week\'s workouts') + '"><div class="week-h"><h2>' + (easy ? say('שבוע קל', 'Easy week') : say('השבוע', 'This week')) + '</h2>' +
     '<button class="go-link" id="planBtn" type="button" aria-label="' + say('התוכנית שלי', 'My plan') + '">' + say('התוכנית', 'Plan') + ICON.fwd + '</button></div>' +
-    '<p class="wk-meter" role="img" aria-label="' + Wm.dn + say(' מתוך ', ' of ') + n + say(' אימונים הושלמו', ' workouts done') + '"><span class="wk-segs">' + Wm.items.map((x) => '<i class="' + x.st + '"></i>').join('') + '</span><b>' + Wm.dn + say(' מתוך ', ' of ') + n + '</b></p>' +
+    '<p class="wk-meter" role="img" aria-label="' + Wm.dn + say(' מתוך ', ' of ') + n + say(' אימונים הושלמו', ' workouts done') + '"><b>' + Wm.dn + say(' מתוך ', ' of ') + n + '</b></p>' +
     '<ol class="wk-list" id="tabs">' + Wm.items.map(row).join('') + '</ol>' +
     '<p class="wk-coach"><span class="ava" aria-hidden="true">' + coachFace() + '</span><span><b>' + say('אילון', 'Eilon') + '</b>' + coachSays(Wm, easy) + '</span></p></section>';
 }

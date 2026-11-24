@@ -34,7 +34,7 @@ function renderMe() {
 function playerHTML(P) {
   const me = S.cfg.me;
   return '<button class="player" id="playerBtn" type="button" aria-label="' + say('הפרופיל שלי: רמה ', 'My profile: level ') + P.L.lvl + ', ' + nm(P.rank) + '"><span class="p-ava r' + P.rank.i + '">' + avatar(P.L.lvl, { bust: true }) + '</span>' +
-    '<span class="p-txt"><b>' + (me.name ? say('היי ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi>' : say('היי', 'Hi!')) + '</b><span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '</span>' + xpBar(pctOf(P.L)) + '</span>' +
+    '<span class="p-txt">' + (me.name ? '<b>' + say('היי ', 'Hi, ') + '<bdi>' + esc(me.name) + '</bdi></b>' : '') + '<span class="p-rank"><span class="lv-badge">' + say('רמה ', 'Level ') + P.L.lvl + '</span>' + nm(P.rank) + '<span class="p-pts">' + nf(P.L.into) + say(' מתוך ', ' of ') + nf(P.L.need) + '</span></span>' + xpBar(pctOf(P.L)) + '</span>' +
     (P.X.days ? '<span class="p-streak" title="' + say('ימים ברצף', 'Days in a row') + '">' + flameSVG() + '<b>' + P.X.days + '</b></span>' : '') + '</button>';
 }
 /* a coin of the kiosk */
